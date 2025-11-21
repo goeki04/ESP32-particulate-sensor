@@ -15,14 +15,20 @@ void SystemManager::startSubsystems() {
 	}
 }
 
-void SystemManager::destroy() {
+void SystemManager::updateEvent(SDL_Event* event) {
 	for (auto& v : m_subsystems) {
-		v->destroy();
+		v->updateEvent(event);
 	}
 }
 
 void SystemManager::updateSubsystems() {
 	for (auto& v : m_subsystems) {
 		v->update();
+	}
+}
+
+void SystemManager::destroy() {
+	for (auto& v : m_subsystems) {
+		v->destroy();
 	}
 }

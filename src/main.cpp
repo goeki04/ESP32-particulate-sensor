@@ -11,6 +11,7 @@ SDL_AppResult SDL_Init() {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
+    return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -27,6 +28,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     if (event->type == SDL_EVENT_QUIT) {
         return SDL_APP_SUCCESS; 
     }
+    SystemManager::getInstance().updateEvent(event);
     return SDL_APP_CONTINUE;
 }
 

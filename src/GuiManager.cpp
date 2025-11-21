@@ -12,7 +12,7 @@ void GuiManager::start(){
     ImGuiStyle& style = ImGui::GetStyle();
     float mainScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     style.ScaleAllSizes(mainScale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
-    style.FontScaleDpi = mainScale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
+    style.FontScaleDpi = mainScale;
 
     // Setup Platform/Renderer backends
     ImGui_ImplSDL3_InitForSDLRenderer(m_WindowManager->m_Window, m_WindowManager->m_Renderer);
@@ -21,6 +21,11 @@ void GuiManager::start(){
 
 void GuiManager::update(){
 
+}
+
+void GuiManager::updateEvent(SDL_Event* event)
+{
+    ImGui_ImplSDL3_ProcessEvent(event);
 }
 
 void GuiManager::destroy(){

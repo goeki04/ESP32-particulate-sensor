@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
 #include "ISubsystem.h"
-
 /// <summary>
 /// Singleton that handles subsystem management
 /// </summary>
+union SDL_Event;
 class SystemManager {
 public:
 	std::vector<ISubsystem*> m_subsystems;
@@ -22,6 +22,7 @@ public:
 	}
 	void startSubsystems();
 	void updateSubsystems();
+	void updateEvent(SDL_Event* event);
 	void destroy();
 private:
 	SystemManager() {};
