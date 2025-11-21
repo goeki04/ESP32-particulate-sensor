@@ -4,7 +4,7 @@
 SDL_Window* WindowManager::m_Window = NULL;
 SDL_Renderer* WindowManager::m_Renderer = NULL;
 void WindowManager::start() {
-    if (!SDL_CreateWindowAndRenderer("examples/renderer/clear", 640, 480, SDL_WINDOW_RESIZABLE, &m_Window, &m_Renderer)) {
+    if (!SDL_CreateWindowAndRenderer("ESP32", 640, 480, SDL_WINDOW_RESIZABLE, &m_Window, &m_Renderer)) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         
     }
