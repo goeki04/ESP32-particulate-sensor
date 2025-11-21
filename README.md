@@ -28,3 +28,6 @@ To build and run this project, you will need:
    conan profile new default --detect
    conan profile update settings.compiler.cppstd=20 default
 4. Run the build.ps1 script
+5. Open the .sln file in the cmake directory
+6. In MSV right-click the ESP32 Project in the solution explorer and set "Set as startup Project"
+7. Run the program
