@@ -4,7 +4,7 @@ This project uses an ESP32 paired with a particulate matter (PM) sensor to measu
 
 ## Features
 
-- Real-time measurement of PM2.5 and PM10
+- Real-time measurement of PM1, PM2.5 and PM10
 - Display measurements on a connected screen or via serial output
 - Easy integration with ESP32 projects
 - Cross-platform build using CMake and Conan
