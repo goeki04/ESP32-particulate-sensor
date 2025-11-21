@@ -27,3 +27,4 @@ To build and run this project, you will need:
    pip install conan
    conan profile new default --detect
    conan profile update settings.compiler.cppstd=20 default
+4. Run the build.ps1 script
