@@ -2,7 +2,10 @@
 
 class Renderer {
 public:
-	SDL_Renderer* m_SDLRenderer = NULL;
+	
 	void draw();
-	virtual void RenderImGui() {};
+protected:
+	virtual void ImGuiRenderer() {
+		std::cout << "Hello there" << std::endl;
+	};
 };

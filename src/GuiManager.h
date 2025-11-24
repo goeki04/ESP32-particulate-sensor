@@ -1,13 +1,10 @@
 #pragma once
-#include "ISubsystem.h"
-#include "WindowManager.h"
-#include "SubsystemManager.h"
-class GuiManager : public ISubsystem{
+class GuiManager{
     public:
-    void start() override;
-    void update() override;
-    void updateEvent(SDL_Event* event) override;
-    void destroy() override;
-    private:
-        WindowManager* m_WindowManager = NULL;
+    bool showDemoWindow = true;
+    bool showAnotherWindow = false;
+    ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    void init(SDL_Window* window, SDL_Renderer* renderer);
+    void draw();
+    void destroy();
 };
