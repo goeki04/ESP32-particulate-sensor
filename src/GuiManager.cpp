@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "SubsystemManager.h"
 void GuiManager::start(){
-    
+    m_WindowManager = SystemManager::getInstance().getSubsystem<WindowManager>();
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -15,8 +15,8 @@ void GuiManager::start(){
     style.FontScaleDpi = mainScale;
 
     // Setup Platform/Renderer backends
-    ImGui_ImplSDL3_InitForSDLRenderer(m_WindowManager->m_Window, m_WindowManager->m_Renderer);
-    ImGui_ImplSDLRenderer3_Init(m_WindowManager->m_Renderer);
+    ImGui_ImplSDL3_InitForSDLRenderer(m_WindowManager->getWindow(), m_WindowManager->getRenderer());
+    ImGui_ImplSDLRenderer3_Init(m_WindowManager->getRenderer());
 }
 
 void GuiManager::update(){

@@ -9,5 +9,5 @@ class GuiManager : public ISubsystem{
     void updateEvent(SDL_Event* event) override;
     void destroy() override;
     private:
-    WindowManager* m_WindowManager = SystemManager::getInstance().getSubsystem<WindowManager>();
+        WindowManager* m_WindowManager = NULL;
 };

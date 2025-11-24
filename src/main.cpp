@@ -41,7 +41,4 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
     SystemManager::getInstance().destroy();
-    SDL_DestroyRenderer(windowManager.m_Renderer);
-    SDL_DestroyWindow(windowManager.m_Window);
-    SDL_Quit();
 }

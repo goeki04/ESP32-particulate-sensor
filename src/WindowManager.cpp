@@ -1,22 +1,30 @@
 #include "WindowManager.h"
 #include "pch.h"
-
-SDL_Window* WindowManager::m_Window = NULL;
-SDL_Renderer* WindowManager::m_Renderer = NULL;
 void WindowManager::start() {
-    if (!SDL_CreateWindowAndRenderer("ESP32", 640, 480, SDL_WINDOW_RESIZABLE, &m_Window, &m_Renderer)) {
+    if (!SDL_CreateWindowAndRenderer("ESP32", 640, 480, SDL_WINDOW_RESIZABLE, &m_Window, &m_Renderer.m_SDLRenderer)) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
-        
     }
-    SDL_SetRenderLogicalPresentation(m_Renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    std::cout <<m_Renderer.m_SDLRenderer;
+
+    SDL_SetRenderLogicalPresentation(m_Renderer.m_SDLRenderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 }
 
 void WindowManager::update() {
-    SDL_SetRenderDrawColorFloat(m_Renderer, 1.0, 1.0, 1.0, SDL_ALPHA_OPAQUE_FLOAT);
-    SDL_RenderClear(m_Renderer);
-    SDL_RenderPresent(m_Renderer);
+    m_Renderer.draw();
 }
 
 void WindowManager::destroy() {
+    SDL_DestroyRenderer(m_Renderer.m_SDLRenderer);
+    SDL_DestroyWindow(m_Window);
+    SDL_Quit();
+}
 
+SDL_Renderer* WindowManager::getRenderer()
+{
+    return m_Renderer.m_SDLRenderer;
+}
+
+SDL_Window* WindowManager::getWindow()
+{
+    return m_Window;
 }
