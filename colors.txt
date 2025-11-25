@@ -1,0 +1,8 @@
+https://flatuicolors.com/palette/es
+
+Lucky Point: rgb(0.172, 0.172, 0.329)
+Jacksons Purple: rgb(0.251, 0.251, 0.478)
+C64 Purple: rgb(0.439, 0.435, 0.827)
+Liberty: rgb(0.278, 0.278, 0.529)
+Summer Sky: rgb(0.204, 0.675, 0.878)
+Celestial Green: rgb(0.200, 0.851, 0.698)
