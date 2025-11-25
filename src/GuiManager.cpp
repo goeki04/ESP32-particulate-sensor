@@ -12,7 +12,6 @@ void GuiManager::init(SDL_Window* window, SDL_Renderer* renderer){
     SDL_GetWindowSizeInPixels(window,&m_WindowWidth,&m_WindowHeight);
     m_WidgetWidth = m_WindowWidth * 0.125;
     m_MarginDefault = m_WindowHeight * 0.0225;
-
 }
 
 void GuiManager::draw() {

@@ -6,6 +6,7 @@ public:
 	void start() override;
 	void update() override;
 	void destroy() override;
+	SDL_Surface* LoadPNG(const char* path);
 	void updateEvent(SDL_Event* event) override;
 private:
 	SDL_Window* m_Window = NULL;
