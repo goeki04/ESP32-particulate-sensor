@@ -1,16 +1,20 @@
 #include "WindowManager.h"
 #include "pch.h"
 void WindowManager::start() {
-    if (!SDL_CreateWindowAndRenderer("ESP32", 1920, 1080, NULL, &m_Window, &m_SDLRenderer)) {
+    int16_t windowFlags = 0;
+    windowFlags |= SDL_WINDOW_MAXIMIZED;
+    windowFlags |= SDL_WINDOW_RESIZABLE;
+    if (!SDL_CreateWindowAndRenderer("ESP32", NULL, NULL, windowFlags, &m_Window, &m_SDLRenderer)) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     }
     m_GuiManager.init(m_Window,m_SDLRenderer);
+    SDL_SetWindowMinimumSize(m_Window,800,600);
 }
 
 void WindowManager::update() {
+    ImGuiIO& io = ImGui::GetIO();(void)io;
     m_GuiManager.draw();
     ImGui::Render();
-    ImGuiIO& io = ImGui::GetIO();(void)io;
     SDL_SetRenderScale(m_SDLRenderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
     SDL_SetRenderDrawColorFloat(m_SDLRenderer, 0.5f, 0.5f, 0.5f, 1.0f);
     SDL_RenderClear(m_SDLRenderer);
