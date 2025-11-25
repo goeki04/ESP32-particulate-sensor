@@ -21,8 +21,10 @@ enum Alignment {
     TopLeft,
     TopRight,
     Center,
+    CenterBottom,
+    CenterTop,
     BottomLeft,
-    BottomRight
+    BottomRight,
 };
 
 class GuiManager{
@@ -35,11 +37,14 @@ private:
     void drawNotification();
     void drawInformation();
     void drawChart();
+    void drawMeasurementDisplay();
+    void setFlags();
+    void setStyle();
     ImVec2 getNewWindowPos(Margin margin, ImVec2 windowPos, ImVec2 windowSize, Alignment alignment);
     int m_WindowWidth;
     int m_WindowHeight;
     float m_MenuBarHeight;
     float m_WidgetWidth;
-    Margin m_MarginLayout;
+    float m_MarginDefault;
     ImGuiWindowFlags m_WindowFlags = 0;
 };
