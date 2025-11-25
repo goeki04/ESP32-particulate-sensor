@@ -9,5 +9,6 @@ class CmakeTest(ConanFile):
         self.requires("sdl/3.2.20")
         self.requires("stb/cci.20240531")
         self.requires("imgui/1.92.4")
+        self.requires("glew/2.2.0")
     def layout(self):
         cmake_layout(self)

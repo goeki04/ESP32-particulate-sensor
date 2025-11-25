@@ -1,11 +1,6 @@
 #pragma once
-
-class Renderer {
-public:
-	
-	void draw();
-protected:
-	virtual void ImGuiRenderer() {
-		std::cout << "Hello there" << std::endl;
-	};
+#include "ISubsystem.h"
+class Renderer : public ISubsystem{
+	void start() override;
+	void update() override;
 };
