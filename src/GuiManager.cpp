@@ -16,6 +16,8 @@ void GuiManager::init(SDL_Window* window, SDL_Renderer* renderer){
     ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer3_Init(renderer);
     SDL_GetWindowSizeInPixels(window,&m_WindowWidth,&m_WindowHeight);
+    m_WidgetWidth = m_WindowWidth * 0.125;
+    m_MarginLayout = Margin(m_WindowHeight * 0.0525);
     m_WindowFlags |= ImGuiWindowFlags_NoCollapse;
     m_WindowFlags |= ImGuiWindowFlags_NoResize;
 }
@@ -28,7 +30,8 @@ void GuiManager::draw() {
     ImGui::NewFrame();
     drawNavBar();
     drawNotification();
-    //drawInformation();
+    drawInformation();
+    drawChart();
 }
 
 void GuiManager::destroy(){
@@ -75,12 +78,13 @@ void GuiManager::drawNavBar()
 
 void GuiManager::drawNotification()
 {
-    //Place top right
-    ImVec2 widgetDimensions = ImVec2(m_WindowWidth * 0.125f, m_WindowHeight - m_MenuBarHeight);
-    int windowPosX = m_WindowWidth - widgetDimensions.x;
+    int windowPosX = m_WindowWidth - m_WidgetWidth;
+    
+    ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight - m_MenuBarHeight);
+    ImVec2 newPos = getNewWindowPos(Margin(0.0f, 0.0, 0.0, 0.0), ImVec2(0, 0), windowSize,Alignment::TopRight);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.172f, 0.172f, 0.329f,1.0f)); // RGBA
-    ImGui::SetNextWindowPos(ImVec2(windowPosX,m_MenuBarHeight));
-    ImGui::SetNextWindowSize(widgetDimensions);
+    ImGui::SetNextWindowPos(newPos);
+    ImGui::SetNextWindowSize(windowSize);
     ImGui::Begin("Notifications", 0, m_WindowFlags);
     ImGui::End();
     ImGui::PopStyleColor();
@@ -89,10 +93,82 @@ void GuiManager::drawNotification()
 void GuiManager::drawInformation()
 {
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.172f, 0.172f, 0.329f, 1.0f));
-    ImGui::SetNextWindowPos(ImVec2(0,0));
-    ImGui::SetNextWindowSize(ImVec2(m_WindowWidth * 0.125f, m_WindowHeight * 0.5f));
+    ImGui::SetNextWindowPos(ImVec2(0,m_MenuBarHeight));
+    ImGui::SetNextWindowSize(ImVec2(m_WidgetWidth, m_WindowHeight * 0.45f));
     ImGui::Begin("Information", 0, m_WindowFlags);
     ImGui::End();
     ImGui::PopStyleColor();
+}
+
+
+void GuiManager::drawChart() {
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.172f, 0.172f, 0.329f, 1.0f));
+    ImGui::SetNextWindowPos(ImVec2(m_WindowWidth*0.5f, m_MenuBarHeight));
+    ImGui::SetNextWindowSize(ImVec2(m_WidgetWidth, m_WindowHeight * 0.35f));
+    ImGui::Begin("Chart", 0, m_WindowFlags);
+    ImGui::End();
+    ImGui::PopStyleColor();
+}
+
+ImVec2 GuiManager::getNewWindowPos(Margin margin, ImVec2 windowPos, ImVec2 windowSize, Alignment alignment)
+{
+    float containerHeight = m_WindowHeight - m_MenuBarHeight;
+    float containerWidth = m_WindowWidth;
+    ImVec2 newPos = windowPos;
+
+    if (windowSize.x <= 0 || windowSize.y <= 0)
+    {
+        windowSize.x = 100;
+        windowSize.y = 100;
+        printf("Warning: Invalid window size. Reset to 100x100.\n");
+    }
+
+    if (margin.left < 0) margin.left = 0;
+    if (margin.top < 0) margin.top = 0;
+    if (margin.right < 0) margin.right = 0;
+    if (margin.bottom < 0) margin.bottom = 0;
+
+    switch (alignment)
+    {
+    case Alignment::TopLeft:
+    case Alignment::BottomLeft:
+        newPos.x = windowPos.x + margin.left;
+        break;
+
+    case Alignment::TopRight:
+    case Alignment::BottomRight:
+        newPos.x = containerWidth - windowSize.x - margin.right;
+        break;
+
+    case Alignment::Center:
+        if (margin.left != 0 && margin.right != 0)
+            newPos.x = (containerWidth - windowSize.x + margin.left - margin.right) / 2.0f;
+        else
+            newPos.x = (containerWidth - windowSize.x) / 2.0f;
+        break;
+    }
+    switch (alignment)
+    {
+    case Alignment::TopLeft:
+    case Alignment::TopRight:
+        newPos.y = windowPos.y + margin.top + m_MenuBarHeight;
+        break;
+
+    case Alignment::BottomLeft:
+    case Alignment::BottomRight:
+        newPos.y = containerHeight - windowSize.y - margin.bottom + m_MenuBarHeight;
+        break;
+
+    case Alignment::Center:
+        if (margin.top != 0 && margin.bottom != 0)
+            newPos.y = m_MenuBarHeight + (containerHeight - windowSize.y + margin.top - margin.bottom) / 2.0f;
+        else
+            newPos.y = m_MenuBarHeight + (containerHeight - windowSize.y) / 2.0f;
+        break;
+    }
+    newPos.x = std::clamp(newPos.x, 0.0f, containerWidth - windowSize.x);
+    newPos.y = std::clamp(newPos.y, m_MenuBarHeight, containerHeight + m_MenuBarHeight - windowSize.y);
+
+    return newPos;
 }
 
