@@ -7,8 +7,8 @@ void GuiManager::init(SDL_Window* window, SDL_Renderer* renderer){
     ImGui::StyleColorsDark();
     setFlags();
     setStyle();
-    ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
-    ImGui_ImplSDLRenderer3_Init(renderer);
+    //ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+    //ImGui_ImplSDLRenderer3_Init(renderer);
     SDL_GetWindowSizeInPixels(window,&m_WindowWidth,&m_WindowHeight);
     m_WidgetWidth = m_WindowWidth * 0.125;
     m_MarginDefault = m_WindowHeight * 0.0225;
@@ -17,7 +17,7 @@ void GuiManager::init(SDL_Window* window, SDL_Renderer* renderer){
 void GuiManager::draw() {
     ImGuiIO& io = ImGui::GetIO();(void)io;
     // Start the Dear ImGui frame
-    ImGui_ImplSDLRenderer3_NewFrame();
+    //ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
     drawNavBar();
@@ -196,7 +196,7 @@ void GuiManager::setStyle() {
 }
 
 void GuiManager::destroy() {
-    ImGui_ImplSDLRenderer3_Shutdown();
+    //ImGui_ImplSDLRenderer3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
 }

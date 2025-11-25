@@ -4,32 +4,35 @@
 #include "stb_image.h"
 void WindowManager::start() {
     int16_t windowFlags = 0;
-    SDL_Surface* surface = LoadPNG("../assets/logo.png");
+    SDL_Surface* surface = CreateSDLSurface("../assets/logo.png");
     
     windowFlags |= SDL_WINDOW_MAXIMIZED;
     windowFlags |= SDL_WINDOW_RESIZABLE;
-    if (!SDL_CreateWindowAndRenderer("ESP32", NULL, NULL, windowFlags, &m_Window, &m_SDLRenderer)) {
-        SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    m_Window = SDL_CreateWindow("ESP32", NULL, NULL, windowFlags | SDL_WINDOW_OPENGL);
+    if (!m_Window) {
+        throw std::exception("Failed to call SDL_CreateWindow!");
+    }
+    SDL_GLContext glContext = SDL_GL_CreateContext(m_Window);
+    if (!glContext) {
+        throw std::exception("Failed to create SDL_GL context!");
+    }
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        throw std::exception("Failed to call glewInit!");
     }
     SDL_SetWindowIcon(m_Window, surface);
-    m_GuiManager.init(m_Window,m_SDLRenderer);
+    //m_GuiManager.init(m_Window,m_SDLRenderer);
     SDL_SetWindowMinimumSize(m_Window,800,600);
 }
 
 void WindowManager::update() {
-    ImGuiIO& io = ImGui::GetIO();(void)io;
-    m_GuiManager.draw();
-    ImGui::Render();
-    SDL_SetRenderScale(m_SDLRenderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-    SDL_SetRenderDrawColorFloat(m_SDLRenderer, 0.5f, 0.5f, 0.5f, 1.0f);
-    SDL_RenderClear(m_SDLRenderer);
-    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_SDLRenderer);
-    SDL_RenderPresent(m_SDLRenderer);
 }
 
 void WindowManager::destroy() {
     m_GuiManager.destroy();
-    SDL_DestroyRenderer(m_SDLRenderer);
     SDL_DestroyWindow(m_Window);
     SDL_Quit();
 }
@@ -38,24 +41,19 @@ void WindowManager::updateEvent(SDL_Event* event)
 {
     ImGui_ImplSDL3_ProcessEvent(event);
 }
-
-SDL_Surface* WindowManager::LoadPNG(const char* path)
+SDL_Surface* WindowManager::CreateSDLSurface(const char* path)
 {
     int w, h, channels;
-    unsigned char* pixels = stbi_load(path, &w, &h, &channels, 4); // RGBA
+    unsigned char* pixels = stbi_load(path, &w, &h, &channels, 4);
     if (!pixels) {
         SDL_Log("Failed to load PNG: %s", stbi_failure_reason());
         return NULL;
     }
-
-    // Create SDL surface from pixel data
     SDL_Surface* surface = SDL_CreateSurfaceFrom(w, h,SDL_PIXELFORMAT_RGBA32,pixels,w*4);
-
     if (!surface) {
         stbi_image_free(pixels);
         SDL_Log("Failed to create surface: %s", SDL_GetError());
         return NULL;
     }
-
     return surface;
 }

@@ -10,6 +10,7 @@ find_package(glm REQUIRED)
 find_package(SDL3 REQUIRED)
 find_package(stb REQUIRED)
 find_package(imgui REQUIRED)
+find_package(glew REQUIRED)
 file(GLOB SOURCES "src/*.cpp")
 file(GLOB HEADERS "src/*.h")
 file(GLOB BINDING_SOURCES "bindings/*.cpp")
@@ -22,4 +23,5 @@ target_link_libraries(ESP32 PRIVATE
     sdl::sdl
     stb::stb
     imgui::imgui
+    GLEW::GLEW
 )
