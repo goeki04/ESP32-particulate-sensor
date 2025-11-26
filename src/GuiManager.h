@@ -29,9 +29,8 @@ enum Alignment {
 
 class GuiManager{
     public:
-    void init(SDL_Window* window, SDL_GLContext& renderer);
-    void draw(SDL_Window* window);
-    void destroy();
+    void init(SDL_Window* window);
+    void update();
 private:
     void drawNavBar();
     void drawNotification();
@@ -41,10 +40,10 @@ private:
     void setFlags();
     void setStyle();
     ImVec2 getNewWindowPos(Margin margin, ImVec2 windowPos, ImVec2 windowSize, Alignment alignment);
-    int m_WindowWidth;
-    int m_WindowHeight;
-    float m_MenuBarHeight;
-    float m_WidgetWidth;
-    float m_MarginDefault;
+    int m_WindowWidth = 0;
+    int m_WindowHeight = 0;
+    float m_MenuBarHeight = 0;
+    float m_WidgetWidth = 0;
+    float m_MarginDefault = 0;
     ImGuiWindowFlags m_WindowFlags = 0;
 };

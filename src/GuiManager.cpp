@@ -2,20 +2,19 @@
 #include "pch.h"
 #include "SubsystemManager.h"
 #include "Renderer.h"
-void GuiManager::init(SDL_Window* window, SDL_GLContext& glContext){
+void GuiManager::init(SDL_Window* window){
     IMGUI_CHECKVERSION();
     ImGui::CreateContext(); 
     ImGui::StyleColorsDark();
     setFlags();
     setStyle();
-    ImGui_ImplSDL3_InitForOpenGL(window, glContext);
-    ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
+   
     SDL_GetWindowSizeInPixels(window,&m_WindowWidth,&m_WindowHeight);
     m_WidgetWidth = m_WindowWidth * 0.125;
     m_MarginDefault = m_WindowHeight * 0.0225;
 }
 
-void GuiManager::draw(SDL_Window* window) {
+void GuiManager::update() {
     ImGuiIO& io = ImGui::GetIO();(void)io;
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
@@ -25,12 +24,6 @@ void GuiManager::draw(SDL_Window* window) {
     drawInformation();
     drawChart();
     drawMeasurementDisplay();
-    ImGui::Render();
-    glViewport(0,0,m_WindowWidth,m_WindowHeight);
-    glClearColor(0.5f,0.5f,0.5f,1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    SDL_GL_SwapWindow(window);
 }
 
 void GuiManager::drawNavBar()
@@ -199,10 +192,4 @@ void GuiManager::setStyle() {
     float mainScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     style.ScaleAllSizes(mainScale);       
     style.FontScaleDpi = mainScale;
-}
-
-void GuiManager::destroy() {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL3_Shutdown();
-    ImGui::DestroyContext();
 }
