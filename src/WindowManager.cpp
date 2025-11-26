@@ -12,28 +12,15 @@ void WindowManager::start() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     m_Window = SDL_CreateWindow("ESP32", NULL, NULL, windowFlags | SDL_WINDOW_OPENGL);
+    SDL_GetWindowSizeInPixels(m_Window,&m_WindowWidth,&m_WindowHeight);
     if (!m_Window) {
         throw std::exception("Failed to call SDL_CreateWindow!");
     }
-    SDL_GLContext glContext = SDL_GL_CreateContext(m_Window);
-    if (!glContext) {
-        throw std::exception("Failed to create SDL_GL context!");
-    }
-    GLenum err = glewInit();
-    if (err != GLEW_OK) {
-        throw std::exception("Failed to call glewInit!");
-    }
-    SDL_SetWindowIcon(m_Window, surface);
-    m_GuiManager.init(m_Window,glContext);
     SDL_SetWindowMinimumSize(m_Window,800,600);
-}
-
-void WindowManager::update() {
-    m_GuiManager.draw(m_Window);
+    SDL_SetWindowIcon(m_Window, surface);
 }
 
 void WindowManager::destroy() {
-    m_GuiManager.destroy();
     SDL_DestroyWindow(m_Window);
     SDL_Quit();
 }

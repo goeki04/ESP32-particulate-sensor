@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "SubsystemManager.h"
 #include "WindowManager.h"
-#include "GuiManager.h"
+#include "Renderer.h"
 WindowManager windowManager;
-
+Renderer renderer;
 SDL_AppResult SDL_Init() {
     SDL_SetAppMetadata("ESP32", "1.0", "ESP32.bosch.com");
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -17,6 +17,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     SDL_Init();
     SystemManager::getInstance().addSubsystem(&windowManager);
+    SystemManager::getInstance().addSubsystem(&renderer);
     SystemManager::getInstance().startSubsystems();
     return SDL_APP_CONTINUE;
 }

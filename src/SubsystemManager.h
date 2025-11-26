@@ -10,7 +10,6 @@ public:
 	std::vector<ISubsystem*> m_subsystems;
 	static SystemManager& getInstance();
 	void addSubsystem(ISubsystem* s);
-	/*Get the Subsystem by Name*/
 	template<typename T> requires std::derived_from<T, ISubsystem>
 	T* getSubsystem() {	
 		for(auto& i : m_subsystems){
@@ -18,7 +17,7 @@ public:
 				return casted;
 			}
 		}
-		return nullptr;
+		throw std::runtime_error("Subsystem not found!");
 	}
 	void startSubsystems();
 	void updateSubsystems();
