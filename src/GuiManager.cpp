@@ -1,23 +1,23 @@
 #include "GuiManager.h"
 #include "pch.h"
 #include "SubsystemManager.h"
-void GuiManager::init(SDL_Window* window, SDL_Renderer* renderer){
+#include "Renderer.h"
+void GuiManager::init(SDL_Window* window, SDL_GLContext& glContext){
     IMGUI_CHECKVERSION();
     ImGui::CreateContext(); 
     ImGui::StyleColorsDark();
     setFlags();
     setStyle();
-    //ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
-    //ImGui_ImplSDLRenderer3_Init(renderer);
+    ImGui_ImplSDL3_InitForOpenGL(window, glContext);
+    ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
     SDL_GetWindowSizeInPixels(window,&m_WindowWidth,&m_WindowHeight);
     m_WidgetWidth = m_WindowWidth * 0.125;
     m_MarginDefault = m_WindowHeight * 0.0225;
 }
 
-void GuiManager::draw() {
+void GuiManager::draw(SDL_Window* window) {
     ImGuiIO& io = ImGui::GetIO();(void)io;
-    // Start the Dear ImGui frame
-    //ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
     drawNavBar();
@@ -25,6 +25,12 @@ void GuiManager::draw() {
     drawInformation();
     drawChart();
     drawMeasurementDisplay();
+    ImGui::Render();
+    glViewport(0,0,m_WindowWidth,m_WindowHeight);
+    glClearColor(0.5f,0.5f,0.5f,1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    SDL_GL_SwapWindow(window);
 }
 
 void GuiManager::drawNavBar()
@@ -182,8 +188,8 @@ ImVec2 GuiManager::getNewWindowPos(Margin margin, ImVec2 windowPos, ImVec2 windo
 void GuiManager::setFlags()
 {
     ImGuiIO& io = ImGui::GetIO();(void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     m_WindowFlags |= ImGuiWindowFlags_NoCollapse;
     m_WindowFlags |= ImGuiWindowFlags_NoResize;
 }
@@ -191,12 +197,12 @@ void GuiManager::setFlags()
 void GuiManager::setStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
     float mainScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
-    style.ScaleAllSizes(mainScale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
+    style.ScaleAllSizes(mainScale);       
     style.FontScaleDpi = mainScale;
 }
 
 void GuiManager::destroy() {
-    //ImGui_ImplSDLRenderer3_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
 }
