@@ -24,11 +24,12 @@ void WindowManager::start() {
         throw std::exception("Failed to call glewInit!");
     }
     SDL_SetWindowIcon(m_Window, surface);
-    //m_GuiManager.init(m_Window,m_SDLRenderer);
+    m_GuiManager.init(m_Window,glContext);
     SDL_SetWindowMinimumSize(m_Window,800,600);
 }
 
 void WindowManager::update() {
+    m_GuiManager.draw(m_Window);
 }
 
 void WindowManager::destroy() {

@@ -29,8 +29,8 @@ enum Alignment {
 
 class GuiManager{
     public:
-    void init(SDL_Window* window, SDL_Renderer* renderer);
-    void draw();
+    void init(SDL_Window* window, SDL_GLContext& renderer);
+    void draw(SDL_Window* window);
     void destroy();
 private:
     void drawNavBar();
