@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "SubsystemManager.h"
 #include "WindowManager.h"
+
 void Renderer::start()
 {
 	m_WindowManager = SystemManager::getInstance().getSubsystem<WindowManager>();
@@ -14,51 +15,24 @@ void Renderer::start()
         throw std::exception("Failed to call glewInit!");
     }
     m_GuiManager.init(m_WindowManager->m_Window);
+    m_ViewportSize = m_GuiManager.getViewportSize();
     ImGui_ImplSDL3_InitForOpenGL(m_WindowManager->m_Window, glContext);
     ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
+    createFramebuffer();
 }
+
 /// <summary>
 /// Call this function before ImGui::Render()
 /// </summary>
 void Renderer::drawOpenGLViewport()
 {
-    ImVec4 viewportPosScale = m_GuiManager.getViewportPosScale();
-    ImGui::SetNextWindowPos(ImVec2(viewportPosScale.x,viewportPosScale.y));
-    ImGui::SetNextWindowSize(ImVec2(viewportPosScale.z, viewportPosScale.w));
-
-    unsigned int fbo;
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    //Color attachment
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewportPosScale.z, viewportPosScale.w, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,texture,0);
-
-    //Depth and stencil information
-    unsigned int renderBuffer;
-    glGenRenderbuffers(1, &renderBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER,renderBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,viewportPosScale.z,viewportPosScale.w);
-    glBindRenderbuffer(GL_RENDERBUFFER,0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,renderBuffer);
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "Framebuffer is not complete";
-    }
-#ifdef DEBUG_RENDERING_OPENGL
-    else if (m_DebugMode == false){
-        std::cout << "Framebuffer is complete" << std::endl;
-        m_DebugMode = true;
-    }
-#endif
-    glBindFramebuffer(GL_FRAMEBUFFER,0);
-
-
-
-    ImGui::Begin("Viewport");
+    ImGuiWindowFlags windowFlags = 0;
+    windowFlags |= ImGuiWindowFlags_NoResize;
+    windowFlags |= ImGuiWindowFlags_NoMove;
+    windowFlags |= ImGuiWindowFlags_NoCollapse;
+    ImGui::SetNextWindowPos(m_GuiManager.getViewportPos());
+    ImGui::SetNextWindowSize(m_GuiManager.getViewportSize());
+    ImGui::Begin("Viewport",0,windowFlags);
     ImGui::End();
 }
 
@@ -72,6 +46,39 @@ void Renderer::update()
     glClear(GL_COLOR_BUFFER_BIT);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(m_WindowManager->m_Window);
+}
+
+void Renderer::createFramebuffer()
+{
+    size_t numPixels = static_cast<size_t>(m_ViewportSize.x) * m_ViewportSize.y;
+    std::vector<unsigned char> pixels(numPixels * 3, 0); // alles auf 0 setzen
+    for (size_t i = 0; i < numPixels; ++i) {
+        pixels[i * 3 + 2] = 255; // Blau setzen
+    }
+    glGenFramebuffers(1, &m_Framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer);
+    //Color attachment
+    glGenTextures(1, &m_FramebufferTexture);
+    glBindTexture(GL_TEXTURE_2D, m_FramebufferTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_ViewportSize.x, m_ViewportSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FramebufferTexture, 0);
+
+    //Depth and stencil information
+    glGenRenderbuffers(1, &m_Rendererbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, m_Rendererbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_ViewportSize.x, m_ViewportSize.y);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Rendererbuffer);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cerr << "Framebuffer is not complete";
+    }
+    else if (m_DebugMode == false) {
+        std::cout << "Framebuffer is complete" << std::endl;
+        m_DebugMode = true;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::destroy() {

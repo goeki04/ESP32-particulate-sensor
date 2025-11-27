@@ -7,26 +7,28 @@
 union SDL_Event;
 class SystemManager {
 public:
-	std::vector<ISubsystem*> m_subsystems;
+	std::vector<ISubsystem*> m_Subsystems;
 	static SystemManager& getInstance();
 	void addSubsystem(ISubsystem* s);
+	void startSubsystems();
+	void updateSubsystems();
+	void updateEvent(SDL_Event* event);
+	void destroy();
+
 	template<typename T> requires std::derived_from<T, ISubsystem>
-	T* getSubsystem() {	
-		for(auto& i : m_subsystems){
+	T* getSubsystem() {
+		for (auto& i : m_Subsystems) {
 			if (T* casted = dynamic_cast<T*>(i)) {
 				return casted;
 			}
 		}
 		throw std::runtime_error("Subsystem not found!");
 	}
-	void startSubsystems();
-	void updateSubsystems();
-	void updateEvent(SDL_Event* event);
-	void destroy();
+
 private:
 	SystemManager() {};
 	~SystemManager() {
-		m_subsystems.clear();
+		m_Subsystems.clear();
 	};
 
 	SystemManager(const SystemManager&) = delete;

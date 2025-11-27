@@ -13,7 +13,7 @@
 #include <glm/glm.hpp>          
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include <chrono>
 #ifndef DEBUG_RENDERING_OPENGL
 #define DEBUG_RENDERING_OPENGL
 #endif
