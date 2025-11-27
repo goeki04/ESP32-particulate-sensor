@@ -10,3 +10,10 @@
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
 #include <algorithm>
+#include <glm/glm.hpp>          
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#ifndef DEBUG_RENDERING_OPENGL
+#define DEBUG_RENDERING_OPENGL
+#endif

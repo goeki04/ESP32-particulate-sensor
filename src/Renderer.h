@@ -9,6 +9,10 @@ public:
 	void destroy() override;
 	static constexpr const char* glsl_version = "#version 150";
 private:
+	void drawOpenGLViewport();
 	WindowManager* m_WindowManager;
 	GuiManager m_GuiManager;
+#ifdef DEBUG_RENDERING_OPENGL
+	bool m_DebugMode = false;
+#endif
 };
