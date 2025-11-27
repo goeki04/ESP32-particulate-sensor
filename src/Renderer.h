@@ -9,6 +9,11 @@ public:
 	void destroy() override;
 	static constexpr const char* glsl_version = "#version 150";
 private:
+	ImVec2 m_ViewportSize;
+	unsigned int m_Framebuffer;
+	unsigned int m_FramebufferTexture;
+	unsigned int m_Rendererbuffer;
+	void createFramebuffer();
 	void drawOpenGLViewport();
 	WindowManager* m_WindowManager;
 	GuiManager m_GuiManager;

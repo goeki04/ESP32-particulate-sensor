@@ -6,29 +6,29 @@ SystemManager& SystemManager::getInstance() {
 }
 
 void SystemManager::addSubsystem(ISubsystem* system) {
-	m_subsystems.emplace_back(system);
+	m_Subsystems.emplace_back(system);
 }
 
 void SystemManager::startSubsystems() {
-	for (auto& v : m_subsystems) {
+	for (auto& v : m_Subsystems) {
 		v->start();
 	}
 }
 
 void SystemManager::updateEvent(SDL_Event* event) {
-	for (auto& v : m_subsystems) {
+	for (auto& v : m_Subsystems) {
 		v->updateEvent(event);
 	}
 }
 
 void SystemManager::updateSubsystems() {
-	for (auto& v : m_subsystems) {
+	for (auto& v : m_Subsystems) {
 		v->update();
 	}
 }
 
 void SystemManager::destroy() {
-	for (auto& v : m_subsystems) {
+	for (auto& v : m_Subsystems) {
 		v->destroy();
 	}
 }

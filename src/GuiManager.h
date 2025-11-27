@@ -34,18 +34,21 @@ class GuiManager{
     void update();
     float getMenuBarHeight();
     ImVec2 getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment);
-    ImVec4 getViewportPosScale();
+    ImVec2 getViewportPos();
+    ImVec2 getViewportSize();
 private:
     void drawNavBar();
     void drawNotification();
     void drawInformation();
     void drawChart();
     void drawMeasurementDisplay();
+    void setViewportSize();
     void setFlags();
     void setStyle();
     int m_WindowWidth = 0;
     int m_WindowHeight = 0;
-    glm::vec4 m_ViewportPosScale;
+    ImVec2 m_ViewportPos;
+    ImVec2 m_ViewportSize;
     float m_MenuBarHeight = 0;
     float m_WidgetWidth = 0;
     float m_MarginDefault = 0;
