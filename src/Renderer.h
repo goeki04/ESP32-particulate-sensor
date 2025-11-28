@@ -9,7 +9,7 @@ public:
 	void destroy() override;
 	static constexpr const char* glsl_version = "#version 150";
 private:
-	ImVec2 m_ViewportSize;
+	glm::ivec2 m_framebufferSize;
 	unsigned int m_Framebuffer;
 	unsigned int m_FramebufferTexture;
 	unsigned int m_Rendererbuffer;
