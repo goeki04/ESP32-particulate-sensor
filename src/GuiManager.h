@@ -34,8 +34,8 @@ class GuiManager{
     void update();
     float getMenuBarHeight();
     ImVec2 getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment);
-    ImVec2 getViewportPos();
-    ImVec2 getViewportSize();
+    ImVec2 getViewportWindowPos();
+    ImVec2 getViewportWindowSize();
 private:
     void drawNavBar();
     void drawNotification();

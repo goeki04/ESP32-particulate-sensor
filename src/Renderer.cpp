@@ -15,7 +15,10 @@ void Renderer::start()
         throw std::exception("Failed to call glewInit!");
     }
     m_GuiManager.init(m_WindowManager->m_Window);
-    m_ViewportSize = m_GuiManager.getViewportSize();
+    ImVec2 viewportWindowSize = m_GuiManager.getViewportWindowSize();
+    m_framebufferSize = glm::ivec2(viewportWindowSize.x, viewportWindowSize.y);
+    std::cout << "x" << m_framebufferSize.x<< "y" << m_framebufferSize.y;
+
     ImGui_ImplSDL3_InitForOpenGL(m_WindowManager->m_Window, glContext);
     ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
     createFramebuffer();
@@ -30,10 +33,16 @@ void Renderer::drawOpenGLViewport()
     windowFlags |= ImGuiWindowFlags_NoResize;
     windowFlags |= ImGuiWindowFlags_NoMove;
     windowFlags |= ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowPos(m_GuiManager.getViewportPos());
-    ImGui::SetNextWindowSize(m_GuiManager.getViewportSize());
+    windowFlags |= ImGuiWindowFlags_NoScrollbar;
+    windowFlags |= ImGuiWindowFlags_NoScrollWithMouse;
+    ImGui::SetNextWindowPos(m_GuiManager.getViewportWindowPos());
+    ImGui::SetNextWindowSize(m_GuiManager.getViewportWindowSize());
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(0.0f,0.0f));
     ImGui::Begin("Viewport",0,windowFlags);
+    ImGui::Image((void*)(intptr_t)m_FramebufferTexture,ImVec2(m_framebufferSize.x,m_framebufferSize.y), ImVec2(0, 0), ImVec2(1, 1));
     ImGui::End();
+    ImGui::PopStyleVar();
 }
 
 void Renderer::update()
@@ -47,20 +56,23 @@ void Renderer::update()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(m_WindowManager->m_Window);
 }
-
+/// <summary>
+/// Call this function after initializing guimanager to create an offscreen framebuffer.
+/// </summary>
 void Renderer::createFramebuffer()
 {
-    size_t numPixels = static_cast<size_t>(m_ViewportSize.x) * m_ViewportSize.y;
-    std::vector<unsigned char> pixels(numPixels * 3, 0); // alles auf 0 setzen
+    size_t numPixels = static_cast<size_t>(m_framebufferSize.x) * m_framebufferSize.y;
+    std::vector<unsigned char> pixels(numPixels * 4, 0); // alles auf 0 setzen
     for (size_t i = 0; i < numPixels; ++i) {
-        pixels[i * 3 + 2] = 255; // Blau setzen
+        pixels[i * 4 + 2] = 255; // Blau setzen
+        pixels[i * 4 + 3] = 255;
     }
     glGenFramebuffers(1, &m_Framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer);
     //Color attachment
     glGenTextures(1, &m_FramebufferTexture);
     glBindTexture(GL_TEXTURE_2D, m_FramebufferTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_ViewportSize.x, m_ViewportSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_framebufferSize.x, m_framebufferSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FramebufferTexture, 0);
@@ -68,7 +80,7 @@ void Renderer::createFramebuffer()
     //Depth and stencil information
     glGenRenderbuffers(1, &m_Rendererbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, m_Rendererbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_ViewportSize.x, m_ViewportSize.y);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_framebufferSize.x, m_framebufferSize.y);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Rendererbuffer);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -82,6 +94,9 @@ void Renderer::createFramebuffer()
 }
 
 void Renderer::destroy() {
+    glDeleteTextures(1,&m_FramebufferTexture);
+    glDeleteRenderbuffers(1,&m_Rendererbuffer);
+    glDeleteFramebuffers(1,&m_Framebuffer);
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();

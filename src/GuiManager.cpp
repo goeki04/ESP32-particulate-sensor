@@ -180,9 +180,9 @@ ImVec2 GuiManager::getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment a
     return newPos;
 }
 
-ImVec2 GuiManager::getViewportPos()
+ImVec2 GuiManager::getViewportWindowPos()
 {
-    ImVec2 viewportSize = getViewportSize();
+    ImVec2 viewportSize = getViewportWindowSize();
     ImVec2 viewportPos = getNewWindowPos(Margin(0.0f, 0.0f, 0.0f, m_MarginDefault), viewportSize, Alignment::CenterTop);
     if (viewportSize == ImVec2(0, 0)) {
         throw std::runtime_error("Viewport has a size of 0!");
@@ -193,7 +193,7 @@ ImVec2 GuiManager::getViewportPos()
 /// Used to set window and framebuffer size
 /// </summary>
 /// <returns>Viewport size in pixels</returns>
-ImVec2 GuiManager::getViewportSize() {
+ImVec2 GuiManager::getViewportWindowSize() {
     return m_ViewportSize;
 }
 
@@ -201,7 +201,10 @@ void GuiManager::setViewportSize() {
     if (m_WindowHeight == 0 || m_WindowWidth == 0 || m_WidgetWidth == 0) {
         throw std::runtime_error("Window width/height or widgetWidth can't be zero");
     }
-    m_ViewportSize = ImVec2(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 200, m_WindowHeight * 0.55f);
+    ImGuiStyle& style = ImGui::GetStyle();
+    float viewPortX = std::floor(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 100);
+    float viewPortY = std::floor(m_WindowHeight*0.55f);
+    m_ViewportSize = ImVec2(viewPortX, viewPortY);
 }
 
 void GuiManager::setFlags()
