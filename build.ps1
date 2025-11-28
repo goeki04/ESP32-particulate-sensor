@@ -7,6 +7,7 @@ if (-not (Test-Path "cmake")) {
 }
 
 conan install . `
+    -s compiler.cppstd=20 `
     -s build_type=Debug `
     -of conan/ `
     --build=missing

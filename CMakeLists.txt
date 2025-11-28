@@ -11,6 +11,7 @@ find_package(SDL3 REQUIRED)
 find_package(stb REQUIRED)
 find_package(imgui REQUIRED)
 find_package(glew REQUIRED)
+find_package(assimp REQUIRED)
 file(GLOB SOURCES "src/*.cpp")
 file(GLOB HEADERS "src/*.h")
 file(GLOB BINDING_SOURCES "bindings/*.cpp")
@@ -21,7 +22,8 @@ target_precompile_headers(ESP32 PRIVATE src/pch.h)
 target_link_libraries(ESP32 PRIVATE
     glm::glm
     sdl::sdl
-    stb::stb
     imgui::imgui
     GLEW::GLEW
+    stb::stb
+    assimp::assimp
 )
