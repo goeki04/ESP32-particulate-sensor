@@ -17,11 +17,11 @@ void Renderer::start()
     m_GuiManager.init(m_WindowManager->m_Window);
     ImVec2 viewportWindowSize = m_GuiManager.getViewportWindowSize();
     m_framebufferSize = glm::ivec2(viewportWindowSize.x, viewportWindowSize.y);
-    std::cout << "x" << m_framebufferSize.x<< "y" << m_framebufferSize.y;
 
     ImGui_ImplSDL3_InitForOpenGL(m_WindowManager->m_Window, glContext);
     ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
     createFramebuffer();
+
 }
 
 /// <summary>
@@ -51,7 +51,7 @@ void Renderer::update()
     drawOpenGLViewport();
     ImGui::Render();
     glViewport(0, 0, m_WindowManager->m_WindowWidth, m_WindowManager->m_WindowHeight);
-    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+    glClearColor(0.172f, 0.172f, 0.329f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(m_WindowManager->m_Window);
@@ -86,10 +86,7 @@ void Renderer::createFramebuffer()
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cerr << "Framebuffer is not complete";
     }
-    else if (m_DebugMode == false) {
-        std::cout << "Framebuffer is complete" << std::endl;
-        m_DebugMode = true;
-    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
