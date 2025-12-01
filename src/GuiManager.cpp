@@ -15,6 +15,24 @@ void GuiManager::init(SDL_Window* window) {
     setViewportSize();
 }
 
+void GuiManager::drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebufferSize)
+{
+    ImGuiWindowFlags windowFlags = 0;
+    windowFlags |= ImGuiWindowFlags_NoResize;
+    windowFlags |= ImGuiWindowFlags_NoMove;
+    windowFlags |= ImGuiWindowFlags_NoCollapse;
+    windowFlags |= ImGuiWindowFlags_NoScrollbar;
+    windowFlags |= ImGuiWindowFlags_NoScrollWithMouse;
+    ImGui::SetNextWindowPos(getViewportWindowPos());
+    ImGui::SetNextWindowSize(getViewportWindowSize());
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::Begin("Viewport", 0, windowFlags);
+    ImGui::Image((void*)(intptr_t)framebufferTexture, ImVec2(framebufferSize.x, framebufferSize.y), ImVec2(0, 0), ImVec2(1, 1));
+    ImGui::End();
+    ImGui::PopStyleVar();
+}
+
 void GuiManager::update() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
