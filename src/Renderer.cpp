@@ -3,7 +3,10 @@
 #include "SubsystemManager.h"
 #include "WindowManager.h"
 
-const std::string modelPath = "../assets/models/cube.obj";
+const constexpr char* modelPath = "../assets/models/cube.obj";
+const constexpr char* vertexShaderPath = "../src/shader/vertexShader.glsl";
+const constexpr char* fragmentShaderPath = "../src/shader/fragmentShader.glsl";
+
 void Renderer::start()
 {
 	m_WindowManager = SystemManager::getInstance().getSubsystem<WindowManager>();
@@ -22,14 +25,12 @@ void Renderer::start()
     ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
     createFramebuffer();
     loadObjModel(modelPath);
+    compileDefaultShader(vertexShaderPath,fragmentShaderPath);
 }
-
 /// <summary>
 /// Call this function before ImGui::Render()
 /// </summary>
-
-
-void Renderer::loadObjModel(const std::string& path)
+void Renderer::loadObjModel(const char* path)
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -51,10 +52,8 @@ void Renderer::loadObjModel(const std::string& path)
         }
         m_Meshes[i].vertexBuffer = std::move(vertices);
         m_Meshes[i].indexBuffer = std::move(indexBuffer);
-        std::cout << m_Meshes[i].vertexBuffer.size();
     }
 }
-
 void Renderer::update()
 {
     m_GuiManager.update();
@@ -93,7 +92,6 @@ void Renderer::createFramebuffer()
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cerr << "Framebuffer is not complete";
     }
-
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -105,32 +103,30 @@ void Renderer::destroy() {
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
 }
-#include <sstream>
-const char* Renderer::readShaderSource(const char* shaderPath)
+std::string Renderer::readShaderSource(const char* shaderPath)
 {
     std::ifstream fileStream(shaderPath);
     std::stringstream buffer;
     buffer << fileStream.rdbuf();
     std::string shaderSource = buffer.str();
-    const char* cShaderSource = shaderSource.c_str();
-    buffer.clear();
-    fileStream.close();
-    return cShaderSource;
+    return shaderSource;
 }
 void Renderer::compileDefaultShader(const char* vertexShaderPath, const char* fragmentShaderPath)
 {
     GLint success;
-
-    const char* vertexShaderSource = readShaderSource(vertexShaderPath);
+    std::string vertexShaderStr = readShaderSource(vertexShaderPath);
+    const char* vertexShaderSource = vertexShaderStr.c_str();
+    std::cout << vertexShaderSource << std::endl;
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1,&vertexShaderSource,NULL);
+    glShaderSource(vertexShader, 1,&vertexShaderSource, NULL);
     glCompileShader(vertexShader);
 
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         throw std::runtime_error("failed compiling vertex shader!");
     }
-    const char* fragmentShaderSource = readShaderSource(fragmentShaderPath);
+    std::string fragmentShaderStr = readShaderSource(fragmentShaderPath);
+    const char* fragmentShaderSource = fragmentShaderStr.c_str();
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1,&fragmentShaderSource,NULL);
     glCompileShader(fragmentShader);
@@ -142,6 +138,8 @@ void Renderer::compileDefaultShader(const char* vertexShaderPath, const char* fr
     glAttachShader(m_DefaultShader,vertexShader);
     glAttachShader(m_DefaultShader, fragmentShader);
     glLinkProgram(m_DefaultShader);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
     glGetProgramiv(m_DefaultShader, GL_LINK_STATUS, &success);
     if (!success) {
         throw std::runtime_error("failed to create a shader program!");
