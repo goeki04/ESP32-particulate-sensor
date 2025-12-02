@@ -2,6 +2,7 @@
 #include "GuiManager.h"
 #include "SubsystemManager.h"
 #include "Renderer.h"
+
 void GuiManager::init(SDL_Window* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -13,6 +14,17 @@ void GuiManager::init(SDL_Window* window) {
     m_WidgetWidth = m_WindowWidth * 0.125;
     m_MarginDefault = m_WindowHeight * 0.0225;
     setViewportSize();
+}
+
+void GuiManager::update() {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
+    drawNavBar();
+    drawNotification();
+    drawInformation();
+    drawChart();
+    drawMeasurementDisplay();
 }
 
 void GuiManager::drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebufferSize)
@@ -31,17 +43,6 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebu
     ImGui::Image((void*)(intptr_t)framebufferTexture, ImVec2(framebufferSize.x, framebufferSize.y), ImVec2(0, 0), ImVec2(1, 1));
     ImGui::End();
     ImGui::PopStyleVar();
-}
-
-void GuiManager::update() {
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL3_NewFrame();
-    ImGui::NewFrame();
-    drawNavBar();
-    drawNotification();
-    drawInformation();
-    drawChart();
-    drawMeasurementDisplay();
 }
 
 float GuiManager::getMenuBarHeight()
