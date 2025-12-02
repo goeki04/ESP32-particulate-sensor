@@ -2,6 +2,8 @@
 #include "pch.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+int WindowManager::m_WindowWidth = 0;
+int WindowManager::m_WindowHeight = 0;
 void WindowManager::start() {
     int16_t windowFlags = 0;
     SDL_Surface* surface = CreateSDLSurface("../assets/icons/logo.png");
@@ -16,7 +18,7 @@ void WindowManager::start() {
     if (!m_Window) {
         throw std::exception("Failed to call SDL_CreateWindow!");
     }
-    SDL_SetWindowMinimumSize(m_Window,800,600);
+    SDL_SetWindowMinimumSize(m_Window,m_WindowWidth,m_WindowHeight);
     SDL_SetWindowIcon(m_Window, surface);
 }
 

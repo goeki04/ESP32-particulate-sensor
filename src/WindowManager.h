@@ -4,7 +4,7 @@
 class WindowManager : public ISubsystem{
 public:
 	SDL_Window* m_Window = NULL;
-	int m_WindowWidth = 0, m_WindowHeight = 0;
+	static int m_WindowWidth, m_WindowHeight;
 	void start() override;
 	void destroy() override;
 	SDL_Surface* CreateSDLSurface(const char* path);

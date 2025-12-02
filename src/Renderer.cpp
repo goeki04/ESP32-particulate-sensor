@@ -4,8 +4,6 @@
 #include "WindowManager.h"
 
 const constexpr char* modelPath = "../assets/models/cube.obj";
-const constexpr char* vertexShaderPath = "../src/shader/vertexShader.glsl";
-const constexpr char* fragmentShaderPath = "../src/shader/fragmentShader.glsl";
 
 void Renderer::start()
 {
@@ -24,36 +22,8 @@ void Renderer::start()
     ImGui_ImplSDL3_InitForOpenGL(m_WindowManager->m_Window, glContext);
     ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
     createFramebuffer();
-    loadObjModel(modelPath);
-    compileDefaultShader(vertexShaderPath,fragmentShaderPath);
 }
-/// <summary>
-/// Call this function before ImGui::Render()
-/// </summary>
-void Renderer::loadObjModel(const char* path)
-{
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-    if (scene == nullptr) {
-        throw std::runtime_error(importer.GetErrorString());
-    }
-    int numMeshes = scene->mNumMeshes;
-    m_Meshes.resize(numMeshes);
-    for (int i = 0; i < numMeshes; i++) {
-        std::vector<unsigned int> indexBuffer;
-        std::vector<Vertex> vertices;
-        aiMesh* mesh = scene->mMeshes[i];
-        vertices.reserve(mesh->mNumVertices);
-        for (int j = 0; j < mesh->mNumVertices; j++) {
-            vertices.emplace_back(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z);
-        }
-        for (int k = 0; k < mesh->mNumFaces; k++) {
-            indexBuffer.insert(indexBuffer.end(), mesh->mFaces[k].mIndices, mesh->mFaces[k].mIndices + mesh->mFaces[k].mNumIndices);
-        }
-        m_Meshes[i].vertexBuffer = std::move(vertices);
-        m_Meshes[i].indexBuffer = std::move(indexBuffer);
-    }
-}
+
 void Renderer::update()
 {
     m_GuiManager.update();
@@ -69,6 +39,8 @@ void Renderer::update()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(m_WindowManager->m_Window);
 }
+
+
 /// <summary>
 /// Call this function after initializing guimanager to create an offscreen framebuffer.
 /// </summary>
@@ -103,45 +75,7 @@ void Renderer::destroy() {
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
 }
-std::string Renderer::readShaderSource(const char* shaderPath)
-{
-    std::ifstream fileStream(shaderPath);
-    std::stringstream buffer;
-    buffer << fileStream.rdbuf();
-    std::string shaderSource = buffer.str();
-    return shaderSource;
-}
-void Renderer::compileDefaultShader(const char* vertexShaderPath, const char* fragmentShaderPath)
-{
-    GLint success;
-    std::string vertexShaderStr = readShaderSource(vertexShaderPath);
-    const char* vertexShaderSource = vertexShaderStr.c_str();
-    std::cout << vertexShaderSource << std::endl;
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1,&vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
 
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        throw std::runtime_error("failed compiling vertex shader!");
-    }
-    std::string fragmentShaderStr = readShaderSource(fragmentShaderPath);
-    const char* fragmentShaderSource = fragmentShaderStr.c_str();
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1,&fragmentShaderSource,NULL);
-    glCompileShader(fragmentShader);
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        throw std::runtime_error("failed compiling fragment shader!");
-    }
-    m_DefaultShader = glCreateProgram();
-    glAttachShader(m_DefaultShader,vertexShader);
-    glAttachShader(m_DefaultShader, fragmentShader);
-    glLinkProgram(m_DefaultShader);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    glGetProgramiv(m_DefaultShader, GL_LINK_STATUS, &success);
-    if (!success) {
-        throw std::runtime_error("failed to create a shader program!");
-    }
-}
+
+
+
