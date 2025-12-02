@@ -78,6 +78,10 @@ void GuiManager::drawNavBar()
             ImGui::EndMenu();
         }
 
+        if (ImGui::BeginMenu("Guide")) {
+            ImGui::EndMenu();
+        }
+
         if (ImGui::BeginMenu("Options"))
         {
             if (ImGui::MenuItem("Language")) {}
@@ -85,7 +89,7 @@ void GuiManager::drawNavBar()
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Help"))
+        if (ImGui::BeginMenu("Info"))
         {
             if (ImGui::MenuItem("Licenses")) {}
             if (ImGui::MenuItem("SDK's")) {}
