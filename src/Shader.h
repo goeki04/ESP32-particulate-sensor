@@ -20,6 +20,10 @@ class Shader {
 	void setMat4x4(const char* uniformName, const glm::mat4& matrix);
 };
 
+enum class shaderType{
+	unlit
+};
+
 class UnlitShader : public Shader {
 	public:
 	UnlitShader(const char* vertexPath, const char* fragmentPath) : Shader(vertexPath, fragmentPath) {}

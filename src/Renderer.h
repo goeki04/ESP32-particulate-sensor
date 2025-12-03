@@ -2,7 +2,7 @@
 #include "ISubsystem.h"
 #include "GuiManager.h"
 class WindowManager;
-
+class ResourceManager;
 class Renderer : public ISubsystem{
 public:
 	void start() override;
@@ -16,6 +16,7 @@ private:
 	unsigned int m_Rendererbuffer = 0;
 
 	void createFramebuffer();
+	ResourceManager* m_ResourceManager = nullptr;
 	WindowManager* m_WindowManager = nullptr;
 	GuiManager m_GuiManager;
 #ifdef DEBUG_RENDERING_OPENGL

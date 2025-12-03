@@ -1,25 +1,28 @@
+#include "pch.h"
 #include "ResourceManager.h"
+#include "SubsystemManager.h"
+#include "WindowManager.h"
 
 void ResourceManager::start()
 {
+    auto windowManager = SystemManager::getInstance().getSubsystem<WindowManager>();
+    m_GlContext = SDL_GL_CreateContext(windowManager->m_Window);
+    if (!m_GlContext) {
+        throw std::exception("Failed to create SDL_GL context!");
+    }
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        throw std::exception("Failed to call glewInit!");
+    }
+    addShader<UnlitShader>("../src/shader/vertexShader.glsl", "../src/shader/fragmentShader.glsl");
     loadAssimpScene("../assets/models/cube.obj");
-}
-
-void ResourceManager::loadImages()
-{
-}
-
-
-void ResourceManager::setupShaders()
-{
-   /* for (int i = 0; i < m_Shaders.size(); i++) {
-        m_Shaders[i].compileShader();
-    }*/
+    setupMeshes();
 }
 void ResourceManager::setupMeshes()
 {
-    for (int i = 0; i < m_Meshes.size(); i++) {
-        m_Meshes[i].createMesh();
+    for (auto& mesh : m_Meshes) {
+        mesh.createMesh();
+        mesh.setShader(m_Shaders[(int)shaderType::unlit].get());
     }
 }
 

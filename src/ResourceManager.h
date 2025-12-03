@@ -3,12 +3,17 @@
 #include "Shader.h"
 #include "Mesh.h"
 class ResourceManager : public ISubsystem{
+public:
 	void start() override;
-	void loadImages();
-	void loadAssimpScene(const char* path);
-private:
-	//std::vector<Shader> m_Shaders;
+	SDL_GLContext m_GlContext = NULL;
+	std::vector<std::unique_ptr<Shader>> m_Shaders;
 	std::vector<Mesh> m_Meshes;
-	void setupShaders();
+private:
+	template<typename T> requires std::derived_from<T,Shader>
+	void addShader(const char* vertexShader,const char* fragmentShader) {
+		m_Shaders.emplace_back(std::make_unique<T>(vertexShader,fragmentShader));
+		m_Shaders.back()->compileShader();
+	}
+	void loadAssimpScene(const char* path);
 	void setupMeshes();
 };
