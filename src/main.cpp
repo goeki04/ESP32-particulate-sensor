@@ -18,8 +18,8 @@ SDL_AppResult SDL_Init() {
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     SDL_Init();
-    SystemManager::getInstance().addSubsystem(&resourceManager);
     SystemManager::getInstance().addSubsystem(&windowManager);
+    SystemManager::getInstance().addSubsystem(&resourceManager);
     SystemManager::getInstance().addSubsystem(&renderer);
     SystemManager::getInstance().startSubsystems();
     return SDL_APP_CONTINUE;

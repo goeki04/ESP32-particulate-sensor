@@ -2,24 +2,17 @@
 #include "pch.h"
 #include "SubsystemManager.h"
 #include "WindowManager.h"
-
+#include "ResourceManager.h"
 const constexpr char* modelPath = "../assets/models/cube.obj";
 
 void Renderer::start()
 {
 	m_WindowManager = SystemManager::getInstance().getSubsystem<WindowManager>();
-    SDL_GLContext glContext = SDL_GL_CreateContext(m_WindowManager->m_Window);
-    if (!glContext) {
-        throw std::exception("Failed to create SDL_GL context!");
-    }
-    GLenum err = glewInit();
-    if (err != GLEW_OK) {
-        throw std::exception("Failed to call glewInit!");
-    }
+    m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
     m_GuiManager.init(m_WindowManager->m_Window);
     ImVec2 viewportWindowSize = m_GuiManager.getViewportWindowSize();
     m_framebufferSize = glm::ivec2(viewportWindowSize.x, viewportWindowSize.y);
-    ImGui_ImplSDL3_InitForOpenGL(m_WindowManager->m_Window, glContext);
+    ImGui_ImplSDL3_InitForOpenGL(m_WindowManager->m_Window, m_ResourceManager->m_GlContext);
     ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
     createFramebuffer();
 }
@@ -35,6 +28,9 @@ void Renderer::update()
     glBindFramebuffer(GL_FRAMEBUFFER,m_Framebuffer);
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    for (auto& mesh : m_ResourceManager->m_Meshes) {
+        mesh.drawMesh();
+    }
     glBindFramebuffer(GL_FRAMEBUFFER,0);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(m_WindowManager->m_Window);

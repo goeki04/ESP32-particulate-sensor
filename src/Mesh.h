@@ -15,7 +15,7 @@ public:
 };
 class Mesh {
 public:
-	//std::unique_ptr<Shader> m_Shader;
+	Shader* m_Shader = nullptr;
 	std::vector<Vertex> m_VertexBuffer;
 	std::vector<unsigned int> m_IndexBuffer;
 	Mesh(std::vector<Vertex>&& vertexPositions, std::vector<unsigned int>&& vertexIndices)
@@ -23,9 +23,10 @@ public:
 		m_IndexBuffer(std::move(vertexIndices)) {
 	};
 	Mesh() {
-		//m_Shader = std::make_unique<UnlitShader>("../src/shader/vertexShader.glsl", "../src/shader/fragmentShader.glsl");
 	}
-
+	void setShader(Shader* shader) {
+		m_Shader = shader;
+	}
 	~Mesh() {
 		glDeleteVertexArrays(1, &m_Vao);
 		glDeleteBuffers(1, &m_Vbo);

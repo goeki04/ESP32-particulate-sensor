@@ -6,7 +6,6 @@ void Mesh::createMesh()
     glGenVertexArrays(1, &m_Vao);
     glGenBuffers(1, &m_Vbo);
     glGenBuffers(1, &m_Ebo);
-
     glBindVertexArray(m_Vao);
 
     //Vertex buffer
@@ -26,8 +25,8 @@ void Mesh::createMesh()
 
 void Mesh::drawMesh()
 {
-    //glUseProgram(m_Shader->m_Program);
-    //m_Shader->setProperties();
+    glUseProgram(m_Shader->m_Program);
+    m_Shader->setProperties();
     glBindVertexArray(m_Vao);
     glDrawElements(GL_TRIANGLES, m_IndexBuffer.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
