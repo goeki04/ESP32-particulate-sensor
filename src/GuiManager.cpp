@@ -2,7 +2,8 @@
 #include "GuiManager.h"
 #include "SubsystemManager.h"
 #include "Renderer.h"
-
+ImVec2 GuiManager::s_ViewportSize = ImVec2(0.0f,0.0f);
+bool GuiManager::s_ViewportFocused = false;
 void GuiManager::init(SDL_Window* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -40,6 +41,8 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebu
     ImGuiStyle& style = ImGui::GetStyle();
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::Begin("Viewport", 0, windowFlags);
+    s_ViewportFocused = ImGui::IsWindowFocused() ? true : false;
+
     ImGui::Image((void*)(intptr_t)framebufferTexture, ImVec2(framebufferSize.x, framebufferSize.y), ImVec2(0, 0), ImVec2(1, 1));
     ImGui::End();
     ImGui::PopStyleVar();
@@ -232,7 +235,7 @@ ImVec2 GuiManager::getViewportWindowPos()
 /// </summary>
 /// <returns>Viewport size in pixels</returns>
 ImVec2 GuiManager::getViewportWindowSize() {
-    return m_ViewportSize;
+    return s_ViewportSize;
 }
 
 void GuiManager::setViewportSize() {
@@ -242,7 +245,7 @@ void GuiManager::setViewportSize() {
     ImGuiStyle& style = ImGui::GetStyle();
     float viewPortX = std::floor(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 100);
     float viewPortY = std::floor(m_WindowHeight*0.55f);
-    m_ViewportSize = ImVec2(viewPortX, viewPortY);
+    s_ViewportSize = ImVec2(viewPortX, viewPortY);
 }
 
 void GuiManager::setFlags()
