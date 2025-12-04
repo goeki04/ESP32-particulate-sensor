@@ -6,3 +6,4 @@ C64 Purple: rgb(0.439, 0.435, 0.827)
 Liberty: rgb(0.278, 0.278, 0.529)
 Summer Sky: rgb(0.204, 0.675, 0.878)
 Celestial Green: rgb(0.200, 0.851, 0.698)
+Gray porcelein: R: 0.518, G: 0.506, B: 0.478

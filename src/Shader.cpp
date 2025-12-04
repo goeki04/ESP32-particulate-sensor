@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Shader.h"
 #include "WindowManager.h"
+#include "GuiManager.h"
 std::string Shader::readShaderSource(const char* shaderPath)
 {
     std::ifstream fileStream(shaderPath);
@@ -16,17 +17,15 @@ void Shader::setMat4x4(const char* uniformName, const glm::mat4& matrix)
     glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, glm::value_ptr(matrix)); //value ptr gets a pointer of the internal float data.
 }
 
-void UnlitShader::setProperties()
+void UnlitShader::setUniforms()
 {
     use();
-    glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
     glm::mat4 projection = glm::mat4(1.0f);
     glm::mat4 model = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), (float)WindowManager::m_WindowWidth / (float)WindowManager::m_WindowHeight, 0.1f, 100.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    projection = glm::perspective(glm::radians(45.0f),GuiManager::s_ViewportSize.x /GuiManager::s_ViewportSize.y, 0.1f, 100.0f);
     setMat4x4("model", model);
     setMat4x4("projection", projection);
-    setMat4x4("view", view);
+    setMat4x4("view", m_Camera.m_ViewMatrix);
 }
 
 void UnlitShader::compileShader()

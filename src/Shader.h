@@ -1,17 +1,16 @@
 #pragma once
-
+#include "camera.h"
 class Shader {
 	public:
 	const char* vertexShaderPath;
 	const char* fragmentShaderPath;
 	unsigned int m_Program = 0;
-
-	Shader(const char* vertexPath, const char* fragmentPath) :
-			vertexShaderPath(vertexPath), fragmentShaderPath(fragmentPath) {
+	Camera& m_Camera;
+	Shader(Camera& cam,const char* vertexPath, const char* fragmentPath) :
+		 m_Camera(cam),vertexShaderPath(vertexPath), fragmentShaderPath(fragmentPath) {
 	}
-	virtual ~Shader() {};
-
-	virtual void setProperties() = 0;
+	virtual ~Shader() = default;
+	virtual void setUniforms() = 0;
 	virtual void compileShader() = 0;
 	std::string readShaderSource(const char* shaderPath);
 	void use() {
@@ -26,7 +25,7 @@ enum class shaderType{
 
 class UnlitShader : public Shader {
 	public:
-	UnlitShader(const char* vertexPath, const char* fragmentPath) : Shader(vertexPath, fragmentPath) {}
-	void setProperties() override;
+	UnlitShader(Camera& cam, const char* vertexPath, const char* fragmentPath) : Shader(cam,vertexPath, fragmentPath) {}
+	void setUniforms() override;
 	void compileShader() override;
 };

@@ -18,6 +18,11 @@ void ResourceManager::start()
     loadAssimpScene("../assets/models/cube.obj");
     setupMeshes();
 }
+
+void ResourceManager::updateEvent(SDL_Event* event) {
+    if(GuiManager::s_ViewportFocused)
+        m_Cam.cameraInput();
+}
 void ResourceManager::setupMeshes()
 {
     for (auto& mesh : m_Meshes) {
@@ -44,6 +49,7 @@ void ResourceManager::loadAssimpScene(const char* path)
         aiMesh* mesh = scene->mMeshes[i];
         vertices.reserve(mesh->mNumVertices);
         for (int j = 0; j < mesh->mNumVertices; j++) {
+
             vertices.emplace_back(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z);
         }
         for (int k = 0; k < mesh->mNumFaces; k++) {

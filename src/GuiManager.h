@@ -30,6 +30,9 @@ enum Alignment {
 
 class GuiManager{
     public:
+    static ImVec2 s_ViewportSize;
+    static bool s_ViewportFocused;
+
     void init(SDL_Window* window);
     void update();
     float getMenuBarHeight();
@@ -38,6 +41,16 @@ class GuiManager{
     void loadFont();
     ImVec2 getViewportWindowSize();
 private:
+    int m_WindowWidth = 0;
+    int m_WindowHeight = 0;
+    ImVec2 m_ViewportPos;
+    ImVec4 m_GuiColor;
+    float m_MenuBarHeight = 0;
+    float m_WidgetWidth = 0;
+    float m_MarginDefault = 0;
+    ImGuiWindowFlags m_WindowFlags = 0;
+    //debug
+    bool m_Debug = false;
     ImVec2 getViewportWindowPos();
     void drawNavBar();
     void drawNotification();
@@ -47,17 +60,6 @@ private:
     void setViewportSize();
     void setFlags();
     void setStyle();
-    int m_WindowWidth = 0;
-    int m_WindowHeight = 0;
-    ImVec2 m_ViewportPos;
-    ImVec2 m_ViewportSize;
-    ImVec4 m_GuiColor;
-    float m_MenuBarHeight = 0;
-    float m_WidgetWidth = 0;
-    float m_MarginDefault = 0;
-    ImGuiWindowFlags m_WindowFlags = 0;
-    //debug
-    bool m_Debug = false;
 };
 
 inline bool operator==(const ImVec2& a, const ImVec2& b) {

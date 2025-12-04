@@ -15,19 +15,26 @@ void Renderer::start()
     ImGui_ImplSDL3_InitForOpenGL(m_WindowManager->m_Window, m_ResourceManager->m_GlContext);
     ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
     createFramebuffer();
+    glEnable(GL_DEPTH_TEST);
 }
 
 void Renderer::update()
 {
+    m_ResourceManager->m_Cam.calculateCameraOrbit();
     m_GuiManager.update();
     m_GuiManager.drawViewportGUI(m_FramebufferTexture, ImVec2(m_framebufferSize.x,m_framebufferSize.y));
     ImGui::Render();
     glViewport(0, 0, m_WindowManager->m_WindowWidth, m_WindowManager->m_WindowHeight);
-    glClearColor(0.172f, 0.172f, 0.329f,1.0f);
+    glClearColor(0.172, 0.172, 0.329f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER,m_Framebuffer);
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    ImVec2 viewportSize = m_GuiManager.getViewportWindowSize();
+    glViewport(0,0,viewportSize.x,viewportSize.y);
+    glClearColor(0.518, 0.506, 0.478,1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for (auto& shader : m_ResourceManager->m_Shaders) {
+        shader->setUniforms();
+    }
     for (auto& mesh : m_ResourceManager->m_Meshes) {
         mesh.drawMesh();
     }
@@ -35,8 +42,6 @@ void Renderer::update()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(m_WindowManager->m_Window);
 }
-
-
 /// <summary>
 /// Call this function after initializing guimanager to create an offscreen framebuffer.
 /// </summary>
