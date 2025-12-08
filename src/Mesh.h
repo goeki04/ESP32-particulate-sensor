@@ -2,18 +2,24 @@
 #include "Shader.h"
 struct Vertex {
 public:
-	float x;
-	float y;
-	float z;
 
-	Vertex(float x, float y, float z) : x(x), y(y), z(z) {};
-	Vertex() {
-		x = 0;
-		y = 0;
-		z = 0;
-	};
-	Vertex operator-(glm::vec3 other) {
-		return Vertex(x-other.x, y-other.y,z-other.z);
+	glm::vec3 pos;
+	glm::vec3 normal;
+	glm::vec2 uv;
+	Vertex() : pos(0.0f), normal(0.0f), uv(0.0f) {};
+	void setPosition(const float x,const float y,const float z) {
+		pos.x = x; pos.y = y; pos.z = z;
+	}
+	void setNormals(const float x, const float y, const float z) {
+		normal.x = x; normal.y = y; normal.z = z;
+	}
+	void setUV(const float u,const float v) {
+		uv.x = u; uv.y = v;
+	}
+	glm::vec3 operator=(aiVector3D vec) {
+		pos.x = vec.x;
+		pos.y = vec.y;
+		pos.z = vec.z;
 	}
 };
 class Mesh {
@@ -21,6 +27,7 @@ public:
 	Shader* m_Shader = nullptr;
 	std::vector<Vertex> m_VertexBuffer;
 	std::vector<unsigned int> m_IndexBuffer;
+	GLuint textureID = 0;
 	Mesh(std::vector<Vertex>&& vertexPositions, std::vector<unsigned int>&& vertexIndices)
 		: m_VertexBuffer(std::move(vertexPositions)),
 		m_IndexBuffer(std::move(vertexIndices)) {
@@ -37,7 +44,9 @@ public:
 
 	void createMesh();
 	void drawMesh();
+	void setTextureID(GLuint id);
 private:
+	GLuint m_TextureID = 0;
 	unsigned int m_Vbo = 0, m_Ebo = 0, m_Vao = 0;
 	void applyBoundingBox();
 };

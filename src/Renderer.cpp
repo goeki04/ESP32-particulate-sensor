@@ -1,4 +1,4 @@
-#include "Renderer.h"
+﻿#include "Renderer.h"
 #include "pch.h"
 #include "SubsystemManager.h"
 #include "WindowManager.h"
@@ -32,9 +32,6 @@ void Renderer::update()
     glViewport(0,0,viewportSize.x,viewportSize.y);
     glClearColor(0.518, 0.506, 0.478,1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for (auto& shader : m_ResourceManager->m_Shaders) {
-        shader->setUniforms();
-    }
     for (auto& mesh : m_ResourceManager->m_Meshes) {
         mesh.drawMesh();
     }

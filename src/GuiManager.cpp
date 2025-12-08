@@ -1,7 +1,9 @@
 #include "pch.h"
 #include "GuiManager.h"
 #include "SubsystemManager.h"
+#include "GuiManager.h"
 #include "Renderer.h"
+#include "camera.h"
 ImVec2 GuiManager::s_ViewportSize = ImVec2(0.0f,0.0f);
 bool GuiManager::s_ViewportFocused = false;
 void GuiManager::init(SDL_Window* window) {
