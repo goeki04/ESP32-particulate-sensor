@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Shader.h"
 #include "WindowManager.h"
-#include "GuiManager.h"
+#include "camera.h"
 std::string Shader::readShaderSource(const char* shaderPath)
 {
     std::ifstream fileStream(shaderPath);
@@ -14,24 +14,45 @@ std::string Shader::readShaderSource(const char* shaderPath)
 void Shader::setMat4x4(const char* uniformName, const glm::mat4& matrix)
 {
     GLuint matrixLocation = glGetUniformLocation(m_Program, uniformName);
+    if (matrixLocation == -1) {
+        throw std::runtime_error("Uniform location for matrix4x4 not found");
+    }
     glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, glm::value_ptr(matrix)); //value ptr gets a pointer of the internal float data.
 }
 
-void UnlitShader::setUniforms()
+void Shader::setVec3(const char* uniformName,const glm::vec3& vector) {
+    GLuint vec3Location = glGetUniformLocation(m_Program,uniformName);
+    if (vec3Location == -1) {
+        throw std::runtime_error("Uniform location for vec3 not found");
+    }
+    glUniform3fv(vec3Location,1,glm::value_ptr(vector));
+}
+
+void Shader::setTexture(const char* uniformName, const GLuint textureID)
+{
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glUniform1i(glGetUniformLocation(m_Program, uniformName), 0);
+}
+
+void UnlitShader::setUniforms(GLuint textureID)
 {
     use();
-    glm::mat4 projection = glm::mat4(1.0f);
     glm::mat4 model = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f),GuiManager::s_ViewportSize.x /GuiManager::s_ViewportSize.y, 0.1f, 100.0f);
+    model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1, 0, 0));
+    model = glm::scale(model,glm::vec3(20,20,20));
     setMat4x4("model", model);
-    setMat4x4("projection", projection);
+    setMat4x4("projection", Camera::getProjectionMatrix());
     setMat4x4("view", m_Camera.m_ViewMatrix);
+    setVec3("sunLight.color", m_DirLight.color);
+    setVec3("sunLight.direction", m_DirLight.direction);
+    setTexture("texture1", textureID);
 }
 
 void UnlitShader::compileShader()
 {
     GLint success;
-    std::string vertexShaderStr = readShaderSource(vertexShaderPath);
+    std::string vertexShaderStr = readShaderSource(m_VertexShaderPath);
     const char* vertexShaderSource = vertexShaderStr.c_str();
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -41,7 +62,7 @@ void UnlitShader::compileShader()
     if (!success) {
         throw std::runtime_error("failed compiling vertex shader!");
     }
-    std::string fragmentShaderStr = readShaderSource(fragmentShaderPath);
+    std::string fragmentShaderStr = readShaderSource(m_FragmentShaderPath);
     const char* fragmentShaderSource = fragmentShaderStr.c_str();
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
