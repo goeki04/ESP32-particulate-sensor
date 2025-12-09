@@ -3,7 +3,6 @@
 
 void Mesh::createMesh()
 {
-    applyBoundingBox();
     glGenVertexArrays(1, &m_Vao);
     glGenBuffers(1, &m_Vbo);
     glGenBuffers(1, &m_Ebo);
@@ -13,7 +12,6 @@ void Mesh::createMesh()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer.size() * sizeof(unsigned int),
         &m_IndexBuffer[0], GL_STATIC_DRAW);
-
     //positions
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
@@ -37,17 +35,6 @@ void Mesh::drawMesh()
 void Mesh::setTextureID(GLuint id)
 {
     m_TextureID = id;
-}
-/// <summary>
-/// Call this function after initializing the vertexbuffer because it depends on it
-/// </summary>
-void Mesh::applyBoundingBox()
-{
-    BoundingBox boundingBox(*this);
-    glm::vec3 center = boundingBox.getBoxCenter();
-    for (auto& v : m_VertexBuffer) {
-        v.pos -= center;
-    }
 }
 
 void BoundingBox::recalculateBoundingBox(Mesh& mesh)

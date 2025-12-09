@@ -16,11 +16,6 @@ public:
 	void setUV(const float u,const float v) {
 		uv.x = u; uv.y = v;
 	}
-	glm::vec3 operator=(aiVector3D vec) {
-		pos.x = vec.x;
-		pos.y = vec.y;
-		pos.z = vec.z;
-	}
 };
 class Mesh {
 public:
@@ -48,7 +43,6 @@ public:
 private:
 	GLuint m_TextureID = 0;
 	unsigned int m_Vbo = 0, m_Ebo = 0, m_Vao = 0;
-	void applyBoundingBox();
 };
 
 class BoundingBox {

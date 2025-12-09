@@ -40,7 +40,7 @@ void UnlitShader::setUniforms(GLuint textureID)
     use();
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1, 0, 0));
-    model = glm::scale(model,glm::vec3(20,20,20));
+    model = glm::scale(model,glm::vec3(1.0f,1.0f,1.0f));
     setMat4x4("model", model);
     setMat4x4("projection", Camera::getProjectionMatrix());
     setMat4x4("view", m_Camera.m_ViewMatrix);

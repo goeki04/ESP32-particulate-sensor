@@ -20,9 +20,8 @@ private:
 		m_Shaders.emplace_back(std::make_unique<T>(m_Cam,vertexShader,fragmentShader));
 		m_Shaders.back()->compileShader();
 	}
-	void loadAssimpScene(const char* path);
-	void processNode(aiNode* node, const aiScene* scene, glm::mat4 parentTransform);
-	glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& from);
 	GLuint createColorTexture(aiColor3D& color);
 	void setupMeshes();
+	void processNode(const aiScene* scene, aiNode* node, aiMatrix4x4 parentTransform);
+	void loadScene(const char* path);
 };
