@@ -20,6 +20,7 @@ void Renderer::start()
 
 void Renderer::update()
 {
+    
     m_ResourceManager->m_Cam.calculateCameraOrbit();
     m_GuiManager.update();
     m_GuiManager.drawViewportGUI(m_FramebufferTexture, ImVec2(m_framebufferSize.x,m_framebufferSize.y));
@@ -27,7 +28,7 @@ void Renderer::update()
     glViewport(0, 0, m_WindowManager->m_WindowWidth, m_WindowManager->m_WindowHeight);
     glClearColor(0.10f, 0.12f, 0.16f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    glBindFramebuffer(GL_FRAMEBUFFER,m_Framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_MsaaFramebuffer);
     ImVec2 viewportSize = m_GuiManager.getViewportWindowSize();
     glViewport(0,0,viewportSize.x,viewportSize.y);
     glClearColor(0.518, 0.506, 0.478,1.0f);
@@ -35,6 +36,9 @@ void Renderer::update()
     for (auto& mesh : m_ResourceManager->m_Meshes) {
         mesh.drawMesh();
     }
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_MsaaFramebuffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Framebuffer);
+    glBlitFramebuffer(0, 0, m_framebufferSize.x, m_framebufferSize.y, 0, 0, m_framebufferSize.x, m_framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER,0);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(m_WindowManager->m_Window);
@@ -44,21 +48,34 @@ void Renderer::update()
 /// </summary>
 void Renderer::createFramebuffer()
 {
+    //MSAA Framebuffer;
+    glGenFramebuffers(1, &m_MsaaFramebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER,m_MsaaFramebuffer);
+    glGenTextures(1, &m_MsaaFramebufferTexture);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_MsaaFramebufferTexture);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_MSAAsamples, GL_RGB, m_framebufferSize.x, m_framebufferSize.y, GL_TRUE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D_MULTISAMPLE,m_MsaaFramebufferTexture,0);
+    
+    //Depth and stencil information
+    glGenRenderbuffers(1, &m_Rendererbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, m_Rendererbuffer);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_MSAAsamples, GL_DEPTH24_STENCIL8, m_framebufferSize.x, m_framebufferSize.y);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Rendererbuffer);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        throw std::runtime_error("MSAA FBO incomplete!");
+    
+    //Color attachment & main fbo
     glGenFramebuffers(1, &m_Framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer);
-    //Color attachment
     glGenTextures(1, &m_FramebufferTexture);
     glBindTexture(GL_TEXTURE_2D, m_FramebufferTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_framebufferSize.x, m_framebufferSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FramebufferTexture, 0);
-    //Depth and stencil information
-    glGenRenderbuffers(1, &m_Rendererbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, m_Rendererbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_framebufferSize.x, m_framebufferSize.y);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Rendererbuffer);
+
+    
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cerr << "Framebuffer is not complete";
     }
