@@ -25,7 +25,7 @@ void Renderer::update()
     m_GuiManager.drawViewportGUI(m_FramebufferTexture, ImVec2(m_framebufferSize.x,m_framebufferSize.y));
     ImGui::Render();
     glViewport(0, 0, m_WindowManager->m_WindowWidth, m_WindowManager->m_WindowHeight);
-    glClearColor(0.172, 0.172, 0.329f,1.0f);
+    glClearColor(0.10f, 0.12f, 0.16f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER,m_Framebuffer);
     ImVec2 viewportSize = m_GuiManager.getViewportWindowSize();

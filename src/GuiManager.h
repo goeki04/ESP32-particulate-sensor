@@ -46,7 +46,6 @@ private:
     int m_WindowWidth = 0;
     int m_WindowHeight = 0;
     ImVec2 m_ViewportPos;
-    ImVec4 m_GuiColor;
     float m_MenuBarHeight = 0;
     float m_WidgetWidth = 0;
     float m_MarginDefault = 0;

@@ -71,7 +71,7 @@ void GuiManager::drawNavBar()
 {
     ImGuiStyle& style = ImGui::GetStyle();
     style.FramePadding.y = 9.0f;
-    style.WindowBorderSize = 0.0f;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground;
     if (ImGui::BeginMainMenuBar())
     {
@@ -112,6 +112,7 @@ void GuiManager::drawNavBar()
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
+        ImGui::PopStyleVar();
         if (m_ShowVersion) {
             ImGui::SetNextWindowSize(ImVec2(m_WidgetWidth, m_WidgetWidth));
             ImGui::Begin("Version", &m_ShowVersion,m_WindowFlags);
@@ -126,7 +127,7 @@ void GuiManager::drawNavBar()
             int major = SDL_MAJOR_VERSION;
             int minor = SDL_MINOR_VERSION;
             int patch = SDL_MICRO_VERSION;
-            std::string sdlVersion = std::format("SDL: {}.{}.{}", major, minor, patch);
+            std::string sdlVersion = std::format("SDL {}.{}.{}", major, minor, patch);
             ImGui::TextUnformatted(sdlVersion.c_str());
             ImGui::End();
         }
@@ -154,35 +155,29 @@ void GuiManager::drawNotification()
 {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight - m_MenuBarHeight - m_MarginDefault * 2);
     ImVec2 newPos = getNewWindowPos(Margin(0.0f, m_MarginDefault, m_MarginDefault, m_MarginDefault), windowSize, Alignment::TopRight);
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, m_GuiColor);
     ImGui::SetNextWindowPos(newPos);
     ImGui::SetNextWindowSize(windowSize);
     ImGui::Begin("Notifications", 0, m_WindowFlags);
     ImGui::End();
-    ImGui::PopStyleColor();
 }
 
 void GuiManager::drawInformation()
 {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.55f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, m_MarginDefault), windowSize, Alignment::TopLeft);
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, m_GuiColor);
     ImGui::SetNextWindowPos(newPos);
     ImGui::SetNextWindowSize(windowSize);
     ImGui::Begin("Information", 0, m_WindowFlags);
     ImGui::End();
-    ImGui::PopStyleColor();
 }
 
 void GuiManager::drawChart() {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.35f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::BottomLeft);
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, m_GuiColor);
     ImGui::SetNextWindowPos(newPos);
     ImGui::SetNextWindowSize(windowSize);
     ImGui::Begin("Chart", 0, m_WindowFlags);
     ImGui::End();
-    ImGui::PopStyleColor();
 }
 
 void GuiManager::drawMeasurementDisplay() {
@@ -197,7 +192,6 @@ void GuiManager::drawMeasurementDisplay() {
     ImVec2 windowSize = ImVec2(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 100, m_WindowHeight * 0.35f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::CenterBottom);
     float windowPadding = windowSize.x * 0.1f;
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, m_GuiColor);
     ImGui::SetNextWindowPos(newPos);
     ImGui::SetNextWindowSize(windowSize);
     ImGui::Begin("Measurement", 0, m_WindowFlags);
@@ -216,7 +210,6 @@ void GuiManager::drawMeasurementDisplay() {
         ImGui::EndTable();
     }
     ImGui::End();
-    ImGui::PopStyleColor();
 }
 
 void GuiManager::OpenURL(const std::string& url)
@@ -346,5 +339,29 @@ void GuiManager::setStyle() {
     style.WindowRounding = 10.0f;    // Radius
     style.ChildRounding = 10.0f;
     style.FrameRounding = 10.0f;
-    m_GuiColor = ImVec4(0.278, 0.278, 0.529,1.0);
+    style.WindowBorderSize = 1.0f;   // 0 = kein Rand
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_WindowBg]         = ImVec4(0.15f, 0.17f, 0.23f, 1.00f);
+    colors[ImGuiCol_ChildBg]          = ImVec4(0.12f, 0.14f, 0.19f, 1.00f);
+    colors[ImGuiCol_PopupBg]          = ImVec4(0.10f, 0.12f, 0.18f, 1.00f);
+    colors[ImGuiCol_Border]           = ImVec4(0.18f, 0.20f, 0.30f, 0.9f);
+    colors[ImGuiCol_FrameBg]          = ImVec4(0.17f, 0.19f, 0.26f, 1.00f);
+
+    colors[ImGuiCol_TitleBg]          = ImVec4(0.12f, 0.14f, 0.20f, 1.00f);
+    colors[ImGuiCol_TitleBgActive]    = ImVec4(0.16f, 0.18f, 0.26f, 1.00f);
+
+    colors[ImGuiCol_Header]           = ImVec4(0.20f, 0.22f, 0.30f, 1.00f);
+    colors[ImGuiCol_HeaderHovered]    = ImVec4(0.26f, 0.28f, 0.38f, 1.00f);
+    colors[ImGuiCol_HeaderActive]     = ImVec4(0.30f, 0.32f, 0.44f, 1.00f);
+
+    colors[ImGuiCol_Button]           = ImVec4(0.21f, 0.23f, 0.32f, 1.00f);
+    colors[ImGuiCol_ButtonHovered]    = ImVec4(0.28f, 0.30f, 0.40f, 1.00f);
+    colors[ImGuiCol_ButtonActive]     = ImVec4(0.32f, 0.35f, 0.46f, 1.00f);
+
+    colors[ImGuiCol_CheckMark]        = ImVec4(0.53f, 0.58f, 0.95f, 1.00f);
+    colors[ImGuiCol_SliderGrab]       = ImVec4(0.50f, 0.55f, 0.90f, 1.00f);
+    colors[ImGuiCol_SliderGrabActive] = ImVec4(0.57f, 0.62f, 0.98f, 1.00f);
+
+    colors[ImGuiCol_Text]             = ImVec4(0.86f, 0.89f, 0.93f, 1.00f);
+    colors[ImGuiCol_TextDisabled]     = ImVec4(0.47f, 0.50f, 0.56f, 1.00f);
 }
