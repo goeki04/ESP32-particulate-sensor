@@ -1,0 +1,11 @@
+Model Information:
+* title:	ESP32 Wroom
+* source:	https://sketchfab.com/3d-models/esp32-wroom-fd714190aacc4e3f9c26b8d7e27807fc
+* author:	TER1Z (https://sketchfab.com/TER1Z)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "ESP32 Wroom" (https://sketchfab.com/3d-models/esp32-wroom-fd714190aacc4e3f9c26b8d7e27807fc) by TER1Z (https://sketchfab.com/TER1Z) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -1,9 +1,10 @@
 #pragma once
 class Camera {
-	
+private:
+	bool mouseDownLastFrame = false;
 	float mouseX = 0.0f;
 	float mouseY = 0.0f;
-	float angleX = -0.8f;   // ~45°
+	float angleX = -0.8f;
 	float angleY = -0.5f;
 	glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);

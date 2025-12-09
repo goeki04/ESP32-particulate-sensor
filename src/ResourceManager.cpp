@@ -84,11 +84,6 @@ void ResourceManager::processNode(const aiScene* scene,aiNode* node, aiMatrix4x4
         if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
             m_Textures.emplace_back(createColorTexture(color));
         }
-        if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) != AI_SUCCESS)
-        {
-            // falls das Material KEINE diffuse Farbe hat, eine Default-Textur erzeugen
-            m_Textures.emplace_back(createColorTexture(color));
-        }
         newMesh.setTextureID(m_Textures[m_Textures.size() - 1]);
         m_Meshes.push_back(std::move(newMesh));
     }
