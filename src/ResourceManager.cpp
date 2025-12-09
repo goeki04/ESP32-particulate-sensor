@@ -15,7 +15,7 @@ void ResourceManager::start()
         throw std::exception("Failed to call glewInit!");
     }
     addShader<UnlitShader>("../src/shader/vertexShader.glsl", "../src/shader/fragmentShader.glsl");
-    loadAssimpScene("../assets/models/scene.gltf");
+    loadScene("../assets/models/ESP32Wroom.fbx");
     setupMeshes();
 }
 
@@ -37,52 +37,80 @@ void ResourceManager::setupMeshes()
         mesh.setShader(m_Shaders[(int)shaderType::unlit].get());
     }
 }
-
-/// <summary>
-/// Call this function before ImGui::Render()
-/// </summary>
-void ResourceManager::loadAssimpScene(const char* path)
+//TODO: TEXTURE CACHING
+void ResourceManager::processNode(const aiScene* scene,aiNode* node, aiMatrix4x4 parentTransform)
 {
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-    if (scene == nullptr) {
-        throw std::runtime_error(importer.GetErrorString());
-    }
-
-    int numMeshes = scene->mNumMeshes; //Todo: what happens when this function is called multiple times?
-    m_Meshes.resize(numMeshes);
-
-    for (int i = 0; i < numMeshes; i++) {
-
+    aiMatrix4x4 globalTransform = parentTransform * node->mTransformation;
+    for (int i = 0; i < node->mNumMeshes; i++) {
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         std::vector<unsigned int> indexBuffer;
         std::vector<Vertex> vertices;
-        aiMesh* mesh = scene->mMeshes[i];
 
         vertices.reserve(mesh->mNumVertices);
-
+        aiMatrix3x3 normalMatrix = aiMatrix3x3(globalTransform);
+        normalMatrix = normalMatrix.Inverse().Transpose();
         for (int j = 0; j < mesh->mNumVertices; j++) {
-            vertices.emplace_back();
-            vertices[j].setPosition(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z);
+            Vertex vertex{ };
+            aiVector3D worldPos = mesh->mVertices[j];
+            vertex.setPosition(worldPos.x, worldPos.y, worldPos.z);
             if (mesh->HasNormals()) {
-                vertices[j].setNormals(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z);
+                aiVector3D n = mesh->mNormals[j];
+                aiVector3D worldNormal = normalMatrix * n;
+                worldNormal.Normalize();
+                vertex.setNormals(worldNormal.x, worldNormal.y, worldNormal.z);
             }
-            vertices[j].setUV(mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y);
+            else {
+                std::printf("Vertex doesnt have normals");
+            }
+            if (mesh->HasTextureCoords(0)) {
+
+                vertex.setUV(mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y);
+            }
+            else {
+                std::cout << "Mesh doesn't have UV-coordinates. You should fix that." << std::endl;
+            }
+            vertices.push_back(vertex);
         }
 
         for (int k = 0; k < mesh->mNumFaces; k++) {
             indexBuffer.insert(indexBuffer.end(), mesh->mFaces[k].mIndices, mesh->mFaces[k].mIndices + mesh->mFaces[k].mNumIndices);
         }
-
-        m_Meshes[i].m_VertexBuffer = std::move(vertices);
-        m_Meshes[i].m_IndexBuffer = std::move(indexBuffer);
+        Mesh newMesh;
+        newMesh.m_VertexBuffer = std::move(vertices);
+        newMesh.m_IndexBuffer = std::move(indexBuffer);
         aiColor3D color(1.0f, 1.0f, 1.0f);
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
         aiString texPath;
         if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
-                m_Textures.emplace_back(createColorTexture(color));
+            m_Textures.emplace_back(createColorTexture(color));
         }
-        m_Meshes[i].setTextureID(m_Textures[m_Textures.size() - 1]);
+        if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) != AI_SUCCESS)
+        {
+            // falls das Material KEINE diffuse Farbe hat, eine Default-Textur erzeugen
+            m_Textures.emplace_back(createColorTexture(color));
+        }
+        newMesh.setTextureID(m_Textures[m_Textures.size() - 1]);
+        m_Meshes.push_back(std::move(newMesh));
     }
+    for (int i = 0; i < node->mNumChildren;i++) {
+        processNode(scene,node->mChildren[i], globalTransform);
+    }
+}
+
+void ResourceManager::loadScene(const char* path) {
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+    if (scene == nullptr) {
+        throw std::runtime_error(importer.GetErrorString());
+    }
+    aiNode* rootNode = scene->mRootNode;
+    aiMatrix4x4 identity(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    );
+    processNode(scene,rootNode,identity);
 }
 
 GLuint ResourceManager::createColorTexture(aiColor3D& color)
