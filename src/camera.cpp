@@ -1,26 +1,36 @@
 #include "pch.h"
 #include "camera.h"
 #include "GuiManager.h"
+#include "WindowManager.h"
 glm::mat4 Camera::projection = glm::mat4(1.0f);
 void Camera::cameraMovement()
 {
-	Uint32 mouseButtonState = SDL_GetMouseState(NULL, NULL);
-	if (mouseButtonState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
-		float currentMouseX, currentMouseY;
-		SDL_GetMouseState(&currentMouseX, &currentMouseY);
-		if (lastMouseX == 0.0f && lastMouseY == 0.0f) {
-			lastMouseX = (float)currentMouseX;
-			lastMouseY = (float)currentMouseY;
-		}
-		float deltaX = (float)currentMouseX - lastMouseX;
-		float deltaY = (float)currentMouseY - lastMouseY;
-		angleX += deltaX * sensitivity;
-		angleY -= deltaY * sensitivity; // Y-Achse meist invertiert
+    Uint32 mouseButtonState = SDL_GetMouseState(NULL, NULL);
+    bool mouseDown = mouseButtonState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 
-		lastMouseX = (float)currentMouseX;
-		lastMouseY = (float)currentMouseY;
-		m_ViewMatrix = calculateCameraOrbit();
-	}
+    float currentMouseX, currentMouseY;
+    SDL_GetMouseState(&currentMouseX, &currentMouseY);
+
+    if (mouseDown)
+    {
+        if (!mouseDownLastFrame)
+        {
+            lastMouseX = currentMouseX;
+            lastMouseY = currentMouseY;
+        }
+
+        float deltaX = currentMouseX - lastMouseX;
+        float deltaY = currentMouseY - lastMouseY;
+
+        angleX += deltaX * sensitivity;
+        angleY -= deltaY * sensitivity;
+
+        lastMouseX = currentMouseX;
+        lastMouseY = currentMouseY;
+
+        m_ViewMatrix = calculateCameraOrbit();
+    }
+    mouseDownLastFrame = mouseDown;
 }
 
 void Camera::zoom(SDL_Event* event) {

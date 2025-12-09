@@ -29,7 +29,7 @@ enum Alignment {
 };
 
 class GuiManager{
-    public:
+public:
     static ImVec2 s_ViewportSize;
     static bool s_ViewportFocused;
 
@@ -41,6 +41,8 @@ class GuiManager{
     void loadFont();
     ImVec2 getViewportWindowSize();
 private:
+    std::string m_ImguiVersion = "ImGui: " + std::string(IMGUI_VERSION);
+    static bool m_ShowVersion;
     int m_WindowWidth = 0;
     int m_WindowHeight = 0;
     ImVec2 m_ViewportPos;
@@ -49,14 +51,15 @@ private:
     float m_WidgetWidth = 0;
     float m_MarginDefault = 0;
     ImGuiWindowFlags m_WindowFlags = 0;
-    //debug
     bool m_Debug = false;
     ImVec2 getViewportWindowPos();
     void drawNavBar();
+    void OpenFolder();
     void drawNotification();
     void drawInformation();
     void drawChart();
     void drawMeasurementDisplay();
+    void OpenURL(const std::string& url);
     void setViewportSize();
     void setFlags();
     void setStyle();

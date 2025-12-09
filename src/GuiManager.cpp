@@ -6,6 +6,7 @@
 #include "camera.h"
 ImVec2 GuiManager::s_ViewportSize = ImVec2(0.0f,0.0f);
 bool GuiManager::s_ViewportFocused = false;
+bool GuiManager::m_ShowVersion = false;
 void GuiManager::init(SDL_Window* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -32,6 +33,7 @@ void GuiManager::update() {
 
 void GuiManager::drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebufferSize)
 {
+    SDL_Window* mainWindow = SDL_GetMouseFocus();
     ImGuiWindowFlags windowFlags = 0;
     windowFlags |= ImGuiWindowFlags_NoResize;
     windowFlags |= ImGuiWindowFlags_NoMove;
@@ -44,7 +46,6 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebu
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::Begin("Viewport", 0, windowFlags);
     s_ViewportFocused = ImGui::IsWindowFocused() ? true : false;
-
     ImGui::Image((void*)(intptr_t)framebufferTexture, ImVec2(framebufferSize.x, framebufferSize.y), ImVec2(0, 0), ImVec2(1, 1));
     ImGui::End();
     ImGui::PopStyleVar();
@@ -96,14 +97,57 @@ void GuiManager::drawNavBar()
 
         if (ImGui::BeginMenu("Info"))
         {
-            if (ImGui::MenuItem("Licenses")) {}
-            if (ImGui::MenuItem("SDK's")) {}
-            if (ImGui::MenuItem("Github")) {}
-            if (ImGui::MenuItem("Version")) {}
+            if (ImGui::MenuItem("Licenses")) {
+                OpenFolder();
+            }
+            if (ImGui::MenuItem("SDK")) {
+                OpenURL("https://www.bosch-sensortec.com/software-tools/software/previous-sdk-bmv-080-versions/");
+            }
+            if (ImGui::MenuItem("Github")) {
+                OpenURL("https://github.com/goeki04/ESP32-particulate-sensor");
+            }
+            if (ImGui::MenuItem("Version")) {
+                m_ShowVersion = true;
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
+        if (m_ShowVersion) {
+            ImGui::SetNextWindowSize(ImVec2(m_WidgetWidth, m_WidgetWidth));
+            ImGui::Begin("Version", &m_ShowVersion,m_WindowFlags);
+            ImGui::TextUnformatted("App version: V1.0.0");
+            std::string osName = "OS: " + std::string(g_os);
+            ImGui::TextUnformatted(osName.c_str());
+            std::string arch = "Arch: " + std::string(g_arch);
+            ImGui::TextUnformatted(arch.c_str());
+            ImGui::TextUnformatted("Dev: Goekdeniz Koeksal");
+            ImGui::TextUnformatted(m_ImguiVersion.c_str());
+
+            int major = SDL_MAJOR_VERSION;
+            int minor = SDL_MINOR_VERSION;
+            int patch = SDL_MICRO_VERSION;
+            std::string sdlVersion = std::format("SDL: {}.{}.{}", major, minor, patch);
+            ImGui::TextUnformatted(sdlVersion.c_str());
+            ImGui::End();
+        }
     }
+}
+void GuiManager::OpenFolder()
+{
+#if defined(_WIN32)
+    auto targetDirectory =  std::filesystem::current_path().parent_path() / "Licenses";
+    std::string cmd = "explorer \"" + targetDirectory.string() + "\"";
+    system(cmd.c_str());
+
+#elif defined(__APPLE__)
+    std::string cmd = "open \"" + currentPath + "\"";
+    system(cmd.c_str());
+
+#else // Linux
+    std::string cmd = "xdg-open \"" + currentPath + "\"";
+    system(cmd.c_str());
+
+#endif
 }
 
 void GuiManager::drawNotification()
@@ -142,19 +186,54 @@ void GuiManager::drawChart() {
 }
 
 void GuiManager::drawMeasurementDisplay() {
+    auto CenterText = [](const char* text)
+    {
+       float columnWidth = ImGui::GetColumnWidth();
+       float textWidth = ImGui::CalcTextSize(text).x;
+       float offset = (columnWidth - textWidth) * 0.5f;
+       ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset);
+       ImGui::TextUnformatted(text);
+    };
     ImVec2 windowSize = ImVec2(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 100, m_WindowHeight * 0.35f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::CenterBottom);
+    float windowPadding = windowSize.x * 0.1f;
     ImGui::PushStyleColor(ImGuiCol_WindowBg, m_GuiColor);
     ImGui::SetNextWindowPos(newPos);
     ImGui::SetNextWindowSize(windowSize);
     ImGui::Begin("Measurement", 0, m_WindowFlags);
-    ImGui::Text("PM2.5");
-    ImGui::SameLine();
-    ImGui::Text("PM5");
-    ImGui::SameLine();
-    ImGui::Text("PM10");
+    if (ImGui::BeginTable("MyTable", 3)) {
+        ImGui::TableNextRow();
+
+        ImGui::TableSetColumnIndex(0);
+        CenterText("PM2.5");
+
+        ImGui::TableSetColumnIndex(1);
+        CenterText("PM5");
+
+        ImGui::TableSetColumnIndex(2);
+        CenterText("PM10");
+
+        ImGui::EndTable();
+    }
     ImGui::End();
     ImGui::PopStyleColor();
+}
+
+void GuiManager::OpenURL(const std::string& url)
+{
+#if defined(_WIN32)
+    std::string command = "start " + url;
+    system(command.c_str());
+
+#elif defined(__APPLE__)
+    std::string command = "open " + url;
+    system(command.c_str());
+
+#else   // Linux
+    std::string command = "xdg-open " + url;
+    system(command.c_str());
+
+#endif
 }
 
 ImVec2 GuiManager::getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment)
@@ -264,5 +343,8 @@ void GuiManager::setStyle() {
     float mainScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     style.ScaleAllSizes(mainScale);
     style.FontScaleDpi = mainScale;
+    style.WindowRounding = 10.0f;    // Radius
+    style.ChildRounding = 10.0f;
+    style.FrameRounding = 10.0f;
     m_GuiColor = ImVec4(0.278, 0.278, 0.529,1.0);
 }
