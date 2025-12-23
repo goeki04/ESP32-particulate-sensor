@@ -35,13 +35,10 @@ void Shader::setTexture(const char* uniformName, const GLuint textureID)
     glUniform1i(glGetUniformLocation(m_Program, uniformName), 0);
 }
 
-void UnlitShader::setUniforms(GLuint textureID)
+void UnlitShader::setUniforms(GLuint textureID,glm::mat4& modelMatrix)
 {
     use();
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1, 0, 0));
-    model = glm::scale(model,glm::vec3(1.0f,1.0f,1.0f));
-    setMat4x4("model", model);
+    setMat4x4("model", modelMatrix);
     setMat4x4("projection", Camera::getProjectionMatrix());
     setMat4x4("view", m_Camera.m_ViewMatrix);
     setVec3("sunLight.color", m_DirLight.color);

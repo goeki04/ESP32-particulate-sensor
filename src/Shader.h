@@ -1,6 +1,5 @@
 #pragma once
 #include "camera.h"
-
 struct DirLight{
 	glm::vec3 direction;
 	glm::vec3 color;
@@ -14,12 +13,12 @@ class Shader {
 	Camera& m_Camera;
 	DirLight m_DirLight;
 	Shader(Camera& cam,const char* vertexPath, const char* fragmentPath) :
-		 m_Camera(cam),m_VertexShaderPath(vertexPath), m_FragmentShaderPath(fragmentPath) {
+		 m_Camera(cam),m_VertexShaderPath(vertexPath), m_FragmentShaderPath(fragmentPath){
 		m_DirLight.color = glm::vec3(1.0f,1.0f,1.0f);
 		m_DirLight.direction = glm::vec3(1.0f,1.0f,0.5f);
 	}
 	virtual ~Shader() = default;
-	virtual void setUniforms(GLuint textureID) = 0;
+	virtual void setUniforms(GLuint textureID, glm::mat4& modelMatrix) = 0;
 	virtual void compileShader() = 0;
 	std::string readShaderSource(const char* shaderPath);
 	void use() {
@@ -37,6 +36,6 @@ enum class shaderType{
 class UnlitShader : public Shader {
 	public:
 	UnlitShader(Camera& cam, const char* vertexPath, const char* fragmentPath) : Shader(cam,vertexPath, fragmentPath) {}
-	void setUniforms(GLuint textureID) override;
+	void setUniforms(GLuint textureID, glm::mat4& modelMatrix) override;
 	void compileShader() override;
 };

@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "camera.h"
+#include "SceneObject.h"
 #include <unordered_map>
 class ResourceManager : public ISubsystem{
 public:
@@ -11,7 +12,7 @@ public:
 	void update() override;
 	SDL_GLContext m_GlContext = NULL;
 	std::vector<std::unique_ptr<Shader>> m_Shaders;
-	std::vector<Mesh> m_Meshes;
+	std::vector<SceneObject> m_SceneObjects;
 	std::vector<GLuint> m_Textures; //remove duplicates
 	Camera m_Cam;
 private:
