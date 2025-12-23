@@ -18,7 +18,6 @@ void Camera::cameraMovement()
             lastMouseX = currentMouseX;
             lastMouseY = currentMouseY;
         }
-
         float deltaX = currentMouseX - lastMouseX;
         float deltaY = currentMouseY - lastMouseY;
 

@@ -24,17 +24,15 @@ void Mesh::createMesh()
     glBindVertexArray(0);
 }
 
-void Mesh::drawMesh()
-{
-    glUseProgram(m_Shader->m_Program);
-    m_Shader->setUniforms(m_TextureID);
-    glBindVertexArray(m_Vao);
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_IndexBuffer.size()), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-}
+
 void Mesh::setTextureID(GLuint id)
 {
     m_TextureID = id;
+}
+
+GLuint Mesh::getTextureID()
+{
+    return m_TextureID;
 }
 
 void BoundingBox::recalculateBoundingBox(Mesh& mesh)

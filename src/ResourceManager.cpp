@@ -16,6 +16,7 @@ void ResourceManager::start()
     }
     addShader<UnlitShader>("../src/shader/vertexShader.glsl", "../src/shader/fragmentShader.glsl");
     loadScene("../assets/models/ESP32Wroom.fbx");
+    loadScene("../assets/models/BMV080.obj");
     setupMeshes();
 }
 
@@ -32,20 +33,24 @@ void ResourceManager::updateEvent(SDL_Event* event) {
 }
 void ResourceManager::setupMeshes()
 {
-    for (auto& mesh : m_Meshes) {
-        mesh.createMesh();
-        mesh.setShader(m_Shaders[(int)shaderType::unlit].get());
+    for (auto& sceneObject : m_SceneObjects) {
+        for (auto& mesh : sceneObject.m_Submeshes) {
+            mesh.createMesh();
+        }
+        sceneObject.setShader(m_Shaders[(int)shaderType::unlit].get());
     }
 }
-//TODO: TEXTURE CACHING
+//TODO: texture caching
 void ResourceManager::processNode(const aiScene* scene,aiNode* node, aiMatrix4x4 parentTransform)
 {
     aiMatrix4x4 globalTransform = parentTransform * node->mTransformation;
+    const size_t objIndex = m_SceneObjects.size();
+    m_SceneObjects.emplace_back();
+    auto& sceneObject = m_SceneObjects[objIndex];
     for (int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         std::vector<unsigned int> indexBuffer;
         std::vector<Vertex> vertices;
-
         vertices.reserve(mesh->mNumVertices);
         aiMatrix3x3 normalMatrix = aiMatrix3x3(globalTransform);
         normalMatrix = normalMatrix.Inverse().Transpose();
@@ -75,7 +80,7 @@ void ResourceManager::processNode(const aiScene* scene,aiNode* node, aiMatrix4x4
         for (int k = 0; k < mesh->mNumFaces; k++) {
             indexBuffer.insert(indexBuffer.end(), mesh->mFaces[k].mIndices, mesh->mFaces[k].mIndices + mesh->mFaces[k].mNumIndices);
         }
-        Mesh newMesh;
+        auto& newMesh = sceneObject.m_Submeshes.emplace_back();
         newMesh.m_VertexBuffer = std::move(vertices);
         newMesh.m_IndexBuffer = std::move(indexBuffer);
         aiColor3D color(1.0f, 1.0f, 1.0f);
@@ -85,7 +90,6 @@ void ResourceManager::processNode(const aiScene* scene,aiNode* node, aiMatrix4x4
             m_Textures.emplace_back(createColorTexture(color));
         }
         newMesh.setTextureID(m_Textures[m_Textures.size() - 1]);
-        m_Meshes.push_back(std::move(newMesh));
     }
     for (int i = 0; i < node->mNumChildren;i++) {
         processNode(scene,node->mChildren[i], globalTransform);

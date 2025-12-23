@@ -3,6 +3,11 @@
 #include "GuiManager.h"
 class WindowManager;
 class ResourceManager;
+
+enum class MsaaSamples {
+	x2 = 2,x4 = 4,x8 = 8
+};
+
 class Renderer : public ISubsystem{
 public:
 	void start() override;
@@ -14,7 +19,7 @@ private:
 	unsigned int m_Framebuffer, m_MsaaFramebuffer;
 	unsigned int m_FramebufferTexture,m_MsaaFramebufferTexture;
 	unsigned int m_Rendererbuffer = 0;
-	const unsigned int m_MSAAsamples = 4;
+	const unsigned int m_MSAAsamples = (int)MsaaSamples::x4;
 	void createFramebuffer();
 	ResourceManager* m_ResourceManager = nullptr;
 	WindowManager* m_WindowManager = nullptr;

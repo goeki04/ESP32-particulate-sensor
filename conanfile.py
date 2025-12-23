@@ -7,7 +7,7 @@ class CmakeTest(ConanFile):
     def requirements(self):
         self.requires("glm/1.0.1")
         self.requires("sdl/3.2.20")
-        self.requires("imgui/1.92.4")
+        self.requires("imgui/1.92.5")
         self.requires("glew/2.2.0")
         self.requires("assimp/6.0.2")
         self.requires("stb/cci.20230920")

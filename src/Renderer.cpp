@@ -20,7 +20,6 @@ void Renderer::start()
 
 void Renderer::update()
 {
-    
     m_ResourceManager->m_Cam.calculateCameraOrbit();
     m_GuiManager.update();
     m_GuiManager.drawViewportGUI(m_FramebufferTexture, ImVec2(m_framebufferSize.x,m_framebufferSize.y));
@@ -33,8 +32,8 @@ void Renderer::update()
     glViewport(0,0,viewportSize.x,viewportSize.y);
     glClearColor(0.518, 0.506, 0.478,1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for (auto& mesh : m_ResourceManager->m_Meshes) {
-        mesh.drawMesh();
+    for (auto& sceneObjects : m_ResourceManager->m_SceneObjects) {
+        sceneObjects.drawMesh();
     }
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_MsaaFramebuffer);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Framebuffer);
@@ -44,7 +43,7 @@ void Renderer::update()
     SDL_GL_SwapWindow(m_WindowManager->m_Window);
 }
 /// <summary>
-/// Call this function after initializing guimanager to create an offscreen framebuffer.
+/// Call this function after initializing guimanager to create offscreen framebuffers.
 /// </summary>
 void Renderer::createFramebuffer()
 {
@@ -90,7 +89,3 @@ void Renderer::destroy() {
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
 }
-
-
-
-

@@ -60,8 +60,8 @@ void GuiManager::loadFont()
 {
     ImGuiIO& io = ImGui::GetIO();(void)io;
 
-    io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto_Condensed-Black.ttf");
-    ImFont* font = io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto_Condensed-Black.ttf");
+    io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto_Condensed-Black.ttf",24.0f);
+    ImFont* font = io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto_Condensed-Black.ttf",24.0f);
     if (font == nullptr) {
         throw std::runtime_error("failed loading Roboto font");
     }
@@ -335,7 +335,6 @@ void GuiManager::setStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
     float mainScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     style.ScaleAllSizes(mainScale);
-    style.FontScaleDpi = mainScale;
     style.WindowRounding = 10.0f;    // Radius
     style.ChildRounding = 10.0f;
     style.FrameRounding = 10.0f;
