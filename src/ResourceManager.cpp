@@ -19,7 +19,9 @@ void ResourceManager::start()
     loadScene("../assets/models/BMV080.obj");
     
     setupMeshes(); 
-    m_SceneObjects[0].m_Transform.position = glm::vec3(20.0f, 15.0f, 0.0f);
+    m_SceneObjects[0].m_Transform.rotation = glm::vec3(0, 0.0f, 0);
+    m_SceneObjects[1].m_Transform.rotation = glm::vec3(glm::radians(180.0f), 0.0f, 0.0f);
+
 }
 
 void ResourceManager::update() {
@@ -72,10 +74,7 @@ void ResourceManager::processNode(const aiScene* scene, aiNode* node, aiMatrix4x
                 vertex.setPosition(worldPos.x, worldPos.y, worldPos.z);
 
                 if (mesh->HasNormals()) {
-                    aiVector3D n = mesh->mNormals[j];
-                    aiVector3D worldNormal = normalMatrix * n;
-                    worldNormal.Normalize();
-                    vertex.setNormals(worldNormal.x, worldNormal.y, worldNormal.z);
+                    vertex.setNormals(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z);
                 }
                 else {
                     std::printf("Vertex doesnt have normals");
@@ -117,7 +116,7 @@ void ResourceManager::processNode(const aiScene* scene, aiNode* node, aiMatrix4x
 
 void ResourceManager::loadScene(const char* path) {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate| aiProcess_ConvertToLeftHanded | aiProcess_FlipUVs | aiProcess_GenNormals);
     if (scene == nullptr) {
         throw std::runtime_error(importer.GetErrorString());
     }

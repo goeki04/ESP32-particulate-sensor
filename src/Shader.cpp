@@ -39,23 +39,13 @@ void UnlitShader::setUniforms(GLuint textureID,glm::mat4& modelMatrix)
 {
     GLint current = 0;
     glGetIntegerv(GL_CURRENT_PROGRAM, &current);
-    static bool debug = false;
-    if (debug == false) {
-        std::cout << "\nset uniforms: " << std::endl;
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                std::cout << modelMatrix[i][j] << " ";
-            }
-            std::cout << " " << std::endl;
-        }
-        debug = true;
-    }
     use();
     setMat4x4("model", modelMatrix);
     setMat4x4("projection", Camera::getProjectionMatrix());
     setMat4x4("view", m_Camera.m_ViewMatrix);
     setVec3("sunLight.color", m_DirLight.color);
     setVec3("sunLight.direction", m_DirLight.direction);
+    setVec3("ambientLight",m_AmbientLight);
     setTexture("texture1", textureID);
 }
 

@@ -3,13 +3,13 @@ out vec4 FragColor;
 in vec3 normal;
 in vec3 fragPos;
 in vec2 texCoords;
-vec3 ambientLight = vec3(0.4f,0.4f,0.4f);
 struct DirLight{
     vec3 color;
     vec3 direction;
 };
 uniform DirLight sunLight;
 uniform sampler2D texture1;
+uniform vec3 ambientLight;
 void main(){
     vec3 norm = normalize(normal);
     vec3 lightDir = normalize(-sunLight.direction);
