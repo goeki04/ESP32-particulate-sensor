@@ -12,10 +12,12 @@ class Shader {
 	unsigned int m_Program = 0;
 	Camera& m_Camera;
 	DirLight m_DirLight;
+	glm::vec3 m_AmbientLight;
 	Shader(Camera& cam,const char* vertexPath, const char* fragmentPath) :
 		 m_Camera(cam),m_VertexShaderPath(vertexPath), m_FragmentShaderPath(fragmentPath){
 		m_DirLight.color = glm::vec3(1.0f,1.0f,1.0f);
 		m_DirLight.direction = glm::vec3(1.0f,1.0f,0.5f);
+		m_AmbientLight = glm::vec3(0.4f);
 	}
 	virtual ~Shader() = default;
 	virtual void setUniforms(GLuint textureID, glm::mat4& modelMatrix) = 0;
