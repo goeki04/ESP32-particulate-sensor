@@ -21,6 +21,9 @@ void ResourceManager::start()
     setupMeshes(); 
     m_SceneObjects[0].m_Transform.rotation = glm::vec3(0, 0.0f, 0);
     m_SceneObjects[1].m_Transform.rotation = glm::vec3(glm::radians(180.0f), 0.0f, 0.0f);
+    for (auto v : m_Meshes) {
+        std::cout << v.first << std::endl;
+    }
 
 }
 
@@ -45,7 +48,7 @@ void ResourceManager::setupMeshes()
     }
 }
 //TODO: texture caching
-void ResourceManager::processNode(const aiScene* scene, aiNode* node, aiMatrix4x4 parentTransform)
+void ResourceManager::processNode(const std::string& path,const aiScene* scene, aiNode* node, aiMatrix4x4 parentTransform)
 {
     aiMatrix4x4 globalTransform = parentTransform * node->mTransformation;
 
@@ -100,7 +103,6 @@ void ResourceManager::processNode(const aiScene* scene, aiNode* node, aiMatrix4x
             auto& newMesh = sceneObject->m_Submeshes.emplace_back();
             newMesh.m_VertexBuffer = std::move(vertices);
             newMesh.m_IndexBuffer = std::move(indexBuffer);
-
             aiColor3D color(1.0f, 1.0f, 1.0f);
             aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
             if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
@@ -110,16 +112,26 @@ void ResourceManager::processNode(const aiScene* scene, aiNode* node, aiMatrix4x
         }
     }
     for (int i = 0; i < node->mNumChildren; i++) {
-        processNode(scene, node->mChildren[i], globalTransform);
+        processNode(path,scene, node->mChildren[i], globalTransform);
     }
 }
 
-void ResourceManager::loadScene(const char* path) {
+void ResourceManager::loadScene(const std::string& path) {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate| aiProcess_ConvertToLeftHanded | aiProcess_FlipUVs | aiProcess_GenNormals);
+    const aiScene* scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_FlipUVs | aiProcess_GenNormals);
     if (scene == nullptr) {
         throw std::runtime_error(importer.GetErrorString());
     }
+    if (m_Meshes.find(path) != m_Meshes.end()) {
+        std::printf("Mesh already exists!");
+        return;
+    }
+    //Create new SceneObject
+    size_t namePos = path.find_last_of("/\\");
+    std::string objectName = path.substr(namePos+1);
+    size_t fileExtPos = objectName.find_last_of(".");
+    m_Meshes.emplace(objectName.substr(0,fileExtPos), Mesh());
+
     aiNode* rootNode = scene->mRootNode;
     aiMatrix4x4 identity(
         1, 0, 0, 0,
@@ -127,7 +139,7 @@ void ResourceManager::loadScene(const char* path) {
         0, 0, 1, 0,
         0, 0, 0, 1
     );
-    processNode(scene,rootNode,identity);
+    processNode(path,scene,rootNode,identity);
 }
 
 GLuint ResourceManager::createColorTexture(aiColor3D& color)

@@ -17,14 +17,8 @@ public:
 	void setUV(const float u,const float v) {
 		uv.x = u; uv.y = v;
 	}
-	glm::vec3 getPosition() {
+	const glm::vec3 getPosition() {
 		return pos;
-	}
-	glm::vec3 getNormals() {
-		return normal;
-	}
-	glm::vec2 getUV() {
-		return uv;
 	}
 };
 class Mesh {
