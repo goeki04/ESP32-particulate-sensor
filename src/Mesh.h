@@ -6,7 +6,8 @@ public:
 	glm::vec3 pos;
 	glm::vec3 normal;
 	glm::vec2 uv;
-	Vertex() : pos(0.0f), normal(0.0f), uv(0.0f) {};
+	glm::vec3 color;
+	Vertex() : pos(0.0f), normal(0.0f), uv(0.0f), color(1.0f) {};
 	void setPosition(const float x,const float y,const float z) {
 		pos.x = x; pos.y = y; pos.z = z;
 	}
@@ -15,6 +16,15 @@ public:
 	}
 	void setUV(const float u,const float v) {
 		uv.x = u; uv.y = v;
+	}
+	glm::vec3 getPosition() {
+		return pos;
+	}
+	glm::vec3 getNormals() {
+		return normal;
+	}
+	glm::vec2 getUV() {
+		return uv;
 	}
 };
 class Mesh {
