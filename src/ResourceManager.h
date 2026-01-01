@@ -13,6 +13,7 @@ public:
 	SDL_GLContext m_GlContext = NULL;
 	std::vector<std::unique_ptr<Shader>> m_Shaders;
 	std::vector<SceneObject> m_SceneObjects;
+	std::unordered_map<std::string, Mesh> m_Meshes;
 	std::vector<GLuint> m_Textures; //remove duplicates
 	Camera m_Cam;
 private:
@@ -23,6 +24,6 @@ private:
 	}
 	GLuint createColorTexture(aiColor3D& color);
 	void setupMeshes();
-	void processNode(const aiScene* scene, aiNode* node, aiMatrix4x4 parentTransform);
-	void loadScene(const char* path);
+	void processNode(const std::string& path,const aiScene* scene, aiNode* node, aiMatrix4x4 parentTransform);
+	void loadScene(const std::string& path);
 };
