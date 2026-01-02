@@ -49,6 +49,7 @@ private:
     int m_WindowHeight = 0;
     ImVec2 m_ViewportPos;
     float m_MenuBarHeight = 0;
+    int m_SelectedIdx = -1;
     float m_WidgetWidth = 0;
     float m_MarginDefault = 0;
     ImGuiWindowFlags m_WindowFlags = 0;
@@ -70,6 +71,10 @@ private:
 
 inline ImVec2 operator+(const ImVec2& a, const ImVec2& b) {
     return ImVec2(a.x+b.x,a.y+b.y);
+}
+
+inline ImVec2 operator-(const ImVec2& a, const ImVec2& b) {
+    return ImVec2(a.x - b.x, a.y - b.y);
 }
 
 inline bool operator==(const ImVec2& a, const ImVec2& b) {
