@@ -28,7 +28,7 @@ void GuiManager::update() {
     drawNotification();
     drawInformation();
     drawChart();
-    drawMeasurementDisplay();
+    drawDeviceBrowser();
 }
 
 void GuiManager::drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebufferSize)
@@ -167,7 +167,7 @@ void GuiManager::drawInformation()
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, m_MarginDefault), windowSize, Alignment::TopLeft);
     ImGui::SetNextWindowPos(newPos);
     ImGui::SetNextWindowSize(windowSize);
-    ImGui::Begin("Information", 0, m_WindowFlags);
+    ImGui::Begin("Devices", 0, m_WindowFlags);
     ImGui::End();
 }
 
@@ -180,7 +180,7 @@ void GuiManager::drawChart() {
     ImGui::End();
 }
 
-void GuiManager::drawMeasurementDisplay() {
+void GuiManager::drawDeviceBrowser() {
     auto CenterText = [](const char* text)
     {
        float columnWidth = ImGui::GetColumnWidth();
@@ -194,23 +194,33 @@ void GuiManager::drawMeasurementDisplay() {
     float windowPadding = windowSize.x * 0.1f;
     ImGui::SetNextWindowPos(newPos);
     ImGui::SetNextWindowSize(windowSize);
-    ImGui::Begin("Measurement", 0, m_WindowFlags);
-    if (ImGui::BeginTable("MyTable", 3)) {
-        ImGui::TableNextRow();
+    ImGui::Begin("Device Browser", 0, m_WindowFlags | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_MenuBar);
+    ImVec2 widgetSize = ImVec2(140, 0);
+    static int activeTab = 0; // 0 = Device Browser, 1 = Details Panel
 
-        ImGui::TableSetColumnIndex(0);
-        CenterText("PM2.5");
-
-        ImGui::TableSetColumnIndex(1);
-        CenterText("PM5");
-
-        ImGui::TableSetColumnIndex(2);
-        CenterText("PM10");
-
-        ImGui::EndTable();
+    if (ImGui::BeginMenuBar())
+    {
+        ImGui::SetCursorPosX(0.0f);
+        if (ImGui::BeginTabBar("TopTabs"))
+        {
+            if (ImGui::BeginTabItem("Device Browser"))
+            {
+                // Inhalt Device Browser
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Details Panel"))
+            {
+                // Inhalt Details Panel
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+        ImGui::EndMenuBar();
     }
     ImGui::End();
 }
+
+
 
 void GuiManager::OpenURL(const std::string& url)
 {
@@ -345,10 +355,11 @@ void GuiManager::setStyle() {
     colors[ImGuiCol_PopupBg]          = ImVec4(0.10f, 0.12f, 0.18f, 1.00f);
     colors[ImGuiCol_Border]           = ImVec4(0.18f, 0.20f, 0.30f, 0.9f);
     colors[ImGuiCol_FrameBg]          = ImVec4(0.17f, 0.19f, 0.26f, 1.00f);
-
+    colors[ImGuiCol_MenuBarBg]        = ImVec4(0.12f, 0.14f, 0.20f, 1.00f);
     colors[ImGuiCol_TitleBg]          = ImVec4(0.12f, 0.14f, 0.20f, 1.00f);
     colors[ImGuiCol_TitleBgActive]    = ImVec4(0.16f, 0.18f, 0.26f, 1.00f);
-
+    colors[ImGuiCol_Tab]              = ImVec4(0.12f, 0.14f, 0.20f, 1.00f);
+    colors[ImGuiCol_TabActive]        = ImVec4(0.16f, 0.18f, 0.26f, 1.00f);
     colors[ImGuiCol_Header]           = ImVec4(0.20f, 0.22f, 0.30f, 1.00f);
     colors[ImGuiCol_HeaderHovered]    = ImVec4(0.26f, 0.28f, 0.38f, 1.00f);
     colors[ImGuiCol_HeaderActive]     = ImVec4(0.30f, 0.32f, 0.44f, 1.00f);

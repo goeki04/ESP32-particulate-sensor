@@ -57,7 +57,7 @@ private:
     void drawNotification();
     void drawInformation();
     void drawChart();
-    void drawMeasurementDisplay();
+    void drawDeviceBrowser();
     void OpenURL(const std::string& url);
     void setViewportSize();
     void setFlags();
