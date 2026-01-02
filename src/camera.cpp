@@ -3,10 +3,16 @@
 #include "GuiManager.h"
 #include "WindowManager.h"
 glm::mat4 Camera::projection = glm::mat4(1.0f);
+void Camera::cursorToWorldPos()
+{
+    
+    float x = (2.0f * mouseX) / width - 1.0f;
+    float y = 1.0f - (2.0f * mouseY) / height; // Y-Achse invertieren!
+}
 void Camera::cameraMovement()
 {
     Uint32 mouseButtonState = SDL_GetMouseState(NULL, NULL);
-    bool mouseDown = mouseButtonState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
+    bool mouseDown = mouseButtonState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT);
 
     float currentMouseX, currentMouseY;
     SDL_GetMouseState(&currentMouseX, &currentMouseY);

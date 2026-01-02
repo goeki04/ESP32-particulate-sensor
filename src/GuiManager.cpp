@@ -168,7 +168,6 @@ void GuiManager::drawInformation()
     ImGui::Begin("Devices", 0, m_WindowFlags);
     ImGui::End();
 }
-
 void GuiManager::drawChart() {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.35f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::BottomLeft);
@@ -177,7 +176,6 @@ void GuiManager::drawChart() {
     ImGui::Begin("Chart", 0, m_WindowFlags);
     ImGui::End();
 }
-
 void GuiManager::drawBottomWindow() {
     ImVec2 windowSize = ImVec2(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 100, m_WindowHeight * 0.35f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::CenterBottom);
@@ -223,7 +221,6 @@ void GuiManager::drawBottomWindow() {
     }
     ImGui::End();
 }
-
 void GuiManager::drawDeviceBrowser()
 {
     static char query[128] = "";

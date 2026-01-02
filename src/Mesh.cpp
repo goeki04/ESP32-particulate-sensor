@@ -35,30 +35,21 @@ GLuint Mesh::getTextureID()
     return m_TextureID;
 }
 
-void BoundingBox::recalculateBoundingBox(Mesh& mesh)
+AABB BoundingBox::getAABB(const Mesh& mesh)
 {
-    auto& vertexBuffer = mesh.m_VertexBuffer;
-    glm::vec3 pos = vertexBuffer[0].getPosition();
-    xMin = pos.x;
-    yMin = pos.y;
-    zMin = pos.z;
+    if (mesh.m_VertexBuffer.empty())
+        throw std::runtime_error("Mesh has no vertices");
 
-    xMax = pos.x;
-    yMax = pos.y;
-    zMax = pos.y;
-    for (int i = 0; i < vertexBuffer.size(); i++) {
-        glm::vec3 iPos = vertexBuffer[i].getPosition();
-        xMin = std::min(xMin, iPos.x);
-        yMin = std::min(yMin, iPos.y);
-        zMin = std::min(zMin, iPos.z);
+    const auto& vb = mesh.m_VertexBuffer;
+    glm::vec3 min = vb[0].getPosition();
+    glm::vec3 max = min;
 
-        xMax = std::max(xMax, iPos.x);
-        yMax = std::max(yMax, iPos.y);
-        zMax = std::max(zMax, iPos.z);
+    for (const auto& v : vb) {
+        const glm::vec3 p = v.getPosition();
+        min = glm::min(min, p);
+        max = glm::max(max, p);
     }
-}
 
-glm::vec3 BoundingBox::getBoxCenter()
-{ 
-    return glm::vec3((xMin + xMax) / 2.0f, (yMin + yMax) / 2.0f, (zMin + zMax) / 2.0f);
+    glm::vec3 center = (min + max) * 0.5f;
+    return { min, max, center };
 }

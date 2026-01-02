@@ -1,4 +1,10 @@
 #pragma once
+
+struct Ray {
+	glm::vec3 origin;
+	glm::vec3 direction;
+};
+
 class Camera {
 private:
 	bool mouseDownLastFrame = false;
@@ -17,7 +23,7 @@ private:
 	static glm::mat4 projection;
 public:
 	glm::mat4 m_ViewMatrix = calculateCameraOrbit();
-
+	void cursorToWorldPos();
 	void cameraMovement();
 	void zoom(SDL_Event* event);
     void setProjectionMatrix(float viewPortSizeX, float viewportSizeY);

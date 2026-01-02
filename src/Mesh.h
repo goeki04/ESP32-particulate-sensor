@@ -17,7 +17,7 @@ public:
 	void setUV(const float u,const float v) {
 		uv.x = u; uv.y = v;
 	}
-	const glm::vec3 getPosition() {
+	glm::vec3 getPosition() const{
 		return pos;
 	}
 };
@@ -46,7 +46,11 @@ private:
 	GLuint m_TextureID = 0;
 	unsigned int m_Vbo = 0, m_Ebo = 0;
 };
-
+struct AABB {
+	glm::vec3 min;
+	glm::vec3 max;
+	glm::vec3 center;
+};
 class BoundingBox {
 private:
 	float xMin; float xMax;
@@ -54,12 +58,11 @@ private:
 	float zMin; float zMax;
 public:
 	BoundingBox(Mesh& mesh) {
-		recalculateBoundingBox(mesh);
+		getAABB(mesh);
 	}
 	BoundingBox() : xMin(0.0f), xMax(0.0f), yMin(0.0f), yMax(0.0f), zMin(0.0f), zMax(0.0f) {
 		std::printf("Bounding box has no mesh data.");
 	}
-	void recalculateBoundingBox(Mesh& mesh);
-	glm::vec3 getBoxCenter();
+	AABB getAABB(const Mesh& mesh);
 };
 
