@@ -60,12 +60,13 @@ void GuiManager::loadFont()
 {
     ImGuiIO& io = ImGui::GetIO();(void)io;
 
-    io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto_Condensed-Black.ttf",24.0f);
+    m_HeaderFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto_Condensed-Black.ttf",24.0f);
+    m_DeviceBrowserFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto-ExtraLight.ttf",24.0f);
+    io.FontDefault = m_HeaderFont;
     if (io.Fonts == nullptr) {
         throw std::runtime_error("failed loading Roboto font");
     }
 }
-
 void GuiManager::drawNavBar()
 {
     ImGuiStyle& style = ImGui::GetStyle();
@@ -149,7 +150,6 @@ void GuiManager::OpenFolder()
 
 #endif
 }
-
 void GuiManager::drawNotification()
 {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight - m_MenuBarHeight - m_MarginDefault * 2);
@@ -159,7 +159,6 @@ void GuiManager::drawNotification()
     ImGui::Begin("Notifications", 0, m_WindowFlags);
     ImGui::End();
 }
-
 void GuiManager::drawInformation()
 {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.55f);
@@ -180,14 +179,6 @@ void GuiManager::drawChart() {
 }
 
 void GuiManager::drawBottomWindow() {
-    auto CenterText = [](const char* text)
-    {
-       float columnWidth = ImGui::GetColumnWidth();
-       float textWidth = ImGui::CalcTextSize(text).x;
-       float offset = (columnWidth - textWidth) * 0.5f;
-       ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset);
-       ImGui::TextUnformatted(text);
-    };
     ImVec2 windowSize = ImVec2(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 100, m_WindowHeight * 0.35f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::CenterBottom);
     float windowPadding = windowSize.x * 0.1f;
@@ -195,7 +186,7 @@ void GuiManager::drawBottomWindow() {
     ImGui::SetNextWindowSize(windowSize);
     ImGui::Begin("Device Browser", 0, m_WindowFlags | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_MenuBar);
     ImVec2 widgetSize = ImVec2(140, 0);
-    static int activeTab = 0; // 0 = Device Browser, 1 = Details Panel
+    static int activeTab = 0;
     if (ImGui::BeginMenuBar())
     {
         ImGui::SetCursorPosX(0.0f);
@@ -219,7 +210,6 @@ void GuiManager::drawBottomWindow() {
     if (activeTab == 0) {
         ImGuiWindowFlags flags = m_WindowFlags;
 
-        // Wenn Fenster NICHT fokussiert ist → kein Scroll mit Maus
         if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
         {
             flags |= ImGuiWindowFlags_NoScrollWithMouse;
@@ -243,32 +233,33 @@ void GuiManager::drawDeviceBrowser()
     ImGuiStyle& style = ImGui::GetStyle();
 
     float h = ImGui::GetFrameHeight();
-    ImVec2 itemSize(h * 1.2f, h * 1.2f);
+    ImVec2 itemSize(h * 2.0f, h * 2.0f);
     float availX = ImGui::GetContentRegionAvail().x;
     float spacingX = style.ItemSpacing.x;
     float spacingY = style.ItemSpacing.y;
-
     int perRow = (int)floor((availX + spacingX) / (itemSize.x + spacingX));
-
     const int itemCount = 100;
-
+    ImGui::PushFont(m_DeviceBrowserFont);
     for (int idx = 0; idx < itemCount; ++idx)
     {
         ImVec2 pMin = ImGui::GetCursorScreenPos();
         ImVec2 pMax = ImVec2(pMin.x + itemSize.x, pMin.y + itemSize.y);
-
         dl->AddRectFilled(pMin, pMax, IM_COL32(41, 46, 66, 255), 4.0f);
 
+        const char* label = "Device";
+        ImVec2 textSize = ImGui::CalcTextSize(label);
         //reserve layout space
-        ImGui::Dummy(itemSize);
+        ImGui::Dummy(ImVec2(itemSize.x,itemSize.y+textSize.y+spacingY));
+        float textX = pMin.x + (itemSize.x - textSize.x) * 0.5f;
+        float textY = pMax.y + style.ItemSpacing.y;
+        dl->AddText(ImVec2(textX, textY), IM_COL32_WHITE,label);
 
         // sameline until reaching the end of the row
         int col = idx % perRow;
         if (col != perRow - 1)
             ImGui::SameLine(0.0f, spacingX);
-        else
-            ImGui::Dummy(ImVec2(0, spacingY));
     }
+    ImGui::PopFont();
 }
 void GuiManager::drawDetailsPanel()
 {
@@ -392,7 +383,6 @@ void GuiManager::setFlags()
     m_WindowFlags |= ImGuiWindowFlags_NoCollapse;
     m_WindowFlags |= ImGuiWindowFlags_NoResize;
 }
-
 void GuiManager::setStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
     float mainScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());

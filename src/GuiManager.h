@@ -43,6 +43,8 @@ public:
 private:
     std::string m_ImguiVersion = "ImGui: " + std::string(IMGUI_VERSION);
     static bool m_ShowVersion;
+    ImFont* m_DeviceBrowserFont = nullptr;
+    ImFont* m_HeaderFont = nullptr;
     int m_WindowWidth = 0;
     int m_WindowHeight = 0;
     ImVec2 m_ViewportPos;
@@ -65,6 +67,10 @@ private:
     void setFlags();
     void setStyle();
 };
+
+inline ImVec2 operator+(const ImVec2& a, const ImVec2& b) {
+    return ImVec2(a.x+b.x,a.y+b.y);
+}
 
 inline bool operator==(const ImVec2& a, const ImVec2& b) {
     return a.x == b.x && a.y == b.y;
