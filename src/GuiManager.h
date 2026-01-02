@@ -56,8 +56,10 @@ private:
     void OpenFolder();
     void drawNotification();
     void drawInformation();
-    void drawChart();
+    void drawBottomWindow();
     void drawDeviceBrowser();
+    void drawDetailsPanel();
+    void drawChart();
     void OpenURL(const std::string& url);
     void setViewportSize();
     void setFlags();

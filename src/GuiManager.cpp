@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "GuiManager.h"
 #include "SubsystemManager.h"
 #include "GuiManager.h"
@@ -28,7 +28,7 @@ void GuiManager::update() {
     drawNotification();
     drawInformation();
     drawChart();
-    drawDeviceBrowser();
+    drawBottomWindow();
 }
 
 void GuiManager::drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebufferSize)
@@ -61,8 +61,7 @@ void GuiManager::loadFont()
     ImGuiIO& io = ImGui::GetIO();(void)io;
 
     io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto_Condensed-Black.ttf",24.0f);
-    ImFont* font = io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto_Condensed-Black.ttf",24.0f);
-    if (font == nullptr) {
+    if (io.Fonts == nullptr) {
         throw std::runtime_error("failed loading Roboto font");
     }
 }
@@ -180,7 +179,7 @@ void GuiManager::drawChart() {
     ImGui::End();
 }
 
-void GuiManager::drawDeviceBrowser() {
+void GuiManager::drawBottomWindow() {
     auto CenterText = [](const char* text)
     {
        float columnWidth = ImGui::GetColumnWidth();
@@ -197,30 +196,83 @@ void GuiManager::drawDeviceBrowser() {
     ImGui::Begin("Device Browser", 0, m_WindowFlags | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_MenuBar);
     ImVec2 widgetSize = ImVec2(140, 0);
     static int activeTab = 0; // 0 = Device Browser, 1 = Details Panel
-
     if (ImGui::BeginMenuBar())
     {
         ImGui::SetCursorPosX(0.0f);
-        if (ImGui::BeginTabBar("TopTabs"))
+        if (ImGui::BeginTabBar("DeviceBrowser"))
         {
             if (ImGui::BeginTabItem("Device Browser"))
             {
-                // Inhalt Device Browser
+                activeTab = 0;
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("Details Panel"))
             {
-                // Inhalt Details Panel
+                activeTab = 1;
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
         }
         ImGui::EndMenuBar();
     }
+
+    if (activeTab == 0) {
+        ImGuiWindowFlags flags = m_WindowFlags;
+
+        // Wenn Fenster NICHT fokussiert ist → kein Scroll mit Maus
+        if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+        {
+            flags |= ImGuiWindowFlags_NoScrollWithMouse;
+        }
+        ImGui::BeginChild("GridArea", ImVec2(0, 0), true,flags);
+        drawDeviceBrowser();
+        ImGui::EndChild();
+    }
+    else if (activeTab == 1) {
+        drawDetailsPanel();
+    }
     ImGui::End();
 }
 
+void GuiManager::drawDeviceBrowser()
+{
+    static char query[128] = "";
+    ImGui::InputTextWithHint("##search", "Search components...", query, IM_ARRAYSIZE(query));
+    ImGui::Spacing();
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    ImGuiStyle& style = ImGui::GetStyle();
 
+    float h = ImGui::GetFrameHeight();
+    ImVec2 itemSize(h * 1.2f, h * 1.2f);
+    float availX = ImGui::GetContentRegionAvail().x;
+    float spacingX = style.ItemSpacing.x;
+    float spacingY = style.ItemSpacing.y;
+
+    int perRow = (int)floor((availX + spacingX) / (itemSize.x + spacingX));
+
+    const int itemCount = 100;
+
+    for (int idx = 0; idx < itemCount; ++idx)
+    {
+        ImVec2 pMin = ImGui::GetCursorScreenPos();
+        ImVec2 pMax = ImVec2(pMin.x + itemSize.x, pMin.y + itemSize.y);
+
+        dl->AddRectFilled(pMin, pMax, IM_COL32(41, 46, 66, 255), 4.0f);
+
+        //reserve layout space
+        ImGui::Dummy(itemSize);
+
+        // sameline until reaching the end of the row
+        int col = idx % perRow;
+        if (col != perRow - 1)
+            ImGui::SameLine(0.0f, spacingX);
+        else
+            ImGui::Dummy(ImVec2(0, spacingY));
+    }
+}
+void GuiManager::drawDetailsPanel()
+{
+}
 
 void GuiManager::OpenURL(const std::string& url)
 {
