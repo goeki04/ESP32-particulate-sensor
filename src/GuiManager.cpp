@@ -227,38 +227,70 @@ void GuiManager::drawBottomWindow() {
 void GuiManager::drawDeviceBrowser()
 {
     static char query[128] = "";
+
     ImGui::InputTextWithHint("##search", "Search components...", query, IM_ARRAYSIZE(query));
     ImGui::Spacing();
+
     ImDrawList* dl = ImGui::GetWindowDrawList();
     ImGuiStyle& style = ImGui::GetStyle();
 
-    float h = ImGui::GetFrameHeight();
-    ImVec2 itemSize(h * 2.0f, h * 2.0f);
-    float availX = ImGui::GetContentRegionAvail().x;
-    float spacingX = style.ItemSpacing.x;
-    float spacingY = style.ItemSpacing.y;
-    int perRow = (int)floor((availX + spacingX) / (itemSize.x + spacingX));
+    const float h = ImGui::GetFrameHeight();
+    const ImVec2 tileSize(h * 2.0f, h * 2.0f);
+
+    const float availX = ImGui::GetContentRegionAvail().x;
+    const float spacingX = style.ItemSpacing.x;
+    const float spacingY = style.ItemSpacing.y;
+
+    int perRow = (int)floor((availX + spacingX) / (tileSize.x + spacingX));
+    if (perRow < 1) perRow = 1;
+
     const int itemCount = 100;
+
     ImGui::PushFont(m_DeviceBrowserFont);
+
     for (int idx = 0; idx < itemCount; ++idx)
     {
-        ImVec2 pMin = ImGui::GetCursorScreenPos();
-        ImVec2 pMax = ImVec2(pMin.x + itemSize.x, pMin.y + itemSize.y);
-        dl->AddRectFilled(pMin, pMax, IM_COL32(41, 46, 66, 255), 4.0f);
-
+        ImGui::PushID(idx);
         const char* label = "Device";
-        ImVec2 textSize = ImGui::CalcTextSize(label);
-        //reserve layout space
-        ImGui::Dummy(ImVec2(itemSize.x,itemSize.y+textSize.y+spacingY));
-        float textX = pMin.x + (itemSize.x - textSize.x) * 0.5f;
-        float textY = pMax.y + style.ItemSpacing.y;
-        dl->AddText(ImVec2(textX, textY), IM_COL32_WHITE,label);
+        ImVec2 labelSize = ImGui::CalcTextSize(label);
+        ImVec2 totalSize(tileSize.x, tileSize.y + spacingY + labelSize.y);
+        ImVec2 pMin = ImGui::GetCursorScreenPos();
+        ImGui::InvisibleButton("tile", totalSize);
+        bool hovered = ImGui::IsItemHovered();
+        bool active = ImGui::IsItemActive();
+        bool clicked = ImGui::IsItemClicked();
+        if (clicked)
+            m_SelectedIdx = idx;
 
-        // sameline until reaching the end of the row
+        bool selected = (m_SelectedIdx == idx);
+        ImVec2 tileMin = pMin;
+        ImVec2 tileMax = ImVec2(pMin.x + tileSize.x, pMin.y + tileSize.y);
+
+        dl->AddRectFilled(tileMin, tileMax, IM_COL32(41, 46, 66, 255), 4.0f);
+
+        if (hovered || active)
+            dl->AddRect(tileMin, tileMax, IM_COL32(255, 255, 255, 60), 4.0f, 0, 1.5f);
+        if (selected)
+        {
+            dl->AddRectFilled(tileMin, tileMax, IM_COL32(40, 120, 255, 80), 4.0f);
+            dl->AddRect(tileMin, tileMax, IM_COL32(40, 120, 255, 200), 4.0f, 0, 2.0f);
+
+            const float glow = 3.0f;
+            dl->AddRect(tileMin - ImVec2(glow, glow),
+                tileMax + ImVec2(glow, glow),
+                IM_COL32(40, 120, 255, 90),
+                6.0f, 0, 2.0f);
+        }
+        float textX = tileMin.x + (tileSize.x - labelSize.x) * 0.5f;
+        float textY = tileMax.y + spacingY;
+        dl->AddText(ImVec2(textX, textY), IM_COL32(255, 255, 255, 255), label);
         int col = idx % perRow;
         if (col != perRow - 1)
             ImGui::SameLine(0.0f, spacingX);
+
+        ImGui::PopID();
     }
+
     ImGui::PopFont();
 }
 void GuiManager::drawDetailsPanel()
