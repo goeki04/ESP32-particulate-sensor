@@ -59,6 +59,8 @@ void ResourceManager::processNode(const std::string& path,const aiScene* scene, 
     if (sceneObject) {
         for (int i = 0; i < node->mNumMeshes; i++) {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+            aiColor3D color(1.0f, 1.0f, 1.0f);
+            aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
             std::vector<unsigned int> indexBuffer;
             std::vector<Vertex> vertices;
@@ -85,7 +87,9 @@ void ResourceManager::processNode(const std::string& path,const aiScene* scene, 
                 else {
                     std::cout << "Mesh doesn't have UV-coordinates. You should fix that." << std::endl;
                 }
-
+                if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
+                    vertex.color = glm::vec3(color.r, color.g,color.b);
+                }
                 vertices.push_back(vertex);
             }
 
@@ -95,14 +99,13 @@ void ResourceManager::processNode(const std::string& path,const aiScene* scene, 
                     mesh->mFaces[k].mIndices + mesh->mFaces[k].mNumIndices);
             }
 
-            auto& newMesh = sceneObject->m_Submeshes.emplace_back();
-            newMesh.m_VertexBuffer = std::move(vertices);
-            newMesh.m_IndexBuffer = std::move(indexBuffer);
-            aiColor3D color(1.0f, 1.0f, 1.0f);
-            aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
             if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
                 m_Textures.emplace_back(createColorTexture(color));
             }
+            
+            auto& newMesh = sceneObject->m_Submeshes.emplace_back();
+            newMesh.m_VertexBuffer = std::move(vertices);
+            newMesh.m_IndexBuffer = std::move(indexBuffer);
             newMesh.setTextureID(m_Textures.back());
         }
     }
