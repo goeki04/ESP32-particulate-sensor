@@ -34,8 +34,10 @@ void Renderer::update()
     glViewport(0,0,viewportSize.x,viewportSize.y);
     glClearColor(0.518, 0.506, 0.478,1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for (auto& sceneObjects : m_ResourceManager->m_SceneObjects) {
-        sceneObjects.drawMesh();
+    for (auto& sceneObject : m_ResourceManager->m_SceneObjects) {
+        sceneObject.drawMesh();
+        if (m_ResourceManager->m_Cam.m_CursorToWorldRayEnabled) {
+        }
     }
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_MsaaFramebuffer);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Framebuffer);

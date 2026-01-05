@@ -15,7 +15,7 @@ public:
     BoundingBox() {};
     void setAABB(const Mesh& mesh);
     const AABB& getAABB() const;
-    bool RayIntersectAABB(Camera& cam);
+    bool RayIntersectAABB(const Camera& cam);
 };
 struct Vertex {
 public:
@@ -24,25 +24,12 @@ public:
 	glm::vec2 uv;
 	glm::vec3 color; //this is not a vertex color, its the diffuse color
 	Vertex() : pos(0.0f), normal(0.0f), uv(0.0f), color(1.0f) {};
-	void setPosition(const float x,const float y,const float z) {
-		pos.x = x; pos.y = y; pos.z = z;
-	}
-	void setNormals(const float x, const float y, const float z) {
-		normal.x = x; normal.y = y; normal.z = z;
-	}
-	void setUV(const float u,const float v) {
-		uv.x = u; uv.y = v;
-	}
-	glm::vec3 getPosition() const{
-		return pos;
-	}
 };
 class Mesh {
 public:
     unsigned int m_Vao = 0;
     std::vector<Vertex> m_VertexBuffer;
     std::vector<unsigned int> m_IndexBuffer;
-    BoundingBox m_BoundingBox;
 
     Mesh(std::vector<Vertex>&& vertexPositions, std::vector<unsigned int>&& vertexIndices)
         : m_VertexBuffer(std::move(vertexPositions)),
@@ -100,7 +87,6 @@ private:
 
         m_VertexBuffer = std::move(other.m_VertexBuffer);
         m_IndexBuffer = std::move(other.m_IndexBuffer);
-        m_BoundingBox = std::move(other.m_BoundingBox);
     }
 };
 

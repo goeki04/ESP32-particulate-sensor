@@ -35,11 +35,11 @@ void BoundingBox::setAABB(const Mesh& mesh)
         throw std::runtime_error("Mesh has no vertices");
 
     const auto& vb = mesh.m_VertexBuffer;
-    glm::vec3 min = vb[0].getPosition();
+    glm::vec3 min = vb[0].pos;
     glm::vec3 max = min;
 
     for (const auto& v : vb) {
-        const glm::vec3 p = v.getPosition();
+        const glm::vec3 p = v.pos;
         min = glm::min(min, p);
         max = glm::max(max, p);
     }
@@ -55,9 +55,36 @@ const AABB& BoundingBox::getAABB() const
     return m_AABB;
 }
 
-bool BoundingBox::RayIntersectAABB(Camera& cam)
+bool BoundingBox::RayIntersectAABB(const Camera& cam)
 {
-    Ray cursorToRay = cam.m_CursorToWorldRay;
+    const Ray& ray = cam.m_CursorToWorldRay;
 
-    return false;
+    float tMin = 0.001f;
+    float tMax = 1e30f;
+
+    for (int i = 0; i < 3; ++i)
+    {
+        float o = ray.origin[i];
+        float d = ray.direction[i];
+
+        if (std::fabs(d) < 1e-8f)
+        {
+            if (o < m_AABB.min[i] || o > m_AABB.max[i])
+                return false;
+            continue;
+        }
+
+        float invD = 1.0f / d;
+        float t0 = (m_AABB.min[i] - o) * invD;
+        float t1 = (m_AABB.max[i] - o) * invD;
+
+        if (t0 > t1) std::swap(t0, t1);
+
+        tMin = std::max(tMin, t0);
+        tMax = std::min(tMax, t1);
+
+        if (tMin > tMax) return false;
+    }
+
+    return true;
 }

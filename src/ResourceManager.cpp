@@ -70,18 +70,17 @@ void ResourceManager::processNode(const std::string& path,const aiScene* scene, 
             for (int j = 0; j < mesh->mNumVertices; j++) {
                 Vertex vertex{};
                 aiVector3D worldPos = mesh->mVertices[j];
-                vertex.setPosition(worldPos.x, worldPos.y, worldPos.z);
+                vertex.pos = glm::vec3(worldPos.x, worldPos.y, worldPos.z);
 
                 if (mesh->HasNormals()) {
-                    vertex.setNormals(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z);
+                    vertex.normal = glm::vec3(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z);
                 }
                 else {
                     std::printf("Vertex doesnt have normals");
                 }
 
                 if (mesh->HasTextureCoords(0)) {
-                    vertex.setUV(mesh->mTextureCoords[0][j].x,
-                        mesh->mTextureCoords[0][j].y);
+                    vertex.uv = glm::vec2(mesh->mTextureCoords[0][j].x,mesh->mTextureCoords[0][j].y);
                 }
                 else {
                     std::cout << "Mesh doesn't have UV-coordinates. You should fix that." << std::endl;

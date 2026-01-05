@@ -2,7 +2,6 @@
 #include "camera.h"
 #include "GuiManager.h"
 #include "WindowManager.h"
-#include "Mesh.h"
 glm::mat4 Camera::m_Projection = glm::mat4(1.0f);
 void Camera::cursorToWorldRay()
 {
@@ -47,6 +46,10 @@ void Camera::cameraMovement()
     mouseRightDownLastFrame = mouseRightDown;
     if (mouseLeftDown) {
         cursorToWorldRay();
+        m_CursorToWorldRayEnabled = true;
+    }
+    else {
+        false;
     }
 
 }
