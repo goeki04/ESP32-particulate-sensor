@@ -23,6 +23,7 @@ private:
 	float m_FovMin = 10.0f, m_FovMax = 50.0f;
 	static glm::mat4 m_Projection;
 public:
+	bool m_CursorToWorldRayEnabled = false;
 	glm::mat4 m_ViewMatrix = calculateCameraOrbit();
 	Ray m_CursorToWorldRay;
 	void cameraMovement();

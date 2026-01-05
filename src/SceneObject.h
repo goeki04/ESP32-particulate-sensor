@@ -25,6 +25,7 @@ public:
 	std::vector<Mesh> m_Submeshes;
 	Shader* m_Shader = nullptr;
 	Transform m_Transform;
+	BoundingBox m_BoundingBox;
 	void setShader(Shader* shader) {
 		m_Shader = shader;
 	}
