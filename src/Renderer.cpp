@@ -7,12 +7,12 @@ const constexpr char* modelPath = "../assets/models/cube.obj";
 
 void Renderer::start()
 {
-	m_WindowManager = SystemManager::getInstance().getSubsystem<WindowManager>();
+	m_WindowManager = SystemManager::getInstance().getSubsystem<Window::WindowManager>();
     m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
-    m_GuiManager.init(m_WindowManager->m_Window);
+    m_GuiManager.init(Window::g_Window);
     ImVec2 viewportWindowSize = m_GuiManager.getViewportWindowSize();
     m_framebufferSize = glm::ivec2(viewportWindowSize.x, viewportWindowSize.y);
-    ImGui_ImplSDL3_InitForOpenGL(m_WindowManager->m_Window, m_ResourceManager->m_GlContext);
+    ImGui_ImplSDL3_InitForOpenGL(Window::g_Window, m_ResourceManager->m_GlContext);
     ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
     createFramebuffer();
     glEnable(GL_DEPTH_TEST);
@@ -26,7 +26,7 @@ void Renderer::update()
     m_GuiManager.update();
     m_GuiManager.drawViewportGUI(m_FramebufferTexture, ImVec2(m_framebufferSize.x,m_framebufferSize.y));
     ImGui::Render();
-    glViewport(0, 0, m_WindowManager->m_WindowWidth, m_WindowManager->m_WindowHeight);
+    glViewport(0, 0, Window::g_WindowWidth, Window::g_WindowHeight);
     glClearColor(0.10f, 0.12f, 0.16f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, m_MsaaFramebuffer);
@@ -42,7 +42,7 @@ void Renderer::update()
     glBlitFramebuffer(0, 0, m_framebufferSize.x, m_framebufferSize.y, 0, 0, m_framebufferSize.x, m_framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER,0);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    SDL_GL_SwapWindow(m_WindowManager->m_Window);
+    SDL_GL_SwapWindow(Window::g_Window);
 }
 /// <summary>
 /// Call this function after initializing guimanager to create offscreen framebuffers.
