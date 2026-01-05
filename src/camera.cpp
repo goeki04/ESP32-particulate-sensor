@@ -6,8 +6,8 @@ glm::mat4 Camera::projection = glm::mat4(1.0f);
 void Camera::cursorToWorldPos()
 {
     
-    float x = (2.0f * mouseX) / width - 1.0f;
-    float y = 1.0f - (2.0f * mouseY) / height; // Y-Achse invertieren!
+    float x = (2.0f * mouseX) / Window::g_WindowWidth - 1.0f;
+    float y = 1.0f - (2.0f * mouseY) / Window::g_WindowHeight; // Y-Achse invertieren!
 }
 void Camera::cameraMovement()
 {

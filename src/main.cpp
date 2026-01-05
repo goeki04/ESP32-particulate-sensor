@@ -4,7 +4,7 @@
 #include "ResourceManager.h"
 #include "Renderer.h"
 #include "camera.h"
-WindowManager windowManager;
+Window::WindowManager windowManager;
 Renderer renderer;
 ResourceManager resourceManager;
 

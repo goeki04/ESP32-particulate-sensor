@@ -5,8 +5,8 @@
 
 void ResourceManager::start()
 {
-    auto windowManager = SystemManager::getInstance().getSubsystem<WindowManager>();
-    m_GlContext = SDL_GL_CreateContext(windowManager->m_Window);
+    auto windowManager = SystemManager::getInstance().getSubsystem<Window::WindowManager>();
+    m_GlContext = SDL_GL_CreateContext(Window::g_Window);
     if (!m_GlContext) {
         throw std::exception("Failed to create SDL_GL context!");
     }

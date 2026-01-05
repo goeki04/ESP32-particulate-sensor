@@ -2,8 +2,7 @@
 #include "pch.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-int WindowManager::m_WindowWidth = 0;
-int WindowManager::m_WindowHeight = 0;
+using namespace Window;
 void WindowManager::start() {
     int16_t windowFlags = 0;
     SDL_Surface* surface = CreateSDLSurface("../assets/icons/logo.png");
@@ -15,17 +14,17 @@ void WindowManager::start() {
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    m_Window = SDL_CreateWindow("ESP32", NULL, NULL, windowFlags | SDL_WINDOW_OPENGL);
-    SDL_GetWindowSizeInPixels(m_Window,&m_WindowWidth,&m_WindowHeight);
-    if (!m_Window) {
+    g_Window = SDL_CreateWindow("ESP32", NULL, NULL, windowFlags | SDL_WINDOW_OPENGL);
+    SDL_GetWindowSizeInPixels(g_Window,&g_WindowWidth,&g_WindowHeight);
+    if (!g_Window) {
         throw std::exception("Failed to call SDL_CreateWindow!");
     }
-    SDL_SetWindowMinimumSize(m_Window,m_WindowWidth,m_WindowHeight);
-    SDL_SetWindowIcon(m_Window, surface);
+    SDL_SetWindowMinimumSize(g_Window, g_WindowWidth, g_WindowHeight);
+    SDL_SetWindowIcon(g_Window, surface);
 }
 
 void WindowManager::destroy() {
-    SDL_DestroyWindow(m_Window);
+    SDL_DestroyWindow(g_Window);
     SDL_Quit();
 }
 

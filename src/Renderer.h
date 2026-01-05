@@ -1,7 +1,7 @@
 #pragma once
 #include "ISubsystem.h"
 #include "GuiManager.h"
-class WindowManager;
+namespace Window { class WindowManager; }
 class ResourceManager;
 
 enum class MsaaSamples {
@@ -22,7 +22,7 @@ private:
 	const unsigned int m_MSAAsamples = (int)MsaaSamples::x4;
 	void createFramebuffer();
 	ResourceManager* m_ResourceManager = nullptr;
-	WindowManager* m_WindowManager = nullptr;
+	Window::WindowManager* m_WindowManager = nullptr;
 	GuiManager m_GuiManager;
 #ifdef DEBUG_RENDERING_OPENGL
 	bool m_DebugMode = false;
