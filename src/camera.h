@@ -1,4 +1,5 @@
 #pragma once
+struct AABB;
 
 struct Ray {
 	glm::vec3 origin;
@@ -7,26 +8,28 @@ struct Ray {
 
 class Camera {
 private:
-	bool mouseDownLastFrame = false;
-	float mouseX = 0.0f;
-	float mouseY = 0.0f;
-	float angleX = -0.8f;
-	float angleY = -0.5f;
-	glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 cameraPos = glm::vec3(0.0f,0.0f,0.0f);
-	float lastMouseX = 0.0f;
-	float lastMouseY = 0.0f;
-	const float sensitivity = 0.01f;
-	float fov = 45.0f;
-	float fovMin = 10.0f, fovMax = 50.0f;
-	static glm::mat4 projection;
+	bool mouseRightDownLastFrame = false;
+	float m_MouseX = 0.0f;
+	float m_MouseY = 0.0f;
+	float m_AngleX = -0.8f;
+	float m_AngleY = -0.5f;
+	glm::vec3 m_Target = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 m_CameraPos = glm::vec3(0.0f,0.0f,0.0f);
+	float m_LastMouseX = 0.0f;
+	float m_LastMouseY = 0.0f;
+	const float m_Sensitivity = 0.01f;
+	float m_Fov = 45.0f;
+	float m_FovMin = 10.0f, m_FovMax = 50.0f;
+	static glm::mat4 m_Projection;
 public:
 	glm::mat4 m_ViewMatrix = calculateCameraOrbit();
-	void cursorToWorldPos();
+	Ray m_CursorToWorldRay;
 	void cameraMovement();
 	void zoom(SDL_Event* event);
     void setProjectionMatrix(float viewPortSizeX, float viewportSizeY);
     static glm::mat4 getProjectionMatrix();
 	glm::mat4 calculateCameraOrbit();
+private:
+	void cursorToWorldRay();
 };

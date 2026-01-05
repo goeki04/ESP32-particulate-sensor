@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Mesh.h"
-
+#include "camera.h"
 void Mesh::createMesh()
 {
     glGenVertexArrays(1, &m_Vao);
@@ -8,10 +8,15 @@ void Mesh::createMesh()
     glGenBuffers(1, &m_Ebo);
     glBindVertexArray(m_Vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_Vbo);
-    glBufferData(GL_ARRAY_BUFFER, m_VertexBuffer.size() * sizeof(Vertex), &m_VertexBuffer[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,
+        m_VertexBuffer.size() * sizeof(Vertex),
+        m_VertexBuffer.empty() ? nullptr : m_VertexBuffer.data(),
+        GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer.size() * sizeof(unsigned int),
-        &m_IndexBuffer[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+        m_IndexBuffer.size() * sizeof(unsigned int),
+        m_IndexBuffer.empty() ? nullptr : m_IndexBuffer.data(),
+        GL_STATIC_DRAW);
     //positions
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
@@ -24,18 +29,7 @@ void Mesh::createMesh()
     glBindVertexArray(0);
 }
 
-
-void Mesh::setTextureID(GLuint id)
-{
-    m_TextureID = id;
-}
-
-GLuint Mesh::getTextureID()
-{
-    return m_TextureID;
-}
-
-AABB BoundingBox::getAABB(const Mesh& mesh)
+void BoundingBox::setAABB(const Mesh& mesh)
 {
     if (mesh.m_VertexBuffer.empty())
         throw std::runtime_error("Mesh has no vertices");
@@ -51,5 +45,19 @@ AABB BoundingBox::getAABB(const Mesh& mesh)
     }
 
     glm::vec3 center = (min + max) * 0.5f;
-    return { min, max, center };
+    m_AABB.min = min;
+    m_AABB.max = max;
+    m_AABB.center = center;
+}
+
+const AABB& BoundingBox::getAABB() const
+{
+    return m_AABB;
+}
+
+bool BoundingBox::RayIntersectAABB(Camera& cam)
+{
+    Ray cursorToRay = cam.m_CursorToWorldRay;
+
+    return false;
 }

@@ -1,6 +1,22 @@
 #pragma once
 #include "Shader.h"
-
+class Camera;
+class Mesh;
+struct AABB {
+    glm::vec3 min;
+    glm::vec3 max;
+    glm::vec3 center;
+    AABB() : min(0.0f), max(0.0f), center(0.0f) {};
+};
+class BoundingBox {
+private:
+    AABB m_AABB;
+public:
+    BoundingBox() {};
+    void setAABB(const Mesh& mesh);
+    const AABB& getAABB() const;
+    bool RayIntersectAABB(Camera& cam);
+};
 struct Vertex {
 public:
 	glm::vec3 pos;
@@ -23,46 +39,69 @@ public:
 };
 class Mesh {
 public:
-	unsigned int m_Vao = 0;
-	std::vector<Vertex> m_VertexBuffer;
-	std::vector<unsigned int> m_IndexBuffer;
-	Mesh(std::vector<Vertex>&& vertexPositions, std::vector<unsigned int>&& vertexIndices)
-		: m_VertexBuffer(std::move(vertexPositions)),
-		m_IndexBuffer(std::move(vertexIndices)) {
-	};
-	Mesh() {
-	}
+    unsigned int m_Vao = 0;
+    std::vector<Vertex> m_VertexBuffer;
+    std::vector<unsigned int> m_IndexBuffer;
+    BoundingBox m_BoundingBox;
 
-	~Mesh() {
-		glDeleteVertexArrays(1, &m_Vao);
-		glDeleteBuffers(1, &m_Vbo);
-	}
+    Mesh(std::vector<Vertex>&& vertexPositions, std::vector<unsigned int>&& vertexIndices)
+        : m_VertexBuffer(std::move(vertexPositions)),
+        m_IndexBuffer(std::move(vertexIndices)) {
+    }
 
-	void createMesh();
-	void drawMesh();
-	void setTextureID(GLuint id);
-	GLuint getTextureID();
+    Mesh() = default;
+
+    Mesh(const Mesh&) = delete;
+    Mesh& operator=(const Mesh&) = delete;
+
+    Mesh(Mesh&& other) noexcept {
+        moveFrom(std::move(other));
+    }
+
+    Mesh& operator=(Mesh&& other) noexcept {
+        if (this != &other) {
+            destroyGL();
+            moveFrom(std::move(other));
+        }
+        return *this;
+    }
+
+    ~Mesh() {
+        destroyGL();
+    }
+
+    void createMesh();
+    void drawMesh();
+    void setTextureID(GLuint id) { m_TextureID = id; }
+    GLuint getTextureID() const { return m_TextureID; }
+
 private:
-	GLuint m_TextureID = 0;
-	unsigned int m_Vbo = 0, m_Ebo = 0;
-};
-struct AABB {
-	glm::vec3 min;
-	glm::vec3 max;
-	glm::vec3 center;
-};
-class BoundingBox {
+    GLuint m_TextureID = 0;
+    unsigned int m_Vbo = 0, m_Ebo = 0;
+
 private:
-	float xMin; float xMax;
-	float yMin; float yMax;
-	float zMin; float zMax;
-public:
-	BoundingBox(Mesh& mesh) {
-		getAABB(mesh);
-	}
-	BoundingBox() : xMin(0.0f), xMax(0.0f), yMin(0.0f), yMax(0.0f), zMin(0.0f), zMax(0.0f) {
-		std::printf("Bounding box has no mesh data.");
-	}
-	AABB getAABB(const Mesh& mesh);
+    void destroyGL() noexcept {
+        if (m_Ebo) glDeleteBuffers(1, &m_Ebo);
+        if (m_Vbo) glDeleteBuffers(1, &m_Vbo);
+        if (m_Vao) glDeleteVertexArrays(1, &m_Vao);
+        m_Ebo = m_Vbo = m_Vao = 0;
+    }
+
+    void moveFrom(Mesh&& other) noexcept {
+        m_Vao = other.m_Vao; 
+        other.m_Vao = 0;
+        m_Vbo = other.m_Vbo; 
+        other.m_Vbo = 0;
+        m_Ebo = other.m_Ebo; 
+        other.m_Ebo = 0;
+
+        m_TextureID = other.m_TextureID; 
+        other.m_TextureID = 0;
+
+        m_VertexBuffer = std::move(other.m_VertexBuffer);
+        m_IndexBuffer = std::move(other.m_IndexBuffer);
+        m_BoundingBox = std::move(other.m_BoundingBox);
+    }
 };
+
 

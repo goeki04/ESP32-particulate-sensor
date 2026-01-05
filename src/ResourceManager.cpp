@@ -21,10 +21,6 @@ void ResourceManager::start()
     setupMeshes(); 
     m_SceneObjects[0].m_Transform.rotation = glm::vec3(0, 0.0f, 0);
     m_SceneObjects[1].m_Transform.rotation = glm::vec3(glm::radians(180.0f), 0.0f, 0.0f);
-    for (auto v : m_Meshes) {
-        std::cout << v.first << std::endl;
-    }
-
 }
 
 void ResourceManager::update() {
