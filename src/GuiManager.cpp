@@ -172,14 +172,6 @@ void GuiManager::OpenFolder()
     std::string cmd = "explorer \"" + targetDirectory.string() + "\"";
     system(cmd.c_str());
 
-#elif defined(__APPLE__)
-    std::string cmd = "open \"" + currentPath + "\"";
-    system(cmd.c_str());
-
-#else // Linux
-    std::string cmd = "xdg-open \"" + currentPath + "\"";
-    system(cmd.c_str());
-
 #endif
 }
 void GuiManager::drawNotification()

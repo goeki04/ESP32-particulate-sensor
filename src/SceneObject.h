@@ -39,6 +39,7 @@ class SceneObject {
 public:
 	std::string m_Name = "unnamed";
 	Mesh m_Mesh;
+	unsigned int m_MeshID = 0;
 	Shader* m_Shader = nullptr;
 	Transform m_Transform;
 	BoundingBox m_BoundingBox;

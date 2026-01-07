@@ -22,6 +22,6 @@ private:
 		m_Shaders.back()->compileShader();
 	}
 	void setupMeshes();
-	void processNode(const std::string& path,const aiScene* scene, aiNode* node);
+	void processNode(const std::string& path,const aiScene* scene, aiNode* node, SceneObject* sceneObject);
 	void loadScene(const std::string& path);
 };

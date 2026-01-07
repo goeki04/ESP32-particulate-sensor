@@ -45,16 +45,8 @@ void ResourceManager::setupMeshes()
     }
 }
 //TODO: texture caching
-void ResourceManager::processNode(const std::string& path,const aiScene* scene, aiNode* node)
+void ResourceManager::processNode(const std::string& path,const aiScene* scene, aiNode* node, SceneObject* sceneObject)
 {
-    SceneObject* sceneObject = nullptr;
-
-    // Nur Nodes mit Meshes bekommen ein SceneObject
-    if (node->mNumMeshes > 0) {
-        m_SceneObjects.emplace_back();
-        sceneObject = &m_SceneObjects.back();
-    }
-
     if (sceneObject) {
         auto& newMesh = sceneObject->m_Mesh;
 
@@ -109,7 +101,7 @@ void ResourceManager::processNode(const std::string& path,const aiScene* scene, 
         }
     }
     for (int i = 0; i < node->mNumChildren; i++) {
-        processNode(path,scene, node->mChildren[i]);
+        processNode(path,scene, node->mChildren[i],sceneObject);
     }
 }
 
@@ -130,5 +122,11 @@ void ResourceManager::loadScene(const std::string& path) {
     m_Meshes.emplace(objectName.substr(0,fileExtPos), Mesh());
 
     aiNode* rootNode = scene->mRootNode;
-    processNode(path,scene,rootNode);
+    SceneObject* sceneObject = nullptr;
+    if (scene->HasMeshes()) {
+        m_SceneObjects.emplace_back();
+        sceneObject = &m_SceneObjects.back();
+        sceneObject->m_Name = objectName.substr(0, fileExtPos);
+    }
+    processNode(path,scene,rootNode,sceneObject);
 }
