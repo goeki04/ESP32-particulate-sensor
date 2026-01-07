@@ -4,7 +4,6 @@
 #include "WindowManager.h"
 #include "ResourceManager.h"
 #include "camera.h"
-const constexpr char* modelPath = "../assets/models/cube.obj";
 
 void Renderer::start()
 {
@@ -26,7 +25,6 @@ void Renderer::update()
     Camera& cam = m_ResourceManager->m_Cam;
     cam.m_ViewMatrix = cam.calculateCameraOrbit();
     m_GuiManager.update();
-
     m_GuiManager.drawViewportGUI(m_FramebufferTexture, ImVec2(m_framebufferSize.x,m_framebufferSize.y),&cam.m_ImGuiMouseX,&cam.m_ImGuiMouseY);
     ImGui::Render();
     glViewport(0, 0, Window::g_WindowWidth, Window::g_WindowHeight);
@@ -34,14 +32,13 @@ void Renderer::update()
     glClear(GL_COLOR_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, m_MsaaFramebuffer);
     ImVec2 viewportSize = m_GuiManager.getViewportWindowSize();
-    glViewport(0,0,viewportSize.x,viewportSize.y);
-    glClearColor(0.518, 0.506, 0.478,1.0f);
+    glViewport(0,0,(GLsizei)viewportSize.x, (GLsizei)viewportSize.y);
+    glClearColor(0.518f, 0.506f, 0.478f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for (auto& sceneObject : m_ResourceManager->m_SceneObjects) {
         sceneObject.drawMesh();
         if (m_ResourceManager->m_Cam.m_CursorToWorldRayEnabled) {
             const glm::mat4 modelMatrix = sceneObject.m_Transform.modelMatrix();
-            bool i = sceneObject.m_BoundingBox.RayIntersectAABB(cam,modelMatrix);
         }
     }
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_MsaaFramebuffer);
@@ -84,16 +81,24 @@ void Renderer::createFramebuffer()
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FramebufferTexture, 0);
     
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "Framebuffer is not complete";
+        throw std::runtime_error("Framebuffer is not complete");
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::destroy() {
-    glDeleteTextures(1,&m_FramebufferTexture);
-    glDeleteRenderbuffers(1,&m_Rendererbuffer);
-    glDeleteFramebuffers(1,&m_Framebuffer);
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL3_Shutdown();
-    ImGui::DestroyContext();
+    if (m_FramebufferTexture)        glDeleteTextures(1, &m_FramebufferTexture);
+    if (m_MsaaFramebufferTexture)    glDeleteTextures(1, &m_MsaaFramebufferTexture);
+    if (m_Rendererbuffer)           glDeleteRenderbuffers(1, &m_Rendererbuffer);
+
+    if (m_Framebuffer)              glDeleteFramebuffers(1, &m_Framebuffer);
+    if (m_MsaaFramebuffer)          glDeleteFramebuffers(1, &m_MsaaFramebuffer);
+
+    m_FramebufferTexture = 0;
+    m_MsaaFramebufferTexture = 0;
+    m_Rendererbuffer = 0;
+    m_Framebuffer = 0;
+    m_MsaaFramebuffer = 0;
+
+    m_GuiManager.destroy();
 }
