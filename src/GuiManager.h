@@ -38,6 +38,7 @@ public:
     glm::vec2 m_ViewportRectMin;
     void init(SDL_Window* window);
     void update();
+    void destroy();
     float getMenuBarHeight();
     ImVec2 getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment);
     void drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebufferSize, float* ImGuiMouseX, float* ImGuiMouseY);
@@ -70,6 +71,7 @@ private:
     void setViewportSize();
     void setFlags();
     void setStyle();
+
 };
 
 inline ImVec2 operator+(const ImVec2& a, const ImVec2& b) {

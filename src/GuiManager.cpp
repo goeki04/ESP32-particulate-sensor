@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "GuiManager.h"
 #include "SubsystemManager.h"
-#include "GuiManager.h"
 #include "Renderer.h"
 #include "camera.h"
 ImVec2 GuiManager::s_ViewportSize = ImVec2(0.0f,0.0f);
@@ -81,6 +80,7 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture,
 
     ImGui::End();
     ImGui::PopStyleVar();
+
 }
 
 float GuiManager::getMenuBarHeight()
@@ -94,10 +94,10 @@ void GuiManager::loadFont()
 
     m_HeaderFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto_Condensed-Black.ttf",24.0f);
     m_DeviceBrowserFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto-ExtraLight.ttf",24.0f);
-    io.FontDefault = m_HeaderFont;
-    if (io.Fonts == nullptr) {
+    if (m_HeaderFont == nullptr || m_DeviceBrowserFont == nullptr) {
         throw std::runtime_error("failed loading Roboto font");
     }
+    io.FontDefault = m_HeaderFont;
 }
 void GuiManager::drawNavBar()
 {
@@ -328,19 +328,7 @@ void GuiManager::drawDetailsPanel()
 
 void GuiManager::OpenURL(const std::string& url)
 {
-#if defined(_WIN32)
-    std::string command = "start " + url;
-    system(command.c_str());
-
-#elif defined(__APPLE__)
-    std::string command = "open " + url;
-    system(command.c_str());
-
-#else   // Linux
-    std::string command = "xdg-open " + url;
-    system(command.c_str());
-
-#endif
+   SDL_OpenURL(url.c_str());
 }
 
 ImVec2 GuiManager::getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment)
@@ -435,7 +423,11 @@ void GuiManager::setViewportSize() {
     float viewPortY = std::floor(m_WindowHeight*0.55f);
     s_ViewportSize = ImVec2(viewPortX, viewPortY);
 }
-
+void GuiManager::destroy() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
+}
 void GuiManager::setFlags()
 {
     ImGuiIO& io = ImGui::GetIO();(void)io;
