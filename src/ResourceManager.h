@@ -14,7 +14,6 @@ public:
 	std::vector<std::unique_ptr<Shader>> m_Shaders;
 	std::vector<SceneObject> m_SceneObjects;
 	std::unordered_map<std::string, Mesh> m_Meshes;
-	std::vector<GLuint> m_Textures; //remove duplicates
 	Camera m_Cam;
 private:
 	template<typename T> requires std::derived_from<T,Shader>
@@ -22,8 +21,7 @@ private:
 		m_Shaders.emplace_back(std::make_unique<T>(m_Cam,vertexShader,fragmentShader));
 		m_Shaders.back()->compileShader();
 	}
-	GLuint createColorTexture(aiColor3D& color);
 	void setupMeshes();
-	void processNode(const std::string& path,const aiScene* scene, aiNode* node, aiMatrix4x4 parentTransform);
+	void processNode(const std::string& path,const aiScene* scene, aiNode* node);
 	void loadScene(const std::string& path);
 };

@@ -35,7 +35,7 @@ void Shader::setTexture(const char* uniformName, const GLuint textureID)
     glUniform1i(glGetUniformLocation(m_Program, uniformName), 0);
 }
 
-void UnlitShader::setUniforms(GLuint textureID,glm::mat4& modelMatrix)
+void UnlitShader::setUniforms(glm::mat4& modelMatrix)
 {
     GLint current = 0;
     glGetIntegerv(GL_CURRENT_PROGRAM, &current);
@@ -46,7 +46,6 @@ void UnlitShader::setUniforms(GLuint textureID,glm::mat4& modelMatrix)
     setVec3("sunLight.color", m_DirLight.color);
     setVec3("sunLight.direction", m_DirLight.direction);
     setVec3("ambientLight",m_AmbientLight);
-    setTexture("texture1", textureID);
 }
 
 void UnlitShader::compileShader()

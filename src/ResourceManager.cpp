@@ -37,17 +37,13 @@ void ResourceManager::updateEvent(SDL_Event* event) {
 void ResourceManager::setupMeshes()
 {
     for (auto& sceneObject : m_SceneObjects) {
-        for (auto& mesh : sceneObject.m_Submeshes) {
-            mesh.createMesh();
-        }
+        sceneObject.m_Mesh.createMesh();
         sceneObject.setShader(m_Shaders[(int)shaderType::unlit].get());
     }
 }
 //TODO: texture caching
-void ResourceManager::processNode(const std::string& path,const aiScene* scene, aiNode* node, aiMatrix4x4 parentTransform)
+void ResourceManager::processNode(const std::string& path,const aiScene* scene, aiNode* node)
 {
-    aiMatrix4x4 globalTransform = parentTransform * node->mTransformation;
-
     SceneObject* sceneObject = nullptr;
 
     // Nur Nodes mit Meshes bekommen ein SceneObject
@@ -57,7 +53,9 @@ void ResourceManager::processNode(const std::string& path,const aiScene* scene, 
     }
 
     if (sceneObject) {
-        for (int i = 0; i < node->mNumMeshes; i++) {
+        auto& newMesh = sceneObject->m_Mesh;
+
+        for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
             aiColor3D color(1.0f, 1.0f, 1.0f);
             aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -66,19 +64,18 @@ void ResourceManager::processNode(const std::string& path,const aiScene* scene, 
             std::vector<Vertex> vertices;
             vertices.reserve(mesh->mNumVertices);
 
-            aiMatrix3x3 normalMatrix = aiMatrix3x3(globalTransform);
-            normalMatrix = normalMatrix.Inverse().Transpose();
+            bool hasNormals = mesh->HasNormals();
+            if (!hasNormals){
+                std::printf("Vertex doesnt have normals");
+            }
 
-            for (int j = 0; j < mesh->mNumVertices; j++) {
+            for (unsigned int j = 0; j < mesh->mNumVertices; j++) {
                 Vertex vertex{};
                 aiVector3D worldPos = mesh->mVertices[j];
                 vertex.pos = glm::vec3(worldPos.x, worldPos.y, worldPos.z);
 
-                if (mesh->HasNormals()) {
+                if (hasNormals) {
                     vertex.normal = glm::vec3(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z);
-                }
-                else {
-                    std::printf("Vertex doesnt have normals");
                 }
 
                 if (mesh->HasTextureCoords(0)) {
@@ -93,24 +90,23 @@ void ResourceManager::processNode(const std::string& path,const aiScene* scene, 
                 vertices.push_back(vertex);
             }
 
-            for (int k = 0; k < mesh->mNumFaces; k++) {
-                indexBuffer.insert(indexBuffer.end(),
-                    mesh->mFaces[k].mIndices,
-                    mesh->mFaces[k].mIndices + mesh->mFaces[k].mNumIndices);
-            }
+            auto& vb = newMesh.m_VertexBuffer;
+            auto& ib = newMesh.m_IndexBuffer;
 
-            if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
-                m_Textures.emplace_back(createColorTexture(color));
+            const uint32_t baseVertex = static_cast<uint32_t>(vb.size());
+
+            vb.insert(vb.end(), vertices.begin(), vertices.end());
+
+            for (unsigned int k = 0; k < mesh->mNumFaces; k++) {
+                const aiFace& f = mesh->mFaces[k];
+                for (unsigned int t = 0; t < f.mNumIndices; t++) {
+                    ib.push_back(baseVertex + f.mIndices[t]);
+                }
             }
-            
-            auto& newMesh = sceneObject->m_Submeshes.emplace_back();
-            newMesh.m_VertexBuffer = std::move(vertices);
-            newMesh.m_IndexBuffer = std::move(indexBuffer);
-            newMesh.setTextureID(m_Textures.back());
         }
     }
     for (int i = 0; i < node->mNumChildren; i++) {
-        processNode(path,scene, node->mChildren[i], globalTransform);
+        processNode(path,scene, node->mChildren[i]);
     }
 }
 
@@ -131,32 +127,5 @@ void ResourceManager::loadScene(const std::string& path) {
     m_Meshes.emplace(objectName.substr(0,fileExtPos), Mesh());
 
     aiNode* rootNode = scene->mRootNode;
-    aiMatrix4x4 identity(
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1
-    );
-    processNode(path,scene,rootNode,identity);
-}
-
-GLuint ResourceManager::createColorTexture(aiColor3D& color)
-{
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    unsigned char data[3] = {
-        static_cast<unsigned char>(color.r * 255),
-        static_cast<unsigned char>(color.g * 255),
-        static_cast<unsigned char>(color.b * 255)
-    };
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    return textureID;
+    processNode(path,scene,rootNode);
 }

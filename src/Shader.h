@@ -20,7 +20,7 @@ class Shader {
 		m_AmbientLight = glm::vec3(0.4f);
 	}
 	virtual ~Shader() = default;
-	virtual void setUniforms(GLuint textureID, glm::mat4& modelMatrix) = 0;
+	virtual void setUniforms(glm::mat4& modelMatrix) = 0;
 	virtual void compileShader() = 0;
 	std::string readShaderSource(const char* shaderPath);
 	void use() {
@@ -38,6 +38,6 @@ enum class shaderType{
 class UnlitShader : public Shader {
 	public:
 	UnlitShader(Camera& cam, const char* vertexPath, const char* fragmentPath) : Shader(cam,vertexPath, fragmentPath) {}
-	void setUniforms(GLuint textureID, glm::mat4& modelMatrix) override;
+	void setUniforms(glm::mat4& modelMatrix) override;
 	void compileShader() override;
 };
