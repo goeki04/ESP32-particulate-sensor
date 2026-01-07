@@ -39,6 +39,7 @@ void Renderer::update()
         sceneObject.drawMesh();
         if (m_ResourceManager->m_Cam.m_CursorToWorldRayEnabled) {
             const glm::mat4 modelMatrix = sceneObject.m_Transform.modelMatrix();
+            bool hit = sceneObject.m_BoundingBox.RayIntersectAABB(cam,modelMatrix);
         }
     }
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_MsaaFramebuffer);
