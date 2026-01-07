@@ -59,11 +59,7 @@ public:
 
     void createMesh();
     void drawMesh();
-    void setTextureID(GLuint id) { m_TextureID = id; }
-    GLuint getTextureID() const { return m_TextureID; }
-
 private:
-    GLuint m_TextureID = 0;
     unsigned int m_Vbo = 0, m_Ebo = 0;
 
 private:
@@ -81,9 +77,6 @@ private:
         other.m_Vbo = 0;
         m_Ebo = other.m_Ebo; 
         other.m_Ebo = 0;
-
-        m_TextureID = other.m_TextureID; 
-        other.m_TextureID = 0;
 
         m_VertexBuffer = std::move(other.m_VertexBuffer);
         m_IndexBuffer = std::move(other.m_IndexBuffer);

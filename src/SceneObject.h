@@ -22,7 +22,7 @@ struct Transform {
 class SceneObject {
 public:
 	std::string m_Name = "unnamed";
-	std::vector<Mesh> m_Submeshes;
+	Mesh m_Mesh;
 	Shader* m_Shader = nullptr;
 	Transform m_Transform;
 	BoundingBox m_BoundingBox;
