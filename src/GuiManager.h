@@ -32,12 +32,15 @@ class GuiManager{
 public:
     static ImVec2 s_ViewportSize;
     static bool s_ViewportFocused;
-
+    /// <summary>
+    /// This is the coordinate of the viewport pivot relative to the screen (topLeft = 0)
+    /// </summary>
+    glm::vec2 m_ViewportRectMin;
     void init(SDL_Window* window);
     void update();
     float getMenuBarHeight();
     ImVec2 getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment);
-    void drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebufferSize);
+    void drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebufferSize, float* ImGuiMouseX, float* ImGuiMouseY);
     void loadFont();
     ImVec2 getViewportWindowSize();
 private:

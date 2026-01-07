@@ -5,14 +5,12 @@
 glm::mat4 Camera::m_Projection = glm::mat4(1.0f);
 void Camera::cursorToWorldRay()
 {
-    float x = (2.0f * m_MouseX) / Window::g_WindowWidth - 1.0f;
-    float y = 1.0f - (2.0f * m_MouseY) / Window::g_WindowHeight;
-
+    float x = (2.0f * m_ImGuiMouseX) / m_framebufferSize.x - 1.0f;
+    float y = 1.0f - (2.0f * m_ImGuiMouseY) / m_framebufferSize.y;
     glm::vec4 rayClip(x, y, -1.0f, 1.0f);
 
     glm::vec4 rayView = glm::inverse(m_Projection) * rayClip;
     rayView = glm::vec4(rayView.x, rayView.y, -1.0f, 0.0f);
-
     glm::vec4 rayDir4 = glm::inverse(m_ViewMatrix) * rayView;
     m_CursorToWorldRay.direction = glm::normalize(glm::vec3(rayDir4));
     m_CursorToWorldRay.origin = m_CameraPos;
@@ -49,7 +47,7 @@ void Camera::cameraMovement()
         m_CursorToWorldRayEnabled = true;
     }
     else {
-        false;
+        m_CursorToWorldRayEnabled = false;
     }
 
 }

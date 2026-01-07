@@ -3,15 +3,16 @@
 #include "SubsystemManager.h"
 #include "WindowManager.h"
 #include "ResourceManager.h"
+#include "camera.h"
 const constexpr char* modelPath = "../assets/models/cube.obj";
 
 void Renderer::start()
 {
-	m_WindowManager = SystemManager::getInstance().getSubsystem<Window::WindowManager>();
     m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
     m_GuiManager.init(Window::g_Window);
     ImVec2 viewportWindowSize = m_GuiManager.getViewportWindowSize();
     m_framebufferSize = glm::ivec2(viewportWindowSize.x, viewportWindowSize.y);
+    m_ResourceManager->m_Cam.m_framebufferSize = m_framebufferSize;
     ImGui_ImplSDL3_InitForOpenGL(Window::g_Window, m_ResourceManager->m_GlContext);
     ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
     createFramebuffer();
@@ -22,9 +23,11 @@ void Renderer::start()
 
 void Renderer::update()
 {
-    m_ResourceManager->m_Cam.calculateCameraOrbit();
+    Camera& cam = m_ResourceManager->m_Cam;
+    cam.m_ViewMatrix = cam.calculateCameraOrbit();
     m_GuiManager.update();
-    m_GuiManager.drawViewportGUI(m_FramebufferTexture, ImVec2(m_framebufferSize.x,m_framebufferSize.y));
+
+    m_GuiManager.drawViewportGUI(m_FramebufferTexture, ImVec2(m_framebufferSize.x,m_framebufferSize.y),&cam.m_ImGuiMouseX,&cam.m_ImGuiMouseY);
     ImGui::Render();
     glViewport(0, 0, Window::g_WindowWidth, Window::g_WindowHeight);
     glClearColor(0.10f, 0.12f, 0.16f, 1.0f);
@@ -37,6 +40,8 @@ void Renderer::update()
     for (auto& sceneObject : m_ResourceManager->m_SceneObjects) {
         sceneObject.drawMesh();
         if (m_ResourceManager->m_Cam.m_CursorToWorldRayEnabled) {
+            const glm::mat4 modelMatrix = sceneObject.m_Transform.modelMatrix();
+            bool i = sceneObject.m_BoundingBox.RayIntersectAABB(cam,modelMatrix);
         }
     }
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_MsaaFramebuffer);

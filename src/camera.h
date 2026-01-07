@@ -22,7 +22,11 @@ private:
 	float m_Fov = 45.0f;
 	float m_FovMin = 10.0f, m_FovMax = 50.0f;
 	static glm::mat4 m_Projection;
+
 public:
+	glm::vec2 m_framebufferSize;
+	float m_ImGuiMouseX;
+	float m_ImGuiMouseY;
 	bool m_CursorToWorldRayEnabled = false;
 	glm::mat4 m_ViewMatrix = calculateCameraOrbit();
 	Ray m_CursorToWorldRay;

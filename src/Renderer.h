@@ -22,7 +22,6 @@ private:
 	const unsigned int m_MSAAsamples = (int)MsaaSamples::x4;
 	void createFramebuffer();
 	ResourceManager* m_ResourceManager = nullptr;
-	Window::WindowManager* m_WindowManager = nullptr;
 	GuiManager m_GuiManager;
 #ifdef DEBUG_RENDERING_OPENGL
 	bool m_DebugMode = false;

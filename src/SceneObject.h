@@ -7,7 +7,7 @@ struct Transform {
 	glm::vec3 rotation{ 0.0f, 0.0f, 0.0f };
 	glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 
-	const glm::mat4 localMatrix()
+	const glm::mat4 modelMatrix() const
 	{
 		glm::mat4 m(1.0f);
 		m = glm::translate(m, position);
@@ -17,6 +17,22 @@ struct Transform {
 		m = glm::scale(m, scale);
 		return m;
 	}
+};
+
+struct AABB {
+	glm::vec3 min;
+	glm::vec3 max;
+	glm::vec3 center;
+	AABB() : min(0.0f), max(0.0f), center(0.0f) {};
+};
+class BoundingBox {
+private:
+	AABB m_AABB;
+public:
+	BoundingBox() {};
+	void setAABB(const Mesh& mesh);
+	const AABB& getAABB() const;
+	bool RayIntersectAABB(const Camera& cam,const glm::mat4& model);
 };
 
 class SceneObject {
@@ -30,6 +46,7 @@ public:
 		m_Shader = shader;
 	}
 	void drawMesh();
+	void initialize();
 	SceneObject(std::string& name) : m_Name(name) { }
 	SceneObject(){}
 };
