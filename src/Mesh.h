@@ -2,21 +2,7 @@
 #include "Shader.h"
 class Camera;
 class Mesh;
-struct AABB {
-    glm::vec3 min;
-    glm::vec3 max;
-    glm::vec3 center;
-    AABB() : min(0.0f), max(0.0f), center(0.0f) {};
-};
-class BoundingBox {
-private:
-    AABB m_AABB;
-public:
-    BoundingBox() {};
-    void setAABB(const Mesh& mesh);
-    const AABB& getAABB() const;
-    bool RayIntersectAABB(const Camera& cam);
-};
+
 struct Vertex {
 public:
 	glm::vec3 pos;

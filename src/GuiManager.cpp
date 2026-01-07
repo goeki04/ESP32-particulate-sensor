@@ -31,22 +31,54 @@ void GuiManager::update() {
     drawBottomWindow();
 }
 
-void GuiManager::drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebufferSize)
+void GuiManager::drawViewportGUI(unsigned int framebufferTexture,
+    ImVec2 framebufferSize,
+    float* ImGuiMouseX,
+    float* ImGuiMouseY)
 {
-    SDL_Window* mainWindow = SDL_GetMouseFocus();
     ImGuiWindowFlags windowFlags = 0;
     windowFlags |= ImGuiWindowFlags_NoResize;
     windowFlags |= ImGuiWindowFlags_NoMove;
     windowFlags |= ImGuiWindowFlags_NoCollapse;
     windowFlags |= ImGuiWindowFlags_NoScrollbar;
     windowFlags |= ImGuiWindowFlags_NoScrollWithMouse;
+
     ImGui::SetNextWindowPos(getViewportWindowPos());
     ImGui::SetNextWindowSize(getViewportWindowSize());
-    ImGuiStyle& style = ImGui::GetStyle();
+
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::Begin("Viewport", 0, windowFlags);
-    s_ViewportFocused = ImGui::IsWindowFocused() ? true : false;
-    ImGui::Image((void*)(intptr_t)framebufferTexture, ImVec2(framebufferSize.x, framebufferSize.y), ImVec2(0, 0), ImVec2(1, 1));
+
+    s_ViewportFocused = ImGui::IsWindowFocused();
+
+    // default output (ungültig)
+    if (ImGuiMouseX) *ImGuiMouseX = -1.0f;
+    if (ImGuiMouseY) *ImGuiMouseY = -1.0f;
+
+    // draw image
+    ImGui::Image((void*)(intptr_t)framebufferTexture,
+        framebufferSize, ImVec2(0, 0), ImVec2(1, 1));
+
+    // REAL rect of the drawn image (screen coords)
+    ImVec2 rectMin = ImGui::GetItemRectMin();
+    ImVec2 rectMax = ImGui::GetItemRectMax();
+    ImVec2 rectSize = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
+
+    // mouse (screen coords)
+    ImVec2 mousePos = ImGui::GetMousePos();
+
+    // mouse relative to image
+    ImVec2 rel = ImVec2(mousePos.x - rectMin.x, mousePos.y - rectMin.y);
+
+    bool hovered =
+        rel.x >= 0.0f && rel.y >= 0.0f &&
+        rel.x < rectSize.x && rel.y < rectSize.y;
+
+    if (hovered) {
+        if (ImGuiMouseX) *ImGuiMouseX = rel.x;
+        if (ImGuiMouseY) *ImGuiMouseY = rel.y;
+    }
+
     ImGui::End();
     ImGui::PopStyleVar();
 }
