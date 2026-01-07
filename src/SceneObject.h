@@ -1,6 +1,6 @@
 #pragma once
 #include "Mesh.h"
-
+class ResourceManager;
 struct Transform {
 	glm::vec3 position{ 0.0f, 0.0f, 0.0f };
 	//Rotation in radians
@@ -38,16 +38,16 @@ public:
 class SceneObject {
 public:
 	std::string m_Name = "unnamed";
-	Mesh m_Mesh;
 	unsigned int m_MeshID = 0;
 	Shader* m_Shader = nullptr;
 	Transform m_Transform;
 	BoundingBox m_BoundingBox;
+	ResourceManager* m_ResourceManager = nullptr;
 	void setShader(Shader* shader) {
 		m_Shader = shader;
 	}
 	void drawMesh();
 	void initialize();
-	SceneObject(std::string& name) : m_Name(name) { }
-	SceneObject(){}
+	SceneObject(const std::string& name, ResourceManager* rm) : m_Name(name) , m_ResourceManager(rm){ }
+	SceneObject(ResourceManager* rm) : m_ResourceManager(rm) {}
 };
