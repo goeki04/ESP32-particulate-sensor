@@ -30,6 +30,20 @@ void ResourceManager::update() {
     m_Cam.setProjectionMatrix(GuiManager::s_ViewportSize.x, GuiManager::s_ViewportSize.y);
 }
 
+unsigned int ResourceManager::getMeshVaoByID(uint32_t meshID)
+{
+    return m_MeshRecords.at(meshID).mesh.m_Vao;
+}
+
+unsigned int ResourceManager::getMeshIndexSizeByID(uint32_t meshID) {
+    return m_MeshRecords.at(meshID).mesh.m_IndexBuffer.size();
+}
+
+Mesh& ResourceManager::getMeshByID(uint32_t meshID)
+{
+    return m_MeshRecords.at(meshID).mesh;
+}
+
 void ResourceManager::updateEvent(SDL_Event* event) {
     if (GuiManager::s_ViewportFocused)
     {
@@ -39,94 +53,99 @@ void ResourceManager::updateEvent(SDL_Event* event) {
 }
 void ResourceManager::setupMeshes()
 {
-    for (auto& sceneObject : m_SceneObjects) {
-        sceneObject.m_Mesh.createMesh();
-        sceneObject.setShader(m_Shaders[(int)shaderType::unlit].get());
+    for (auto it = m_MeshRecords.begin(); it != m_MeshRecords.end(); ++it) {
+        it->second.mesh.createMesh();
     }
 }
-//TODO: texture caching
-void ResourceManager::processNode(const std::string& path,const aiScene* scene, aiNode* node, SceneObject* sceneObject)
+void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, aiNode* node)
 {
-    if (sceneObject) {
-        auto& newMesh = sceneObject->m_Mesh;
+    auto& newMesh = m_MeshRecords.at(meshId).mesh;
 
-        for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-            aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-            aiColor3D color(1.0f, 1.0f, 1.0f);
-            aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+    for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        aiColor3D color(1.0f, 1.0f, 1.0f);
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-            std::vector<unsigned int> indexBuffer;
-            std::vector<Vertex> vertices;
-            vertices.reserve(mesh->mNumVertices);
+        std::vector<unsigned int> indexBuffer;
+        std::vector<Vertex> vertices;
+        vertices.reserve(mesh->mNumVertices);
 
-            bool hasNormals = mesh->HasNormals();
-            if (!hasNormals){
-                std::printf("Vertex doesnt have normals");
+        bool hasNormals = mesh->HasNormals();
+        if (!hasNormals) {
+            std::printf("Vertex doesnt have normals");
+        }
+        material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+        for (unsigned int j = 0; j < mesh->mNumVertices; j++) {
+            Vertex vertex{};
+            aiVector3D worldPos = mesh->mVertices[j];
+            vertex.pos = glm::vec3(worldPos.x, worldPos.y, worldPos.z);
+
+            if (hasNormals) {
+                vertex.normal = glm::vec3(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z);
             }
 
-            for (unsigned int j = 0; j < mesh->mNumVertices; j++) {
-                Vertex vertex{};
-                aiVector3D worldPos = mesh->mVertices[j];
-                vertex.pos = glm::vec3(worldPos.x, worldPos.y, worldPos.z);
-
-                if (hasNormals) {
-                    vertex.normal = glm::vec3(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z);
-                }
-
-                if (mesh->HasTextureCoords(0)) {
-                    vertex.uv = glm::vec2(mesh->mTextureCoords[0][j].x,mesh->mTextureCoords[0][j].y);
-                }
-                else {
-                    std::cout << "Mesh doesn't have UV-coordinates. You should fix that." << std::endl;
-                }
-                if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
-                    vertex.color = glm::vec3(color.r, color.g,color.b);
-                }
-                vertices.push_back(vertex);
+            if (mesh->HasTextureCoords(0)) {
+                vertex.uv = glm::vec2(mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y);
             }
+            else {
+                std::cout << "Mesh doesn't have UV-coordinates. You should fix that." << std::endl;
+            }
+            vertex.color = glm::vec3(color.r,color.g,color.b);
+            vertices.push_back(vertex);
+        }
 
-            auto& vb = newMesh.m_VertexBuffer;
-            auto& ib = newMesh.m_IndexBuffer;
+        auto& vb = newMesh.m_VertexBuffer;
+        auto& ib = newMesh.m_IndexBuffer;
 
-            const uint32_t baseVertex = static_cast<uint32_t>(vb.size());
+        const uint32_t baseVertex = static_cast<uint32_t>(vb.size());
 
-            vb.insert(vb.end(), vertices.begin(), vertices.end());
+        vb.insert(vb.end(), vertices.begin(), vertices.end());
 
-            for (unsigned int k = 0; k < mesh->mNumFaces; k++) {
-                const aiFace& f = mesh->mFaces[k];
-                for (unsigned int t = 0; t < f.mNumIndices; t++) {
-                    ib.push_back(baseVertex + f.mIndices[t]);
-                }
+        for (unsigned int k = 0; k < mesh->mNumFaces; k++) {
+            const aiFace& f = mesh->mFaces[k];
+            for (unsigned int t = 0; t < f.mNumIndices; t++) {
+                ib.push_back(baseVertex + f.mIndices[t]);
             }
         }
     }
     for (int i = 0; i < node->mNumChildren; i++) {
-        processNode(path,scene, node->mChildren[i],sceneObject);
+        processNode(meshId, scene, node->mChildren[i]);
     }
 }
 
 void ResourceManager::loadScene(const std::string& path) {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_FlipUVs | aiProcess_GenNormals);
-    if (scene == nullptr) {
+    const aiScene* scene = importer.ReadFile(
+        path.c_str(),
+        aiProcess_Triangulate |
+        aiProcess_ConvertToLeftHanded |
+        aiProcess_FlipUVs |
+        aiProcess_GenNormals
+    );
+    if (!scene) {
         throw std::runtime_error(importer.GetErrorString());
     }
-    if (m_Meshes.find(path) != m_Meshes.end()) {
-        std::printf("Mesh already exists!");
+    size_t namePos = path.find_last_of("/\\");
+    std::string objectName = (namePos == std::string::npos) ? path : path.substr(namePos + 1);
+
+    size_t dotPos = objectName.find_last_of('.');
+    std::string meshName = (dotPos == std::string::npos) ? objectName : objectName.substr(0, dotPos);
+    if (m_MeshIDbyName.contains(meshName)) {
+        std::printf("Mesh already exists!\n");
         return;
     }
-    //Create new SceneObject
-    size_t namePos = path.find_last_of("/\\");
-    std::string objectName = path.substr(namePos+1);
-    size_t fileExtPos = objectName.find_last_of(".");
-    m_Meshes.emplace(objectName.substr(0,fileExtPos), Mesh());
+    const uint32_t id = m_NextMeshID++;
+    auto [it, inserted] = m_MeshRecords.try_emplace(
+        id,
+        MeshRecord{ id, meshName, Mesh{} }
+    );
+    if (!inserted) {
+        throw std::runtime_error("Failed to insert MeshRecord");
+    }
+
+    m_MeshIDbyName.emplace(meshName, id);
 
     aiNode* rootNode = scene->mRootNode;
-    SceneObject* sceneObject = nullptr;
-    if (scene->HasMeshes()) {
-        m_SceneObjects.emplace_back();
-        sceneObject = &m_SceneObjects.back();
-        sceneObject->m_Name = objectName.substr(0, fileExtPos);
-    }
-    processNode(path,scene,rootNode,sceneObject);
+
+    processNode(id, scene, rootNode);
 }
