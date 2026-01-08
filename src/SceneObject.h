@@ -1,6 +1,8 @@
 #pragma once
 #include "Mesh.h"
+#include "Shader.h"
 class ResourceManager;
+class Camera;
 struct Transform {
 	glm::vec3 position{ 0.0f, 0.0f, 0.0f };
 	//Rotation in radians
@@ -37,17 +39,17 @@ public:
 
 class SceneObject {
 public:
+	unsigned int m_ID;
 	std::string m_Name = "unnamed";
 	unsigned int m_MeshID = 0;
-	Shader* m_Shader = nullptr;
 	Transform m_Transform;
 	BoundingBox m_BoundingBox;
 	ResourceManager* m_ResourceManager = nullptr;
-	void setShader(Shader* shader) {
-		m_Shader = shader;
-	}
+	shaderType m_Shader = shaderType::unlit;
+	SceneObject(ResourceManager* rm, unsigned int meshID, unsigned int objectID, const std::string& name);
 	void drawMesh();
-	void initialize();
-	SceneObject(const std::string& name, ResourceManager* rm) : m_Name(name) , m_ResourceManager(rm){ }
-	SceneObject(ResourceManager* rm) : m_ResourceManager(rm) {}
+
+	bool operator==(const SceneObject& other) const{
+		return other.m_ID == m_ID;
+	}
 };

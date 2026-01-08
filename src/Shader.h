@@ -9,7 +9,7 @@ class Shader {
 	public:
 	const char* m_VertexShaderPath;
 	const char* m_FragmentShaderPath;
-	unsigned int m_Program = 0;
+	GLuint m_Program = 0;
 	Camera& m_Camera;
 	DirLight m_DirLight;
 	glm::vec3 m_AmbientLight;
