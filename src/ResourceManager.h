@@ -11,14 +11,13 @@ struct MeshRecord {
 	Mesh mesh;
 };
 
-
 class ResourceManager : public ISubsystem{
 public:
 	void updateEvent(SDL_Event* event) override;
 	void start() override;
 	void update() override;
 	void addSceneObject(const std::string& name, unsigned int meshID);
-	void deleteSceneObject(const std::string& name);
+	void deleteSceneObject(SceneObject& sceneObject);
 	GLsizei getMeshVaoByID(uint32_t meshID);
 	GLsizei getMeshIndexSizeByID(uint32_t meshID);
 	Shader* getShaderByID(shaderType type);
