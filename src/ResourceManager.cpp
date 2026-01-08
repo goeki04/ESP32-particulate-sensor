@@ -3,6 +3,8 @@
 #include "SubsystemManager.h"
 #include "WindowManager.h"
 #include "SceneObject.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 void ResourceManager::start()
 {
     auto windowManager = SystemManager::getInstance().getSubsystem<Window::WindowManager>();
@@ -21,23 +23,77 @@ void ResourceManager::start()
     setupMeshes(); 
     std::cout << "Mesh records size: " <<m_MeshRecords.size() << std::endl;
     std::cout << "SceneObjects size: " << m_SceneObjects.size() << std::endl;
-    //m_SceneObjects[0].m_Transform.rotation = glm::vec3(0, 0.0f, 0);
-    //m_SceneObjects[1].m_Transform.rotation = glm::vec3(glm::radians(180.0f), 0.0f, 0.0f);
+    getAllFilesInDirectory("hello there");
 }
 
 void ResourceManager::update() {
     m_Cam.setProjectionMatrix(GuiManager::s_ViewportSize.x, GuiManager::s_ViewportSize.y);
 }
 
+std::vector<std::string> ResourceManager::getAllFilesInDirectory(const std::string& directory)
+{
+    std::vector<std::string> filePaths;
+    std::error_code ec;
+    for (const auto& entry : std::filesystem::directory_iterator(directory,ec)) {
+        if (ec) break;
+        if (!entry.is_regular_file()) continue;
+        filePaths.emplace_back(entry.path().generic_string());
+    }
+    return filePaths;
+}
+
+std::vector<std::string> ResourceManager::getAllFilesInDirectory(const std::string& directory,std::span<const std::string> filter)
+{
+    std::vector<std::string> filePaths;
+    std::error_code ec;
+
+    for (const auto& entry : std::filesystem::directory_iterator(directory, ec)) {
+        if (ec) break;
+        if (!entry.is_regular_file()) continue;
+
+        std::string ext = entry.path().extension().generic_string();
+        bool allowed = filter.empty() ||
+            std::find(filter.begin(), filter.end(), ext) != filter.end();
+
+        if (allowed) {
+            filePaths.emplace_back(entry.path().generic_string());
+        }
+    }
+    return filePaths;
+}
+void ResourceManager::updateEvent(SDL_Event* event) {
+    if (GuiManager::s_ViewportFocused)
+    {
+        m_Cam.cameraMovement();
+        m_Cam.zoom(event);
+    }
+}
+SDL_Surface* ResourceManager::CreateSDLSurface(const char* path)
+{
+    int w, h, channels;
+    unsigned char* pixels = stbi_load(path, &w, &h, &channels, 4);
+    if (!pixels) {
+        SDL_Log("Failed to load PNG: %s", stbi_failure_reason());
+        return NULL;
+    }
+    SDL_Surface* surface = SDL_CreateSurfaceFrom(w, h, SDL_PIXELFORMAT_RGBA32, pixels, w * 4);
+    if (!surface) {
+        stbi_image_free(pixels);
+        SDL_Log("Failed to create surface: %s", SDL_GetError());
+        return NULL;
+    }
+    return surface;
+}
+
 void ResourceManager::addSceneObject(const std::string& name, unsigned int meshID)
 {
-    m_SceneObjects.emplace_back(this,meshID,m_NextSceneObjectID,name);
+    m_SceneObjects.emplace_back(this, meshID, m_NextSceneObjectID, name);
     m_NextSceneObjectID++;
 }
 
 void ResourceManager::deleteSceneObject(SceneObject& sceneObject)
 {
-    m_SceneObjects.erase(std::remove(m_SceneObjects.begin(), m_SceneObjects.end(), sceneObject),m_SceneObjects.end());
+    m_SceneObjects.erase(std::remove(m_SceneObjects.begin(), m_SceneObjects.end(), sceneObject), m_SceneObjects.end());
 }
 
 GLsizei ResourceManager::getMeshVaoByID(uint32_t meshID)
@@ -59,13 +115,6 @@ Mesh& ResourceManager::getMeshByID(uint32_t meshID)
     return m_MeshRecords.at(meshID).mesh;
 }
 
-void ResourceManager::updateEvent(SDL_Event* event) {
-    if (GuiManager::s_ViewportFocused)
-    {
-        m_Cam.cameraMovement();
-        m_Cam.zoom(event);
-    }
-}
 void ResourceManager::setupMeshes()
 {
     for (auto it = m_MeshRecords.begin(); it != m_MeshRecords.end(); ++it) {

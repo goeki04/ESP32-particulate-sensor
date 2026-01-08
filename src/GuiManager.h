@@ -1,5 +1,6 @@
 #pragma once
 #include "glm/glm.hpp"
+
 struct Margin {
     float left;
     float right;
@@ -45,6 +46,7 @@ public:
     void loadFont();
     ImVec2 getViewportWindowSize();
 private:
+    std::vector<SDL_Surface> m_DeviceIcons;
     std::string m_ImguiVersion = "ImGui: " + std::string(IMGUI_VERSION);
     static bool m_ShowVersion;
     ImFont* m_DeviceBrowserFont = nullptr;
