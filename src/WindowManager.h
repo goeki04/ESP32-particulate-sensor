@@ -8,7 +8,6 @@ namespace Window {
 	public:
 		void start() override;
 		void destroy() override;
-		SDL_Surface* CreateSDLSurface(const char* path);
 		void updateEvent(SDL_Event* event) override;
 	};
 }

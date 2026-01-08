@@ -89,12 +89,17 @@ void Renderer::createFramebuffer()
 }   
 
 void Renderer::destroy() {
-    if (m_FramebufferTexture)        glDeleteTextures(1, &m_FramebufferTexture);
-    if (m_MsaaFramebufferTexture)    glDeleteTextures(1, &m_MsaaFramebufferTexture);
-    if (m_Rendererbuffer)           glDeleteRenderbuffers(1, &m_Rendererbuffer);
+    if (m_FramebufferTexture)        
+        glDeleteTextures(1, &m_FramebufferTexture);
+    if (m_MsaaFramebufferTexture)    
+        glDeleteTextures(1, &m_MsaaFramebufferTexture);
+    if (m_Rendererbuffer)           
+        glDeleteRenderbuffers(1, &m_Rendererbuffer);
 
-    if (m_Framebuffer)              glDeleteFramebuffers(1, &m_Framebuffer);
-    if (m_MsaaFramebuffer)          glDeleteFramebuffers(1, &m_MsaaFramebuffer);
+    if (m_Framebuffer)              
+        glDeleteFramebuffers(1, &m_Framebuffer);
+    if (m_MsaaFramebuffer)          
+        glDeleteFramebuffers(1, &m_MsaaFramebuffer);
 
     m_FramebufferTexture = 0;
     m_MsaaFramebufferTexture = 0;

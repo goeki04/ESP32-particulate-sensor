@@ -19,6 +19,7 @@
 #include <assimp/postprocess.h>
 #include <fstream>
 #include <filesystem>
+#include <span>
 #ifndef DEBUG_RENDERING_OPENGL
 #define DEBUG_RENDERING_OPENGL
 #endif

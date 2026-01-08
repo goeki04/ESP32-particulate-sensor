@@ -432,10 +432,10 @@ void GuiManager::setStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
     float mainScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     style.ScaleAllSizes(mainScale);
-    style.WindowRounding = 10.0f;    // Radius
+    style.WindowRounding = 10.0f;
     style.ChildRounding = 10.0f;
     style.FrameRounding = 10.0f;
-    style.WindowBorderSize = 1.0f;   // 0 = kein Rand
+    style.WindowBorderSize = 1.0f;
     ImVec4* colors = style.Colors;
     colors[ImGuiCol_WindowBg]         = ImVec4(0.15f, 0.17f, 0.23f, 1.00f);
     colors[ImGuiCol_ChildBg]          = ImVec4(0.12f, 0.14f, 0.19f, 1.00f);
