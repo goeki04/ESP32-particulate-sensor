@@ -21,7 +21,6 @@ void ResourceManager::start()
     setupMeshes(); 
     std::cout << "Mesh records size: " <<m_MeshRecords.size() << std::endl;
     std::cout << "SceneObjects size: " << m_SceneObjects.size() << std::endl;
-    addSceneObject("Hello there", 0);
     //m_SceneObjects[0].m_Transform.rotation = glm::vec3(0, 0.0f, 0);
     //m_SceneObjects[1].m_Transform.rotation = glm::vec3(glm::radians(180.0f), 0.0f, 0.0f);
 }
@@ -36,9 +35,9 @@ void ResourceManager::addSceneObject(const std::string& name, unsigned int meshI
     m_NextSceneObjectID++;
 }
 
-void ResourceManager::deleteSceneObject(const std::string& name)
+void ResourceManager::deleteSceneObject(SceneObject& sceneObject)
 {
-    
+    m_SceneObjects.erase(std::remove(m_SceneObjects.begin(), m_SceneObjects.end(), sceneObject),m_SceneObjects.end());
 }
 
 GLsizei ResourceManager::getMeshVaoByID(uint32_t meshID)
