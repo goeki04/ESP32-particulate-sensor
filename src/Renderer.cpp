@@ -3,6 +3,7 @@
 #include "SubsystemManager.h"
 #include "WindowManager.h"
 #include "ResourceManager.h"
+#include "SceneObject.h"
 #include "camera.h"
 
 void Renderer::start()
@@ -85,7 +86,7 @@ void Renderer::createFramebuffer()
         throw std::runtime_error("Framebuffer is not complete");
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
+}   
 
 void Renderer::destroy() {
     if (m_FramebufferTexture)        glDeleteTextures(1, &m_FramebufferTexture);

@@ -2,7 +2,7 @@
 #include "ResourceManager.h"
 #include "SubsystemManager.h"
 #include "WindowManager.h"
-
+#include "SceneObject.h"
 void ResourceManager::start()
 {
     auto windowManager = SystemManager::getInstance().getSubsystem<Window::WindowManager>();
@@ -19,24 +19,40 @@ void ResourceManager::start()
     loadScene("../assets/models/BMV080.obj");
     
     setupMeshes(); 
-    m_SceneObjects[0].m_Transform.rotation = glm::vec3(0, 0.0f, 0);
-    m_SceneObjects[1].m_Transform.rotation = glm::vec3(glm::radians(180.0f), 0.0f, 0.0f);
-    for (auto& s : m_SceneObjects) {
-        s.initialize();
-    }
+    std::cout << "Mesh records size: " <<m_MeshRecords.size() << std::endl;
+    std::cout << "SceneObjects size: " << m_SceneObjects.size() << std::endl;
+    addSceneObject("Hello there", 0);
+    //m_SceneObjects[0].m_Transform.rotation = glm::vec3(0, 0.0f, 0);
+    //m_SceneObjects[1].m_Transform.rotation = glm::vec3(glm::radians(180.0f), 0.0f, 0.0f);
 }
 
 void ResourceManager::update() {
     m_Cam.setProjectionMatrix(GuiManager::s_ViewportSize.x, GuiManager::s_ViewportSize.y);
 }
 
-unsigned int ResourceManager::getMeshVaoByID(uint32_t meshID)
+void ResourceManager::addSceneObject(const std::string& name, unsigned int meshID)
+{
+    m_SceneObjects.emplace_back(this,meshID,m_NextSceneObjectID,name);
+    m_NextSceneObjectID++;
+}
+
+void ResourceManager::deleteSceneObject(const std::string& name)
+{
+    
+}
+
+GLsizei ResourceManager::getMeshVaoByID(uint32_t meshID)
 {
     return m_MeshRecords.at(meshID).mesh.m_Vao;
 }
 
-unsigned int ResourceManager::getMeshIndexSizeByID(uint32_t meshID) {
+GLsizei ResourceManager::getMeshIndexSizeByID(uint32_t meshID) {
     return m_MeshRecords.at(meshID).mesh.m_IndexBuffer.size();
+}
+
+Shader* ResourceManager::getShaderByID(shaderType type)
+{
+    return m_Shaders[(int)type].get();
 }
 
 Mesh& ResourceManager::getMeshByID(uint32_t meshID)
