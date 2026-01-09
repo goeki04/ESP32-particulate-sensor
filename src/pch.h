@@ -20,6 +20,7 @@
 #include <fstream>
 #include <filesystem>
 #include <span>
+#include <cctype>
 #ifndef DEBUG_RENDERING_OPENGL
 #define DEBUG_RENDERING_OPENGL
 #endif

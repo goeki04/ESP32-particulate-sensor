@@ -3,6 +3,7 @@
 #include "SubsystemManager.h"
 #include "WindowManager.h"
 #include "SceneObject.h"
+#include "util.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 void ResourceManager::start()
@@ -17,17 +18,49 @@ void ResourceManager::start()
         throw std::exception("Failed to call glewInit!");
     }
     addShader<UnlitShader>("../src/shader/vertexShader.glsl", "../src/shader/fragmentShader.glsl");
-    loadScene("../assets/models/ESP32Wroom.fbx");
-    loadScene("../assets/models/BMV080.obj");
-    
+    loadModels();
+    loadIcons();
     setupMeshes(); 
-    std::cout << "Mesh records size: " <<m_MeshRecords.size() << std::endl;
-    std::cout << "SceneObjects size: " << m_SceneObjects.size() << std::endl;
     getAllFilesInDirectory("hello there");
 }
 
 void ResourceManager::update() {
     m_Cam.setProjectionMatrix(GuiManager::s_ViewportSize.x, GuiManager::s_ViewportSize.y);
+}
+
+void ResourceManager::loadModels()
+{
+    std::string filter[2];
+    filter[0] = ".fbx";
+    filter[1] = ".obj";
+    std::vector<std::string> paths = getAllFilesInDirectory("../assets/models",filter);
+
+    for (auto& v : paths) {
+        loadScene(v);
+    }
+}
+
+void ResourceManager::loadIcons()
+{
+    std::string filter[2];
+    filter[0] = ".png";
+    filter[1] = ".jpg";
+    std::vector<std::string> paths = getAllFilesInDirectory("../assets/icons", filter);
+
+    for (auto& v : paths) {
+        std::string fileName = getFileName(v);
+        m_DeviceIcons[fileName] = ResourceManager::CreateSDLSurface(v.c_str());
+    }
+}
+
+std::string ResourceManager::getFileName(const std::string& path) const
+{
+    size_t namePos = path.find_last_of("/");
+    std::string objectName = (namePos == std::string::npos) ? path : path.substr(namePos + 1);
+
+    size_t dotPos = objectName.find_last_of('.');
+    std::string fileName = (dotPos == std::string::npos) ? objectName : objectName.substr(0, dotPos);
+    return fileName;
 }
 
 std::vector<std::string> ResourceManager::getAllFilesInDirectory(const std::string& directory)
@@ -42,11 +75,10 @@ std::vector<std::string> ResourceManager::getAllFilesInDirectory(const std::stri
     return filePaths;
 }
 
-std::vector<std::string> ResourceManager::getAllFilesInDirectory(const std::string& directory,std::span<const std::string> filter)
+std::vector<std::string> ResourceManager::getAllFilesInDirectory(const std::string& directory,std::span<std::string> filter)
 {
     std::vector<std::string> filePaths;
     std::error_code ec;
-
     for (const auto& entry : std::filesystem::directory_iterator(directory, ec)) {
         if (ec) break;
         if (!entry.is_regular_file()) continue;
@@ -98,11 +130,11 @@ void ResourceManager::deleteSceneObject(SceneObject& sceneObject)
 
 GLsizei ResourceManager::getMeshVaoByID(uint32_t meshID)
 {
-    return m_MeshRecords.at(meshID).mesh.m_Vao;
+    return m_DeviceRecords.at(meshID).mesh.m_Vao;
 }
 
 GLsizei ResourceManager::getMeshIndexSizeByID(uint32_t meshID) {
-    return m_MeshRecords.at(meshID).mesh.m_IndexBuffer.size();
+    return m_DeviceRecords.at(meshID).mesh.m_IndexBuffer.size();
 }
 
 Shader* ResourceManager::getShaderByID(shaderType type)
@@ -112,18 +144,23 @@ Shader* ResourceManager::getShaderByID(shaderType type)
 
 Mesh& ResourceManager::getMeshByID(uint32_t meshID)
 {
-    return m_MeshRecords.at(meshID).mesh;
+    return m_DeviceRecords.at(meshID).mesh;
+}
+
+size_t ResourceManager::getMeshRecordsSize()
+{
+    return m_DeviceRecords.size();
 }
 
 void ResourceManager::setupMeshes()
 {
-    for (auto it = m_MeshRecords.begin(); it != m_MeshRecords.end(); ++it) {
+    for (auto it = m_DeviceRecords.begin(); it != m_DeviceRecords.end(); ++it) {
         it->second.mesh.createMesh();
     }
 }
 void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, aiNode* node)
 {
-    auto& newMesh = m_MeshRecords.at(meshId).mesh;
+    auto& newMesh = m_DeviceRecords.at(meshId).mesh;
 
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -177,6 +214,24 @@ void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, a
     }
 }
 
+/// <summary>
+/// This function sets the device type based on the path.
+/// Sets the device type to default if not found.
+/// </summary>
+/// <param name="path">path which used to determine the device type based on the directory</param>
+/// <returns></returns>
+deviceType ResourceManager::findDeviceTypeByPath(const std::string& path) {
+    std::string directory = path;
+
+    util::stringToLower(directory);
+    if (directory == "dsensor") return deviceType::SENSOR;
+    if (directory == "dcontroller") return deviceType::CONTROLLER;
+    if (directory == "dcable") return deviceType::CABLE;
+    if (directory == "dbreadboard") return deviceType::BREADBOARD;
+    std::printf("[WARNING]: Device type not found");
+    return deviceType::DEFAULT;
+}
+
 void ResourceManager::loadScene(const std::string& path) {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(
@@ -189,19 +244,15 @@ void ResourceManager::loadScene(const std::string& path) {
     if (!scene) {
         throw std::runtime_error(importer.GetErrorString());
     }
-    size_t namePos = path.find_last_of("/\\");
-    std::string objectName = (namePos == std::string::npos) ? path : path.substr(namePos + 1);
-
-    size_t dotPos = objectName.find_last_of('.');
-    std::string meshName = (dotPos == std::string::npos) ? objectName : objectName.substr(0, dotPos);
+    std::string meshName = getFileName(path);
     if (m_MeshIDbyName.contains(meshName)) {
         std::printf("Mesh already exists!\n");
         return;
     }
     const uint32_t id = m_NextMeshID++;
-    auto [it, inserted] = m_MeshRecords.try_emplace(
+    auto [it, inserted] = m_DeviceRecords.try_emplace(
         id,
-        MeshRecord{ id, meshName, Mesh{} }
+        Device{ id, meshName, Mesh{} }
     );
     if (!inserted) {
         throw std::runtime_error("Failed to insert MeshRecord");

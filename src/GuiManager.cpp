@@ -3,10 +3,14 @@
 #include "SubsystemManager.h"
 #include "Renderer.h"
 #include "camera.h"
+#include "ResourceManager.h"
+#include "util.h"
+using namespace util;
 ImVec2 GuiManager::s_ViewportSize = ImVec2(0.0f,0.0f);
 bool GuiManager::s_ViewportFocused = false;
 bool GuiManager::m_ShowVersion = false;
-void GuiManager::init(SDL_Window* window) {
+void GuiManager::init(SDL_Window* window, ResourceManager* rm) {
+    m_ResourceManager = rm;
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
@@ -264,8 +268,7 @@ void GuiManager::drawDeviceBrowser()
 
     int perRow = (int)floor((availX + spacingX) / (tileSize.x + spacingX));
     if (perRow < 1) perRow = 1;
-
-    const int itemCount = 100;
+    const int itemCount = m_ResourceManager->getMeshRecordsSize();
 
     ImGui::PushFont(m_DeviceBrowserFont);
 
