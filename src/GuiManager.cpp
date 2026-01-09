@@ -261,14 +261,14 @@ void GuiManager::drawDeviceBrowser()
 
     int perRow = (int)floor((availX + spacingX) / (tileSize.x + spacingX));
     if (perRow < 1) perRow = 1;
-    const int itemCount = m_ResourceManager->getMeshRecordsSize();
-
+    const int itemCount = m_ResourceManager->getDeviceRecordsSize();
     ImGui::PushFont(m_DeviceBrowserFont);
 
     for (int idx = 0; idx < itemCount; ++idx)
     {
+        const auto& deviceRecord = m_ResourceManager->getDeviceRecords().at(idx);
         ImGui::PushID(idx);
-        const char* label = "Device";
+        const char* label = deviceRecord.name.c_str();
         ImVec2 labelSize = ImGui::CalcTextSize(label);
         ImVec2 totalSize(tileSize.x, tileSize.y + spacingY + labelSize.y);
         ImVec2 pMin = ImGui::GetCursorScreenPos();

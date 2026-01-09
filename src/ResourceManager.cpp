@@ -50,7 +50,7 @@ void ResourceManager::loadIcons()
     for (auto& v : paths) {
         std::string fileName = getFileName(v);
         deviceType type = findDeviceIcon(fileName);
-        m_DeviceIcons[type] = ResourceManager::CreateSDLSurface(v.c_str());
+        m_DeviceIcons[type] = CreateOpenGLTexture(v.c_str());
     }
 }
 
@@ -60,6 +60,7 @@ deviceType ResourceManager::findDeviceIcon(std::string iconName) {
             return v.second;
         }
     }
+    return deviceType::DEFAULT;
 };
 
 std::string ResourceManager::getFileName(const std::string& path) const
@@ -139,15 +140,21 @@ SDL_Surface* ResourceManager::CreateSDLSurface(const char* path)
     int w, h, channels;
     unsigned char* pixels = stbi_load(path, &w, &h, &channels, 4);
     if (!pixels) {
-        SDL_Log("Failed to load PNG: %s", stbi_failure_reason());
-        return NULL;
+        SDL_Log("Failed to load image: %s", stbi_failure_reason());
+        return nullptr;
     }
-    SDL_Surface* surface = SDL_CreateSurfaceFrom(w, h, SDL_PIXELFORMAT_RGBA32, pixels, w * 4);
+
+    SDL_Surface* surface = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_RGBA32);
     if (!surface) {
         stbi_image_free(pixels);
         SDL_Log("Failed to create surface: %s", SDL_GetError());
-        return NULL;
+        return nullptr;
     }
+    SDL_LockSurface(surface);
+    std::memcpy(surface->pixels, pixels, (size_t)w * (size_t)h * 4);
+    SDL_UnlockSurface(surface);
+
+    stbi_image_free(pixels);
     return surface;
 }
 
@@ -162,28 +169,60 @@ void ResourceManager::deleteSceneObject(SceneObject& sceneObject)
     m_SceneObjects.erase(std::remove(m_SceneObjects.begin(), m_SceneObjects.end(), sceneObject), m_SceneObjects.end());
 }
 
-GLsizei ResourceManager::getMeshVaoByID(uint32_t meshID)
+GLsizei ResourceManager::getMeshVaoByID(uint32_t meshID) const
 {
     return m_DeviceRecords.at(meshID).mesh.m_Vao;
 }
 
-GLsizei ResourceManager::getMeshIndexSizeByID(uint32_t meshID) {
+GLsizei ResourceManager::getMeshIndexSizeByID(uint32_t meshID) const {
     return m_DeviceRecords.at(meshID).mesh.m_IndexBuffer.size();
 }
 
-Shader* ResourceManager::getShaderByID(shaderType type)
+Shader* ResourceManager::getShaderByID(shaderType type) const
 {
     return m_Shaders[(int)type].get();
 }
 
-Mesh& ResourceManager::getMeshByID(uint32_t meshID)
+const Mesh& ResourceManager::getMeshByID(uint32_t meshID) const
 {
     return m_DeviceRecords.at(meshID).mesh;
 }
 
-size_t ResourceManager::getMeshRecordsSize()
+size_t ResourceManager::getDeviceRecordsSize() const
 {
     return m_DeviceRecords.size();
+}
+
+const std::unordered_map<uint32_t, Device>& ResourceManager::getDeviceRecords() const
+{
+    return m_DeviceRecords;
+}
+
+GLtexture ResourceManager::CreateOpenGLTexture(const char* path)
+{
+    GLtexture texture;
+    int w, h, channels;
+    unsigned char* pixels = stbi_load(path, &w, &h, &channels, 4);
+    if (!pixels) {
+        std::string log = stbi_failure_reason();
+        throw std::runtime_error("Failed to load image: " + log);
+    }
+
+    texture.w = w; texture.h = h;
+
+    glGenTextures(1, &texture.id);
+    glBindTexture(GL_TEXTURE_2D, texture.id);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+    stbi_image_free(pixels);
+    return texture;
 }
 
 void ResourceManager::setupMeshes()

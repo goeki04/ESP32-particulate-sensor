@@ -14,6 +14,51 @@ enum class deviceType {
 	BREADBOARD,
 };
 
+struct GLtexture
+{
+	GLuint id = 0;
+	int w = 0;
+	int h = 0;
+
+	GLtexture() = default;
+
+	GLtexture(const GLtexture&) = delete;
+	GLtexture& operator=(const GLtexture&) = delete;
+
+	GLtexture(GLtexture&& other) noexcept
+	{
+		*this = std::move(other);
+	}
+
+	GLtexture& operator=(GLtexture&& other) noexcept
+	{
+		if (this != &other) {
+			destroy();
+			id = other.id;
+			w = other.w;
+			h = other.h;
+			other.id = 0;
+			other.w = other.h = 0;
+		}
+		return *this;
+	}
+
+	~GLtexture()
+	{
+		destroy();
+	}
+
+	void destroy()
+	{
+		if (id != 0) {
+			if (SDL_GL_GetCurrentContext()) {
+				glDeleteTextures(1, &id);
+			}
+			id = 0;
+		}
+	}
+};
+
 struct Device {
 	uint32_t id;
 	std::string name;
@@ -23,6 +68,17 @@ struct Device {
 
 class ResourceManager : public ISubsystem{
 public:
+	SDL_GLContext m_GlContext = NULL;
+	std::vector<std::unique_ptr<Shader>> m_Shaders;
+	std::vector<SceneObject> m_SceneObjects;
+	std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
+	Camera m_Cam;
+	static constexpr std::array<std::pair<std::string_view, deviceType>, 4> m_DirectoryNames{ {
+		{"dsensor",     deviceType::SENSOR},
+		{"dcontroller", deviceType::CONTROLLER},
+		{"dcable",      deviceType::CABLE},
+		{"dbreadboard", deviceType::BREADBOARD},
+		 } };
 	std::vector<std::string> getAllFilesInDirectoryRecursive(const std::string& directory, std::span<const std::string> filter);
 	void updateEvent(SDL_Event* event) override;
 	static SDL_Surface* CreateSDLSurface(const char* path);
@@ -36,22 +92,13 @@ public:
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
 	void addSceneObject(const std::string& name, unsigned int meshID);
 	void deleteSceneObject(SceneObject& sceneObject);
-	GLsizei getMeshVaoByID(uint32_t meshID);
-	GLsizei getMeshIndexSizeByID(uint32_t meshID);
-	Shader* getShaderByID(shaderType type);
-	Mesh& getMeshByID(uint32_t meshID);
-	size_t getMeshRecordsSize();
-	SDL_GLContext m_GlContext = NULL;
-	std::vector<std::unique_ptr<Shader>> m_Shaders;
-	std::vector<SceneObject> m_SceneObjects;
-	std::unordered_map<deviceType,SDL_Surface*> m_DeviceIcons;
-	Camera m_Cam;
-	static constexpr std::array<std::pair<std::string_view, deviceType>, 4> m_DirectoryNames{ {
-		{"dsensor",     deviceType::SENSOR},
-		{"dcontroller", deviceType::CONTROLLER},
-		{"dcable",      deviceType::CABLE},
-		{"dbreadboard", deviceType::BREADBOARD},
-		 } };
+	GLsizei getMeshVaoByID(uint32_t meshID) const;
+	GLsizei getMeshIndexSizeByID(uint32_t meshID) const;
+	Shader* getShaderByID(shaderType type) const;
+	const Mesh& getMeshByID(uint32_t meshID) const;
+    size_t getDeviceRecordsSize() const;
+	const std::unordered_map<uint32_t, Device>& getDeviceRecords() const;
+	GLtexture CreateOpenGLTexture(const char* path);
 private:
 	std::unordered_map<uint32_t, Device> m_DeviceRecords;
 	std::unordered_map<std::string, uint32_t> m_MeshIDbyName;
