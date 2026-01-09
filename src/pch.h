@@ -21,6 +21,7 @@
 #include <filesystem>
 #include <span>
 #include <cctype>
+#include <array>
 #ifndef DEBUG_RENDERING_OPENGL
 #define DEBUG_RENDERING_OPENGL
 #endif

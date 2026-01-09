@@ -238,7 +238,6 @@ void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, a
         processNode(meshId, scene, node->mChildren[i]);
     }
 }
-
 /// <summary>
 /// This function sets the device type based on the path.
 /// Sets the device type to default if not found.
@@ -246,13 +245,19 @@ void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, a
 /// <param name="path">path which used to determine the device type based on the directory</param>
 /// <returns></returns>
 deviceType ResourceManager::findDeviceTypeByPath(const std::string& path) {
-    std::string directory = path;
-    std::cout << path;
-    util::stringToLower(directory);
-    if (directory == "dsensor") return deviceType::SENSOR;
-    if (directory == "dcontroller") return deviceType::CONTROLLER;
-    if (directory == "dcable") return deviceType::CABLE;
-    if (directory == "dbreadboard") return deviceType::BREADBOARD;
+    static constexpr std::array<std::pair<std::string_view, deviceType>, 4> map{ {
+    {"dsensor",     deviceType::SENSOR},
+    {"dcontroller", deviceType::CONTROLLER},
+    {"dcable",      deviceType::CABLE},
+    {"dbreadboard", deviceType::BREADBOARD},
+     } };
+    std::string lowerString = path;
+    util::stringToLower(lowerString);
+    for (auto& [key,value] : map) {
+        if (lowerString.find(key)) {
+            return value;
+        }
+    }
     std::printf("[WARNING]: Device type not found");
     return deviceType::DEFAULT;
 }
@@ -270,15 +275,15 @@ void ResourceManager::loadScene(const std::string& path) {
         throw std::runtime_error(importer.GetErrorString());
     }
     std::string meshName = getFileName(path);
-    findDeviceTypeByPath(path);
     if (m_MeshIDbyName.contains(meshName)) {
         std::printf("Mesh already exists!\n");
         return;
     }
     const uint32_t id = m_NextMeshID++;
+    deviceType dt = findDeviceTypeByPath(path);
     auto [it, inserted] = m_DeviceRecords.try_emplace(
         id,
-        Device{ id, meshName, Mesh{} }
+        Device{ id, meshName, Mesh{}, dt }
     );
     if (!inserted) {
         throw std::runtime_error("Failed to insert MeshRecord");
