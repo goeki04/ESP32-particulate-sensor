@@ -30,6 +30,7 @@ public:
 	void update() override;
 	void loadModels();
 	void loadIcons();
+	deviceType findDeviceIcon(std::string iconName);
 	std::string getFileName(const std::string& path) const;
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory);
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
@@ -43,8 +44,14 @@ public:
 	SDL_GLContext m_GlContext = NULL;
 	std::vector<std::unique_ptr<Shader>> m_Shaders;
 	std::vector<SceneObject> m_SceneObjects;
-	std::unordered_map<std::string,SDL_Surface*> m_DeviceIcons;
+	std::unordered_map<deviceType,SDL_Surface*> m_DeviceIcons;
 	Camera m_Cam;
+	static constexpr std::array<std::pair<std::string_view, deviceType>, 4> m_DirectoryNames{ {
+		{"dsensor",     deviceType::SENSOR},
+		{"dcontroller", deviceType::CONTROLLER},
+		{"dcable",      deviceType::CABLE},
+		{"dbreadboard", deviceType::BREADBOARD},
+		 } };
 private:
 	std::unordered_map<uint32_t, Device> m_DeviceRecords;
 	std::unordered_map<std::string, uint32_t> m_MeshIDbyName;
