@@ -22,7 +22,6 @@ void GuiManager::init(SDL_Window* window, ResourceManager* rm) {
     m_MarginDefault = m_WindowHeight * 0.0225;
     setViewportSize();
 }
-
 void GuiManager::update() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
@@ -33,11 +32,7 @@ void GuiManager::update() {
     drawChart();
     drawBottomWindow();
 }
-
-void GuiManager::drawViewportGUI(unsigned int framebufferTexture,
-    ImVec2 framebufferSize,
-    float* ImGuiMouseX,
-    float* ImGuiMouseY)
+void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebufferSize,float* ImGuiMouseX,float* ImGuiMouseY)
 {
     ImGuiWindowFlags windowFlags = 0;
     windowFlags |= ImGuiWindowFlags_NoResize;
@@ -86,12 +81,10 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture,
     ImGui::PopStyleVar();
 
 }
-
 float GuiManager::getMenuBarHeight()
 {
     return m_MenuBarHeight;
 }
-
 void GuiManager::loadFont()
 {
     ImGuiIO& io = ImGui::GetIO();(void)io;
@@ -320,12 +313,10 @@ void GuiManager::drawDeviceBrowser()
 void GuiManager::drawDetailsPanel()
 {
 }
-
 void GuiManager::OpenURL(const std::string& url)
 {
    SDL_OpenURL(url.c_str());
 }
-
 ImVec2 GuiManager::getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment)
 {
     float containerHeight = m_WindowHeight - m_MenuBarHeight;
@@ -391,7 +382,6 @@ ImVec2 GuiManager::getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment a
     newPos.y = std::clamp(newPos.y, m_MenuBarHeight, containerHeight + m_MenuBarHeight - windowSize.y);
     return newPos;
 }
-
 ImVec2 GuiManager::getViewportWindowPos()
 {
     ImVec2 viewportSize = getViewportWindowSize();
@@ -408,7 +398,6 @@ ImVec2 GuiManager::getViewportWindowPos()
 ImVec2 GuiManager::getViewportWindowSize() {
     return s_ViewportSize;
 }
-
 void GuiManager::setViewportSize() {
     if (m_WindowHeight == 0 || m_WindowWidth == 0 || m_WidgetWidth == 0) {
         throw std::runtime_error("Window width/height or widgetWidth can't be zero");

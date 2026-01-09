@@ -30,7 +30,7 @@ void ResourceManager::update() {
 
 void ResourceManager::loadModels()
 {
-    std::string filter[2];
+    std::array<std::string, 2> filter;
     filter[0] = ".fbx";
     filter[1] = ".obj";
     std::vector<std::string> paths = getAllFilesInDirectoryRecursive("../assets/models",filter);
@@ -42,16 +42,25 @@ void ResourceManager::loadModels()
 
 void ResourceManager::loadIcons()
 {
-    std::string filter[2];
+    std::array<std::string,2> filter;
     filter[0] = ".png";
     filter[1] = ".jpg";
     std::vector<std::string> paths = getAllFilesInDirectory("../assets/icons", filter);
 
     for (auto& v : paths) {
         std::string fileName = getFileName(v);
-        m_DeviceIcons[fileName] = ResourceManager::CreateSDLSurface(v.c_str());
+        deviceType type = findDeviceIcon(fileName);
+        m_DeviceIcons[type] = ResourceManager::CreateSDLSurface(v.c_str());
     }
 }
+
+deviceType ResourceManager::findDeviceIcon(std::string iconName) {
+    for (auto& v : ResourceManager::m_DirectoryNames) {
+        if (v.first.find(iconName)) {
+            return v.second;
+        }
+    }
+};
 
 std::string ResourceManager::getFileName(const std::string& path) const
 {
@@ -245,15 +254,9 @@ void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, a
 /// <param name="path">path which used to determine the device type based on the directory</param>
 /// <returns></returns>
 deviceType ResourceManager::findDeviceTypeByPath(const std::string& path) {
-    static constexpr std::array<std::pair<std::string_view, deviceType>, 4> map{ {
-    {"dsensor",     deviceType::SENSOR},
-    {"dcontroller", deviceType::CONTROLLER},
-    {"dcable",      deviceType::CABLE},
-    {"dbreadboard", deviceType::BREADBOARD},
-     } };
     std::string lowerString = path;
     util::stringToLower(lowerString);
-    for (auto& [key,value] : map) {
+    for (auto& [key,value] : m_DirectoryNames) {
         if (lowerString.find(key)) {
             return value;
         }
@@ -283,7 +286,7 @@ void ResourceManager::loadScene(const std::string& path) {
     deviceType dt = findDeviceTypeByPath(path);
     auto [it, inserted] = m_DeviceRecords.try_emplace(
         id,
-        Device{ id, meshName, Mesh{}, dt }
+        Device{ id, meshName, Mesh{}, dt}
     );
     if (!inserted) {
         throw std::runtime_error("Failed to insert MeshRecord");
