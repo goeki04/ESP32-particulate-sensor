@@ -7,11 +7,11 @@
 #include "SceneObject.h"
 
 enum class deviceType {
+	DEFAULT = -1,
 	SENSOR,
 	CONTROLLER,
 	CABLE,
 	BREADBOARD,
-	DEFAULT
 };
 
 struct Device {
