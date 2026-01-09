@@ -21,7 +21,6 @@ void ResourceManager::start()
     loadModels();
     loadIcons();
     setupMeshes(); 
-    getAllFilesInDirectory("hello there");
 }
 
 void ResourceManager::update() {
@@ -56,7 +55,7 @@ void ResourceManager::loadIcons()
 
 deviceType ResourceManager::findDeviceIcon(std::string iconName) {
     for (auto& v : ResourceManager::m_DirectoryNames) {
-        if (v.first.find(iconName)) {
+        if (v.first.find(iconName) != std::string::npos) {
             return v.second;
         }
     }
@@ -296,7 +295,7 @@ deviceType ResourceManager::findDeviceTypeByPath(const std::string& path) {
     std::string lowerString = path;
     util::stringToLower(lowerString);
     for (auto& [key,value] : m_DirectoryNames) {
-        if (lowerString.find(key)) {
+        if (lowerString.find(key) != std::string::npos) {
             return value;
         }
     }

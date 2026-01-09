@@ -21,10 +21,8 @@ struct GLtexture
 	int h = 0;
 
 	GLtexture() = default;
-
 	GLtexture(const GLtexture&) = delete;
 	GLtexture& operator=(const GLtexture&) = delete;
-
 	GLtexture(GLtexture&& other) noexcept
 	{
 		*this = std::move(other);
@@ -43,10 +41,7 @@ struct GLtexture
 		return *this;
 	}
 
-	~GLtexture()
-	{
-		destroy();
-	}
+	~GLtexture() { destroy(); }
 
 	void destroy()
 	{
