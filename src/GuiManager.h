@@ -1,6 +1,6 @@
 #pragma once
 #include "glm/glm.hpp"
-
+class ResourceManager;
 struct Margin {
     float left;
     float right;
@@ -21,6 +21,8 @@ struct Margin {
 
 enum Alignment {
     TopLeft,
+
+   
     TopRight,
     Center,
     CenterBottom,
@@ -37,7 +39,7 @@ public:
     /// This is the coordinate of the viewport pivot relative to the screen (topLeft = 0)
     /// </summary>
     glm::vec2 m_ViewportRectMin;
-    void init(SDL_Window* window);
+    void init(SDL_Window* window, ResourceManager* rm);
     void update();
     void destroy();
     float getMenuBarHeight();
@@ -46,6 +48,7 @@ public:
     void loadFont();
     ImVec2 getViewportWindowSize();
 private:
+    ResourceManager* m_ResourceManager = nullptr;
     std::vector<SDL_Surface> m_DeviceIcons;
     std::string m_ImguiVersion = "ImGui: " + std::string(IMGUI_VERSION);
     static bool m_ShowVersion;
@@ -75,28 +78,3 @@ private:
     void setStyle();
 
 };
-
-inline ImVec2 operator+(const ImVec2& a, const ImVec2& b) {
-    return ImVec2(a.x+b.x,a.y+b.y);
-}
-
-inline ImVec2 operator-(const ImVec2& a, const ImVec2& b) {
-    return ImVec2(a.x - b.x, a.y - b.y);
-}
-
-inline bool operator==(const ImVec2& a, const ImVec2& b) {
-    return a.x == b.x && a.y == b.y;
-}
-/// <summary>
-/// Used for debugging with glm
-/// </summary>
-/// <returns>os</returns>
-inline std::ostream& operator<<(std::ostream& os,const glm::vec4& a) {
-    os << "(" << a.x << ", " << a.y << ", " << a.z << ", " << a.w << ")";
-    return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const ImVec2& a) {
-    os << "(" << a.x << ", " << a.y << ")";
-    return os;
-}

@@ -4,7 +4,7 @@
 using namespace Window;
 void WindowManager::start() {
     int16_t windowFlags = 0;
-    SDL_Surface* surface = ResourceManager::CreateSDLSurface("../assets/icons/logo.png");
+    SDL_Surface* surface = ResourceManager::CreateSDLSurface("../assets/logo.png");
     
     windowFlags |= SDL_WINDOW_MAXIMIZED;
     windowFlags |= SDL_WINDOW_RESIZABLE;
