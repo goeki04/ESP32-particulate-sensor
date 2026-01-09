@@ -33,7 +33,7 @@ void ResourceManager::loadModels()
     std::string filter[2];
     filter[0] = ".fbx";
     filter[1] = ".obj";
-    std::vector<std::string> paths = getAllFilesInDirectory("../assets/models",filter);
+    std::vector<std::string> paths = getAllFilesInDirectoryRecursive("../assets/models",filter);
 
     for (auto& v : paths) {
         loadScene(v);
@@ -93,6 +93,31 @@ std::vector<std::string> ResourceManager::getAllFilesInDirectory(const std::stri
     }
     return filePaths;
 }
+
+std::vector<std::string> ResourceManager::getAllFilesInDirectoryRecursive(const std::string& directory, std::span<const std::string> filter)
+{
+    std::vector<std::string> filePaths;
+    std::error_code ec;
+
+    std::filesystem::recursive_directory_iterator it(directory,std::filesystem::directory_options::skip_permission_denied,ec);
+
+    for (const auto& entry : it) {
+        if (ec) break;
+        if (!entry.is_regular_file(ec)) continue;
+
+        const std::string ext = entry.path().extension().generic_string();
+        const bool allowed =
+            filter.empty() ||
+            std::find(filter.begin(), filter.end(), ext) != filter.end();
+
+        if (allowed) {
+            filePaths.emplace_back(entry.path().generic_string());
+        }
+    }
+
+    return filePaths;
+}
+
 void ResourceManager::updateEvent(SDL_Event* event) {
     if (GuiManager::s_ViewportFocused)
     {
@@ -222,7 +247,7 @@ void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, a
 /// <returns></returns>
 deviceType ResourceManager::findDeviceTypeByPath(const std::string& path) {
     std::string directory = path;
-
+    std::cout << path;
     util::stringToLower(directory);
     if (directory == "dsensor") return deviceType::SENSOR;
     if (directory == "dcontroller") return deviceType::CONTROLLER;
@@ -245,6 +270,7 @@ void ResourceManager::loadScene(const std::string& path) {
         throw std::runtime_error(importer.GetErrorString());
     }
     std::string meshName = getFileName(path);
+    findDeviceTypeByPath(path);
     if (m_MeshIDbyName.contains(meshName)) {
         std::printf("Mesh already exists!\n");
         return;

@@ -23,6 +23,7 @@ struct Device {
 
 class ResourceManager : public ISubsystem{
 public:
+	std::vector<std::string> getAllFilesInDirectoryRecursive(const std::string& directory, std::span<const std::string> filter);
 	void updateEvent(SDL_Event* event) override;
 	static SDL_Surface* CreateSDLSurface(const char* path);
 	void start() override;
