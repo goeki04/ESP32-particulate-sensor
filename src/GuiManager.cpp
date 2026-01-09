@@ -49,7 +49,7 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebuf
 
     s_ViewportFocused = ImGui::IsWindowFocused();
 
-    // default output (ungültig)
+    // default output
     if (ImGuiMouseX) *ImGuiMouseX = -1.0f;
     if (ImGuiMouseY) *ImGuiMouseY = -1.0f;
 
@@ -267,6 +267,7 @@ void GuiManager::drawDeviceBrowser()
     for (int idx = 0; idx < itemCount; ++idx)
     {
         const auto& deviceRecord = m_ResourceManager->getDeviceRecords().at(idx);
+        GLuint texID = m_ResourceManager->m_DeviceIcons.at(deviceRecord.type).id;
         ImGui::PushID(idx);
         const char* label = deviceRecord.name.c_str();
         ImVec2 labelSize = ImGui::CalcTextSize(label);
@@ -275,16 +276,25 @@ void GuiManager::drawDeviceBrowser()
         ImGui::InvisibleButton("tile", totalSize);
         bool hovered = ImGui::IsItemHovered();
         bool active = ImGui::IsItemActive();
-        bool clicked = ImGui::IsItemClicked();
-        if (clicked)
+        bool clicked_tile = ImGui::IsItemClicked(ImGuiMouseButton_Left);
+
+        if (clicked_tile) {
             m_SelectedIdx = idx;
+        }
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsAnyItemHovered())
+        {
+            m_SelectedIdx = -1;
+        }
 
         bool selected = (m_SelectedIdx == idx);
         ImVec2 tileMin = pMin;
         ImVec2 tileMax = ImVec2(pMin.x + tileSize.x, pMin.y + tileSize.y);
-
-        dl->AddRectFilled(tileMin, tileMax, IM_COL32(41, 46, 66, 255), 4.0f);
-
+        if (deviceRecord.type == deviceType::DEFAULT) {
+            dl->AddRectFilled(tileMin, tileMax, IM_COL32(41, 46, 66, 255), 4.0f);
+        }
+        else {
+            dl->AddImage((ImTextureID)(intptr_t)texID,tileMin,tileMax,ImVec2(0.0f,0.0f),ImVec2(1.0f,1.0f));
+        }
         if (hovered || active)
             dl->AddRect(tileMin, tileMax, IM_COL32(255, 255, 255, 60), 4.0f, 0, 1.5f);
         if (selected)
