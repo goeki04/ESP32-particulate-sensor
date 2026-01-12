@@ -24,17 +24,23 @@ private:
 	static glm::mat4 m_Projection;
 
 public:
+	bool m_HasValidPickRay;
 	glm::vec2 m_framebufferSize;
+	glm::vec2 m_ViewportSize;
+	glm::vec2 m_ViewportPos;
 	float m_ImGuiMouseX;
 	float m_ImGuiMouseY;
 	bool m_CursorToWorldRayEnabled = false;
 	glm::mat4 m_ViewMatrix = calculateCameraOrbit();
 	Ray m_CursorToWorldRay;
+	bool RayIntersectsXZPlane(const Ray& ray, float planeY, glm::vec3& outHitPoint);
 	void cameraMovement();
+	void updatePickingRay();
 	void zoom(SDL_Event* event);
     void setProjectionMatrix(float viewPortSizeX, float viewportSizeY);
     static glm::mat4 getProjectionMatrix();
 	glm::mat4 calculateCameraOrbit();
+	Ray cursorToWorldRay();
 private:
-	void cursorToWorldRay();
+
 };

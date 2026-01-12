@@ -3,7 +3,7 @@
 #include "GuiManager.h"
 #include "WindowManager.h"
 glm::mat4 Camera::m_Projection = glm::mat4(1.0f);
-void Camera::cursorToWorldRay()
+Ray Camera::cursorToWorldRay()
 {
     float x = (2.0f * m_ImGuiMouseX) / m_framebufferSize.x - 1.0f;
     float y = 1.0f - (2.0f * m_ImGuiMouseY) / m_framebufferSize.y;
@@ -12,23 +12,26 @@ void Camera::cursorToWorldRay()
     glm::vec4 rayView = glm::inverse(m_Projection) * rayClip;
     rayView = glm::vec4(rayView.x, rayView.y, -1.0f, 0.0f);
     glm::vec4 rayDir4 = glm::inverse(m_ViewMatrix) * rayView;
-    m_CursorToWorldRay.direction = glm::normalize(glm::vec3(rayDir4));
-    m_CursorToWorldRay.origin = m_CameraPos;
+    Ray ray;
+
+    ray.direction = glm::normalize(glm::vec3(rayDir4));
+    ray.origin = m_CameraPos;
+    return ray;
 }
 
-bool RayIntersectsXZPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir, float planeY,glm::vec3& outHitPoint)
+bool Camera::RayIntersectsXZPlane(const Ray& ray, float planeY,glm::vec3& outHitPoint)
 {
-    // Ray parallel zur XZ-Plane?
-    if (glm::abs(rayDir.y) < 1e-6f)
+    if (glm::abs(ray.direction.y) < 1e-6f) {
         return false;
+    }
 
-    float t = (planeY - rayOrigin.y) / rayDir.y;
+    float t = (planeY - ray.origin.y) / ray.direction.y;
 
-    // Schnittpunkt liegt hinter der Kamera
-    if (t < 0.0f)
+    if (t < 0.0f) {
         return false;
+    }
 
-    outHitPoint = rayOrigin + t * rayDir;
+    outHitPoint = ray.origin + t * ray.direction;
     return true;
 }
 void Camera::cameraMovement()
@@ -58,8 +61,27 @@ void Camera::cameraMovement()
         m_ViewMatrix = calculateCameraOrbit();
     }
     mouseRightDownLastFrame = mouseRightDown;
-    cursorToWorldRay();
+    m_CursorToWorldRay = cursorToWorldRay();
+}
 
+void Camera::updatePickingRay()
+{
+    ImVec2 mouse = ImGui::GetMousePos();
+
+    float localX = mouse.x - m_ViewportPos.x;
+    float localY = mouse.y - m_ViewportPos.y;
+
+    if (localX < 0 || localY < 0 || localX >= m_ViewportSize.x || localY >= m_ViewportSize.y) {
+        m_HasValidPickRay = false;
+        return;
+    }
+
+    m_HasValidPickRay = true;
+    m_ImGuiMouseX = localX;
+    m_ImGuiMouseY = localY;
+    m_framebufferSize = glm::vec2(m_ViewportSize.x, m_ViewportSize.y);
+
+    m_CursorToWorldRay = cursorToWorldRay();
 }
 
 void Camera::zoom(SDL_Event* event) {

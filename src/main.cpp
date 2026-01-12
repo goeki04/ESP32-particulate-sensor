@@ -7,7 +7,6 @@
 Window::WindowManager windowManager;
 Renderer renderer;
 ResourceManager resourceManager;
-
 SDL_AppResult SDL_Init() {
     SDL_SetAppMetadata("ESP32", "1.0", "ESP32.bosch.com");
     if (!SDL_Init(SDL_INIT_VIDEO)) {
