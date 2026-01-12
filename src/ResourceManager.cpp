@@ -21,6 +21,7 @@ void ResourceManager::start()
     loadModels();
     loadIcons();
     setupMeshes(); 
+    ResourceManager::addSceneObject("Cool Object", 0);
 }
 
 void ResourceManager::update() {

@@ -15,6 +15,22 @@ void Camera::cursorToWorldRay()
     m_CursorToWorldRay.direction = glm::normalize(glm::vec3(rayDir4));
     m_CursorToWorldRay.origin = m_CameraPos;
 }
+
+bool RayIntersectsXZPlane(const glm::vec3& rayOrigin, const glm::vec3& rayDir, float planeY,glm::vec3& outHitPoint)
+{
+    // Ray parallel zur XZ-Plane?
+    if (glm::abs(rayDir.y) < 1e-6f)
+        return false;
+
+    float t = (planeY - rayOrigin.y) / rayDir.y;
+
+    // Schnittpunkt liegt hinter der Kamera
+    if (t < 0.0f)
+        return false;
+
+    outHitPoint = rayOrigin + t * rayDir;
+    return true;
+}
 void Camera::cameraMovement()
 {
     Uint32 mouseButtonState = SDL_GetMouseState(NULL, NULL);
@@ -42,13 +58,7 @@ void Camera::cameraMovement()
         m_ViewMatrix = calculateCameraOrbit();
     }
     mouseRightDownLastFrame = mouseRightDown;
-    if (mouseLeftDown) {
-        cursorToWorldRay();
-        m_CursorToWorldRayEnabled = true;
-    }
-    else {
-        m_CursorToWorldRayEnabled = false;
-    }
+    cursorToWorldRay();
 
 }
 
