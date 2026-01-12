@@ -34,6 +34,8 @@ void GuiManager::update() {
 }
 void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebufferSize,float* ImGuiMouseX,float* ImGuiMouseY)
 {
+    Camera& cam = m_ResourceManager->m_Cam;
+
     ImGuiWindowFlags windowFlags = 0;
     windowFlags |= ImGuiWindowFlags_NoResize;
     windowFlags |= ImGuiWindowFlags_NoMove;
@@ -47,39 +49,42 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebuf
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::Begin("Viewport", 0, windowFlags);
 
-    s_ViewportFocused = ImGui::IsWindowFocused();
-
-    // default output
+    // optional outputs
     if (ImGuiMouseX) *ImGuiMouseX = -1.0f;
     if (ImGuiMouseY) *ImGuiMouseY = -1.0f;
 
-    // draw image
-    ImGui::Image((void*)(intptr_t)framebufferTexture,
-        framebufferSize, ImVec2(0, 0), ImVec2(1, 1));
+    // 1) Image zeichnen
+    ImGui::Image((void*)(intptr_t)framebufferTexture, framebufferSize, ImVec2(0, 0), ImVec2(1, 1));
 
-    // REAL rect of the drawn image (screen coords)
+    // 2) Rect vom Image
     ImVec2 rectMin = ImGui::GetItemRectMin();
     ImVec2 rectMax = ImGui::GetItemRectMax();
     ImVec2 rectSize = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
 
-    // mouse (screen coords)
+    // 3) Maus relativ zum Image
     ImVec2 mousePos = ImGui::GetMousePos();
-
-    // mouse relative to image
     ImVec2 rel = ImVec2(mousePos.x - rectMin.x, mousePos.y - rectMin.y);
 
-    bool hovered =
-        rel.x >= 0.0f && rel.y >= 0.0f &&
-        rel.x < rectSize.x && rel.y < rectSize.y;
+    // 4) Hover sauber bestimmen (Item-hover ist am robustesten)
+    bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+
+    cam.m_HasValidPickRay = hovered;
 
     if (hovered) {
+        cam.m_ImGuiMouseX = rel.x;
+        cam.m_ImGuiMouseY = rel.y;
+        cam.m_framebufferSize = glm::vec2(rectSize.x, rectSize.y);
+        cam.m_CursorToWorldRay = cam.cursorToWorldRay();
+
         if (ImGuiMouseX) *ImGuiMouseX = rel.x;
         if (ImGuiMouseY) *ImGuiMouseY = rel.y;
+    }
+    else {
+        cam.m_ImGuiMouseX = cam.m_ImGuiMouseY = -1.0f;
     }
 
     ImGui::End();
     ImGui::PopStyleVar();
-
 }
 float GuiManager::getMenuBarHeight()
 {
@@ -244,6 +249,7 @@ void GuiManager::drawBottomWindow() {
 }
 void GuiManager::drawDeviceBrowser()
 {
+    Camera& cam = m_ResourceManager->m_Cam;
     static char query[128] = "";
     ImGui::InputTextWithHint("##search", "Search components...", query, IM_ARRAYSIZE(query));
     ImGui::Spacing();
@@ -305,6 +311,13 @@ void GuiManager::drawDeviceBrowser()
         }
 
         if (dragged && active) {
+            glm::vec3 hitpoint;
+            if (cam.m_HasValidPickRay && cam.RayIntersectsXZPlane(cam.m_CursorToWorldRay,0.0f,hitpoint)) {
+                std::cout << "hit" << std::endl;
+            }
+            else {
+                std::cout << "not hit" << std::endl;
+            }
             ImDrawList* fg = ImGui::GetForegroundDrawList();
             ImVec2 tileSizeDragged = tileSize * 0.75f;
             ImVec2 tMin = ImGui::GetMousePos() - tileSizeDragged * 0.5f;
