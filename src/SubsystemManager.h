@@ -8,6 +8,8 @@ union SDL_Event;
 class SystemManager {
 public:
 	std::vector<ISubsystem*> m_Subsystems;
+	static Uint64 lastCounter;
+	static float s_dt;
 	static SystemManager& getInstance();
 	void addSubsystem(ISubsystem* s);
 	void startSubsystems();

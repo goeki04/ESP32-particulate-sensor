@@ -65,7 +65,7 @@ class ResourceManager : public ISubsystem{
 public:
 	SDL_GLContext m_GlContext = NULL;
 	std::vector<std::unique_ptr<Shader>> m_Shaders;
-	std::vector<SceneObject> m_SceneObjects;
+	std::vector<Entity> m_SceneObjects;
 	std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
 	Camera m_Cam;
 	static constexpr std::array<std::pair<std::string_view, deviceType>, 4> m_DirectoryNames{ {
@@ -85,8 +85,8 @@ public:
 	std::string getFileName(const std::string& path) const;
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory);
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
-	void addSceneObject(const std::string& name, unsigned int meshID);
-	void deleteSceneObject(SceneObject& sceneObject);
+	void addSceneObject(const std::string& name, unsigned int meshID,Transform& transform);
+	void deleteSceneObject(Entity& sceneObject);
 	GLsizei getMeshVaoByID(uint32_t meshID) const;
 	GLsizei getMeshIndexSizeByID(uint32_t meshID) const;
 	Shader* getShaderByID(shaderType type) const;

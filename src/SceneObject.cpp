@@ -2,10 +2,10 @@
 #include "SceneObject.h"
 #include "ResourceManager.h"
 
-SceneObject::SceneObject(ResourceManager* rm,unsigned int meshID, unsigned int objectID,const std::string& name) : m_ResourceManager(rm), m_MeshID(meshID), m_ID(objectID), m_Name(name) {
+Entity::Entity(ResourceManager* rm,unsigned int meshID, unsigned int objectID,const std::string& name,Transform& transform) : m_ResourceManager(rm), m_MeshID(meshID), m_ID(objectID), m_Name(name), m_Transform(transform){
     m_BoundingBox.setAABB(m_ResourceManager->getMeshByID(m_MeshID));
 }
-void SceneObject::drawMesh()
+void Entity::drawMesh()
 {
     if (!m_ResourceManager) {
         throw std::runtime_error("ResourceManager ptr is null");
