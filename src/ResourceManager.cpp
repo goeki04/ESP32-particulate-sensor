@@ -25,6 +25,8 @@ void ResourceManager::start()
 
 void ResourceManager::update() {
     m_Cam.setProjectionMatrix(GuiManager::s_ViewportSize.x, GuiManager::s_ViewportSize.y);
+    if(GuiManager::s_ViewportFocused)
+        m_Cam.cameraMovement();
 }
 
 void ResourceManager::loadModels()
@@ -130,7 +132,6 @@ std::vector<std::string> ResourceManager::getAllFilesInDirectoryRecursive(const 
 void ResourceManager::updateEvent(SDL_Event* event) {
     if (GuiManager::s_ViewportFocused)
     {
-        m_Cam.cameraMovement();
         m_Cam.zoom(event);
     }
 }
