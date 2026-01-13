@@ -2,6 +2,7 @@
 #include "camera.h"
 #include "GuiManager.h"
 #include "WindowManager.h"
+#include "SubsystemManager.h"
 glm::mat4 Camera::m_Projection = glm::mat4(1.0f);
 Ray Camera::cursorToWorldRay()
 {
@@ -18,7 +19,6 @@ Ray Camera::cursorToWorldRay()
     ray.origin = m_CameraPos;
     return ray;
 }
-
 bool Camera::RayIntersectsXZPlane(const Ray& ray, float planeY,glm::vec3& outHitPoint)
 {
     if (glm::abs(ray.direction.y) < 1e-6f) {
@@ -34,31 +34,50 @@ bool Camera::RayIntersectsXZPlane(const Ray& ray, float planeY,glm::vec3& outHit
 }
 void Camera::cameraMovement()
 {
-    Uint32 mouseButtonState = SDL_GetMouseState(NULL, NULL);
-    bool mouseRightDown = mouseButtonState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT);
-    bool mouseLeftDown = mouseButtonState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
-    float currentMouseX, currentMouseY;
-    SDL_GetMouseState(&currentMouseX, &currentMouseY);
+    Uint32 mouseState = SDL_GetMouseState(NULL, NULL);
+    if (mouseState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)) {
+        SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), true); // Cursor fangen
+        
+        float currentMouseX, currentMouseY;
+        SDL_GetRelativeMouseState(&currentMouseX, &currentMouseY);
 
-    if (mouseRightDown)
-    {
-        if (!mouseRightDownLastFrame)
-        {
-            m_LastMouseX = currentMouseX;
-            m_LastMouseY = currentMouseY;
+        if (std::abs(currentMouseX) < 500 && std::abs(currentMouseY) < 500) {
+            m_Yaw += currentMouseX * m_Sensitivity;
+            m_Pitch -= currentMouseY * m_Sensitivity;
+            m_Pitch = std::clamp(m_Pitch, -89.0f, 89.0f);
         }
-        float deltaX = currentMouseX - m_LastMouseX;
-        float deltaY = currentMouseY - m_LastMouseY;
-
-        m_AngleX += deltaX * m_Sensitivity;
-        m_AngleY += deltaY * m_Sensitivity;
-
-        m_LastMouseX = currentMouseX;
-        m_LastMouseY = currentMouseY;
-
-        m_ViewMatrix = calculateCameraOrbit();
     }
-    mouseRightDownLastFrame = mouseRightDown;
+    else {
+        SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(),false); 
+    }
+    float radYaw = glm::radians(m_Yaw);
+    float radPitch = glm::radians(m_Pitch);
+
+    m_Forward.x = cos(radYaw) * cos(radPitch);
+    m_Forward.y = sin(radPitch);
+    m_Forward.z = sin(radYaw) * cos(radPitch);
+    m_Forward = glm::normalize(m_Forward);
+
+    m_Right = glm::normalize(glm::cross(m_Forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+
+    // 3. BEWEGUNG (Immer möglich)
+    const bool* keyboard = SDL_GetKeyboardState(NULL);
+    glm::vec3 moveDir(0.0f);
+
+    if (keyboard[SDL_SCANCODE_W]) moveDir += m_Forward;
+    if (keyboard[SDL_SCANCODE_S]) moveDir -= m_Forward;
+    if (keyboard[SDL_SCANCODE_A]) moveDir -= m_Right;
+    if (keyboard[SDL_SCANCODE_D]) moveDir += m_Right;
+
+    if (glm::length(moveDir) > 0.0f) {
+        moveDir = glm::normalize(moveDir);
+        m_CameraPos += moveDir * m_Speed * SystemManager::s_deltaTime;
+    }
+
+    // 4. MATRIZEN & RAYCASTING (Immer aktuell halten)
+    m_Target = m_CameraPos + m_Forward;
+    m_ViewMatrix = glm::lookAt(m_CameraPos, m_Target, glm::vec3(0.0f, 1.0f, 0.0f));
+
     m_CursorToWorldRay = cursorToWorldRay();
 }
 
@@ -103,13 +122,6 @@ glm::mat4 Camera::getProjectionMatrix() {
 
 glm::mat4 Camera::calculateCameraOrbit()
 {
-	const float radius = 10.0f;
-	m_AngleY = glm::clamp(m_AngleY, -glm::half_pi<float>() + 0.1f, glm::half_pi<float>() - 0.1f);
-
-	float camX = sin(m_AngleX) * cos(m_AngleY) * radius;
-	float camY = sin(m_AngleY) * radius;
-	float camZ = cos(m_AngleX) * cos(m_AngleY) * radius;
-
-	m_CameraPos = glm::vec3(camX, camY, camZ);
+	m_CameraPos = glm::vec3(2, 5, 0);
 	return glm::lookAt(m_CameraPos, glm::vec3(0.0f, 0.0f, 0.0f), m_Up);
 }

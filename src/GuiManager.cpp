@@ -324,11 +324,14 @@ void GuiManager::drawDeviceBrowser()
             ImVec2 tMax = ImVec2(tMin + tileSizeDragged);
             fg->AddImage((ImTextureID)(intptr_t)texID, tMin, tMax);
         }
-
+        if (dragEnded) {
+            std::cout << cam.m_HasValidPickRay << std::endl;
+            std::cout << m_HasLastHitpoint << std::endl;
+        }
         if (dragEnded && cam.m_HasValidPickRay && m_HasLastHitpoint) {
             Transform transform;
             transform.position = m_LastHitPoint;
-            m_ResourceManager->addSceneObject("Hello there", 0,transform);
+            m_ResourceManager->addSceneObject("Hello there", deviceRecord.id,transform);
         }
         if (hovered || active)
             dl->AddRect(tileMin, tileMax, IM_COL32(255, 255, 255, 60), 4.0f, 0, 1.5f);

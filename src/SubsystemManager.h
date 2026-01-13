@@ -9,7 +9,7 @@ class SystemManager {
 public:
 	std::vector<ISubsystem*> m_Subsystems;
 	static Uint64 lastCounter;
-	static float s_dt;
+	static float s_deltaTime;
 	static SystemManager& getInstance();
 	void addSubsystem(ISubsystem* s);
 	void startSubsystems();
