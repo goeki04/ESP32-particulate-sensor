@@ -16,6 +16,8 @@ private:
 	float m_FovMin = 10.0f, m_FovMax = 50.0f;
 	static glm::mat4 m_Projection;
 
+	float m_LastMouseY = 0.0f;
+	float m_LastMouseX = 0.0f;
 	float m_Yaw = -90.0f;
 	float m_Pitch = 0.0f;
 	float m_Sensitivity = 0.1f;
