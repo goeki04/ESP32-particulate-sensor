@@ -44,9 +44,10 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebuf
     windowFlags |= ImGuiWindowFlags_NoCollapse;
     windowFlags |= ImGuiWindowFlags_NoScrollbar;
     windowFlags |= ImGuiWindowFlags_NoScrollWithMouse;
-
-    ImGui::SetNextWindowPos(getViewportWindowPos());
-    ImGui::SetNextWindowSize(getViewportWindowSize());
+    m_ViewportPos = getViewportWindowPos();
+    ImVec2 viewportSize = getViewportWindowSize();
+    ImGui::SetNextWindowPos(m_ViewportPos);
+    ImGui::SetNextWindowSize(viewportSize);
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::Begin("Viewport", 0, windowFlags);
@@ -62,14 +63,15 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebuf
     ImVec2 rectMin = ImGui::GetItemRectMin();
     ImVec2 rectMax = ImGui::GetItemRectMax();
     ImVec2 rectSize = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
-
+    cam.m_ViewportSize = glm::vec2(viewportSize.x,viewportSize.y);
+    cam.m_ViewportPos = glm::vec2(m_ViewportPos.x, m_ViewportPos.y);
     // 3) Maus relativ zum Image
     ImVec2 mousePos = ImGui::GetMousePos();
     ImVec2 rel = ImVec2(mousePos.x - rectMin.x, mousePos.y - rectMin.y);
 
     // 4) Hover sauber bestimmen (Item-hover ist am robustesten)
     bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
-    GuiManager::s_ViewportFocused = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+    GuiManager::s_ViewportFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
     cam.m_HasValidPickRay = hovered;
 
     cam.m_HasValidPickRay = hovered;
@@ -323,10 +325,6 @@ void GuiManager::drawDeviceBrowser()
             ImVec2 tMin = ImGui::GetMousePos() - tileSizeDragged * 0.5f;
             ImVec2 tMax = ImVec2(tMin + tileSizeDragged);
             fg->AddImage((ImTextureID)(intptr_t)texID, tMin, tMax);
-        }
-        if (dragEnded) {
-            std::cout << cam.m_HasValidPickRay << std::endl;
-            std::cout << m_HasLastHitpoint << std::endl;
         }
         if (dragEnded && cam.m_HasValidPickRay && m_HasLastHitpoint) {
             Transform transform;
