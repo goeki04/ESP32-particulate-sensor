@@ -21,8 +21,6 @@ struct Margin {
 
 enum Alignment {
     TopLeft,
-
-   
     TopRight,
     Center,
     CenterBottom,
@@ -48,6 +46,8 @@ public:
     void loadFont();
     ImVec2 getViewportWindowSize();
 private:
+    static glm::vec3 m_LastHitPoint;
+    static bool m_HasLastHitpoint;
     ResourceManager* m_ResourceManager = nullptr;
     std::vector<SDL_Surface> m_DeviceIcons;
     std::string m_ImguiVersion = "ImGui: " + std::string(IMGUI_VERSION);
@@ -76,5 +76,4 @@ private:
     void setViewportSize();
     void setFlags();
     void setStyle();
-
 };

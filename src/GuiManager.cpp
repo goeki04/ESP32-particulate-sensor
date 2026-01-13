@@ -9,6 +9,8 @@ using namespace util;
 ImVec2 GuiManager::s_ViewportSize = ImVec2(0.0f,0.0f);
 bool GuiManager::s_ViewportFocused = false;
 bool GuiManager::m_ShowVersion = false;
+bool GuiManager::m_HasLastHitpoint = false;
+glm::vec3 GuiManager::m_LastHitPoint{ 0.0f };
 void GuiManager::init(SDL_Window* window, ResourceManager* rm) {
     m_ResourceManager = rm;
     IMGUI_CHECKVERSION();
@@ -54,7 +56,7 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebuf
     if (ImGuiMouseY) *ImGuiMouseY = -1.0f;
 
     // 1) Image zeichnen
-    ImGui::Image((void*)(intptr_t)framebufferTexture, framebufferSize, ImVec2(0, 0), ImVec2(1, 1));
+    ImGui::Image((void*)(intptr_t)framebufferTexture, framebufferSize, ImVec2(0, 1), ImVec2(1, 0));
 
     // 2) Rect vom Image
     ImVec2 rectMin = ImGui::GetItemRectMin();
@@ -67,6 +69,8 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebuf
 
     // 4) Hover sauber bestimmen (Item-hover ist am robustesten)
     bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+    GuiManager::s_ViewportFocused = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+    cam.m_HasValidPickRay = hovered;
 
     cam.m_HasValidPickRay = hovered;
 
@@ -290,13 +294,10 @@ void GuiManager::drawDeviceBrowser()
         bool active = ImGui::IsItemActive();
         bool clicked = ImGui::IsItemClicked(ImGuiMouseButton_Left);
         bool dragged = ImGui::IsMouseDragging(ImGuiMouseButton_Left, 2.0f);
-        bool drag_ended = ImGui::IsItemDeactivated() && ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+        bool dragEnded = ImGui::IsItemDeactivated() && ImGui::IsMouseReleased(ImGuiMouseButton_Left);
         if (clicked) {
             m_SelectedIdx = idx;
             any_tile_clicked = true;
-        }
-        if (drag_ended) {
-            std::printf("drag ended");
         }
         bool selected = (m_SelectedIdx == idx);
 
@@ -312,17 +313,22 @@ void GuiManager::drawDeviceBrowser()
 
         if (dragged && active) {
             glm::vec3 hitpoint;
+            m_HasLastHitpoint = false;
             if (cam.m_HasValidPickRay && cam.RayIntersectsXZPlane(cam.m_CursorToWorldRay,0.0f,hitpoint)) {
-                std::cout << "hit" << std::endl;
-            }
-            else {
-                std::cout << "not hit" << std::endl;
+                m_LastHitPoint = hitpoint;
+                m_HasLastHitpoint = true;
             }
             ImDrawList* fg = ImGui::GetForegroundDrawList();
             ImVec2 tileSizeDragged = tileSize * 0.75f;
             ImVec2 tMin = ImGui::GetMousePos() - tileSizeDragged * 0.5f;
             ImVec2 tMax = ImVec2(tMin + tileSizeDragged);
             fg->AddImage((ImTextureID)(intptr_t)texID, tMin, tMax);
+        }
+
+        if (dragEnded && cam.m_HasValidPickRay && m_HasLastHitpoint) {
+            Transform transform;
+            transform.position = m_LastHitPoint;
+            m_ResourceManager->addSceneObject("Hello there", 0,transform);
         }
         if (hovered || active)
             dl->AddRect(tileMin, tileMax, IM_COL32(255, 255, 255, 60), 4.0f, 0, 1.5f);

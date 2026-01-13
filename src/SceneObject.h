@@ -1,8 +1,12 @@
 #pragma once
 #include "Mesh.h"
 #include "Shader.h"
+#include <bitset>
+#define MAX_COMPONENT 256
 class ResourceManager;
 class Camera;
+
+
 struct Transform {
 	glm::vec3 position{ 0.0f, 0.0f, 0.0f };
 	//Rotation in radians
@@ -36,9 +40,9 @@ public:
 	const AABB& getAABB() const;
 	bool RayIntersectAABB(const Camera& cam,const glm::mat4& model);
 };
-
-class SceneObject {
+class Entity {
 public:
+	std::bitset<MAX_COMPONENT> componentList;
 	unsigned int m_ID;
 	std::string m_Name = "unnamed";
 	unsigned int m_MeshID = 0;
@@ -46,10 +50,10 @@ public:
 	BoundingBox m_BoundingBox;
 	ResourceManager* m_ResourceManager = nullptr;
 	shaderType m_Shader = shaderType::unlit;
-	SceneObject(ResourceManager* rm, unsigned int meshID, unsigned int objectID, const std::string& name);
+	Entity(ResourceManager* rm, unsigned int meshID, unsigned int objectID, const std::string& name,Transform& transform);
 	void drawMesh();
 
-	bool operator==(const SceneObject& other) const{
+	bool operator==(const Entity& other) const{
 		return other.m_ID == m_ID;
 	}
 };

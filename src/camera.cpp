@@ -24,9 +24,7 @@ bool Camera::RayIntersectsXZPlane(const Ray& ray, float planeY,glm::vec3& outHit
     if (glm::abs(ray.direction.y) < 1e-6f) {
         return false;
     }
-
     float t = (planeY - ray.origin.y) / ray.direction.y;
-
     if (t < 0.0f) {
         return false;
     }
@@ -53,7 +51,7 @@ void Camera::cameraMovement()
         float deltaY = currentMouseY - m_LastMouseY;
 
         m_AngleX += deltaX * m_Sensitivity;
-        m_AngleY -= deltaY * m_Sensitivity;
+        m_AngleY += deltaY * m_Sensitivity;
 
         m_LastMouseX = currentMouseX;
         m_LastMouseY = currentMouseY;

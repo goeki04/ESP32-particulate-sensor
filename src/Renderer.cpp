@@ -24,7 +24,6 @@ void Renderer::start()
 void Renderer::update()
 {
     Camera& cam = m_ResourceManager->m_Cam;
-    cam.m_ViewMatrix = cam.calculateCameraOrbit();
     m_GuiManager.update();
     m_GuiManager.drawViewportGUI(m_FramebufferTexture, ImVec2(m_framebufferSize.x,m_framebufferSize.y),&cam.m_ImGuiMouseX,&cam.m_ImGuiMouseY);
     ImGui::Render();

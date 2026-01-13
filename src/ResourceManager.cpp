@@ -21,7 +21,6 @@ void ResourceManager::start()
     loadModels();
     loadIcons();
     setupMeshes(); 
-    ResourceManager::addSceneObject("Cool Object", 0);
 }
 
 void ResourceManager::update() {
@@ -158,13 +157,13 @@ SDL_Surface* ResourceManager::CreateSDLSurface(const char* path)
     return surface;
 }
 
-void ResourceManager::addSceneObject(const std::string& name, unsigned int meshID)
+void ResourceManager::addSceneObject(const std::string& name, unsigned int meshID,Transform& transform)
 {
-    m_SceneObjects.emplace_back(this, meshID, m_NextSceneObjectID, name);
+    m_SceneObjects.emplace_back(this, meshID, m_NextSceneObjectID, name, transform);
     m_NextSceneObjectID++;
 }
 
-void ResourceManager::deleteSceneObject(SceneObject& sceneObject)
+void ResourceManager::deleteSceneObject(Entity& sceneObject)
 {
     m_SceneObjects.erase(std::remove(m_SceneObjects.begin(), m_SceneObjects.end(), sceneObject), m_SceneObjects.end());
 }
