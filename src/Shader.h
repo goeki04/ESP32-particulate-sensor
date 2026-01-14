@@ -11,8 +11,8 @@ enum class ProceduralShaderType { grid };
 
 class Shader {
 public:
-	inline constexpr static const char* c_viewMatrix = "view";
-	inline constexpr static const char* c_projMatrix = "proj";
+	inline constexpr static const char* c_viewMatrix = "viewMatrix";
+	inline constexpr static const char* c_projMatrix = "projMatrix";
 	inline constexpr static const char* c_camPos = "camPos";
 	Camera& m_Camera;
 	GLuint m_Program = 0;

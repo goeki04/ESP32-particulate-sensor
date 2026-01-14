@@ -24,30 +24,78 @@ void Renderer::start()
 void Renderer::update()
 {
     Camera& cam = m_ResourceManager->m_Cam;
+    guiPass(cam);                 // ImGui update + viewport GUI vorbereiten
+    windowClearPass();           // Clear default framebuffer (Hintergrund)
+    scenePassBegin();            // MSAA FB bind, viewport, clear
+    geometryPass();              // Entities draw
+    pickingPass(cam);            // Ray/AABB
+    scenePassEndResolve();       // blit MSAA -> normal FB
+    imGuiPass();
+}
+
+void Renderer::geometryPass() {
+    for (auto& sceneObject : m_ResourceManager->getEntitys()) {
+        sceneObject.drawMesh();
+    }
+}
+void Renderer::guiPass(Camera& cam)
+{
     m_GuiManager.update();
-    m_GuiManager.drawViewportGUI(m_FramebufferTexture, ImVec2(m_framebufferSize.x,m_framebufferSize.y),&cam.m_ImGuiMouseX,&cam.m_ImGuiMouseY);
+
+    m_GuiManager.drawViewportGUI(
+        m_FramebufferTexture,
+        ImVec2(m_framebufferSize.x, m_framebufferSize.y),
+        &cam.m_ImGuiMouseX,
+        &cam.m_ImGuiMouseY
+    );
+
     ImGui::Render();
+}
+void Renderer::imGuiPass()
+{
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    SDL_GL_SwapWindow(Window::g_Window);
+}
+void Renderer::scenePassBegin()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, m_MsaaFramebuffer);
+
+    ImVec2 viewportSize = m_GuiManager.getViewportWindowSize();
+    glViewport(0, 0, (GLsizei)viewportSize.x, (GLsizei)viewportSize.y);
+
+    glClearColor(0.518f, 0.506f, 0.478f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+void Renderer::pickingPass(const Camera& cam)
+{
+    if (!m_ResourceManager->m_Cam.m_CursorToWorldRayEnabled)
+        return;
+
+    for (auto& sceneObject : m_ResourceManager->getEntitys()) {
+        const glm::mat4 modelMatrix = sceneObject.m_Transform.modelMatrix();
+        bool hit = sceneObject.m_BoundingBox.RayIntersectAABB(cam, modelMatrix);
+        (void)hit; // später speichern/auswerten
+    }
+}
+void Renderer::scenePassEndResolve()
+{
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_MsaaFramebuffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Framebuffer);
+
+    glBlitFramebuffer(
+        0, 0, m_framebufferSize.x, m_framebufferSize.y,
+        0, 0, m_framebufferSize.x, m_framebufferSize.y,
+        GL_COLOR_BUFFER_BIT,
+        GL_NEAREST
+    );
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+void Renderer::windowClearPass()
+{
     glViewport(0, 0, Window::g_WindowWidth, Window::g_WindowHeight);
     glClearColor(0.10f, 0.12f, 0.16f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_MsaaFramebuffer);
-    ImVec2 viewportSize = m_GuiManager.getViewportWindowSize();
-    glViewport(0,0,(GLsizei)viewportSize.x, (GLsizei)viewportSize.y);
-    glClearColor(0.518f, 0.506f, 0.478f,1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for (auto& sceneObject : m_ResourceManager->getEntitys()) {
-        sceneObject.drawMesh();
-        if (m_ResourceManager->m_Cam.m_CursorToWorldRayEnabled) {
-            const glm::mat4 modelMatrix = sceneObject.m_Transform.modelMatrix();
-            bool hit = sceneObject.m_BoundingBox.RayIntersectAABB(cam,modelMatrix);
-        }
-    }
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_MsaaFramebuffer);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Framebuffer);
-    glBlitFramebuffer(0, 0, m_framebufferSize.x, m_framebufferSize.y, 0, 0, m_framebufferSize.x, m_framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-    glBindFramebuffer(GL_FRAMEBUFFER,0);
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    SDL_GL_SwapWindow(Window::g_Window);
 }
 /// <summary>
 /// Call this function after initializing guimanager to create offscreen framebuffers.
