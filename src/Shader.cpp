@@ -14,17 +14,11 @@ std::string Shader::readShaderSource(const char* shaderPath)
 void Shader::setMat4x4(const char* uniformName, const glm::mat4& matrix)
 {
     GLuint matrixLocation = getUniformLocation(uniformName);
-    if (matrixLocation == -1) {
-        throw std::runtime_error("Uniform location for matrix4x4 not found");
-    }
     glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 void Shader::setVec3(const char* uniformName,const glm::vec3& vector) {
     GLuint vec3Location = getUniformLocation(uniformName);
-    if (vec3Location == -1) {
-        throw std::runtime_error("Uniform location for vec3 not found");
-    }
     glUniform3fv(vec3Location,1,glm::value_ptr(vector));
 }
 
