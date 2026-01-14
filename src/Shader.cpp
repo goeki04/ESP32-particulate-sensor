@@ -2,7 +2,7 @@
 #include "Shader.h"
 #include "WindowManager.h"
 #include "camera.h"
-std::string Shader::readShaderSource(const char* shaderPath)
+std::string MaterialShader::readShaderSource(const char* shaderPath)
 {
     std::ifstream fileStream(shaderPath);
     std::stringstream buffer;
@@ -11,7 +11,7 @@ std::string Shader::readShaderSource(const char* shaderPath)
     return shaderSource;
 }
 
-void Shader::setMat4x4(const char* uniformName, const glm::mat4& matrix)
+void MaterialShader::setMat4x4(const char* uniformName, const glm::mat4& matrix)
 {
     GLuint matrixLocation = glGetUniformLocation(m_Program, uniformName);
     if (matrixLocation == -1) {
@@ -20,7 +20,7 @@ void Shader::setMat4x4(const char* uniformName, const glm::mat4& matrix)
     glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, glm::value_ptr(matrix)); //value ptr gets a pointer of the internal float data.
 }
 
-void Shader::setVec3(const char* uniformName,const glm::vec3& vector) {
+void MaterialShader::setVec3(const char* uniformName,const glm::vec3& vector) {
     GLuint vec3Location = glGetUniformLocation(m_Program,uniformName);
     if (vec3Location == -1) {
         throw std::runtime_error("Uniform location for vec3 not found");
@@ -28,7 +28,7 @@ void Shader::setVec3(const char* uniformName,const glm::vec3& vector) {
     glUniform3fv(vec3Location,1,glm::value_ptr(vector));
 }
 
-void Shader::setTexture(const char* uniformName, const GLuint textureID)
+void MaterialShader::setTexture(const char* uniformName, const GLuint textureID)
 {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -48,7 +48,7 @@ void UnlitShader::setUniforms(glm::mat4& modelMatrix)
     setVec3("ambientLight",m_AmbientLight);
 }
 
-void UnlitShader::compileShader()
+void MaterialShader::compileShader()
 {
     GLint success;
     std::string vertexShaderStr = readShaderSource(m_VertexShaderPath);
@@ -80,4 +80,13 @@ void UnlitShader::compileShader()
     if (!success) {
         throw std::runtime_error("failed to create a shader program!");
     }
+}
+
+void GridShader::setUniforms()
+{
+    setCameraUniforms();
+}
+
+void GridShader::setUniforms()
+{
 }

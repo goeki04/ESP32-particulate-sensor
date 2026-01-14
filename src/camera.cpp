@@ -95,6 +95,16 @@ void Camera::cameraMovement()
     m_ViewMatrix = glm::lookAt(m_CameraPos, m_Target, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
+glm::vec3 Camera::getCameraPos() const
+{
+    return m_CameraPos;
+}
+
+glm::mat4 Camera::getViewMatrix() const
+{
+    return m_ViewMatrix;
+}
+
 void Camera::updatePickingRay()
 {
     ImVec2 mouse = ImGui::GetMousePos();

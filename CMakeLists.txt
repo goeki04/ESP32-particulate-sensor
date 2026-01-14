@@ -5,7 +5,7 @@ project(ESP32 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(SHADERS src/shader/vertexShader.glsl src/shader/fragmentShader.glsl)
+
 
 find_package(glm REQUIRED)
 find_package(SDL3 REQUIRED)
@@ -14,6 +14,7 @@ find_package(imgui REQUIRED)
 find_package(glew REQUIRED)
 find_package(assimp REQUIRED)
 
+file(GLOB SHADERS "src/shader/*.glsl")
 file(GLOB SOURCES "src/*.cpp")
 file(GLOB HEADERS "src/*.h")
 file(GLOB BINDING_SOURCES "bindings/*.cpp")
