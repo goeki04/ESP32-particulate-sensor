@@ -17,8 +17,8 @@ void ResourceManager::start()
     if (err != GLEW_OK) {
         throw std::exception("Failed to call glewInit!");
     }
-    addShader<UnlitShader>("../src/shader/unlitVertex.glsl", "../src/shader/unlitFragment.glsl");
-    addShader<GridShader>("../src/shader/gridVertex.glsl", "../src/shader/gridFragment.glsl");
+    addMaterialShader<UnlitShader>("../src/shader/unlitVertex.glsl", "../src/shader/unlitFragment.glsl");
+    addProceduralShader<GridShader>("../src/shader/gridVertex.glsl", "../src/shader/gridFragment.glsl");
     loadModels();
     loadIcons();
     setupMeshes(); 
@@ -180,9 +180,14 @@ GLsizei ResourceManager::getMeshIndexSizeByID(uint32_t meshID) const {
     return m_DeviceRecords.at(meshID).mesh.m_IndexBuffer.size();
 }
 
-MaterialShader* ResourceManager::getShaderByID(shaderType type) const
+MaterialShader* ResourceManager::getMaterialShaderByID(MaterialShaderType t) const
 {
-    return m_Shaders[(int)type].get();
+    return m_MaterialShaders[(int)t].get();
+}
+
+ProceduralShader* ResourceManager::getProceduralShaderByID(ProceduralShaderType t) const
+{
+    return m_ProceduralShaders[(int)t].get();
 }
 
 const Mesh& ResourceManager::getMeshByID(uint32_t meshID) const

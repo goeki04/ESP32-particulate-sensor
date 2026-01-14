@@ -10,12 +10,13 @@ void Entity::drawMesh()
     if (!m_ResourceManager) {
         throw std::runtime_error("ResourceManager ptr is null");
     }
-        glUseProgram(m_ResourceManager->getShaderByID(m_Shader)->m_Program);
-        glm::mat4 localMatrix = m_Transform.modelMatrix();
-        m_ResourceManager->getShaderByID(m_Shader)->setUniforms(localMatrix);
-        glBindVertexArray(m_ResourceManager->getMeshVaoByID(m_MeshID));
-        glDrawElements(GL_TRIANGLES,m_ResourceManager->getMeshIndexSizeByID(m_MeshID), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+    auto* sh = m_ResourceManager->getMaterialShaderByID(m_Shadertype);
+    sh->use();
+    glm::mat4 localMatrix = m_Transform.modelMatrix();
+    sh->setUniforms(localMatrix);
+    glBindVertexArray(m_ResourceManager->getMeshVaoByID(m_MeshID));
+    glDrawElements(GL_TRIANGLES, m_ResourceManager->getMeshIndexSizeByID(m_MeshID), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 }
 
 const AABB& BoundingBox::getAABB() const

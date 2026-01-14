@@ -1,12 +1,19 @@
 #pragma once
 #include "camera.h"
+#include <unordered_map>
 struct DirLight{
 	glm::vec3 direction;
 	glm::vec3 color;
 };
 
+enum class MaterialShaderType { unlit };
+enum class ProceduralShaderType { grid };
+
 class Shader {
 public:
+	inline constexpr static const char* c_viewMatrix = "view";
+	inline constexpr static const char* c_projMatrix = "proj";
+	inline constexpr static const char* c_camPos = "camPos";
 	Camera& m_Camera;
 	GLuint m_Program = 0;
 	std::string m_VertexShaderPath;
@@ -14,20 +21,31 @@ public:
 	Shader(Camera& cam, const char* vertexPath, const char* fragmentPath) :
 		m_Camera(cam), m_VertexShaderPath(vertexPath), m_FragmentShaderPath(fragmentPath) {
 	}
+	Shader(const Shader&) = delete;
+	Shader& operator=(const Shader&) = delete;
 	virtual ~Shader() = default;
 	void setMat4x4(const char* uniformName, const glm::mat4& matrix);
 	void setVec3(const char* uniformName, const glm::vec3& vector);
-	void setTexture(const char* uniformName, const GLuint textureID);
 	std::string readShaderSource(const char* shaderPath);
 	void compileShader();
-	void use() {
+	void use() const {
 		glUseProgram(m_Program);
 	}
-
 	void setCameraUniforms() {
-		setMat4x4("view", m_Camera.getViewMatrix());
-		setMat4x4("proj", m_Camera.getProjectionMatrix());
-		setVec3("camPos", m_Camera.getCameraPos());
+			setMat4x4(c_viewMatrix, m_Camera.getViewMatrix());
+			setMat4x4(c_projMatrix, m_Camera.getProjectionMatrix());
+			setVec3(c_camPos, m_Camera.getCameraPos());
+	}
+private:
+	std::unordered_map<std::string, GLint> m_UniformCache;
+	GLint getUniformLocation(const char* name) {
+		auto it = m_UniformCache.find(name);
+		if (it != m_UniformCache.end())
+			return it->second;
+
+		GLint loc = glGetUniformLocation(m_Program, name);
+		m_UniformCache[name] = loc;
+		return loc;
 	}
 };
 
@@ -50,7 +68,6 @@ public:
 
 class GridShader : public ProceduralShader {
 public:
-	
 	GridShader(Camera& cam,const char* vertexPath, const char* fragmentPath) : ProceduralShader(cam,vertexPath, fragmentPath)  {}
 	void setUniforms() override;
 };
