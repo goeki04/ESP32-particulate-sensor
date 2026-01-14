@@ -64,8 +64,8 @@ struct Device {
 class ResourceManager : public ISubsystem{
 public:
 	SDL_GLContext m_GlContext = NULL;
-	std::vector<std::unique_ptr<Shader>> m_Shaders;
-
+	std::vector<std::unique_ptr<MaterialShader>> m_MaterialShaders;
+	std::vector<std::unique_ptr<ProceduralShader>> m_ProceduralShaders;
 	std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
 	Camera m_Cam;
 	static constexpr std::array<std::pair<std::string_view, deviceType>, 4> m_DirectoryNames{ {
@@ -89,7 +89,8 @@ public:
 	void deleteEntityObject(Entity& sceneObject);
 	GLsizei getMeshVaoByID(uint32_t meshID) const;
 	GLsizei getMeshIndexSizeByID(uint32_t meshID) const;
-	Shader* getShaderByID(shaderType type) const;
+	MaterialShader* getMaterialShaderByID(MaterialShaderType t)   const;
+	ProceduralShader* getProceduralShaderByID(ProceduralShaderType t) const;
 	const Mesh& getMeshByID(uint32_t meshID) const;
     size_t getDeviceRecordsSize() const;
 	const std::unordered_map<uint32_t, Device>& getDeviceRecords() const;
@@ -101,10 +102,15 @@ private:
 	std::unordered_map<std::string,uint32_t> m_MeshIDbyName;
 	unsigned int m_NextMeshID = 0;
 	unsigned int m_NextSceneObjectID = 0;
-	template<typename T> requires std::derived_from<T,Shader>
-	void addShader(const char* vertexShader,const char* fragmentShader) {
-		m_Shaders.emplace_back(std::make_unique<T>(m_Cam,vertexShader,fragmentShader));
-		m_Shaders.back()->compileShader();
+	template<typename T> requires std::derived_from<T,MaterialShader>
+	void addMaterialShader(const char* vertexShader,const char* fragmentShader) {
+		m_MaterialShaders.emplace_back(std::make_unique<T>(m_Cam,vertexShader,fragmentShader));
+		m_MaterialShaders.back()->compileShader();
+	}
+	template<typename T> requires std::derived_from<T, ProceduralShader>
+	void addProceduralShader(const char* vertexShader, const char* fragmentShader) {
+		m_ProceduralShaders.emplace_back(std::make_unique<T>(m_Cam, vertexShader, fragmentShader));
+		m_ProceduralShaders.back()->compileShader();
 	}
 	void setupMeshes();
 	void processNode(const uint32_t meshId,const aiScene* scene, aiNode* node);

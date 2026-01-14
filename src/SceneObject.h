@@ -49,7 +49,7 @@ public:
 	Transform m_Transform;
 	BoundingBox m_BoundingBox;
 	ResourceManager* m_ResourceManager = nullptr;
-	shaderType m_Shader = shaderType::unlit;
+	MaterialShaderType m_Shadertype = MaterialShaderType::unlit;
 	Entity(ResourceManager* rm, unsigned int meshID, unsigned int objectID, const std::string& name,Transform& transform);
 	void drawMesh();
 
