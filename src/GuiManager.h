@@ -33,6 +33,7 @@ class GuiManager{
 public:
     static ImVec2 s_ViewportSize;
     static bool s_ViewportFocused;
+
     /// <summary>
     /// This is the coordinate of the viewport pivot relative to the screen (topLeft = 0)
     /// </summary>
@@ -67,13 +68,13 @@ private:
     void drawNavBar();
     void OpenFolder();
     void drawNotification();
-    void drawInformation();
+    void drawDeviceHierarchy();
     void drawBottomWindow();
     void drawDeviceBrowser();
     void drawDetailsPanel();
     void drawChart();
     void OpenURL(const std::string& url);
-    void setViewportSize();
+    void setViewportSize() const;
     void setFlags();
     void setStyle();
 };

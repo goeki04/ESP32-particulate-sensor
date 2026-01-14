@@ -65,7 +65,7 @@ class ResourceManager : public ISubsystem{
 public:
 	SDL_GLContext m_GlContext = NULL;
 	std::vector<std::unique_ptr<Shader>> m_Shaders;
-	std::vector<Entity> m_SceneObjects;
+
 	std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
 	Camera m_Cam;
 	static constexpr std::array<std::pair<std::string_view, deviceType>, 4> m_DirectoryNames{ {
@@ -85,8 +85,8 @@ public:
 	std::string getFileName(const std::string& path) const;
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory);
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
-	void addSceneObject(const std::string& name, unsigned int meshID,Transform& transform);
-	void deleteSceneObject(Entity& sceneObject);
+	void addEntity(unsigned int meshID, const std::string& name, Transform& transform);
+	void deleteEntityObject(Entity& sceneObject);
 	GLsizei getMeshVaoByID(uint32_t meshID) const;
 	GLsizei getMeshIndexSizeByID(uint32_t meshID) const;
 	Shader* getShaderByID(shaderType type) const;
@@ -94,9 +94,11 @@ public:
     size_t getDeviceRecordsSize() const;
 	const std::unordered_map<uint32_t, Device>& getDeviceRecords() const;
 	GLtexture CreateOpenGLTexture(const char* path);
+	std::vector<Entity>& getEntitys();
 private:
+	std::vector<Entity> m_Entitys;
 	std::unordered_map<uint32_t, Device> m_DeviceRecords;
-	std::unordered_map<std::string, uint32_t> m_MeshIDbyName;
+	std::unordered_map<std::string,uint32_t> m_MeshIDbyName;
 	unsigned int m_NextMeshID = 0;
 	unsigned int m_NextSceneObjectID = 0;
 	template<typename T> requires std::derived_from<T,Shader>

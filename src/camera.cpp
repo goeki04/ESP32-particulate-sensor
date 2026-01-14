@@ -4,7 +4,7 @@
 #include "WindowManager.h"
 #include "SubsystemManager.h"
 glm::mat4 Camera::m_Projection = glm::mat4(1.0f);
-Ray Camera::cursorToWorldRay()
+Ray Camera::cursorToWorldRay() const
 {
     float x = (2.0f * m_ImGuiMouseX) / m_framebufferSize.x - 1.0f;
     float y = 1.0f - (2.0f * m_ImGuiMouseY) / m_framebufferSize.y;
@@ -13,7 +13,7 @@ Ray Camera::cursorToWorldRay()
     glm::vec4 rayView = glm::inverse(m_Projection) * rayClip;
     rayView = glm::vec4(rayView.x, rayView.y, -1.0f, 0.0f);
     glm::vec4 rayDir4 = glm::inverse(m_ViewMatrix) * rayView;
-    Ray ray;
+    Ray ray {glm::vec3(0.0f),glm::vec3(0.0f)};
 
     ray.direction = glm::normalize(glm::vec3(rayDir4));
     ray.origin = m_CameraPos;
@@ -44,12 +44,16 @@ void Camera::cameraMovement()
     static bool wasRightMouseDown = false;
 
     if (rightMouseDown && !wasRightMouseDown) {
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
         SDL_GetMouseState(&m_LastMouseX, &m_LastMouseY);
         SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), true);
 
         SDL_GetRelativeMouseState(NULL, NULL);
     }
     else if (!rightMouseDown && wasRightMouseDown) {
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
         SDL_WarpMouseInWindow(currentWindow,m_LastMouseX,m_LastMouseY);
         SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), false);
     }
@@ -122,7 +126,7 @@ void Camera::zoom(SDL_Event* event) {
 	}
 }
 
-void Camera::setProjectionMatrix(float viewportSizeX, float viewportSizeY) {
+void Camera::setProjectionMatrix(float viewportSizeX, float viewportSizeY) const{
 	m_Projection = glm::perspective(glm::radians(m_Fov), viewportSizeX / viewportSizeY, 0.1f, 100.0f);
 }
 
