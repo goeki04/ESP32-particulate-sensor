@@ -192,74 +192,27 @@ void GuiManager::drawNotification()
 void GuiManager::drawDeviceHierarchy()
 {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.55f);
-    ImVec2 newPos = getNewWindowPos(
-        Margin(m_MarginDefault, 0, m_MarginDefault, m_MarginDefault),
-        windowSize,
-        Alignment::TopLeft
-    );
-
+    ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, m_MarginDefault), windowSize, Alignment::TopLeft);
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
-    ImGui::SetNextWindowPos(newPos, ImGuiCond_Always);
-    ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
-
-    if (ImGui::Begin("Hierarchy", nullptr, m_WindowFlags))
+    ImGui::SetNextWindowPos(newPos);
+    ImGui::SetNextWindowSize(windowSize);
+    ImGui::Begin("Hierarchy", 0, m_WindowFlags);
+    auto& entitys = m_ResourceManager->getEntitys();
+    ImGui::BeginChild("HierarchyList",ImVec2(0.0f,0.0f),true, ImGuiWindowFlags_NoScrollbar);
+    ImGuiListClipper clipper;
+    clipper.Begin((int)entitys.size());
+    while (clipper.Step())
     {
-        auto& entitys = m_ResourceManager->getEntitys();
-        const float sbW = 14.0f;
-        const float spacing = ImGui::GetStyle().ItemSpacing.x;
-
-        // 1. Rechten Content-Bereich zuerst berechnen, um ScrollMax zu kennen
-        // Wir nutzen eine Child-ID, die konsistent bleibt
-        ImGuiWindow* contentWin = nullptr;
-
-        // LEFT: Custom Scrollbar
-        ImGui::BeginChild("ScrollbarContainer", ImVec2(sbW, 0), false, ImGuiWindowFlags_NoScrollbar);
-
-        // Wir holen uns die Scroll-Daten vom RECHTEN Fenster (das gleich kommt)
-        // Dafür müssen wir den ID-Stack vorwegnehmen oder den Namen nutzen
-        float currentScrollY = 0.0f;
-        float maxScrollY = 0.0f;
-
-        // Zugriff auf das Child-Fenster "HierarchyList"
-        ImGuiWindow* listWin = ImGui::FindWindowByName("Hierarchy/HierarchyList");
-        if (listWin) {
-            currentScrollY = listWin->Scroll.y;
-            maxScrollY = ImGui::GetScrollMaxY(); // Bezieht sich auf das aktuelle Fenster-Kontext
-        }
-
-        float t = (maxScrollY > 0.0f) ? (currentScrollY / maxScrollY) : 0.0f;
-
-        ImGui::SetNextItemWidth(-1);
-        if (ImGui::VSliderFloat("##v", ImVec2(-1, -1), &t, 0.0f, 1.0f, "")) {
-            // Nur wenn der User schiebt, erzwingen wir den Scroll-Wert
-            currentScrollY = t * maxScrollY;
-            ImGui::SetWindowScrollY(ImGui::FindWindowByName("Hierarchy/HierarchyList"), currentScrollY);
-        }
-        ImGui::EndChild();
-
-        ImGui::SameLine();
-
-        // RIGHT: Content
-        if (ImGui::BeginChild("HierarchyList", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar))
+        for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
         {
-            ImGuiListClipper clipper;
-            clipper.Begin((int)entitys.size());
-            while (clipper.Step())
-            {
-                for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-                {
-                    ImGui::PushID(i); // Wichtig für Interaktion!
-                    if (ImGui::Selectable(entitys[i].m_Name.c_str())) {
-                        // Handle Selection
-                    }
-                    ImGui::PopID();
-                }
-            }
+            const Entity& e = entitys[i];
+            ImGui::Selectable(e.m_Name.c_str());
         }
-        ImGui::EndChild();
     }
-    ImGui::End();
+
+    ImGui::EndChild();
     ImGui::PopStyleVar();
+    ImGui::End();
 }
 void GuiManager::drawChart() {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.35f);

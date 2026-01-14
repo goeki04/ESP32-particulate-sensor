@@ -25,6 +25,7 @@ private:
 	glm::vec3 m_Forward;
 	glm::vec3 m_Right;
 	float m_Speed = 25.0f;
+	glm::mat4 m_ViewMatrix = calculateCameraOrbit();
 public:
 
 	bool m_HasValidPickRay;
@@ -34,10 +35,12 @@ public:
 	float m_ImGuiMouseX;
 	float m_ImGuiMouseY;
 	bool m_CursorToWorldRayEnabled = false;
-	glm::mat4 m_ViewMatrix = calculateCameraOrbit();
+
 	Ray m_CursorToWorldRay{glm::vec3(0.0f),glm::vec3(0.0f)};
 	bool RayIntersectsXZPlane(const Ray& ray, float planeY, glm::vec3& outHitPoint);
 	void cameraMovement();
+	glm::vec3 getCameraPos() const;
+	glm::mat4 getViewMatrix() const;
 	void updatePickingRay();
 	void zoom(SDL_Event* event);
     void setProjectionMatrix(float viewPortSizeX, float viewportSizeY) const;
