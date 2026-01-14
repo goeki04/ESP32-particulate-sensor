@@ -40,8 +40,8 @@ public:
 	void cameraMovement();
 	void updatePickingRay();
 	void zoom(SDL_Event* event);
-    void setProjectionMatrix(float viewPortSizeX, float viewportSizeY);
+    void setProjectionMatrix(float viewPortSizeX, float viewportSizeY) const;
     static glm::mat4 getProjectionMatrix();
 	glm::mat4 calculateCameraOrbit();
-	Ray cursorToWorldRay();
+	Ray cursorToWorldRay() const;
 };

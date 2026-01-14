@@ -35,7 +35,7 @@ void Renderer::update()
     glViewport(0,0,(GLsizei)viewportSize.x, (GLsizei)viewportSize.y);
     glClearColor(0.518f, 0.506f, 0.478f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for (auto& sceneObject : m_ResourceManager->m_SceneObjects) {
+    for (auto& sceneObject : m_ResourceManager->getEntitys()) {
         sceneObject.drawMesh();
         if (m_ResourceManager->m_Cam.m_CursorToWorldRayEnabled) {
             const glm::mat4 modelMatrix = sceneObject.m_Transform.modelMatrix();

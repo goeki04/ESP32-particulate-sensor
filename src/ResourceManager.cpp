@@ -158,15 +158,16 @@ SDL_Surface* ResourceManager::CreateSDLSurface(const char* path)
     return surface;
 }
 
-void ResourceManager::addSceneObject(const std::string& name, unsigned int meshID,Transform& transform)
+void ResourceManager::addEntity(unsigned int meshID,const std::string& name,Transform& transform)
 {
-    m_SceneObjects.emplace_back(this, meshID, m_NextSceneObjectID, name, transform);
+    std::string entityName = "[" + std::to_string(m_Entitys.size()) + "] " + name;
+    m_Entitys.emplace_back(this, meshID, m_NextSceneObjectID,entityName, transform);
     m_NextSceneObjectID++;
 }
 
-void ResourceManager::deleteSceneObject(Entity& sceneObject)
+void ResourceManager::deleteEntityObject(Entity& sceneObject)
 {
-    m_SceneObjects.erase(std::remove(m_SceneObjects.begin(), m_SceneObjects.end(), sceneObject), m_SceneObjects.end());
+    m_Entitys.erase(std::remove(m_Entitys.begin(), m_Entitys.end(), sceneObject), m_Entitys.end());
 }
 
 GLsizei ResourceManager::getMeshVaoByID(uint32_t meshID) const
@@ -223,6 +224,11 @@ GLtexture ResourceManager::CreateOpenGLTexture(const char* path)
 
     stbi_image_free(pixels);
     return texture;
+}
+
+std::vector<Entity>& ResourceManager::getEntitys()
+{
+    return m_Entitys;
 }
 
 void ResourceManager::setupMeshes()

@@ -30,14 +30,13 @@ void GuiManager::update() {
     ImGui::NewFrame();
     drawNavBar();
     drawNotification();
-    drawInformation();
+    drawDeviceHierarchy();
     drawChart();
     drawBottomWindow();
 }
 void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebufferSize,float* ImGuiMouseX,float* ImGuiMouseY)
 {
     Camera& cam = m_ResourceManager->m_Cam;
-
     ImGuiWindowFlags windowFlags = 0;
     windowFlags |= ImGuiWindowFlags_NoResize;
     windowFlags |= ImGuiWindowFlags_NoMove;
@@ -51,25 +50,24 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebuf
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::Begin("Viewport", 0, windowFlags);
+    if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+    {
+        ImGui::SetWindowFocus();
+    }
 
-    // optional outputs
     if (ImGuiMouseX) *ImGuiMouseX = -1.0f;
     if (ImGuiMouseY) *ImGuiMouseY = -1.0f;
 
-    // 1) Image zeichnen
     ImGui::Image((void*)(intptr_t)framebufferTexture, framebufferSize, ImVec2(0, 1), ImVec2(1, 0));
 
-    // 2) Rect vom Image
     ImVec2 rectMin = ImGui::GetItemRectMin();
     ImVec2 rectMax = ImGui::GetItemRectMax();
     ImVec2 rectSize = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
     cam.m_ViewportSize = glm::vec2(viewportSize.x,viewportSize.y);
     cam.m_ViewportPos = glm::vec2(m_ViewportPos.x, m_ViewportPos.y);
-    // 3) Maus relativ zum Image
     ImVec2 mousePos = ImGui::GetMousePos();
     ImVec2 rel = ImVec2(mousePos.x - rectMin.x, mousePos.y - rectMin.y);
 
-    // 4) Hover sauber bestimmen (Item-hover ist am robustesten)
     bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
     GuiManager::s_ViewportFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
     cam.m_HasValidPickRay = hovered;
@@ -191,14 +189,77 @@ void GuiManager::drawNotification()
     ImGui::Begin("Notifications", 0, m_WindowFlags);
     ImGui::End();
 }
-void GuiManager::drawInformation()
+void GuiManager::drawDeviceHierarchy()
 {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.55f);
-    ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, m_MarginDefault), windowSize, Alignment::TopLeft);
-    ImGui::SetNextWindowPos(newPos);
-    ImGui::SetNextWindowSize(windowSize);
-    ImGui::Begin("Devices", 0, m_WindowFlags);
+    ImVec2 newPos = getNewWindowPos(
+        Margin(m_MarginDefault, 0, m_MarginDefault, m_MarginDefault),
+        windowSize,
+        Alignment::TopLeft
+    );
+
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
+    ImGui::SetNextWindowPos(newPos, ImGuiCond_Always);
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
+
+    if (ImGui::Begin("Hierarchy", nullptr, m_WindowFlags))
+    {
+        auto& entitys = m_ResourceManager->getEntitys();
+        const float sbW = 14.0f;
+        const float spacing = ImGui::GetStyle().ItemSpacing.x;
+
+        // 1. Rechten Content-Bereich zuerst berechnen, um ScrollMax zu kennen
+        // Wir nutzen eine Child-ID, die konsistent bleibt
+        ImGuiWindow* contentWin = nullptr;
+
+        // LEFT: Custom Scrollbar
+        ImGui::BeginChild("ScrollbarContainer", ImVec2(sbW, 0), false, ImGuiWindowFlags_NoScrollbar);
+
+        // Wir holen uns die Scroll-Daten vom RECHTEN Fenster (das gleich kommt)
+        // Dafür müssen wir den ID-Stack vorwegnehmen oder den Namen nutzen
+        float currentScrollY = 0.0f;
+        float maxScrollY = 0.0f;
+
+        // Zugriff auf das Child-Fenster "HierarchyList"
+        ImGuiWindow* listWin = ImGui::FindWindowByName("Hierarchy/HierarchyList");
+        if (listWin) {
+            currentScrollY = listWin->Scroll.y;
+            maxScrollY = ImGui::GetScrollMaxY(); // Bezieht sich auf das aktuelle Fenster-Kontext
+        }
+
+        float t = (maxScrollY > 0.0f) ? (currentScrollY / maxScrollY) : 0.0f;
+
+        ImGui::SetNextItemWidth(-1);
+        if (ImGui::VSliderFloat("##v", ImVec2(-1, -1), &t, 0.0f, 1.0f, "")) {
+            // Nur wenn der User schiebt, erzwingen wir den Scroll-Wert
+            currentScrollY = t * maxScrollY;
+            ImGui::SetWindowScrollY(ImGui::FindWindowByName("Hierarchy/HierarchyList"), currentScrollY);
+        }
+        ImGui::EndChild();
+
+        ImGui::SameLine();
+
+        // RIGHT: Content
+        if (ImGui::BeginChild("HierarchyList", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar))
+        {
+            ImGuiListClipper clipper;
+            clipper.Begin((int)entitys.size());
+            while (clipper.Step())
+            {
+                for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+                {
+                    ImGui::PushID(i); // Wichtig für Interaktion!
+                    if (ImGui::Selectable(entitys[i].m_Name.c_str())) {
+                        // Handle Selection
+                    }
+                    ImGui::PopID();
+                }
+            }
+        }
+        ImGui::EndChild();
+    }
     ImGui::End();
+    ImGui::PopStyleVar();
 }
 void GuiManager::drawChart() {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.35f);
@@ -329,7 +390,7 @@ void GuiManager::drawDeviceBrowser()
         if (dragEnded && cam.m_HasValidPickRay && m_HasLastHitpoint) {
             Transform transform;
             transform.position = m_LastHitPoint;
-            m_ResourceManager->addSceneObject("Hello there", deviceRecord.id,transform);
+            m_ResourceManager->addEntity(deviceRecord.id,deviceRecord.name,transform);
         }
         if (hovered || active)
             dl->AddRect(tileMin, tileMax, IM_COL32(255, 255, 255, 60), 4.0f, 0, 1.5f);
@@ -454,7 +515,7 @@ ImVec2 GuiManager::getViewportWindowPos()
 ImVec2 GuiManager::getViewportWindowSize() {
     return s_ViewportSize;
 }
-void GuiManager::setViewportSize() {
+void GuiManager::setViewportSize() const {
     if (m_WindowHeight == 0 || m_WindowWidth == 0 || m_WidgetWidth == 0) {
         throw std::runtime_error("Window width/height or widgetWidth can't be zero");
     }
