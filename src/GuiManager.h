@@ -60,6 +60,7 @@ private:
     ImVec2 m_ViewportPos;
     float m_MenuBarHeight = 0;
     int m_SelectedIdx = -1;
+    int m_CurrentSelectedID = 0;
     float m_WidgetWidth = 0;
     float m_MarginDefault = 0;
     ImGuiWindowFlags m_WindowFlags = 0;
