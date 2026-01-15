@@ -36,6 +36,18 @@ void UnlitShader::setUniforms(const glm::mat4& modelMatrix)
 
 void Shader::compileShader()
 {
+    auto throwShaderLog = [](GLuint sh, const char* stage) {
+        GLint len = 0;
+        glGetShaderiv(sh, GL_INFO_LOG_LENGTH, &len);
+        std::string log;
+        log.resize((len > 1) ? len : 1);
+
+        GLsizei outLen = 0;
+        glGetShaderInfoLog(sh, (GLsizei)log.size(), &outLen, log.data());
+        log.resize(outLen);
+        std::cerr << stage << " compile error:\n" << log << std::endl;
+        throw std::runtime_error(std::string(stage) + " compile error:\n" + log);
+        };
     GLint success;
     std::string vertexShaderStr = readShaderSource(m_VertexShaderPath.c_str());
     const char* vertexShaderSource = vertexShaderStr.c_str();
@@ -45,7 +57,7 @@ void Shader::compileShader()
 
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
-        throw std::runtime_error("failed compiling vertex shader!");
+        throwShaderLog(vertexShader,"Vertex shader");
     }
     std::string fragmentShaderStr = readShaderSource(m_FragmentShaderPath.c_str());
     const char* fragmentShaderSource = fragmentShaderStr.c_str();
@@ -54,7 +66,7 @@ void Shader::compileShader()
     glCompileShader(fragmentShader);
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
-        throw std::runtime_error("failed compiling fragment shader!");
+        throwShaderLog(fragmentShader, "Fragment shader");
     }
     m_Program = glCreateProgram();
     glAttachShader(m_Program, vertexShader);
