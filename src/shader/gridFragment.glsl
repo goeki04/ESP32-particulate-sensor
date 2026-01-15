@@ -10,7 +10,6 @@ uniform vec3 camPos;
 uniform float gGridSize = 100.0;
 
 vec3 xAxisColor = vec3(1.0,0.0,0.0);
-vec3 yAxisColor = vec3(0.0,1.0,0.0);
 vec3 zAxisColor = vec3(0.0,0.0,1.0);
 
 float satf(float x) 

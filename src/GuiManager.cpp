@@ -206,7 +206,18 @@ void GuiManager::drawDeviceHierarchy()
         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
         {
             const Entity& e = entitys[i];
-            ImGui::Selectable(e.m_Name.c_str());
+            bool isSelected = (m_CurrentSelectedID == e.m_ID);
+            if (isSelected) {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.0f, 1.0f));
+            }
+
+            if (ImGui::Selectable(e.m_Name.c_str(), isSelected)) {
+                m_CurrentSelectedID = e.m_ID;
+            }
+
+            if (isSelected) {
+                ImGui::PopStyleColor();
+            }
         }
     }
 
