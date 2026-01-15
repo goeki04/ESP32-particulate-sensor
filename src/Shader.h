@@ -31,6 +31,7 @@ public:
 	void use() const {
 		glUseProgram(m_Program);
 	}
+protected:
 	void setCameraUniforms() {
 			setMat4x4(c_viewMatrix, m_Camera.getViewMatrix());
 			setMat4x4(c_projMatrix, m_Camera.getProjectionMatrix());
@@ -49,7 +50,7 @@ private:
 	}
 };
 
-class MaterialShader  : public Shader{
+class MaterialShader : public Shader{
 	public:
 	MaterialShader(Camera& cam,const char* vertexPath, const char* fragmentPath) : Shader(cam,vertexPath,fragmentPath){
 	}

@@ -16,6 +16,7 @@ public:
 	void guiPass(Camera& cam);
 	void imGuiPass();
 	void scenePassBegin();
+	void proceduralPass();
 	void pickingPass(const Camera& cam);
 	void scenePassEndResolve();
 	void windowClearPass();
@@ -26,6 +27,7 @@ private:
 	unsigned int m_Framebuffer = 0, m_MsaaFramebuffer = 0;
 	unsigned int m_FramebufferTexture = 0,m_MsaaFramebufferTexture = 0;
 	unsigned int m_Rendererbuffer = 0;
+	GLuint m_Vao;
 	const unsigned int m_MSAAsamples = (int)MsaaSamples::x4;
 	void createFramebuffer();
 	ResourceManager* m_ResourceManager = nullptr;

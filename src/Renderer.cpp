@@ -19,17 +19,19 @@ void Renderer::start()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    glGenVertexArrays(1, &m_Vao);
 }
 
 void Renderer::update()
 {
     Camera& cam = m_ResourceManager->m_Cam;
-    guiPass(cam);                 // ImGui update + viewport GUI vorbereiten
-    windowClearPass();           // Clear default framebuffer (Hintergrund)
-    scenePassBegin();            // MSAA FB bind, viewport, clear
-    geometryPass();              // Entities draw
-    pickingPass(cam);            // Ray/AABB
-    scenePassEndResolve();       // blit MSAA -> normal FB
+    guiPass(cam);
+    windowClearPass();
+    scenePassBegin();
+    geometryPass();
+    proceduralPass();
+    pickingPass(cam);
+    scenePassEndResolve();
     imGuiPass();
 }
 
@@ -38,6 +40,7 @@ void Renderer::geometryPass() {
         sceneObject.drawMesh();
     }
 }
+
 void Renderer::guiPass(Camera& cam)
 {
     m_GuiManager.update();
@@ -65,6 +68,17 @@ void Renderer::scenePassBegin()
 
     glClearColor(0.518f, 0.506f, 0.478f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+void Renderer::proceduralPass()
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    for (auto& pSh : m_ResourceManager->m_ProceduralShaders) {
+        pSh->use();
+        glBindVertexArray(m_Vao);
+        pSh->setUniforms();
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
 }
 void Renderer::pickingPass(const Camera& cam)
 {
