@@ -6,9 +6,9 @@ struct DirLight{
 	glm::vec3 color;
 };
 
-enum class MaterialShaderType { unlit, outline };
+enum class MaterialShaderType { unlit, white };
 enum class ProceduralShaderType { grid };
-
+enum class PostProcessShaderType { outline };
 class Shader {
 public:
 	inline constexpr static const char* c_viewMatrix = "viewMatrix";
@@ -27,6 +27,7 @@ public:
 	void setMat4x4(const char* uniformName, const glm::mat4& matrix);
 	void setVec3(const char* uniformName, const glm::vec3& vector);
 	void setFloat(const char* uniformName, const float floatVal);
+	void setInt(const char* uniformName, const int intValue);
 	std::string readShaderSource(const char* shaderPath);
 	void compileShader();
 	void use() const {
@@ -49,6 +50,14 @@ private:
 		m_UniformCache[name] = loc;
 		return loc;
 	}
+};
+
+class PostProcessShader : public Shader {
+public:
+	PostProcessShader(Camera& cam, const char* vertexPath, const char* fragmentPath)
+		: Shader(cam, vertexPath, fragmentPath) { };
+	virtual ~PostProcessShader() = default;
+	virtual void setUniforms(GLuint sceneTexture, GLuint maskTexture) = 0;
 };
 
 class MaterialShader : public Shader{
@@ -74,11 +83,11 @@ public:
 	void setUniforms() override;
 };
 
-class UnlitShader : public MaterialShader {
+class LitShader : public MaterialShader {
 public:
 	DirLight m_DirLight;
 	glm::vec3 m_AmbientLight;
-	UnlitShader(Camera& cam, const char* vertexPath, const char* fragmentPath) : MaterialShader(cam, vertexPath, fragmentPath) {
+	LitShader(Camera& cam, const char* vertexPath, const char* fragmentPath) : MaterialShader(cam, vertexPath, fragmentPath) {
 		m_DirLight.color = glm::vec3(1.0f, 1.0f, 1.0f);
 		m_DirLight.direction = glm::vec3(1.0f, 1.0f, 0.5f);
 		m_AmbientLight = glm::vec3(0.4f);
@@ -86,8 +95,15 @@ public:
 	void setUniforms(const glm::mat4& modelMatrix) override;
 };
 
-class OutlineShader : public MaterialShader {
+class ColorShader : public MaterialShader {
 public:
-	OutlineShader(Camera& cam, const char* vertexPath, const char* fragmentPath) : MaterialShader(cam, vertexPath, fragmentPath) {}
+	glm::vec3 color = glm::vec3(1.0f,1.0f,1.0f);
+	ColorShader(Camera& cam, const char* vertexPath, const char* fragmentPath) : MaterialShader(cam, vertexPath, fragmentPath) {}
 	void setUniforms(const glm::mat4& modelMatrix) override;
+};
+
+class OutlineShader : public PostProcessShader {
+public:
+	OutlineShader(Camera& cam, const char* vertexPath, const char* fragmentPath) : PostProcessShader(cam, vertexPath, fragmentPath) {}
+	void setUniforms(GLuint sceneTexture, GLuint maskTexture) override;
 };

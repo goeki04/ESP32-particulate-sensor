@@ -505,6 +505,9 @@ void GuiManager::setFlags()
     m_WindowFlags |= ImGuiWindowFlags_NoCollapse;
     m_WindowFlags |= ImGuiWindowFlags_NoResize;
 }
+/// <summary>
+/// color scheme
+/// </summary>
 void GuiManager::setStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
     float mainScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());

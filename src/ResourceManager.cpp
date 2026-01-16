@@ -17,8 +17,8 @@ void ResourceManager::start()
     if (err != GLEW_OK) {
         throw std::exception("Failed to call glewInit!");
     }
-    addMaterialShader<UnlitShader>("../src/shader/unlitVertex.glsl", "../src/shader/unlitFragment.glsl");
-    addMaterialShader<OutlineShader>("../src/shader/outlineVertex.glsl", "../src/shader/outlineFragment.glsl");
+    addMaterialShader<LitShader>("../src/shader/unlitVertex.glsl", "../src/shader/unlitFragment.glsl");
+    addMaterialShader<ColorShader>("../src/shader/colorVertex.glsl", "../src/shader/colorFragment.glsl");
     addProceduralShader<GridShader>("../src/shader/gridVertex.glsl", "../src/shader/gridFragment.glsl");
     loadModels();
     loadIcons();
@@ -189,6 +189,11 @@ MaterialShader* ResourceManager::getMaterialShaderByID(MaterialShaderType t) con
 ProceduralShader* ResourceManager::getProceduralShaderByID(ProceduralShaderType t) const
 {
     return m_ProceduralShaders[(int)t].get();
+}
+
+PostProcessShader* ResourceManager::getPostprocessShaderByID(PostProcessShaderType t) const
+{
+    return m_PostProcessShaders[(int)t].get();
 }
 
 const Mesh& ResourceManager::getMeshByID(uint32_t meshID) const

@@ -8,7 +8,7 @@ Window::WindowManager windowManager;
 Renderer renderer;
 ResourceManager resourceManager;
 SDL_AppResult SDL_Init() {
-    SDL_SetAppMetadata("ESP32", "1.0", "ESP32.bosch.com");
+    SDL_SetAppMetadata("ESP32", "1.0", "ESP32.goeki.com");
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return SDL_APP_FAILURE;

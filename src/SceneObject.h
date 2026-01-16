@@ -52,7 +52,7 @@ public:
 	Entity(ResourceManager* rm, unsigned int meshID, unsigned int objectID, const std::string& name,Transform& transform);
 	void drawMesh();
 
-	void drawMeshOutline();
+	void drawMesh(MaterialShaderType shaderType);
 
 	bool operator==(const Entity& other) const{
 		return other.m_ID == m_ID;

@@ -15,6 +15,8 @@ public:
 	void geometryPass();
 	void guiPass(Camera& cam);
 	void imGuiPass();
+	void selectionPass();
+	void postprocessingPass();
 	void scenePassBegin();
 	void proceduralPass();
 	void pickingPass(const Camera& cam);
@@ -24,8 +26,9 @@ public:
 	static constexpr const char* glsl_version = "#version 460";
 private:
 	glm::ivec2 m_framebufferSize = glm::ivec2(0,0);
-	unsigned int m_Framebuffer = 0, m_MsaaFramebuffer = 0;
-	unsigned int m_FramebufferTexture = 0,m_MsaaFramebufferTexture = 0;
+	GLuint m_Framebuffer = 0, m_MsaaFramebuffer = 0;
+	GLuint m_FramebufferTexture = 0, m_MsaaFramebufferTexture = 0;
+	GLuint m_SelectionFramebuffer, m_SelectionTexture;
 	unsigned int m_Rendererbuffer = 0;
 	GLuint m_Vao;
 	const unsigned int m_MSAAsamples = (int)MsaaSamples::x4;
