@@ -26,8 +26,10 @@ public:
 	virtual ~Shader() = default;
 	void setMat4x4(const char* uniformName, const glm::mat4& matrix);
 	void setVec3(const char* uniformName, const glm::vec3& vector);
+	void setVec2(const char* uniformName, const glm::vec2& vector);
 	void setFloat(const char* uniformName, const float floatVal);
 	void setInt(const char* uniformName, const int intValue);
+	void setTexture(const char* uniformName, GLuint textureID, GLuint slot);
 	std::string readShaderSource(const char* shaderPath);
 	void compileShader();
 	void use() const {
@@ -57,7 +59,6 @@ public:
 	PostProcessShader(Camera& cam, const char* vertexPath, const char* fragmentPath)
 		: Shader(cam, vertexPath, fragmentPath) { };
 	virtual ~PostProcessShader() = default;
-	virtual void setUniforms(GLuint sceneTexture, GLuint maskTexture) = 0;
 };
 
 class MaterialShader : public Shader{
@@ -105,5 +106,4 @@ public:
 class OutlineShader : public PostProcessShader {
 public:
 	OutlineShader(Camera& cam, const char* vertexPath, const char* fragmentPath) : PostProcessShader(cam, vertexPath, fragmentPath) {}
-	void setUniforms(GLuint sceneTexture, GLuint maskTexture) override;
 };

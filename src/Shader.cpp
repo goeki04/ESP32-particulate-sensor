@@ -22,6 +22,12 @@ void Shader::setVec3(const char* uniformName,const glm::vec3& vector) {
     glUniform3fv(vec3Location,1,glm::value_ptr(vector));
 }
 
+void Shader::setVec2(const char* uniformName,const glm::vec2& vector)
+{
+    GLuint vec2Location = getUniformLocation(uniformName);
+    glUniform2fv(vec2Location, 1, glm::value_ptr(vector));
+}
+
 void Shader::setFloat(const char* uniformName, const float floatVal)
 {
     GLuint floatLocation = getUniformLocation(uniformName);
@@ -32,6 +38,12 @@ void Shader::setInt(const char* uniformName, const int intValue)
 {
     GLuint intLocation = getUniformLocation(uniformName);
     glUniform1i(intLocation, intValue);
+}
+
+void Shader::setTexture(const char* uniformName, GLuint textureID, GLuint slot) {
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    setInt(uniformName, slot);
 }
 
 void LitShader::setUniforms(const glm::mat4& modelMatrix)
@@ -94,9 +106,6 @@ void Shader::compileShader()
 void GridShader::setUniforms()
 {
     setCameraUniforms();
-}
-void OutlineShader::setUniforms(GLuint sceneTexture, GLuint maskTexture)
-{
 }
 
 void ColorShader::setUniforms(const glm::mat4& modelMatrix)
