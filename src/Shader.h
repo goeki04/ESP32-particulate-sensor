@@ -6,7 +6,7 @@ struct DirLight{
 	glm::vec3 color;
 };
 
-enum class MaterialShaderType { unlit };
+enum class MaterialShaderType { unlit, outline };
 enum class ProceduralShaderType { grid };
 
 class Shader {
@@ -26,6 +26,7 @@ public:
 	virtual ~Shader() = default;
 	void setMat4x4(const char* uniformName, const glm::mat4& matrix);
 	void setVec3(const char* uniformName, const glm::vec3& vector);
+	void setFloat(const char* uniformName, const float floatVal);
 	std::string readShaderSource(const char* shaderPath);
 	void compileShader();
 	void use() const {
@@ -82,5 +83,11 @@ public:
 		m_DirLight.direction = glm::vec3(1.0f, 1.0f, 0.5f);
 		m_AmbientLight = glm::vec3(0.4f);
 	}
+	void setUniforms(const glm::mat4& modelMatrix) override;
+};
+
+class OutlineShader : public MaterialShader {
+public:
+	OutlineShader(Camera& cam, const char* vertexPath, const char* fragmentPath) : MaterialShader(cam, vertexPath, fragmentPath) {}
 	void setUniforms(const glm::mat4& modelMatrix) override;
 };

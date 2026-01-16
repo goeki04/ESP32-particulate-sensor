@@ -1,8 +1,6 @@
 #version 460 core
 out vec4 FragColor;
 in vec3 normal;
-in vec3 fragPos;
-in vec2 texCoords;
 in vec3 color;
 struct DirLight{
     vec3 color;
