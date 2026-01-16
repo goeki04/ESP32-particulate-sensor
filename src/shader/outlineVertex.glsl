@@ -5,7 +5,6 @@ layout (location = 1) in vec3 aNormal;
 uniform mat4 model;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
-uniform float outlineWidth;
 
 void main()
 {

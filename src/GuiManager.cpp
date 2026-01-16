@@ -213,6 +213,10 @@ void GuiManager::drawDeviceHierarchy()
 
             if (ImGui::Selectable(e.m_Name.c_str(), isSelected)) {
                 m_CurrentSelectedID = e.m_ID;
+
+                for (auto& entity : m_ResourceManager->getEntitys()) {
+                    entity.m_IsSelected = (entity.m_ID == e.m_ID);
+                }
             }
 
             if (isSelected) {
