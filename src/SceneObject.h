@@ -2,7 +2,6 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include <bitset>
-#define MAX_COMPONENT 256
 class ResourceManager;
 class Camera;
 
@@ -42,7 +41,6 @@ public:
 };
 class Entity {
 public:
-	std::bitset<MAX_COMPONENT> componentList;
 	unsigned int m_ID;
 	std::string m_Name = "unnamed";
 	unsigned int m_MeshID = 0;

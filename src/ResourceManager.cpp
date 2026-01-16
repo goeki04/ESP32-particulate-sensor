@@ -18,6 +18,7 @@ void ResourceManager::start()
         throw std::exception("Failed to call glewInit!");
     }
     addMaterialShader<UnlitShader>("../src/shader/unlitVertex.glsl", "../src/shader/unlitFragment.glsl");
+    addMaterialShader<OutlineShader>("../src/shader/outlineVertex.glsl", "../src/shader/outlineFragment.glsl");
     addProceduralShader<GridShader>("../src/shader/gridVertex.glsl", "../src/shader/gridFragment.glsl");
     loadModels();
     loadIcons();

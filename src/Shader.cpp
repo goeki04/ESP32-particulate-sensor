@@ -22,6 +22,12 @@ void Shader::setVec3(const char* uniformName,const glm::vec3& vector) {
     glUniform3fv(vec3Location,1,glm::value_ptr(vector));
 }
 
+void Shader::setFloat(const char* uniformName, const float floatVal)
+{
+    GLuint floatLocation = getUniformLocation(uniformName);
+    glUniform1f(floatLocation,floatVal);
+}
+
 void UnlitShader::setUniforms(const glm::mat4& modelMatrix)
 {
     GLint current = 0;
@@ -84,4 +90,11 @@ void Shader::compileShader()
 void GridShader::setUniforms()
 {
     setCameraUniforms();
+}
+
+void OutlineShader::setUniforms(const glm::mat4& modelMatrix)
+{
+    setCameraUniforms();
+    setMat4x4("model",modelMatrix);
+    setFloat("outlineWidth", 0.05f);
 }

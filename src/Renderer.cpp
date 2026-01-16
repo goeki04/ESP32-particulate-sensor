@@ -16,7 +16,6 @@ void Renderer::start()
     ImGui_ImplSDL3_InitForOpenGL(Window::g_Window, m_ResourceManager->m_GlContext);
     ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
     createFramebuffer();
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glGenVertexArrays(1, &m_Vao);
@@ -62,12 +61,13 @@ void Renderer::imGuiPass()
 void Renderer::scenePassBegin()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_MsaaFramebuffer);
-
     ImVec2 viewportSize = m_GuiManager.getViewportWindowSize();
     glViewport(0, 0, (GLsizei)viewportSize.x, (GLsizei)viewportSize.y);
 
     glClearColor(0.518f, 0.506f, 0.478f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
 }
 void Renderer::proceduralPass()
 {
@@ -88,7 +88,7 @@ void Renderer::pickingPass(const Camera& cam)
     for (auto& sceneObject : m_ResourceManager->getEntitys()) {
         const glm::mat4 modelMatrix = sceneObject.m_Transform.modelMatrix();
         bool hit = sceneObject.m_BoundingBox.RayIntersectAABB(cam, modelMatrix);
-        (void)hit; // später speichern/auswerten
+        (void)hit;
     }
 }
 void Renderer::scenePassEndResolve()
