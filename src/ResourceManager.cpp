@@ -20,6 +20,7 @@ void ResourceManager::start()
     addMaterialShader<LitShader>("../src/shader/unlitVertex.glsl", "../src/shader/unlitFragment.glsl");
     addMaterialShader<ColorShader>("../src/shader/colorVertex.glsl", "../src/shader/colorFragment.glsl");
     addProceduralShader<GridShader>("../src/shader/gridVertex.glsl", "../src/shader/gridFragment.glsl");
+    addPostProcessShader<PostProcessShader>("../src/shader/outlineVertex.glsl","../src/shader/outlineFragment.glsl");
     loadModels();
     loadIcons();
     setupMeshes(); 

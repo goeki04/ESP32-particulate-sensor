@@ -12,6 +12,7 @@ class Renderer : public ISubsystem{
 public:
 	void start() override;
 	void update() override;
+	void destroy() override;
 	void geometryPass();
 	void guiPass(Camera& cam);
 	void imGuiPass();
@@ -22,17 +23,23 @@ public:
 	void pickingPass(const Camera& cam);
 	void scenePassEndResolve();
 	void windowClearPass();
-	void destroy() override;
+	void createSceneFbo();
+	void createMSAAFbo();
+	void createSelectionFBO();
+	void createPostprocessFBO();
 	static constexpr const char* glsl_version = "#version 460";
 private:
-	glm::ivec2 m_framebufferSize = glm::ivec2(0,0);
+	glm::ivec2 m_FramebufferSize = glm::ivec2(0,0);
+	glm::vec2 m_TexelSize;
 	GLuint m_Framebuffer = 0, m_MsaaFramebuffer = 0;
 	GLuint m_FramebufferTexture = 0, m_MsaaFramebufferTexture = 0;
 	GLuint m_SelectionFramebuffer, m_SelectionTexture;
+	GLuint m_PostprocessFramebuffer = 0, m_PostprocessTexture = 0;
 	unsigned int m_Rendererbuffer = 0;
 	GLuint m_Vao;
+	GLuint m_SelectionDepth;
 	const unsigned int m_MSAAsamples = (int)MsaaSamples::x4;
-	void createFramebuffer();
+	void createFramebuffers();
 	ResourceManager* m_ResourceManager = nullptr;
 	GuiManager m_GuiManager;
 #ifdef DEBUG_RENDERING_OPENGL

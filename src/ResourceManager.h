@@ -115,7 +115,7 @@ private:
 		m_ProceduralShaders.back()->compileShader();
 	}
 	template<typename T> requires std::derived_from<T, PostProcessShader>
-	void addProceduralShader(const char* vertexShader, const char* fragmentShader) {
+	void addPostProcessShader(const char* vertexShader, const char* fragmentShader) {
 		m_PostProcessShaders.emplace_back(std::make_unique<T>(m_Cam, vertexShader, fragmentShader));
 		m_PostProcessShaders.back()->compileShader();
 	}
