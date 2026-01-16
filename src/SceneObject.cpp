@@ -19,6 +19,25 @@ void Entity::drawMesh()
     glBindVertexArray(0);
 }
 
+void Entity::drawMeshOutline() {
+    if (!m_ResourceManager) {
+        throw std::runtime_error("ResourceManager ptr is null");
+    }
+    auto* sh = m_ResourceManager->getMaterialShaderByID(MaterialShaderType::outline);
+    sh->use();
+    glm::mat4 M = m_Transform.modelMatrix();
+    glm::vec3 center = m_BoundingBox.getAABB().center;
+
+    glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(1.03f));
+    glm::mat4 T1 = glm::translate(glm::mat4(1.0f), center);
+    glm::mat4 T2 = glm::translate(glm::mat4(1.0f), -center);
+    glm::mat4 outlineModel = M * T1 * S * T2;
+    sh->setUniforms(outlineModel);
+    glBindVertexArray(m_ResourceManager->getMeshVaoByID(m_MeshID));
+    glDrawElements(GL_TRIANGLES, m_ResourceManager->getMeshIndexSizeByID(m_MeshID), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
+
 const AABB& BoundingBox::getAABB() const
 {
     return m_AABB;

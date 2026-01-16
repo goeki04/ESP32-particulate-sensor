@@ -30,8 +30,6 @@ void Shader::setFloat(const char* uniformName, const float floatVal)
 
 void UnlitShader::setUniforms(const glm::mat4& modelMatrix)
 {
-    GLint current = 0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &current);
     use();
     setMat4x4("model", modelMatrix);
     setCameraUniforms();
@@ -95,6 +93,5 @@ void GridShader::setUniforms()
 void OutlineShader::setUniforms(const glm::mat4& modelMatrix)
 {
     setCameraUniforms();
-    setMat4x4("model",modelMatrix);
-    setFloat("outlineWidth", 0.05f);
+    setMat4x4("model",modelMatrix);;
 }

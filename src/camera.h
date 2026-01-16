@@ -34,7 +34,6 @@ public:
 	glm::vec2 m_ViewportPos;
 	float m_ImGuiMouseX;
 	float m_ImGuiMouseY;
-	bool m_CursorToWorldRayEnabled = false;
 
 	Ray m_CursorToWorldRay{glm::vec3(0.0f),glm::vec3(0.0f)};
 	bool RayIntersectsXZPlane(const Ray& ray, float planeY, glm::vec3& outHitPoint);

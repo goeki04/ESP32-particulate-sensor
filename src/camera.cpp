@@ -42,7 +42,6 @@ void Camera::cameraMovement()
     Uint32 mouseState = SDL_GetMouseState(NULL, NULL);
     bool rightMouseDown = mouseState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT);
     static bool wasRightMouseDown = false;
-
     if (rightMouseDown && !wasRightMouseDown) {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NoMouse;

@@ -44,12 +44,15 @@ public:
 	unsigned int m_ID;
 	std::string m_Name = "unnamed";
 	unsigned int m_MeshID = 0;
+	bool m_IsSelected = false;
 	Transform m_Transform;
 	BoundingBox m_BoundingBox;
 	ResourceManager* m_ResourceManager = nullptr;
 	MaterialShaderType m_Shadertype = MaterialShaderType::unlit;
 	Entity(ResourceManager* rm, unsigned int meshID, unsigned int objectID, const std::string& name,Transform& transform);
 	void drawMesh();
+
+	void drawMeshOutline();
 
 	bool operator==(const Entity& other) const{
 		return other.m_ID == m_ID;

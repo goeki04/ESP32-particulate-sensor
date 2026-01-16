@@ -46,6 +46,7 @@ public:
     void drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebufferSize, float* ImGuiMouseX, float* ImGuiMouseY);
     void loadFont();
     ImVec2 getViewportWindowSize();
+    int m_CurrentSelectedID = 0;
 private:
     static glm::vec3 m_LastHitPoint;
     static bool m_HasLastHitpoint;
@@ -60,7 +61,7 @@ private:
     ImVec2 m_ViewportPos;
     float m_MenuBarHeight = 0;
     int m_SelectedIdx = -1;
-    int m_CurrentSelectedID = 0;
+
     float m_WidgetWidth = 0;
     float m_MarginDefault = 0;
     ImGuiWindowFlags m_WindowFlags = 0;

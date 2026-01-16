@@ -17,6 +17,7 @@ void Renderer::start()
     ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
     createFramebuffer();
     glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
     glCullFace(GL_BACK);
     glGenVertexArrays(1, &m_Vao);
 }
@@ -29,15 +30,38 @@ void Renderer::update()
     scenePassBegin();
     geometryPass();
     proceduralPass();
+
     pickingPass(cam);
     scenePassEndResolve();
     imGuiPass();
 }
 
 void Renderer::geometryPass() {
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilMask(0xFF);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+
     for (auto& sceneObject : m_ResourceManager->getEntitys()) {
         sceneObject.drawMesh();
     }
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00); 
+    glDepthMask(GL_FALSE);    
+
+    for (auto& sceneObject : m_ResourceManager->getEntitys()) {
+        if (sceneObject.m_IsSelected) {
+            sceneObject.drawMeshOutline();
+        }
+    }
+
+
+    glDepthMask(GL_TRUE);
+    glStencilMask(0xFF);
+    glDisable(GL_STENCIL_TEST);
 }
 
 void Renderer::guiPass(Camera& cam)
@@ -65,12 +89,12 @@ void Renderer::scenePassBegin()
     glViewport(0, 0, (GLsizei)viewportSize.x, (GLsizei)viewportSize.y);
 
     glClearColor(0.518f, 0.506f, 0.478f, 1.0f);
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    
 }
 void Renderer::proceduralPass()
 {
+    glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     for (auto& pSh : m_ResourceManager->m_ProceduralShaders) {
@@ -79,16 +103,27 @@ void Renderer::proceduralPass()
         pSh->setUniforms();
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
+    glDisable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
 }
 void Renderer::pickingPass(const Camera& cam)
 {
-    if (!m_ResourceManager->m_Cam.m_CursorToWorldRayEnabled)
-        return;
+    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+        bool anyHit = false;
+        for (auto& sceneObject : m_ResourceManager->getEntitys()) {
+            const glm::mat4 modelMatrix = sceneObject.m_Transform.modelMatrix();
+            bool hit = sceneObject.m_BoundingBox.RayIntersectAABB(cam, modelMatrix);
+            sceneObject.m_IsSelected = hit;
 
-    for (auto& sceneObject : m_ResourceManager->getEntitys()) {
-        const glm::mat4 modelMatrix = sceneObject.m_Transform.modelMatrix();
-        bool hit = sceneObject.m_BoundingBox.RayIntersectAABB(cam, modelMatrix);
-        (void)hit;
+            if (hit) {
+                m_GuiManager.m_CurrentSelectedID = sceneObject.m_ID;
+                anyHit = true;
+            }
+        }
+
+        if (!anyHit) {
+            m_GuiManager.m_CurrentSelectedID = -1;
+        }
     }
 }
 void Renderer::scenePassEndResolve()
