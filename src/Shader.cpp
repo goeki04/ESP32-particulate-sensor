@@ -28,7 +28,13 @@ void Shader::setFloat(const char* uniformName, const float floatVal)
     glUniform1f(floatLocation,floatVal);
 }
 
-void UnlitShader::setUniforms(const glm::mat4& modelMatrix)
+void Shader::setInt(const char* uniformName, const int intValue)
+{
+    GLuint intLocation = getUniformLocation(uniformName);
+    glUniform1i(intLocation, intValue);
+}
+
+void LitShader::setUniforms(const glm::mat4& modelMatrix)
 {
     use();
     setMat4x4("model", modelMatrix);
@@ -89,9 +95,12 @@ void GridShader::setUniforms()
 {
     setCameraUniforms();
 }
+void OutlineShader::setUniforms(GLuint sceneTexture, GLuint maskTexture)
+{
+}
 
-void OutlineShader::setUniforms(const glm::mat4& modelMatrix)
+void ColorShader::setUniforms(const glm::mat4& modelMatrix)
 {
     setCameraUniforms();
-    setMat4x4("model",modelMatrix);;
+    setVec3("aColor",color);
 }

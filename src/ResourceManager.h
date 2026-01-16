@@ -66,6 +66,7 @@ public:
 	SDL_GLContext m_GlContext = NULL;
 	std::vector<std::unique_ptr<MaterialShader>> m_MaterialShaders;
 	std::vector<std::unique_ptr<ProceduralShader>> m_ProceduralShaders;
+	std::vector<std::unique_ptr<PostProcessShader>> m_PostProcessShaders;
 	std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
 	Camera m_Cam;
 	static constexpr std::array<std::pair<std::string_view, deviceType>, 4> m_DirectoryNames{ {
@@ -91,6 +92,7 @@ public:
 	GLsizei getMeshIndexSizeByID(uint32_t meshID) const;
 	MaterialShader* getMaterialShaderByID(MaterialShaderType t)   const;
 	ProceduralShader* getProceduralShaderByID(ProceduralShaderType t) const;
+	PostProcessShader* getPostprocessShaderByID(PostProcessShaderType t) const;
 	const Mesh& getMeshByID(uint32_t meshID) const;
     size_t getDeviceRecordsSize() const;
 	const std::unordered_map<uint32_t, Device>& getDeviceRecords() const;
@@ -111,6 +113,11 @@ private:
 	void addProceduralShader(const char* vertexShader, const char* fragmentShader) {
 		m_ProceduralShaders.emplace_back(std::make_unique<T>(m_Cam, vertexShader, fragmentShader));
 		m_ProceduralShaders.back()->compileShader();
+	}
+	template<typename T> requires std::derived_from<T, PostProcessShader>
+	void addProceduralShader(const char* vertexShader, const char* fragmentShader) {
+		m_PostProcessShaders.emplace_back(std::make_unique<T>(m_Cam, vertexShader, fragmentShader));
+		m_PostProcessShaders.back()->compileShader();
 	}
 	void setupMeshes();
 	void processNode(const uint32_t meshId,const aiScene* scene, aiNode* node);

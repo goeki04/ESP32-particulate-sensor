@@ -30,38 +30,15 @@ void Renderer::update()
     scenePassBegin();
     geometryPass();
     proceduralPass();
-
     pickingPass(cam);
     scenePassEndResolve();
     imGuiPass();
 }
 
 void Renderer::geometryPass() {
-    glEnable(GL_STENCIL_TEST);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glStencilMask(0xFF);
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-
     for (auto& sceneObject : m_ResourceManager->getEntitys()) {
         sceneObject.drawMesh();
     }
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00); 
-    glDepthMask(GL_FALSE);    
-
-    for (auto& sceneObject : m_ResourceManager->getEntitys()) {
-        if (sceneObject.m_IsSelected) {
-            sceneObject.drawMeshOutline();
-        }
-    }
-
-
-    glDepthMask(GL_TRUE);
-    glStencilMask(0xFF);
-    glDisable(GL_STENCIL_TEST);
 }
 
 void Renderer::guiPass(Camera& cam)
@@ -81,6 +58,28 @@ void Renderer::imGuiPass()
 {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(Window::g_Window);
+}
+void Renderer::selectionPass()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, m_SelectionFramebuffer);
+    glClearColor(0.0f,0.0f,0.0f,0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    for (auto& sceneObject : m_ResourceManager->getEntitys()) {
+        if (sceneObject.m_IsSelected) {
+            sceneObject.drawMesh(MaterialShaderType::white);
+        }
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+void Renderer::postprocessingPass()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER,m_Framebuffer);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,m_SelectionTexture);
 }
 void Renderer::scenePassBegin()
 {
@@ -151,7 +150,6 @@ void Renderer::windowClearPass()
 /// </summary>
 void Renderer::createFramebuffer()
 {
-    //MSAA Framebuffer;
     glGenFramebuffers(1, &m_MsaaFramebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER,m_MsaaFramebuffer);
     glGenTextures(1, &m_MsaaFramebufferTexture);
@@ -159,7 +157,6 @@ void Renderer::createFramebuffer()
     glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_MSAAsamples, GL_RGB, m_framebufferSize.x, m_framebufferSize.y, GL_TRUE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D_MULTISAMPLE,m_MsaaFramebufferTexture,0);
     
-    //Depth and stencil information
     glGenRenderbuffers(1, &m_Rendererbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, m_Rendererbuffer);
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_MSAAsamples, GL_DEPTH24_STENCIL8, m_framebufferSize.x, m_framebufferSize.y);
