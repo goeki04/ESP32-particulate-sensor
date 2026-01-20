@@ -47,7 +47,7 @@ void Renderer::guiPass(Camera& cam)
     m_GuiManager.update();
 
     m_GuiManager.drawViewportGUI(
-        m_FramebufferTexture,
+        m_PostprocessTexture,
         ImVec2(m_FramebufferSize.x, m_FramebufferSize.y),
         &cam.m_ImGuiMouseX,
         &cam.m_ImGuiMouseY
@@ -75,20 +75,27 @@ void Renderer::selectionPass()
 }
 void Renderer::postprocessingPass()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER,m_Framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_PostprocessFramebuffer);
+    glViewport(0, 0, m_FramebufferSize.x, m_FramebufferSize.y);
+
+    glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    PostProcessShader* outlineShader = m_ResourceManager->getPostprocessShaderByID(PostProcessShaderType::outline);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    auto* outlineShader = m_ResourceManager->getPostprocessShaderByID(PostProcessShaderType::outline);
     outlineShader->use();
-    outlineShader->setTexture("fboSampler", m_FramebufferTexture,0);
+    outlineShader->setTexture("fboSampler",  m_FramebufferTexture, 0);
     outlineShader->setTexture("maskSampler", m_SelectionTexture, 1);
     outlineShader->setVec2("texelSize", m_TexelSize);
     outlineShader->setVec2("fboSize", m_FramebufferSize);
+
     glBindVertexArray(m_Vao);
-    glDrawArrays(GL_TRIANGLES,0,3);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
+
     glDisable(GL_BLEND);
-    glBindFramebuffer(GL_FRAMEBUFFER,0);
+    glEnable(GL_DEPTH_TEST);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 void Renderer::scenePassBegin()
 {
@@ -242,6 +249,9 @@ void Renderer::createFramebuffers()
 void Renderer::destroy() {
     if (m_FramebufferTexture)        
         glDeleteTextures(1, &m_FramebufferTexture);
+    if (m_PostprocessTexture) {
+        glDeleteTextures(1, &m_PostprocessTexture);
+    }
     if (m_MsaaFramebufferTexture)    
         glDeleteTextures(1, &m_MsaaFramebufferTexture);
     if (m_SelectionTexture) {
@@ -256,7 +266,9 @@ void Renderer::destroy() {
         glDeleteFramebuffers(1, &m_Framebuffer);
     if (m_MsaaFramebuffer)          
         glDeleteFramebuffers(1, &m_MsaaFramebuffer);
-
+    if (m_PostprocessFramebuffer) {
+        glDeleteFramebuffers(1, &m_PostprocessFramebuffer);
+    }
     if (m_SelectionFramebuffer) {
         glDeleteFramebuffers(1,&m_SelectionFramebuffer);
     }
@@ -266,6 +278,8 @@ void Renderer::destroy() {
     m_Vao = 0;
     m_SelectionDepth = 0;
     m_SelectionFramebuffer = 0;
+    m_PostprocessFramebuffer = 0;
+    m_PostprocessTexture = 0;
     m_SelectionTexture = 0;
     m_FramebufferTexture = 0;
     m_MsaaFramebufferTexture = 0;
