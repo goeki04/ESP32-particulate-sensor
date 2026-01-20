@@ -21,6 +21,7 @@ void ResourceManager::start()
     addMaterialShader<ColorShader>("../src/shader/colorVertex.glsl", "../src/shader/colorFragment.glsl");
     addProceduralShader<GridShader>("../src/shader/gridVertex.glsl", "../src/shader/gridFragment.glsl");
     addPostProcessShader<PostProcessShader>("../src/shader/outlineVertex.glsl","../src/shader/outlineFragment.glsl");
+    addPostProcessShader<PostProcessShader>("../src/shader/maskVertex.glsl", "../src/shader/maskFrag.glsl"),
     loadModels();
     loadIcons();
     setupMeshes(); 

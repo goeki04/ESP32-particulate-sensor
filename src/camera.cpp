@@ -120,7 +120,6 @@ void Camera::updatePickingRay()
     m_ImGuiMouseX = localX;
     m_ImGuiMouseY = localY;
     m_framebufferSize = glm::vec2(m_ViewportSize.x, m_ViewportSize.y);
-    std::cout << m_ViewportPos.x;
     m_CursorToWorldRay = cursorToWorldRay();
 }
 

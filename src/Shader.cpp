@@ -63,7 +63,7 @@ void Shader::compileShader()
         glGetShaderiv(sh, GL_INFO_LOG_LENGTH, &len);
         std::string log;
         log.resize((len > 1) ? len : 1);
-
+        
         GLsizei outLen = 0;
         glGetShaderInfoLog(sh, (GLsizei)log.size(), &outLen, log.data());
         log.resize(outLen);
@@ -112,4 +112,5 @@ void ColorShader::setUniforms(const glm::mat4& modelMatrix)
 {
     setCameraUniforms();
     setVec3("aColor",color);
+    setMat4x4("model", modelMatrix);
 }
