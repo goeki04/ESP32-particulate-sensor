@@ -169,9 +169,17 @@ void ResourceManager::addEntity(unsigned int meshID,const std::string& name,Tran
     m_NextSceneObjectID++;
 }
 
-void ResourceManager::deleteEntityObject(Entity& sceneObject)
+void ResourceManager::deleteEntityByObject(Entity& sceneObject)
 {
     m_Entitys.erase(std::remove(m_Entitys.begin(), m_Entitys.end(), sceneObject), m_Entitys.end());
+}
+
+void ResourceManager::deleteEntityByID(uint32_t entityID)
+{
+    if (entityID < m_Entitys.size())
+    {
+        m_Entitys.erase(m_Entitys.begin() + entityID);
+    }
 }
 
 GLsizei ResourceManager::getMeshVaoByID(uint32_t meshID) const

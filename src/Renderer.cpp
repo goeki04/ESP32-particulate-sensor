@@ -26,7 +26,6 @@ void Renderer::update()
 {
     Camera& cam = m_ResourceManager->m_Cam;
     windowClearPass();
-
     scenePassBegin();
     geometryPass();
     proceduralPass();

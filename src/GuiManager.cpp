@@ -213,10 +213,26 @@ void GuiManager::drawDeviceHierarchy()
 
             if (ImGui::Selectable(e.m_Name.c_str(), isSelected)) {
                 m_CurrentSelectedID = e.m_ID;
-
+                bool isClickedRight = ImGui::IsItemClicked(ImGuiMouseButton_Right);
+                if (isClickedRight) {
+                    std::cout << isClickedRight << std::endl;
+                }
                 for (auto& entity : m_ResourceManager->getEntitys()) {
                     entity.m_IsSelected = (entity.m_ID == e.m_ID);
                 }
+            }
+            if (ImGui::BeginPopupContextItem())
+            {
+                m_CurrentSelectedID = e.m_ID;
+
+                ImGui::Text("Context");
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Delete")) {
+                    m_ResourceManager->deleteEntityByObject(entitys[i]);
+                }
+
+                ImGui::EndPopup();
             }
 
             if (isSelected) {

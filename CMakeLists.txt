@@ -11,7 +11,9 @@ find_package(glm REQUIRED)
 find_package(SDL3 REQUIRED)
 find_package(stb REQUIRED)
 find_package(imgui REQUIRED)
+find_package(PahoMqttCpp REQUIRED)
 find_package(glew REQUIRED)
+find_package(eclipse-paho-mqtt-c REQUIRED)
 find_package(assimp REQUIRED)
 
 file(GLOB SHADERS "src/shader/*.glsl")
@@ -26,6 +28,8 @@ target_include_directories(ESP32 PRIVATE bindings)
 target_precompile_headers(ESP32 PRIVATE src/pch.h)
 
 target_link_libraries(ESP32 PRIVATE
+    PahoMqttCpp::paho-mqttpp3-static
+    eclipse-paho-mqtt-c::paho-mqtt3as-static
     glm::glm
     sdl::sdl
     imgui::imgui
