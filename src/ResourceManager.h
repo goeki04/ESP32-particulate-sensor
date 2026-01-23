@@ -87,7 +87,8 @@ public:
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory);
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
 	void addEntity(unsigned int meshID, const std::string& name, Transform& transform);
-	void deleteEntityObject(Entity& sceneObject);
+	void deleteEntityByObject(Entity& sceneObject);
+	void deleteEntityByID(uint32_t entityID);
 	GLsizei getMeshVaoByID(uint32_t meshID) const;
 	GLsizei getMeshIndexSizeByID(uint32_t meshID) const;
 	MaterialShader* getMaterialShaderByID(MaterialShaderType t)   const;

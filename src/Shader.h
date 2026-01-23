@@ -8,7 +8,7 @@ struct DirLight{
 
 enum class MaterialShaderType { unlit, white };
 enum class ProceduralShaderType { grid };
-enum class PostProcessShaderType { outline };
+enum class PostProcessShaderType { outline, maskVertex };
 class Shader {
 public:
 	inline constexpr static const char* c_viewMatrix = "viewMatrix";
