@@ -25,6 +25,7 @@ void ResourceManager::start()
     loadModels();
     loadIcons();
     setupMeshes(); 
+
 }
 
 void ResourceManager::update() {
@@ -262,7 +263,6 @@ void ResourceManager::setupMeshes()
 void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, aiNode* node)
 {
     auto& newMesh = m_DeviceRecords.at(meshId).mesh;
-
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         aiColor3D color(1.0f, 1.0f, 1.0f);
@@ -290,7 +290,7 @@ void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, a
                 vertex.uv = glm::vec2(mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y);
             }
             else {
-                std::cout << "Mesh doesn't have UV-coordinates. You should fix that." << std::endl;
+                //std::cout << "Mesh doesn't have UV-coordinates. You should fix that." << std::endl;
             }
             vertex.color = glm::vec3(color.r,color.g,color.b);
             vertices.push_back(vertex);
@@ -360,7 +360,6 @@ void ResourceManager::loadScene(const std::string& path) {
     }
 
     m_MeshIDbyName.emplace(meshName, id);
-
     aiNode* rootNode = scene->mRootNode;
 
     processNode(id, scene, rootNode);
