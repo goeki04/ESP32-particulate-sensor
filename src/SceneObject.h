@@ -5,6 +5,12 @@
 class ResourceManager;
 class Camera;
 
+struct ParticleEmitter {
+	glm::vec3 pos, speed;
+	glm::vec4 color;
+	float size, angle, weight;
+	float life;
+};
 
 struct Transform {
 	glm::vec3 position{ 0.0f, 0.0f, 0.0f };
@@ -20,6 +26,7 @@ struct Transform {
 		m = glm::rotate(m, rotation.y, glm::vec3(0, 1, 0));
 		m = glm::rotate(m, rotation.z, glm::vec3(0, 0, 1));
 		m = glm::scale(m, scale);
+		m = glm::translate(m,glm::vec3(0.0,0.5f,0.0f));
 		return m;
 	}
 };
@@ -45,8 +52,12 @@ public:
 	std::string m_Name = "unnamed";
 	unsigned int m_MeshID = 0;
 	bool m_IsSelected = false;
+
+	//Components
 	Transform m_Transform;
 	BoundingBox m_BoundingBox;
+	ParticleEmitter m_Emitter;
+
 	ResourceManager* m_ResourceManager = nullptr;
 	MaterialShaderType m_Shadertype = MaterialShaderType::unlit;
 	Entity(ResourceManager* rm, unsigned int meshID, unsigned int objectID, const std::string& name,Transform& transform);
