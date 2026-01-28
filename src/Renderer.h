@@ -30,14 +30,14 @@ public:
 	static constexpr const char* glsl_version = "#version 460";
 private:
 	glm::ivec2 m_FramebufferSize = glm::ivec2(0,0);
-	glm::vec2 m_TexelSize;
+	glm::vec2 m_TexelSize = glm::vec2(0.0,0.0);
 	GLuint m_Framebuffer = 0, m_MsaaFramebuffer = 0;
 	GLuint m_FramebufferTexture = 0, m_MsaaFramebufferTexture = 0;
-	GLuint m_SelectionFramebuffer, m_SelectionTexture;
+	GLuint m_SelectionFramebuffer = 0, m_SelectionTexture = 0;
 	GLuint m_PostprocessFramebuffer = 0, m_PostprocessTexture = 0;
 	unsigned int m_Rendererbuffer = 0;
-	GLuint m_Vao;
-	GLuint m_SelectionDepth;
+	GLuint m_Vao = 0;
+	GLuint m_SelectionDepth = 0;
 	const unsigned int m_MSAAsamples = (int)MsaaSamples::x4;
 	void createFramebuffers();
 	ResourceManager* m_ResourceManager = nullptr;
