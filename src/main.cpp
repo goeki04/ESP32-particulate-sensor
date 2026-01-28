@@ -2,13 +2,13 @@
 #include "SubsystemManager.h"
 #include "WindowManager.h"
 #include "ResourceManager.h"
-#include "ecs.h"
+#include "Registry.h"
 #include "Renderer.h"
 #include "camera.h"
 Window::WindowManager windowManager;
 Renderer renderer;
 ResourceManager resourceManager;
-EntityComponentSystem::ComponentRegistry componentManager;
+ECS::ComponentRegistry componentManager;
 SDL_AppResult SDL_Init() {
     SDL_SetAppMetadata("ESP32", "1.0", "ESP32.goeki.com");
     if (!SDL_Init(SDL_INIT_VIDEO)) {
