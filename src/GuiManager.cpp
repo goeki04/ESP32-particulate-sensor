@@ -221,6 +221,9 @@ void GuiManager::drawDeviceHierarchy()
                     entity.m_IsSelected = (entity.m_ID == e.m_ID);
                 }
             }
+            if (isSelected) {
+                ImGui::PopStyleColor();
+            }
             if (ImGui::BeginPopupContextItem())
             {
                 m_CurrentSelectedID = e.m_ID;
@@ -231,12 +234,7 @@ void GuiManager::drawDeviceHierarchy()
                 if (ImGui::MenuItem("Delete")) {
                     m_ResourceManager->deleteEntityByObject(entitys[i]);
                 }
-
                 ImGui::EndPopup();
-            }
-
-            if (isSelected) {
-                ImGui::PopStyleColor();
             }
         }
     }

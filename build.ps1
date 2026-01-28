@@ -12,6 +12,12 @@ conan install . `
     -of conan/ `
     --build=missing
 
+conan install . `
+    -s compiler.cppstd=20 `
+    -s build_type=Release `
+    -of conan/ `
+    --build=missing
+
 Set-Location "cmake"
 cmake .. `
     -DCMAKE_BUILD_TYPE=Debug `
