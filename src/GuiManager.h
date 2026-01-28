@@ -37,7 +37,7 @@ public:
     /// <summary>
     /// This is the coordinate of the viewport pivot relative to the screen (topLeft = 0)
     /// </summary>
-    glm::vec2 m_ViewportRectMin;
+    glm::vec2 m_ViewportRectMin = glm::vec2(0.0f,0.0f);
     void init(SDL_Window* window, ResourceManager* rm);
     void update();
     void destroy();
