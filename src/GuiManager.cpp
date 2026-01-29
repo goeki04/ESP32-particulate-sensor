@@ -5,14 +5,17 @@
 #include "camera.h"
 #include "ResourceManager.h"
 #include "util.h"
+#include "components.h"
+#include "Registry.h"
 using namespace util;
 ImVec2 GuiManager::s_ViewportSize = ImVec2(0.0f,0.0f);
 bool GuiManager::s_ViewportFocused = false;
 bool GuiManager::m_ShowVersion = false;
 bool GuiManager::m_HasLastHitpoint = false;
 glm::vec3 GuiManager::m_LastHitPoint{ 0.0f };
-void GuiManager::init(SDL_Window* window, ResourceManager* rm) {
+void GuiManager::init(SDL_Window* window, ResourceManager* rm,ECS::ComponentRegistry* registry) {
     m_ResourceManager = rm;
+    m_Registry = registry;
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
@@ -23,6 +26,7 @@ void GuiManager::init(SDL_Window* window, ResourceManager* rm) {
     m_WidgetWidth = m_WindowWidth * 0.125;
     m_MarginDefault = m_WindowHeight * 0.0225;
     setViewportSize();
+
 }
 void GuiManager::update() {
     ImGui_ImplOpenGL3_NewFrame();
@@ -197,42 +201,53 @@ void GuiManager::drawDeviceHierarchy()
     ImGui::SetNextWindowPos(newPos);
     ImGui::SetNextWindowSize(windowSize);
     ImGui::Begin("Hierarchy", 0, m_WindowFlags);
-    auto& entitys = m_ResourceManager->getEntitys();
     ImGui::BeginChild("HierarchyList",ImVec2(0.0f,0.0f),true, ImGuiWindowFlags_NoScrollbar);
+    auto& transformPool = m_Registry->getPool<ECS::component::Transform>();
+    const auto& entityIDs = transformPool.getEntities();
     ImGuiListClipper clipper;
-    clipper.Begin((int)entitys.size());
+    clipper.Begin((int)entityIDs.size());
     while (clipper.Step())
     {
         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
         {
-            const Entity& e = entitys[i];
-            bool isSelected = (m_CurrentSelectedID == e.m_ID);
+            const Entity& e = entityIDs[i];
+            ECS::EntityHandle handle = { e, m_Registry };
+            bool isSelected = (m_CurrentSelectedID == e);
             if (isSelected) {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.0f, 1.0f));
             }
-
-            if (ImGui::Selectable(e.m_Name.c_str(), isSelected)) {
-                m_CurrentSelectedID = e.m_ID;
-                bool isClickedRight = ImGui::IsItemClicked(ImGuiMouseButton_Right);
-                if (isClickedRight) {
-                    std::cout << isClickedRight << std::endl;
-                }
-                for (auto& entity : m_ResourceManager->getEntitys()) {
-                    entity.m_IsSelected = (entity.m_ID == e.m_ID);
-                }
+            std::string label;
+            if (handle.has<ECS::component::Tag>()) {
+                label = handle.get<ECS::component::Tag>().name;
+            }
+            else {
+                label = "Unnamed";
+            }
+            if (ImGui::Selectable(label.c_str(), isSelected)) {
+                m_CurrentSelectedID = e;
+                auto& selectedPool = m_Registry->getPool<ECS::component::Selected>();
+                std::vector<Entity> toDeselect = selectedPool.getEntities();
+                for (Entity oldE : toDeselect) { 
+                    selectedPool.removeEntity(oldE);
+                };
+                handle.add<ECS::component::Selected>({});
             }
             if (isSelected) {
                 ImGui::PopStyleColor();
             }
             if (ImGui::BeginPopupContextItem())
             {
-                m_CurrentSelectedID = e.m_ID;
+                m_CurrentSelectedID = e;
 
                 ImGui::Text("Context");
                 ImGui::Separator();
 
                 if (ImGui::MenuItem("Delete")) {
-                    m_ResourceManager->deleteEntityByObject(entitys[i]);
+
+                    m_Registry->destroyEntity(e);
+                    if (m_CurrentSelectedID == e) {
+                        m_CurrentSelectedID = -1;
+                    }
                 }
                 ImGui::EndPopup();
             }
@@ -370,7 +385,7 @@ void GuiManager::drawDeviceBrowser()
             fg->AddImage((ImTextureID)(intptr_t)texID, tMin, tMax);
         }
         if (dragEnded && cam.m_HasValidPickRay && m_HasLastHitpoint) {
-            Transform transform;
+            ECS::component::Transform transform;
             transform.position = m_LastHitPoint;
             m_ResourceManager->addEntity(deviceRecord.id,deviceRecord.name,transform);
         }

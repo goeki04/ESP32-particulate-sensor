@@ -48,6 +48,7 @@ namespace ECS {
             return entity < m_sparse.size() && m_sparse[entity] != 0xFFFFFFFF;
         }
         std::vector<T>& data() { return m_data; }
+        const std::vector<Entity>& getEntities() const { return m_Entitys; }
     };
 
     struct EntityHandle;

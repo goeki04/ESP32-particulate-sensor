@@ -4,9 +4,9 @@
 #include "Mesh.h"
 #include "camera.h"
 #include <unordered_map>
-#include "SceneObject.h"
 #include "Registry.h"
 #include "components.h"
+using Entity = uint32_t;
 enum class deviceType {
 	DEFAULT = -1,
 	SENSOR,
@@ -100,8 +100,9 @@ public:
 
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
 
-	void addEntity(unsigned int meshID, const std::string& name, component::Transform& transform);
-
+	void addEntity(unsigned int meshID, const std::string& name, ECS::component::Transform& transform);
+	void deleteEntity(Entity id);
+	void setAABB(const Mesh& mesh, ECS::component::AABB& aabb);
 
 	GLsizei getMeshVaoByID(uint32_t meshID) const;
 

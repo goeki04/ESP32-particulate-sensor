@@ -3,13 +3,16 @@
 #include "SubsystemManager.h"
 #include "WindowManager.h"
 #include "ResourceManager.h"
-#include "SceneObject.h"
 #include "camera.h"
+#include "Shader.h"
+#include "Collision.h"
 using namespace ECS;
 void Renderer::start()
 {
     m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
-    m_GuiManager.init(Window::g_Window, m_ResourceManager);
+    m_Registry = SystemManager::getInstance().getSubsystem<ComponentRegistry>();
+
+    m_GuiManager.init(Window::g_Window, m_ResourceManager,m_Registry);
     ImVec2 viewportWindowSize = m_GuiManager.getViewportWindowSize();
     m_FramebufferSize = glm::ivec2(viewportWindowSize.x, viewportWindowSize.y);
     m_TexelSize = 1.0f / glm::vec2(m_FramebufferSize.x, m_FramebufferSize.y);
@@ -37,14 +40,39 @@ void Renderer::update()
     imGuiPass();
 }
 
+void Renderer::drawMesh(ResourceManager* rm,const component::Mesh& mesh,const component::Transform& transform)
+{
+    auto* sh = rm->getMaterialShaderByID(mesh.shaderType);
+    sh->use();
+    glm::mat4 localMatrix = transform.modelMatrix();
+    sh->setUniforms(localMatrix);
+    glBindVertexArray(rm->getMeshVaoByID(mesh.meshID));
+    glDrawElements(GL_TRIANGLES, rm->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
+
+void Renderer::drawMesh(ResourceManager* rm, const component::Mesh& mesh, const component::Transform& transform,MaterialShaderType type)
+{
+    auto* sh = rm->getMaterialShaderByID(type);
+    sh->use();
+    glm::mat4 localMatrix = transform.modelMatrix();
+    sh->setUniforms(localMatrix);
+    glBindVertexArray(rm->getMeshVaoByID(mesh.meshID));
+    glDrawElements(GL_TRIANGLES, rm->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
 
 void Renderer::geometryPass() {
     auto& meshPool = m_Registry->getPool<component::Mesh>();
-    for (auto& mesh : meshPool.data()) {
-        mesh.
-    }
-    for (auto& sceneObject : m_ResourceManager->getEntitys()) {
-        sceneObject.drawMesh();
+    auto& transformPool = m_Registry->getPool<component::Transform>();
+    const auto& entitiesWithMesh = meshPool.getEntities();
+    const auto& meshData = meshPool.data();
+
+    for (size_t i = 0; i < entitiesWithMesh.size(); ++i) {
+        Entity e = entitiesWithMesh[i];
+        if (transformPool.has(e)) {
+            drawMesh(m_ResourceManager, meshData[i], transformPool.get(e));
+        }
     }
 }
 void Renderer::guiPass(Camera& cam)
@@ -70,10 +98,15 @@ void Renderer::selectionPass()
     glBindFramebuffer(GL_FRAMEBUFFER, m_SelectionFramebuffer);
     glClearColor(0.0f,0.0f,0.0f,0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    for (auto& sceneObject : m_ResourceManager->getEntitys()) {
-        if (sceneObject.m_IsSelected) {
-            sceneObject.drawMesh(MaterialShaderType::white);
+    auto& selectedPool = m_Registry->getPool<component::Selected>();
+    for (Entity e : selectedPool.getEntities()) {
+        EntityHandle handle = { e, m_Registry };
+        if (handle.has<component::Mesh>() && handle.has<component::Transform>()) {
+            drawMesh(
+                m_ResourceManager, 
+                handle.get<component::Mesh>(), 
+                handle.get<component::Transform>(), MaterialShaderType::white
+            );
         }
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -129,15 +162,28 @@ void Renderer::proceduralPass()
 void Renderer::pickingPass(const Camera& cam)
 {
     if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+        auto& aabbPool = m_Registry->getPool<component::AABB>();
+        auto& selectedPool = m_Registry->getPool<component::Selected>();
+        std::vector<Entity> currentlySelected = selectedPool.getEntities();
+        for (Entity e : currentlySelected) {
+            m_Registry->getPool<component::Selected>().removeEntity(e);
+        }
         bool anyHit = false;
-        for (auto& sceneObject : m_ResourceManager->getEntitys()) {
-            const glm::mat4 modelMatrix = sceneObject.m_Transform.modelMatrix();
-            bool hit = sceneObject.m_BoundingBox.RayIntersectAABB(cam, modelMatrix);
-            sceneObject.m_IsSelected = hit;
 
-            if (hit) {
-                m_GuiManager.m_CurrentSelectedID = sceneObject.m_ID;
+
+        for (Entity e : aabbPool.getEntities()) {
+            EntityHandle handle = { e,m_Registry };
+            if (!handle.has<component::Transform>()) {
+                continue;
+            }
+            const glm::mat4 modelMatrix = handle.get<component::Transform>().modelMatrix();
+            const auto& aabb = handle.get<component::AABB>();
+
+            if (collision::RayIntersectAABB(cam, aabb, modelMatrix)) {
+                handle.add<component::Selected>({});
+                m_GuiManager.m_CurrentSelectedID = e;
                 anyHit = true;
+                break;
             }
         }
 
