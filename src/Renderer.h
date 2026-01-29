@@ -1,6 +1,8 @@
 #pragma once
 #include "ISubsystem.h"
+#include "Registry.h"
 #include "GuiManager.h"
+#include "Shader.h"
 namespace Window { class WindowManager; }
 class ResourceManager;
 class Camera;
@@ -41,6 +43,8 @@ private:
 	const unsigned int m_MSAAsamples = (int)MsaaSamples::x4;
 	void createFramebuffers();
 	ResourceManager* m_ResourceManager = nullptr;
+	ECS::ComponentRegistry* m_Registry = nullptr;
+	void drawMesh(MaterialShaderType shaderType);;
 	GuiManager m_GuiManager;
 #ifdef DEBUG_RENDERING_OPENGL
 	bool m_DebugMode = false;

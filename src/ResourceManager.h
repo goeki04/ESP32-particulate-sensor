@@ -5,7 +5,8 @@
 #include "camera.h"
 #include <unordered_map>
 #include "SceneObject.h"
-
+#include "Registry.h"
+#include "components.h"
 enum class deviceType {
 	DEFAULT = -1,
 	SENSOR,
@@ -99,11 +100,8 @@ public:
 
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
 
-	void addEntity(unsigned int meshID, const std::string& name, Transform& transform);
+	void addEntity(unsigned int meshID, const std::string& name, component::Transform& transform);
 
-	void deleteEntityByObject(Entity& sceneObject);
-
-	void deleteEntityByID(uint32_t entityID);
 
 	GLsizei getMeshVaoByID(uint32_t meshID) const;
 
@@ -123,13 +121,11 @@ public:
 
 	GLtexture CreateOpenGLTexture(const char* path);
 
-	std::vector<Entity>& getEntitys();
 private:
-	std::vector<Entity> m_Entitys;
+	ECS::ComponentRegistry m_Registry;
 	std::unordered_map<uint32_t, Device> m_DeviceRecords;
 	std::unordered_map<std::string,uint32_t> m_MeshIDbyName;
 	unsigned int m_NextMeshID = 0;
-	unsigned int m_NextSceneObjectID = 0;
 
 	template<typename T> requires std::derived_from<T,MaterialShader>
 	void addMaterialShader(const char* vertexShader,const char* fragmentShader) {

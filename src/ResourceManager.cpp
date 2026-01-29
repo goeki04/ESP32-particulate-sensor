@@ -6,6 +6,7 @@
 #include "util.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+using namespace ECS;
 void ResourceManager::start()
 {
     auto windowManager = SystemManager::getInstance().getSubsystem<Window::WindowManager>();
@@ -25,7 +26,6 @@ void ResourceManager::start()
     loadModels();
     loadIcons();
     setupMeshes(); 
-
 }
 
 void ResourceManager::update() {
@@ -163,24 +163,17 @@ SDL_Surface* ResourceManager::CreateSDLSurface(const char* path)
     return surface;
 }
 
-void ResourceManager::addEntity(unsigned int meshID,const std::string& name,Transform& transform)
+void ResourceManager::addEntity(unsigned int meshID,const std::string& name,component::Transform& transform)
 {
-    std::string entityName = "[" + std::to_string(m_Entitys.size()) + "] " + name;
-    m_Entitys.emplace_back(this, meshID, m_NextSceneObjectID,entityName, transform);
-    m_NextSceneObjectID++;
-}
+    auto handle = m_Registry.createHandle();
+    handle.add<component::Transform>(transform);
+    handle.add<component::Mesh>({ meshID, MaterialShaderType::unlit });
 
-void ResourceManager::deleteEntityByObject(Entity& sceneObject)
-{
-    m_Entitys.erase(std::remove(m_Entitys.begin(), m_Entitys.end(), sceneObject), m_Entitys.end());
-}
-
-void ResourceManager::deleteEntityByID(uint32_t entityID)
-{
-    if (entityID < m_Entitys.size())
-    {
-        m_Entitys.erase(m_Entitys.begin() + entityID);
-    }
+    // BoundingBox-Daten direkt berechnen und anhängen
+    component::AABB aabb;
+    aabb.setAABB(getMeshByID(meshID));
+    handle.add<component::AABB>(aabb);
+    handle.add<component::Tag>({ name });
 }
 
 GLsizei ResourceManager::getMeshVaoByID(uint32_t meshID) const
@@ -247,11 +240,6 @@ GLtexture ResourceManager::CreateOpenGLTexture(const char* path)
 
     stbi_image_free(pixels);
     return texture;
-}
-
-std::vector<Entity>& ResourceManager::getEntitys()
-{
-    return m_Entitys;
 }
 
 void ResourceManager::setupMeshes()

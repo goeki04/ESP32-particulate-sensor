@@ -2,41 +2,6 @@
 #include "SceneObject.h"
 #include "ResourceManager.h"
 
-Entity::Entity(ResourceManager* rm,unsigned int meshID, unsigned int objectID,const std::string& name,Transform& transform) : m_ResourceManager(rm), m_MeshID(meshID), m_ID(objectID), m_Name(name), m_Transform(transform){
-    m_BoundingBox.setAABB(m_ResourceManager->getMeshByID(m_MeshID));
-}
-void Entity::drawMesh()
-{
-    if (!m_ResourceManager) {
-        throw std::runtime_error("ResourceManager ptr is null");
-    }
-    auto* sh = m_ResourceManager->getMaterialShaderByID(m_Shadertype);
-    sh->use();
-    glm::mat4 localMatrix = m_Transform.modelMatrix();
-    sh->setUniforms(localMatrix);
-    glBindVertexArray(m_ResourceManager->getMeshVaoByID(m_MeshID));
-    glDrawElements(GL_TRIANGLES, m_ResourceManager->getMeshIndexSizeByID(m_MeshID), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-}
-
-/// <summary>
-/// Function for rendering a mesh and send draw commands the the gpu.
-/// </summary>
-/// <param name="shaderType">set it to draw the mesh with a different shader than the default one</param>
-void Entity::drawMesh(MaterialShaderType shaderType)
-{
-    if (!m_ResourceManager) {
-        throw std::runtime_error("ResourceManager ptr is null");
-    }
-    auto* sh = m_ResourceManager->getMaterialShaderByID(shaderType);
-    sh->use();
-    glm::mat4 localMatrix = m_Transform.modelMatrix();
-    sh->setUniforms(localMatrix);
-    glBindVertexArray(m_ResourceManager->getMeshVaoByID(m_MeshID));
-    glDrawElements(GL_TRIANGLES, m_ResourceManager->getMeshIndexSizeByID(m_MeshID), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-}
-
 const AABB& BoundingBox::getAABB() const
 {
     return m_AABB;

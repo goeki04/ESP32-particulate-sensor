@@ -6,7 +6,6 @@
 #include "ISubsystem.h"
 
 namespace ECS {
-
     using Entity = uint32_t;
     class IComponentPool {
     public:
@@ -50,6 +49,7 @@ namespace ECS {
         }
         std::vector<T>& data() { return m_data; }
     };
+
     struct EntityHandle;
     class ComponentRegistry : public ISubsystem {
     private:

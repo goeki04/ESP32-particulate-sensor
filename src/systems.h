@@ -1,13 +1,16 @@
 #pragma once
+#include "Shader.h"
+#include "components.h"
+class ResourceManager;
+namespace ECS {
+    namespace system {
+        class MeshRenderingSystem {
+            void drawMesh(ResourceManager* rm,component::Mesh& mesh, component::Transform& transform);
+        };
 
-namespace Systems {
-    class RendererSystem {
-        void drawEntity() {
-        }
-    };
+        class PickingSystem {
 
-    class PickingSystem {
+        };
 
-    };
-
+    }
 }
