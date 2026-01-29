@@ -2,7 +2,8 @@
 #include "ISubsystem.h"
 #include "Registry.h"
 #include "GuiManager.h"
-#include "Shader.h"
+#include "components.h"
+enum class MaterialShaderType : int;
 namespace Window { class WindowManager; }
 class ResourceManager;
 class Camera;
@@ -14,6 +15,8 @@ class Renderer : public ISubsystem{
 public:
 	void start() override;
 	void update() override;
+	void drawMesh(ResourceManager* rm,const ECS::component::Mesh& mesh,const ECS::component::Transform& transform);
+	void drawMesh(ResourceManager* rm, const ECS::component::Mesh& mesh, const ECS::component::Transform& transform, MaterialShaderType type);
 	void destroy() override;
 	void geometryPass();
 	void guiPass(Camera& cam);
@@ -44,7 +47,6 @@ private:
 	void createFramebuffers();
 	ResourceManager* m_ResourceManager = nullptr;
 	ECS::ComponentRegistry* m_Registry = nullptr;
-	void drawMesh(MaterialShaderType shaderType);;
 	GuiManager m_GuiManager;
 #ifdef DEBUG_RENDERING_OPENGL
 	bool m_DebugMode = false;

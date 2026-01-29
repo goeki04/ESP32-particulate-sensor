@@ -2,7 +2,6 @@
 #include "ResourceManager.h"
 #include "SubsystemManager.h"
 #include "WindowManager.h"
-#include "SceneObject.h"
 #include "util.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -45,6 +44,7 @@ void ResourceManager::loadModels()
         loadScene(v);
     }
 }
+
 
 void ResourceManager::loadIcons()
 {
@@ -168,12 +168,37 @@ void ResourceManager::addEntity(unsigned int meshID,const std::string& name,comp
     auto handle = m_Registry.createHandle();
     handle.add<component::Transform>(transform);
     handle.add<component::Mesh>({ meshID, MaterialShaderType::unlit });
-
-    // BoundingBox-Daten direkt berechnen und anhängen
+    handle.add<component::Tag>({name});
     component::AABB aabb;
-    aabb.setAABB(getMeshByID(meshID));
+    setAABB(getMeshByID(meshID),aabb);
     handle.add<component::AABB>(aabb);
     handle.add<component::Tag>({ name });
+}
+
+void ResourceManager::deleteEntity(Entity id)
+{
+    m_Registry.destroyEntity(id);
+}
+
+void ResourceManager::setAABB(const Mesh& mesh,ECS::component::AABB& aabb)
+{
+    if (mesh.m_VertexBuffer.empty())
+        throw std::runtime_error("Mesh has no vertices");
+
+    const auto& vb = mesh.m_VertexBuffer;
+    glm::vec3 min = vb[0].pos;
+    glm::vec3 max = min;
+
+    for (const auto& v : vb) {
+        const glm::vec3 p = v.pos;
+        min = glm::min(min, p);
+        max = glm::max(max, p);
+    }
+
+    glm::vec3 center = (min + max) * 0.5f;
+    aabb.min = min;
+    aabb.max = max;
+    aabb.center = center;
 }
 
 GLsizei ResourceManager::getMeshVaoByID(uint32_t meshID) const

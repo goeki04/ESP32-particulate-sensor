@@ -2,6 +2,7 @@
 #include <glm/common.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Shader.h"
 namespace ECS {
     namespace component {
         struct Transform {
@@ -30,7 +31,7 @@ namespace ECS {
 
         struct Mesh {
             unsigned int meshID;
-            MaterialShaderType type;
+            MaterialShaderType shaderType;
         };
 
         struct AABB {
