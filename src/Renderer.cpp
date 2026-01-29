@@ -5,7 +5,7 @@
 #include "ResourceManager.h"
 #include "SceneObject.h"
 #include "camera.h"
-
+using namespace ECS;
 void Renderer::start()
 {
     m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
@@ -36,7 +36,13 @@ void Renderer::update()
     pickingPass(cam);
     imGuiPass();
 }
+
+
 void Renderer::geometryPass() {
+    auto& meshPool = m_Registry->getPool<component::Mesh>();
+    for (auto& mesh : meshPool.data()) {
+        mesh.
+    }
     for (auto& sceneObject : m_ResourceManager->getEntitys()) {
         sceneObject.drawMesh();
     }

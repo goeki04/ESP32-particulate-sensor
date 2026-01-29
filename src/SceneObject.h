@@ -31,41 +31,11 @@ struct Transform {
 	}
 };
 
-struct AABB {
-	glm::vec3 min;
-	glm::vec3 max;
-	glm::vec3 center;
-	AABB() : min(0.0f), max(0.0f), center(0.0f) {};
-};
+
 class BoundingBox {
-private:
-	AABB m_AABB;
 public:
 	BoundingBox() {};
 	void setAABB(const Mesh& mesh);
 	const AABB& getAABB() const;
 	bool RayIntersectAABB(const Camera& cam,const glm::mat4& model);
-};
-class Entity {
-public:
-	unsigned int m_ID;
-	std::string m_Name = "unnamed";
-	unsigned int m_MeshID = 0;
-	bool m_IsSelected = false;
-
-	//Components
-	Transform m_Transform;
-	BoundingBox m_BoundingBox;
-	ParticleEmitter m_Emitter;
-
-	ResourceManager* m_ResourceManager = nullptr;
-	MaterialShaderType m_Shadertype = MaterialShaderType::unlit;
-	Entity(ResourceManager* rm, unsigned int meshID, unsigned int objectID, const std::string& name,Transform& transform);
-	void drawMesh();
-
-	void drawMesh(MaterialShaderType shaderType);
-
-	bool operator==(const Entity& other) const{
-		return other.m_ID == m_ID;
-	}
 };
