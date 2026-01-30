@@ -9,6 +9,7 @@ using namespace ECS;
 void ResourceManager::start()
 {
     auto windowManager = SystemManager::getInstance().getSubsystem<Window::WindowManager>();
+    m_Registry = SystemManager::getInstance().getSubsystem<ECS::ComponentRegistry>();
     m_GlContext = SDL_GL_CreateContext(Window::g_Window);
     if (!m_GlContext) {
         throw std::exception("Failed to create SDL_GL context!");
@@ -44,7 +45,6 @@ void ResourceManager::loadModels()
         loadScene(v);
     }
 }
-
 
 void ResourceManager::loadIcons()
 {
@@ -140,6 +140,7 @@ void ResourceManager::updateEvent(SDL_Event* event) {
         m_Cam.zoom(event);
     }
 }
+
 SDL_Surface* ResourceManager::CreateSDLSurface(const char* path)
 {
     int w, h, channels;
@@ -163,12 +164,11 @@ SDL_Surface* ResourceManager::CreateSDLSurface(const char* path)
     return surface;
 }
 
-void ResourceManager::addEntity(unsigned int meshID,const std::string& name,component::Transform& transform)
+void ResourceManager::addEntity(unsigned int meshID,const std::string& name,component::Transform transform)
 {
-    auto handle = m_Registry.createHandle();
+    auto handle = m_Registry->createHandle();
     handle.add<component::Transform>(transform);
     handle.add<component::Mesh>({ meshID, MaterialShaderType::unlit });
-    handle.add<component::Tag>({name});
     component::AABB aabb;
     setAABB(getMeshByID(meshID),aabb);
     handle.add<component::AABB>(aabb);
@@ -177,7 +177,7 @@ void ResourceManager::addEntity(unsigned int meshID,const std::string& name,comp
 
 void ResourceManager::deleteEntity(Entity id)
 {
-    m_Registry.destroyEntity(id);
+    m_Registry->destroyEntity(id);
 }
 
 void ResourceManager::setAABB(const Mesh& mesh,ECS::component::AABB& aabb)
@@ -301,9 +301,6 @@ void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, a
 
             if (mesh->HasTextureCoords(0)) {
                 vertex.uv = glm::vec2(mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y);
-            }
-            else {
-                //std::cout << "Mesh doesn't have UV-coordinates. You should fix that." << std::endl;
             }
             vertex.color = glm::vec3(color.r,color.g,color.b);
             vertices.push_back(vertex);

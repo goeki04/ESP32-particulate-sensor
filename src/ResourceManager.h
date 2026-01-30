@@ -100,7 +100,7 @@ public:
 
 	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
 
-	void addEntity(unsigned int meshID, const std::string& name, ECS::component::Transform& transform);
+	void addEntity(unsigned int meshID, const std::string& name, ECS::component::Transform transform);
 	void deleteEntity(Entity id);
 	void setAABB(const Mesh& mesh, ECS::component::AABB& aabb);
 
@@ -123,7 +123,7 @@ public:
 	GLtexture CreateOpenGLTexture(const char* path);
 
 private:
-	ECS::ComponentRegistry m_Registry;
+	ECS::ComponentRegistry* m_Registry;
 	std::unordered_map<uint32_t, Device> m_DeviceRecords;
 	std::unordered_map<std::string,uint32_t> m_MeshIDbyName;
 	unsigned int m_NextMeshID = 0;
