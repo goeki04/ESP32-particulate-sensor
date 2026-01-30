@@ -16,7 +16,7 @@ To build and run this project, you will need:
 - **CMake** version 3.23 or higher
 - A **C++20 compatible compiler** (MSVC recommended)
 - **Conan** package manager for dependency management
-- ESP32 toolchain installed (ESP-IDF recommended)
+- Install ultralytics via python
 
 ## Toolchain Setup
 
