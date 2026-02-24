@@ -47,7 +47,7 @@ private:
 	void createFramebuffers();
 	ResourceManager* m_ResourceManager = nullptr;
 	ECS::ComponentRegistry* m_Registry = nullptr;
-	GuiManager m_GuiManager;
+	Gui::GuiRenderer m_GuiManager;
 #ifdef DEBUG_RENDERING_OPENGL
 	bool m_DebugMode = false;
 #endif

@@ -29,8 +29,8 @@ void ResourceManager::start()
 }
 
 void ResourceManager::update() {
-    m_Cam.setProjectionMatrix(GuiManager::s_ViewportSize.x, GuiManager::s_ViewportSize.y);
-    if(GuiManager::s_ViewportFocused)
+    m_Cam.setProjectionMatrix(Gui::GuiRenderer::s_ViewportSize.x, Gui::GuiRenderer::s_ViewportSize.y);
+    if(Gui::GuiRenderer::s_ViewportFocused)
         m_Cam.cameraMovement();
 }
 
@@ -135,7 +135,7 @@ std::vector<std::string> ResourceManager::getAllFilesInDirectoryRecursive(const 
 }
 
 void ResourceManager::updateEvent(SDL_Event* event) {
-    if (GuiManager::s_ViewportFocused)
+    if (Gui::GuiRenderer::s_ViewportFocused)
     {
         m_Cam.zoom(event);
     }

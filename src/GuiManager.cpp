@@ -7,13 +7,15 @@
 #include "util.h"
 #include "components.h"
 #include "Registry.h"
+#include "Console.h"
+
 using namespace util;
-ImVec2 GuiManager::s_ViewportSize = ImVec2(0.0f,0.0f);
-bool GuiManager::s_ViewportFocused = false;
-bool GuiManager::m_ShowVersion = false;
-bool GuiManager::m_HasLastHitpoint = false;
-glm::vec3 GuiManager::m_LastHitPoint{ 0.0f };
-void GuiManager::init(SDL_Window* window, ResourceManager* rm,ECS::ComponentRegistry* registry) {
+ImVec2 Gui::GuiRenderer::s_ViewportSize = ImVec2(0.0f,0.0f);
+bool Gui::GuiRenderer::s_ViewportFocused = false;
+bool Gui::GuiRenderer::m_ShowVersion = false;
+bool Gui::GuiRenderer::m_HasLastHitpoint = false;
+glm::vec3 Gui::GuiRenderer::m_LastHitPoint{ 0.0f };
+void Gui::GuiRenderer::init(SDL_Window* window, ResourceManager* rm,ECS::ComponentRegistry* registry) {
     m_ResourceManager = rm;
     m_Registry = registry;
     IMGUI_CHECKVERSION();
@@ -28,17 +30,18 @@ void GuiManager::init(SDL_Window* window, ResourceManager* rm,ECS::ComponentRegi
     setViewportSize();
 
 }
-void GuiManager::update() {
+void Gui::GuiRenderer::update() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
+    ImGui::DockSpaceOverViewport();
     drawNavBar();
     drawNotification();
     drawDeviceHierarchy();
     drawChart();
     drawBottomWindow();
 }
-void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebufferSize,float* ImGuiMouseX,float* ImGuiMouseY)
+void Gui::GuiRenderer::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebufferSize,float* ImGuiMouseX,float* ImGuiMouseY)
 {
     Camera& cam = m_ResourceManager->m_Cam;
     ImGuiWindowFlags windowFlags = 0;
@@ -73,7 +76,7 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebuf
     ImVec2 rel = ImVec2(mousePos.x - rectMin.x, mousePos.y - rectMin.y);
 
     bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
-    GuiManager::s_ViewportFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+    GuiRenderer::s_ViewportFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
     cam.m_HasValidPickRay = hovered;
 
     cam.m_HasValidPickRay = hovered;
@@ -94,22 +97,20 @@ void GuiManager::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebuf
     ImGui::End();
     ImGui::PopStyleVar();
 }
-float GuiManager::getMenuBarHeight()
+float Gui::GuiRenderer::getMenuBarHeight()
 {
     return m_MenuBarHeight;
 }
-void GuiManager::loadFont()
+void Gui::GuiRenderer::loadFont()
 {
     ImGuiIO& io = ImGui::GetIO();(void)io;
-
-    m_HeaderFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto_Condensed-Black.ttf",24.0f);
-    m_DeviceBrowserFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto-ExtraLight.ttf",24.0f);
-    if (m_HeaderFont == nullptr || m_DeviceBrowserFont == nullptr) {
+    ImFont* font = io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto-Regular.ttf",18.0f);
+    if (font == nullptr) {
         throw std::runtime_error("failed loading Roboto font");
     }
-    io.FontDefault = m_HeaderFont;
+    io.FontDefault = font;
 }
-void GuiManager::drawNavBar()
+void Gui::GuiRenderer::drawNavBar()
 {
     ImGuiStyle& style = ImGui::GetStyle();
     style.FramePadding.y = 9.0f;
@@ -153,7 +154,17 @@ void GuiManager::drawNavBar()
             }
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("Debug")) {
+            if (ImGui::MenuItem("Console",nullptr, m_ConsoleOpen)) {
+                m_ConsoleOpen = !m_ConsoleOpen;
+            }
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
+        if (m_ConsoleOpen) {
+            static Console::AppConsole networkConsole;
+            networkConsole.draw("Console", &m_ConsoleOpen);
+        }
         ImGui::PopStyleVar();
         if (m_ShowVersion) {
             ImGui::SetNextWindowSize(ImVec2(m_WidgetWidth, m_WidgetWidth));
@@ -175,7 +186,7 @@ void GuiManager::drawNavBar()
         }
     }
 }
-void GuiManager::OpenFolder()
+void Gui::GuiRenderer::OpenFolder()
 {
 #if defined(_WIN32)
     auto targetDirectory =  std::filesystem::current_path().parent_path() / "Licenses";
@@ -184,7 +195,7 @@ void GuiManager::OpenFolder()
 
 #endif
 }
-void GuiManager::drawNotification()
+void Gui::GuiRenderer::drawNotification()
 {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight - m_MenuBarHeight - m_MarginDefault * 2);
     ImVec2 newPos = getNewWindowPos(Margin(0.0f, m_MarginDefault, m_MarginDefault, m_MarginDefault), windowSize, Alignment::TopRight);
@@ -193,7 +204,7 @@ void GuiManager::drawNotification()
     ImGui::Begin("Notifications", 0, m_WindowFlags);
     ImGui::End();
 }
-void GuiManager::drawDeviceHierarchy()
+void Gui::GuiRenderer::drawDeviceHierarchy()
 {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.55f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, m_MarginDefault), windowSize, Alignment::TopLeft);
@@ -258,7 +269,7 @@ void GuiManager::drawDeviceHierarchy()
     ImGui::PopStyleVar();
     ImGui::End();
 }
-void GuiManager::drawChart() {
+void Gui::GuiRenderer::drawChart() {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.35f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::BottomLeft);
     ImGui::SetNextWindowPos(newPos);
@@ -266,7 +277,7 @@ void GuiManager::drawChart() {
     ImGui::Begin("Chart", 0, m_WindowFlags);
     ImGui::End();
 }
-void GuiManager::drawBottomWindow() {
+void Gui::GuiRenderer::drawBottomWindow() {
     ImVec2 windowSize = ImVec2(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 100, m_WindowHeight * 0.35f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::CenterBottom);
     float windowPadding = windowSize.x * 0.1f;
@@ -311,7 +322,7 @@ void GuiManager::drawBottomWindow() {
     }
     ImGui::End();
 }
-void GuiManager::drawDeviceBrowser()
+void Gui::GuiRenderer::drawDeviceBrowser()
 {
     Camera& cam = m_ResourceManager->m_Cam;
     static char query[128] = "";
@@ -332,7 +343,6 @@ void GuiManager::drawDeviceBrowser()
     if (perRow < 1) perRow = 1;
 
     const int itemCount = m_ResourceManager->getDeviceRecordsSize();
-    ImGui::PushFont(m_DeviceBrowserFont);
 
     bool any_tile_clicked = false;
 
@@ -405,7 +415,7 @@ void GuiManager::drawDeviceBrowser()
 
         float textX = tileMin.x + (tileSize.x - labelSize.x) * 0.5f;
         float textY = tileMax.y + spacingY;
-        dl->AddText(ImVec2(textX, textY), IM_COL32(255, 255, 255, 255), label);
+        dl->AddText(ImVec2(textX, textY), ImGui::GetColorU32(ImGuiCol_Text), label);
 
         int col = idx % perRow;
         if (col != perRow - 1)
@@ -421,17 +431,15 @@ void GuiManager::drawDeviceBrowser()
     {
         m_SelectedIdx = -1;
     }
-
-    ImGui::PopFont();
 }
-void GuiManager::drawDetailsPanel()
+void Gui::GuiRenderer::drawDetailsPanel()
 {
 }
-void GuiManager::OpenURL(const std::string& url)
+void Gui::GuiRenderer::OpenURL(const std::string& url)
 {
    SDL_OpenURL(url.c_str());
 }
-ImVec2 GuiManager::getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment)
+ImVec2 Gui::GuiRenderer::getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment)
 {
     float containerHeight = m_WindowHeight - m_MenuBarHeight;
     float containerWidth = m_WindowWidth;
@@ -496,7 +504,7 @@ ImVec2 GuiManager::getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment a
     newPos.y = std::clamp(newPos.y, m_MenuBarHeight, containerHeight + m_MenuBarHeight - windowSize.y);
     return newPos;
 }
-ImVec2 GuiManager::getViewportWindowPos()
+ImVec2 Gui::GuiRenderer::getViewportWindowPos()
 {
     ImVec2 viewportSize = getViewportWindowSize();
     ImVec2 viewportPos = getNewWindowPos(Margin(0.0f, 0.0f, 0.0f, m_MarginDefault), viewportSize, Alignment::CenterTop);
@@ -509,10 +517,10 @@ ImVec2 GuiManager::getViewportWindowPos()
 /// Used to set window and framebuffer size
 /// </summary>
 /// <returns>Viewport size in pixels</returns>
-ImVec2 GuiManager::getViewportWindowSize() {
+ImVec2 Gui::GuiRenderer::getViewportWindowSize() {
     return s_ViewportSize;
 }
-void GuiManager::setViewportSize() const {
+void Gui::GuiRenderer::setViewportSize() const {
     if (m_WindowHeight == 0 || m_WindowWidth == 0 || m_WidgetWidth == 0) {
         throw std::runtime_error("Window width/height or widgetWidth can't be zero");
     }
@@ -521,14 +529,16 @@ void GuiManager::setViewportSize() const {
     float viewPortY = std::floor(m_WindowHeight*0.55f);
     s_ViewportSize = ImVec2(viewPortX, viewPortY);
 }
-void GuiManager::destroy() {
+void Gui::GuiRenderer::destroy() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
 }
-void GuiManager::setFlags()
+void Gui::GuiRenderer::setFlags()
 {
     ImGuiIO& io = ImGui::GetIO();(void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     m_WindowFlags |= ImGuiWindowFlags_NoCollapse;
@@ -537,7 +547,7 @@ void GuiManager::setFlags()
 /// <summary>
 /// color scheme
 /// </summary>
-void GuiManager::setStyle() {
+void Gui::GuiRenderer::setStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
     float mainScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     style.ScaleAllSizes(mainScale);

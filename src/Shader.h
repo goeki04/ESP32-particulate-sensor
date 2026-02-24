@@ -11,9 +11,9 @@ enum class ProceduralShaderType { grid };
 enum class PostProcessShaderType { outline, maskVertex };
 class Shader {
 public:
-	inline constexpr static const char* c_viewMatrix = "viewMatrix";
-	inline constexpr static const char* c_projMatrix = "projMatrix";
-	inline constexpr static const char* c_camPos = "camPos";
+    constexpr static const char* c_viewMatrix = "viewMatrix";
+	constexpr static const char* c_projMatrix = "projMatrix";
+	constexpr static const char* c_camPos = "camPos";
 	Camera& m_Camera;
 	GLuint m_Program = 0;
 	std::string m_VertexShaderPath;

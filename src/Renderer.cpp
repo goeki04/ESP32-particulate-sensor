@@ -42,7 +42,7 @@ void Renderer::update()
 
 void Renderer::drawMesh(ResourceManager* rm,const component::Mesh& mesh,const component::Transform& transform)
 {
-    auto* sh = rm->getMaterialShaderByID(mesh.shaderType);
+    auto* sh = rm->getMaterialShaderByID(MaterialShaderType::white);
     sh->use();
     glm::mat4 localMatrix = transform.modelMatrix();
     sh->setUniforms(localMatrix);
