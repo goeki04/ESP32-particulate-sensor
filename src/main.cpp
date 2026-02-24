@@ -9,6 +9,7 @@ Window::WindowManager windowManager;
 Renderer renderer;
 ResourceManager resourceManager;
 ECS::ComponentRegistry componentManager;
+
 SDL_AppResult SDL_Init() {
     SDL_SetAppMetadata("ESP32", "1.0", "ESP32.goeki.com");
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -16,14 +17,12 @@ SDL_AppResult SDL_Init() {
         return SDL_APP_FAILURE;
     }
     return SDL_APP_CONTINUE;
-
 }
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     SDL_Init();
     SystemManager::getInstance().addSubsystem(&windowManager);
-
     SystemManager::getInstance().addSubsystem(&resourceManager);
     SystemManager::getInstance().addSubsystem(&componentManager);
     SystemManager::getInstance().addSubsystem(&renderer);

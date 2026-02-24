@@ -35,7 +35,7 @@ bool Camera::RayIntersectsXZPlane(const Ray& ray, float planeY,glm::vec3& outHit
 void Camera::cameraMovement()
 {
     SDL_Window* currentWindow = SDL_GL_GetCurrentWindow();
-    if (!GuiManager::s_ViewportFocused) {
+    if (!Gui::GuiRenderer::s_ViewportFocused) {
         SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), false);
         return;
     }

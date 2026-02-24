@@ -96,4 +96,4 @@ namespace ECS {
     inline EntityHandle ComponentRegistry::createHandle() {
         return { createEntity(), this };
     }
-}
+} 

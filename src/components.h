@@ -34,6 +34,14 @@ namespace ECS {
             MaterialShaderType shaderType;
         };
 
+        struct Particle {
+            glm::vec3 position;
+            glm::vec3 velocity;
+            glm::vec3 accel;
+            glm::vec4 color;
+            float life;
+        };
+
         struct AABB {
             glm::vec3 min;
             glm::vec3 max;

@@ -1,3 +1,7 @@
 cmake/
 conan/
 CMakeUserPresets.json
+build/
+*.pdb
+.vs/
+*.obj
