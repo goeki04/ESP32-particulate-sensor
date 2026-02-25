@@ -17,7 +17,6 @@ public:
 	ESPHomeDecoder& getDecoder() { return m_Decoder; }
 private:
 	void handleResolve(asio::ip::tcp::resolver::results_type results);
-	void handleConnect(const asio::ip::tcp::endpoint& endpoint);
 	void startRead();
 	asio::io_context m_IoContext;
 	asio::ip::tcp::resolver m_Resolver;
