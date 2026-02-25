@@ -11,7 +11,6 @@ void Renderer::start()
 {
     m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
     m_Registry = SystemManager::getInstance().getSubsystem<ComponentRegistry>();
-
     m_GuiManager.init(Window::g_Window, m_ResourceManager,m_Registry);
     ImVec2 viewportWindowSize = m_GuiManager.getViewportWindowSize();
     m_FramebufferSize = glm::ivec2(viewportWindowSize.x, viewportWindowSize.y);

@@ -14,32 +14,26 @@ ESPHomeClient::~ESPHomeClient()
 
 void ESPHomeClient::connect(const std::string& host, const std::string& port) {
     m_Resolver.async_resolve(host, port, [this](auto ec, auto results) {
-        if (!ec) {
-            handleResolve(results);
-        }
+            if (!ec) {
+                handleResolve(results);
+            }
         });
+    if (!m_NetworkThread.joinable()) {
+        m_NetworkThread = std::thread([this]() { m_IoContext.run(); });
+    }
 }
 
 void ESPHomeClient::handleResolve(asio::ip::tcp::resolver::results_type results) {
     asio::async_connect(m_Socket, results,
         [this](const std::error_code& ec, const asio::ip::tcp::endpoint& endpoint) {
             if (!ec) {
-                handleConnect(endpoint);
+                SDL_Log("Verbunden mit %s", endpoint.address().to_string().c_str());
+                startRead();
             }
             else {
                 SDL_Log("Connect-Fehler: %s", ec.message().c_str());
             }
         });
-}
-
-void ESPHomeClient::handleConnect(const asio::ip::tcp::endpoint& endpoint) {
-    SDL_Log("Verbunden mit %s", endpoint.address().to_string().c_str());
-
-    startRead();
-
-    if (!m_NetworkThread.joinable()) {
-        m_NetworkThread = std::thread([this]() { m_IoContext.run(); });
-    }
 }
 
 void ESPHomeClient::startRead()
