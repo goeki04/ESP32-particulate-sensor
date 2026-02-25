@@ -16,6 +16,7 @@ SDL_AppResult SDL_Init() {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
+
     return SDL_APP_CONTINUE;
 }
 
