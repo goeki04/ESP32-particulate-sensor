@@ -22,5 +22,5 @@ Set-Location "cmake"
 cmake .. `
     -DCMAKE_BUILD_TYPE=Debug `
     -"DCMAKE_TOOLCHAIN_FILE=$toolchainFile"
-
+cmake --build . --config Debug
 Read-Host "Press enter to close."
