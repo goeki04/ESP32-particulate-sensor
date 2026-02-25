@@ -71,7 +71,7 @@ void Renderer::geometryPass() {
     for (size_t i = 0; i < entitiesWithMesh.size(); ++i) {
         Entity e = entitiesWithMesh[i];
         if (transformPool.has(e)) {
-            drawMesh(m_ResourceManager, meshData[i], transformPool.get(e));
+            drawMesh(m_ResourceManager, meshData[i], transformPool.get(e),MaterialShaderType::unlit);
         }
     }
 }
@@ -91,6 +91,17 @@ void Renderer::guiPass(Camera& cam)
 void Renderer::imGuiPass()
 {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+        SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+
+        SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+    }
     SDL_GL_SwapWindow(Window::g_Window);
 }
 void Renderer::selectionPass()
@@ -141,7 +152,7 @@ void Renderer::scenePassBegin()
     ImVec2 viewportSize = m_GuiManager.getViewportWindowSize();
     glViewport(0, 0, (GLsizei)viewportSize.x, (GLsizei)viewportSize.y);
 
-    glClearColor(0.518f, 0.506f, 0.478f, 1.0f);
+    glClearColor(0.2f, 0.2f, 0.35f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     
 }
@@ -209,7 +220,7 @@ void Renderer::scenePassEndResolve()
 void Renderer::windowClearPass()
 {
     glViewport(0, 0, Window::g_WindowWidth, Window::g_WindowHeight);
-    glClearColor(0.10f, 0.12f, 0.16f, 1.0f);
+    glClearColor(0.10f, 0.10f, 0.10f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 void Renderer::createSceneFbo()
