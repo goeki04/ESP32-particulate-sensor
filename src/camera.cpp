@@ -132,10 +132,12 @@ void Camera::zoom(SDL_Event* event) {
 			m_Fov = std::clamp(m_Fov-1,m_FovMin,m_FovMax);
 		}
 	}
+    setProjectionMatrix(m_ViewportSize.x,m_ViewportSize.y);
 }
 
 void Camera::setProjectionMatrix(float viewportSizeX, float viewportSizeY) const{
-	m_Projection = glm::perspective(glm::radians(m_Fov), viewportSizeX / viewportSizeY, 0.1f, 100.0f);
+    float aspect = (viewportSizeY > 0) ? (viewportSizeX / viewportSizeY) : 1.0f;
+	m_Projection = glm::perspective(glm::radians(m_Fov), aspect, 0.1f, 100.0f);
 }
 
 glm::mat4 Camera::getProjectionMatrix() {
