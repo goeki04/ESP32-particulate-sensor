@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "camera.h"
-#include "GuiManager.h"
 #include "WindowManager.h"
 #include "SubsystemManager.h"
 glm::mat4 Camera::m_Projection = glm::mat4(1.0f);

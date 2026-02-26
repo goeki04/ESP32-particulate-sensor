@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "Shader.h"
 #include "Collision.h"
+#include "panels.h"
 using namespace ECS;
 void Renderer::start()
 {
@@ -115,7 +116,8 @@ void Renderer::guiPass(Camera& cam)
 {
     m_GuiManager.update();
 
-    m_GuiManager.drawViewportGUI(
+    Gui::Panels::drawViewportGUI(
+        m_GuiManager,
         m_PostprocessTexture,
         ImVec2(m_FramebufferSize.x, m_FramebufferSize.y),
         &cam.m_ImGuiMouseX,

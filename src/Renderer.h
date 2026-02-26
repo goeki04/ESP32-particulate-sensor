@@ -1,7 +1,7 @@
 #pragma once
 #include "ISubsystem.h"
 #include "Registry.h"
-#include "GuiManager.h"
+#include "GuiRenderer.h"
 #include "components.h"
 enum class MaterialShaderType : int;
 namespace Window { class WindowManager; }
