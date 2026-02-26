@@ -24,8 +24,45 @@ void Renderer::start()
     glCullFace(GL_BACK);
     glGenVertexArrays(1, &m_Vao);
 }
+
+void Renderer::handleResize()
+{
+    if (!m_ResourceManager) return;
+
+    ImVec2 currentUIViewportSize = m_GuiManager.getViewportWindowSize();
+    glm::ivec2 newSize = glm::ivec2((int)currentUIViewportSize.x, (int)currentUIViewportSize.y);
+    if (newSize.x > 0 && newSize.y > 0 && (newSize.x != m_FramebufferSize.x || newSize.y != m_FramebufferSize.y))
+    {
+        m_TargetSize = newSize;
+        m_ResizePending = true;
+        m_ResizeTimer = 0.15f;
+
+        if (m_ResizePending)
+        {
+            m_ResizeTimer -= SystemManager::s_deltaTime;
+
+            if (m_ResizeTimer <= 0.0f)
+            {
+                m_FramebufferSize = m_TargetSize;
+                m_TexelSize = 1.0f / glm::vec2((float)m_FramebufferSize.x, (float)m_FramebufferSize.y);
+
+                m_ResourceManager->m_Cam.m_framebufferSize = m_FramebufferSize;
+                m_ResourceManager->m_Cam.setProjectionMatrix((float)m_FramebufferSize.x, (float)m_FramebufferSize.y);
+
+                destroyFramebuffers();
+                createFramebuffers();
+
+                glGenVertexArrays(1, &m_Vao);
+
+                m_ResizePending = false;
+                std::cout << "Snap! Framebuffer resized to: " << m_FramebufferSize.x << "x" << m_FramebufferSize.y << std::endl;
+            }
+        }
+    }
+}
 void Renderer::update()
 {
+    handleResize();
     Camera& cam = m_ResourceManager->m_Cam;
     windowClearPass();
     scenePassBegin();
@@ -148,8 +185,7 @@ void Renderer::postprocessingPass()
 void Renderer::scenePassBegin()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_MsaaFramebuffer);
-    ImVec2 viewportSize = m_GuiManager.getViewportWindowSize();
-    glViewport(0, 0, (GLsizei)viewportSize.x, (GLsizei)viewportSize.y);
+    glViewport(0, 0, m_FramebufferSize.x, m_FramebufferSize.y);
 
     glClearColor(0.2f, 0.2f, 0.35f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -306,47 +342,51 @@ void Renderer::createFramebuffers()
     createSceneFbo();
     createSelectionFBO();
     createPostprocessFBO();
-}   
-void Renderer::destroy() {
-    if (m_FramebufferTexture)        
+}
+
+void Renderer::destroyFramebuffers() {
+    if (m_FramebufferTexture)
         glDeleteTextures(1, &m_FramebufferTexture);
     if (m_PostprocessTexture) {
         glDeleteTextures(1, &m_PostprocessTexture);
     }
-    if (m_MsaaFramebufferTexture)    
+    if (m_MsaaFramebufferTexture)
         glDeleteTextures(1, &m_MsaaFramebufferTexture);
     if (m_SelectionTexture) {
         glDeleteTextures(1, &m_SelectionTexture);
     }
-    if (m_Rendererbuffer)           
+    if (m_Rendererbuffer)
         glDeleteRenderbuffers(1, &m_Rendererbuffer);
     if (m_SelectionDepth) {
         glDeleteRenderbuffers(1, &m_SelectionDepth);
     }
-    if (m_Framebuffer)              
+    if (m_Framebuffer)
         glDeleteFramebuffers(1, &m_Framebuffer);
-    if (m_MsaaFramebuffer)          
+    if (m_MsaaFramebuffer)
         glDeleteFramebuffers(1, &m_MsaaFramebuffer);
     if (m_PostprocessFramebuffer) {
         glDeleteFramebuffers(1, &m_PostprocessFramebuffer);
     }
     if (m_SelectionFramebuffer) {
-        glDeleteFramebuffers(1,&m_SelectionFramebuffer);
+        glDeleteFramebuffers(1, &m_SelectionFramebuffer);
     }
+    m_Framebuffer = 0;
+    m_MsaaFramebuffer = 0;
+    m_PostprocessFramebuffer = 0;
+    m_SelectionFramebuffer = 0;
+}
+void Renderer::destroy() {
+    destroyFramebuffers();
     if (m_Vao) {
         glDeleteVertexArrays(1,&m_Vao);
     }
     m_Vao = 0;
     m_SelectionDepth = 0;
-    m_SelectionFramebuffer = 0;
-    m_PostprocessFramebuffer = 0;
     m_PostprocessTexture = 0;
     m_SelectionTexture = 0;
     m_FramebufferTexture = 0;
     m_MsaaFramebufferTexture = 0;
     m_Rendererbuffer = 0;
-    m_Framebuffer = 0;
-    m_MsaaFramebuffer = 0;
-
+    
     m_GuiManager.destroy();
 }

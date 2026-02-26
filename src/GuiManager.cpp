@@ -45,19 +45,16 @@ void Gui::GuiRenderer::update() {
 void Gui::GuiRenderer::drawViewportGUI(unsigned int framebufferTexture,ImVec2 framebufferSize,float* ImGuiMouseX,float* ImGuiMouseY)
 {
     Camera& cam = m_ResourceManager->m_Cam;
-    ImGuiWindowFlags windowFlags = 0;
-    windowFlags |= ImGuiWindowFlags_NoResize;
-    windowFlags |= ImGuiWindowFlags_NoMove;
-    windowFlags |= ImGuiWindowFlags_NoCollapse;
-    windowFlags |= ImGuiWindowFlags_NoScrollbar;
-    windowFlags |= ImGuiWindowFlags_NoScrollWithMouse;
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
     m_ViewportPos = getViewportWindowPos();
     ImVec2 viewportSize = getViewportWindowSize();
-    ImGui::SetNextWindowPos(m_ViewportPos);
-    ImGui::SetNextWindowSize(viewportSize);
+    ImGui::SetNextWindowPos(m_ViewportPos, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(viewportSize, ImGuiCond_FirstUseEver);
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::Begin("Viewport", 0, windowFlags);
+    ImVec2 currentSize = ImGui::GetContentRegionAvail();
+    s_ViewportSize = currentSize;
     if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
     {
         ImGui::SetWindowFocus();
@@ -66,7 +63,7 @@ void Gui::GuiRenderer::drawViewportGUI(unsigned int framebufferTexture,ImVec2 fr
     if (ImGuiMouseX) *ImGuiMouseX = -1.0f;
     if (ImGuiMouseY) *ImGuiMouseY = -1.0f;
 
-    ImGui::Image((void*)(intptr_t)framebufferTexture, framebufferSize, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void*)(intptr_t)framebufferTexture, currentSize, ImVec2(0, 1), ImVec2(1, 0));
 
     ImVec2 rectMin = ImGui::GetItemRectMin();
     ImVec2 rectMax = ImGui::GetItemRectMax();
@@ -168,7 +165,7 @@ void Gui::GuiRenderer::drawNavBar()
         }
         ImGui::PopStyleVar();
         if (m_ShowVersion) {
-            ImGui::SetNextWindowSize(ImVec2(m_WidgetWidth, m_WidgetWidth));
+            ImGui::SetNextWindowSize(ImVec2(m_WidgetWidth, m_WidgetWidth), ImGuiCond_FirstUseEver);
             ImGui::Begin("Version", &m_ShowVersion,m_WindowFlags);
             ImGui::TextUnformatted("App version: V1.0.0");
             std::string osName = "OS: " + std::string(g_os);
@@ -200,8 +197,8 @@ void Gui::GuiRenderer::drawNotification()
 {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight - m_MenuBarHeight - m_MarginDefault * 2);
     ImVec2 newPos = getNewWindowPos(Margin(0.0f, m_MarginDefault, m_MarginDefault, m_MarginDefault), windowSize, Alignment::TopRight);
-    ImGui::SetNextWindowPos(newPos);
-    ImGui::SetNextWindowSize(windowSize);
+    ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
     ImGui::Begin("Notifications", 0, m_WindowFlags);
     ImGui::End();
 }
@@ -210,8 +207,8 @@ void Gui::GuiRenderer::drawDeviceHierarchy()
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.55f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, m_MarginDefault), windowSize, Alignment::TopLeft);
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
-    ImGui::SetNextWindowPos(newPos);
-    ImGui::SetNextWindowSize(windowSize);
+    ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
     ImGui::Begin("Hierarchy", 0, m_WindowFlags);
     ImGui::BeginChild("HierarchyList",ImVec2(0.0f,0.0f),true, ImGuiWindowFlags_NoScrollbar);
     auto& transformPool = m_Registry->getPool<ECS::component::Transform>();
@@ -273,8 +270,8 @@ void Gui::GuiRenderer::drawDeviceHierarchy()
 void Gui::GuiRenderer::drawChart() {
     ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.35f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::BottomLeft);
-    ImGui::SetNextWindowPos(newPos);
-    ImGui::SetNextWindowSize(windowSize);
+    ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
     ImGui::Begin("Chart", 0, m_WindowFlags);
     ImGui::End();
 }
@@ -282,8 +279,8 @@ void Gui::GuiRenderer::drawBottomWindow() {
     ImVec2 windowSize = ImVec2(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 100, m_WindowHeight * 0.35f);
     ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::CenterBottom);
     float windowPadding = windowSize.x * 0.1f;
-    ImGui::SetNextWindowPos(newPos);
-    ImGui::SetNextWindowSize(windowSize);
+    ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
     ImGui::Begin("Device Browser", 0, m_WindowFlags | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_MenuBar);
     ImVec2 widgetSize = ImVec2(140, 0);
     static int activeTab = 0;
@@ -531,9 +528,12 @@ void Gui::GuiRenderer::setViewportSize() const {
     s_ViewportSize = ImVec2(viewPortX, viewPortY);
 }
 void Gui::GuiRenderer::destroy() {
+    ImGui::DestroyPlatformWindows();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
-    ImGui::DestroyContext();
+    if (ImGui::GetCurrentContext()) {
+        ImGui::DestroyContext();
+    }
 }
 void Gui::GuiRenderer::setFlags()
 {
@@ -542,8 +542,6 @@ void Gui::GuiRenderer::setFlags()
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    m_WindowFlags |= ImGuiWindowFlags_NoCollapse;
-    m_WindowFlags |= ImGuiWindowFlags_NoResize;
 }
 /// <summary>
 /// color scheme
@@ -551,11 +549,8 @@ void Gui::GuiRenderer::setFlags()
 void Gui::GuiRenderer::setStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
 
-    // Skalierung für High-DPI Monitore
     float mainScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     style.ScaleAllSizes(mainScale);
-
-    // 1. Scharfe, professionelle Kanten (Unreal/Unity Style)
     style.WindowRounding = 2.0f;
     style.ChildRounding = 2.0f;
     style.FrameRounding = 2.0f;

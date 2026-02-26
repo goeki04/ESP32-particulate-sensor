@@ -17,6 +17,7 @@ public:
 	void update() override;
 	void drawMesh(ResourceManager* rm,const ECS::component::Mesh& mesh,const ECS::component::Transform& transform);
 	void drawMesh(ResourceManager* rm, const ECS::component::Mesh& mesh, const ECS::component::Transform& transform, MaterialShaderType type);
+	void destroyFramebuffers();
 	void destroy() override;
 	void geometryPass();
 	void guiPass(Camera& cam);
@@ -34,6 +35,7 @@ public:
 	void createPostprocessFBO();
 	static constexpr const char* glsl_version = "#version 460";
 private:
+	void handleResize();
 	glm::ivec2 m_FramebufferSize = glm::ivec2(0,0);
 	glm::vec2 m_TexelSize = glm::vec2(0.0,0.0);
 	GLuint m_Framebuffer = 0, m_MsaaFramebuffer = 0;
@@ -41,6 +43,9 @@ private:
 	GLuint m_SelectionFramebuffer = 0, m_SelectionTexture = 0;
 	GLuint m_PostprocessFramebuffer = 0, m_PostprocessTexture = 0;
 	unsigned int m_Rendererbuffer = 0;
+	float m_ResizeTimer = 0.0f;
+	bool m_ResizePending = false;
+	glm::ivec2 m_TargetSize;
 	GLuint m_Vao = 0;
 	GLuint m_SelectionDepth = 0;
 	const unsigned int m_MSAAsamples = (int)MsaaSamples::x4;
