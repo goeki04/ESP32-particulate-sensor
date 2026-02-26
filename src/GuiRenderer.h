@@ -45,11 +45,10 @@ namespace Gui {
         void destroy();
         float getMenuBarHeight();
         ImVec2 getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment);
-        void drawViewportGUI(unsigned int framebufferTexture, ImVec2 framebufferSize, float* ImGuiMouseX, float* ImGuiMouseY);
+        
         void loadFont();
         ImVec2 getViewportWindowSize();
         int m_CurrentSelectedID = 0;
-    private:
         static glm::vec3 m_LastHitPoint;
         static bool m_HasLastHitpoint;
         ResourceManager* m_ResourceManager = nullptr;
@@ -69,15 +68,12 @@ namespace Gui {
         bool m_Debug = false;
         bool m_ConsoleOpen = false;
         ImVec2 getViewportWindowPos();
-        void drawNavBar();
-        void OpenFolder();
+        void OpenFolder() const;
         void drawNotification();
-        void drawDeviceHierarchy();
+        void OpenURL(const std::string& url);
         void drawBottomWindow();
-        void drawDeviceBrowser();
         void drawDetailsPanel();
         void drawChart();
-        void OpenURL(const std::string& url);
         void setViewportSize() const;
         void setFlags();
         void setStyle();
