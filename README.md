@@ -21,13 +21,14 @@ To build and run this project, you will need:
 ## Toolchain Setup
 
 1. Install [CMake](https://cmake.org/download/) ≥ 3.23
-2. Install [MSVC](https://visualstudio.microsoft.com/) with C++20 support
-3. Install [Conan](https://conan.io/) and configure it:
+2. Install Ninja
+3. Install [MSVC](https://visualstudio.microsoft.com/) with C++20 support
+4. Install [Conan](https://conan.io/) and configure it:
    ```bash
    pip install conan
    conan profile new default --detect
    conan profile update settings.compiler.cppstd=20 default
-4. Run the build.ps1 script
-5. Open the .sln file in the cmake directory
-6. In MSV right-click the ESP32 Project in the solution explorer and set "Set as startup Project"
-7. Run the program
+5. Run the build.ps1 script
+6. Open the .sln file in the cmake directory
+7. In MSV right-click the ESP32 Project in the solution explorer and set "Set as startup Project"
+8. Run the program
