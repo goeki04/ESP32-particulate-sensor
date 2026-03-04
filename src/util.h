@@ -2,7 +2,7 @@
 #include <ostream>
 #include <glm/vec4.hpp> 
 #include <imgui.h>  
-namespace util {
+namespace Andromeda::Util {
     inline ImVec2 operator+(const ImVec2& a, const ImVec2& b) {
         return ImVec2(a.x + b.x, a.y + b.y);
     }

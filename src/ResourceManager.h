@@ -6,148 +6,150 @@
 #include <unordered_map>
 #include "Registry.h"
 #include "components.h"
-using Entity = uint32_t;
-enum class deviceType {
-	DEFAULT = -1,
-	SENSOR,
-	CONTROLLER,
-	CABLE,
-	BREADBOARD,
-};
+namespace Andromeda {
+	using Entity = uint32_t;
+	enum class deviceType {
+		DEFAULT = -1,
+		SENSOR,
+		CONTROLLER,
+		CABLE,
+		BREADBOARD,
+	};
 
-struct GLtexture
-{
-	GLuint id = 0;
-	int w = 0;
-	int h = 0;
-
-	GLtexture() = default;
-	GLtexture(const GLtexture&) = delete;
-	GLtexture& operator=(const GLtexture&) = delete;
-	GLtexture(GLtexture&& other) noexcept
+	struct GLtexture
 	{
-		*this = std::move(other);
-	}
+		GLuint id = 0;
+		int w = 0;
+		int h = 0;
 
-	GLtexture& operator=(GLtexture&& other) noexcept
-	{
-		if (this != &other) {
-			destroy();
-			id = other.id;
-			w = other.w;
-			h = other.h;
-			other.id = 0;
-			other.w = other.h = 0;
+		GLtexture() = default;
+		GLtexture(const GLtexture&) = delete;
+		GLtexture& operator=(const GLtexture&) = delete;
+		GLtexture(GLtexture&& other) noexcept
+		{
+			*this = std::move(other);
 		}
-		return *this;
-	}
 
-	~GLtexture() { destroy(); }
-
-	void destroy()
-	{
-		if (id != 0) {
-			if (SDL_GL_GetCurrentContext()) {
-				glDeleteTextures(1, &id);
+		GLtexture& operator=(GLtexture&& other) noexcept
+		{
+			if (this != &other) {
+				destroy();
+				id = other.id;
+				w = other.w;
+				h = other.h;
+				other.id = 0;
+				other.w = other.h = 0;
 			}
-			id = 0;
+			return *this;
 		}
-	}
-};
 
-struct Device {
-	uint32_t id;
-	std::string name;
-	Mesh mesh;
-	deviceType type;
-};
+		~GLtexture() { destroy(); }
 
-class ResourceManager : public ISubsystem{
-public:
-	SDL_GLContext m_GlContext = NULL;
-	std::vector<std::unique_ptr<MaterialShader>> m_MaterialShaders;
-	std::vector<std::unique_ptr<ProceduralShader>> m_ProceduralShaders;
-	std::vector<std::unique_ptr<PostProcessShader>> m_PostProcessShaders;
-	std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
-	Camera m_Cam;
+		void destroy()
+		{
+			if (id != 0) {
+				if (SDL_GL_GetCurrentContext()) {
+					glDeleteTextures(1, &id);
+				}
+				id = 0;
+			}
+		}
+	};
 
-	static constexpr std::array<std::pair<std::string_view, deviceType>, 4> m_DirectoryNames{ {
-		{"dsensor",     deviceType::SENSOR},
-		{"dcontroller", deviceType::CONTROLLER},
-		{"dcable",      deviceType::CABLE},
-		{"dbreadboard", deviceType::BREADBOARD},
-	} };
+	struct Device {
+		uint32_t id;
+		std::string name;
+		Mesh mesh;
+		deviceType type;
+	};
 
-	std::vector<std::string> getAllFilesInDirectoryRecursive(const std::string& directory, std::span<const std::string> filter);
+	class ResourceManager : public Andromeda::ISubsystem {
+	public:
+		SDL_GLContext m_GlContext = NULL;
+		std::vector<std::unique_ptr<MaterialShader>> m_MaterialShaders;
+		std::vector<std::unique_ptr<ProceduralShader>> m_ProceduralShaders;
+		std::vector<std::unique_ptr<PostProcessShader>> m_PostProcessShaders;
+		std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
+		Andromeda::Camera m_Cam;
 
-	void updateEvent(SDL_Event* event) override;
+		static constexpr std::array<std::pair<std::string_view, deviceType>, 4> m_DirectoryNames{ {
+			{"dsensor",     deviceType::SENSOR},
+			{"dcontroller", deviceType::CONTROLLER},
+			{"dcable",      deviceType::CABLE},
+			{"dbreadboard", deviceType::BREADBOARD},
+		} };
 
-	static SDL_Surface* CreateSDLSurface(const char* path);
+		std::vector<std::string> getAllFilesInDirectoryRecursive(const std::string& directory, std::span<const std::string> filter);
 
-	void start() override;
+		void updateEvent(SDL_Event* event) override;
 
-	void update() override;
+		static SDL_Surface* CreateSDLSurface(const char* path);
 
-	void loadModels();
+		void start() override;
 
-	void loadIcons();
+		void update() override;
 
-	deviceType findDeviceIcon(std::string iconName);
+		void loadModels();
 
-	std::string getFileName(const std::string& path) const;
+		void loadIcons();
 
-	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory);
+		deviceType findDeviceIcon(std::string iconName);
 
-	static std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
+		std::string getFileName(const std::string& path) const;
 
-	void addEntity(unsigned int meshID, const std::string& name, ECS::component::Transform transform);
-	void deleteEntity(Entity id);
-	void setAABB(const Mesh& mesh, ECS::component::AABB& aabb);
+		static std::vector<std::string> getAllFilesInDirectory(const std::string& directory);
 
-	GLsizei getMeshVaoByID(uint32_t meshID) const;
+		static std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
 
-	GLsizei getMeshIndexSizeByID(uint32_t meshID) const;
+		void addEntity(unsigned int meshID, const std::string& name, Andromeda::ECS::Component::Transform transform);
+		void deleteEntity(Entity id);
+		void setAABB(const Mesh& mesh, Andromeda::ECS::Component::AABB& aabb);
 
-	MaterialShader* getMaterialShaderByID(MaterialShaderType t)   const;
+		GLsizei getMeshVaoByID(uint32_t meshID) const;
 
-	ProceduralShader* getProceduralShaderByID(ProceduralShaderType t) const;
+		GLsizei getMeshIndexSizeByID(uint32_t meshID) const;
 
-	PostProcessShader* getPostprocessShaderByID(PostProcessShaderType t) const;
+		MaterialShader* getMaterialShaderByID(MaterialShaderType t)   const;
 
-	const Mesh& getMeshByID(uint32_t meshID) const;
+		ProceduralShader* getProceduralShaderByID(ProceduralShaderType t) const;
 
-    size_t getDeviceRecordsSize() const;
+		PostProcessShader* getPostprocessShaderByID(PostProcessShaderType t) const;
 
-	const std::unordered_map<uint32_t, Device>& getDeviceRecords() const;
+		const Mesh& getMeshByID(uint32_t meshID) const;
 
-	GLtexture CreateOpenGLTexture(const char* path);
+		size_t getDeviceRecordsSize() const;
 
-private:
-	ECS::ComponentRegistry* m_Registry;
-	std::unordered_map<uint32_t, Device> m_DeviceRecords;
-	std::unordered_map<std::string,uint32_t> m_MeshIDbyName;
-	unsigned int m_NextMeshID = 0;
+		const std::unordered_map<uint32_t, Device>& getDeviceRecords() const;
 
-	template<typename T> requires std::derived_from<T,MaterialShader>
-	void addMaterialShader(const char* vertexShader,const char* fragmentShader) {
-		m_MaterialShaders.emplace_back(std::make_unique<T>(m_Cam,vertexShader,fragmentShader));
-		m_MaterialShaders.back()->compileShader();
-	}
+		GLtexture CreateOpenGLTexture(const char* path);
 
-	template<typename T> requires std::derived_from<T, ProceduralShader>
-	void addProceduralShader(const char* vertexShader, const char* fragmentShader) {
-		m_ProceduralShaders.emplace_back(std::make_unique<T>(m_Cam, vertexShader, fragmentShader));
-		m_ProceduralShaders.back()->compileShader();
-	}
+	private:
+		Andromeda::ECS::ComponentRegistry* m_Registry;
+		std::unordered_map<uint32_t, Device> m_DeviceRecords;
+		std::unordered_map<std::string, uint32_t> m_MeshIDbyName;
+		unsigned int m_NextMeshID = 0;
 
-	template<typename T> requires std::derived_from<T, PostProcessShader>
-	void addPostProcessShader(const char* vertexShader, const char* fragmentShader) {
-		m_PostProcessShaders.emplace_back(std::make_unique<T>(m_Cam, vertexShader, fragmentShader));
-		m_PostProcessShaders.back()->compileShader();
-	}
+		template<typename T> requires std::derived_from<T, MaterialShader>
+		void addMaterialShader(const char* vertexShader, const char* fragmentShader) {
+			m_MaterialShaders.emplace_back(std::make_unique<T>(m_Cam, vertexShader, fragmentShader));
+			m_MaterialShaders.back()->compileShader();
+		}
 
-	void setupMeshes();
-	void processNode(const uint32_t meshId,const aiScene* scene, aiNode* node);
-	deviceType findDeviceTypeByPath(const std::string& path);
-	void loadScene(const std::string& path);
-};
+		template<typename T> requires std::derived_from<T, ProceduralShader>
+		void addProceduralShader(const char* vertexShader, const char* fragmentShader) {
+			m_ProceduralShaders.emplace_back(std::make_unique<T>(m_Cam, vertexShader, fragmentShader));
+			m_ProceduralShaders.back()->compileShader();
+		}
+
+		template<typename T> requires std::derived_from<T, PostProcessShader>
+		void addPostProcessShader(const char* vertexShader, const char* fragmentShader) {
+			m_PostProcessShaders.emplace_back(std::make_unique<T>(m_Cam, vertexShader, fragmentShader));
+			m_PostProcessShaders.back()->compileShader();
+		}
+
+		void setupMeshes();
+		void processNode(const uint32_t meshId, const aiScene* scene, aiNode* node);
+		deviceType findDeviceTypeByPath(const std::string& path);
+		void loadScene(const std::string& path);
+	};
+}

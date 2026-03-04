@@ -1,10 +1,10 @@
 #pragma once
 #include "components.h"
 #include "camera.h"
-namespace collision {
-    inline bool RayIntersectAABB(const Camera& cam,const ECS::component::AABB& aabb, const glm::mat4& modelMatrix)
+namespace Andromeda::Collision {
+    inline bool RayIntersectAABB(const Andromeda::Camera& cam,const Andromeda::ECS::Component::AABB& aabb, const glm::mat4& modelMatrix)
     {
-        const Ray& rayW = cam.m_CursorToWorldRay;
+        const Andromeda::Ray& rayW = cam.m_CursorToWorldRay;
 
         glm::mat4 invModel = glm::inverse(modelMatrix);
 
