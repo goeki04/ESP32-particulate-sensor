@@ -16,7 +16,7 @@ void WindowManager::start() {
     g_Window = SDL_CreateWindow("ESP32", NULL, NULL, windowFlags | SDL_WINDOW_OPENGL);
     SDL_GetWindowSizeInPixels(g_Window,&g_WindowWidth,&g_WindowHeight);
     if (!g_Window) {
-        throw std::exception("Failed to call SDL_CreateWindow!");
+        throw std::runtime_error("Failed to call SDL_CreateWindow!");
     }
     SDL_SetWindowMinimumSize(g_Window, g_WindowWidth, g_WindowHeight);
     SDL_SetWindowIcon(g_Window, surface);
