@@ -5,10 +5,10 @@
 #include "GuiRenderer.h"
 #include "util.h"
 
-void Gui::Panels::drawDeviceBrowser(GuiRenderer& guiRenderer)
+void Andromeda::Gui::Panels::drawDeviceBrowser(Andromeda::Gui::GuiRenderer& guiRenderer)
 {
-    using namespace util;
-    Camera& cam = guiRenderer.m_ResourceManager->m_Cam;
+    using namespace Util;
+    Andromeda::Camera& cam = guiRenderer.m_ResourceManager->m_Cam;
     static char query[128] = "";
     ImGui::InputTextWithHint("##search", "Search components...", query, IM_ARRAYSIZE(query));
     ImGui::Spacing();
@@ -79,7 +79,7 @@ void Gui::Panels::drawDeviceBrowser(GuiRenderer& guiRenderer)
             fg->AddImage((ImTextureID)(intptr_t)texID, tMin, tMax);
         }
         if (dragEnded && cam.m_HasValidPickRay && guiRenderer.m_HasLastHitpoint) {
-            ECS::component::Transform transform;
+            Andromeda::ECS::Component::Transform transform;
             transform.position = guiRenderer.m_LastHitPoint;
             guiRenderer.m_ResourceManager->addEntity(deviceRecord.id, deviceRecord.name, transform);
         }

@@ -7,7 +7,7 @@
 #include <set>
 #include <map>
 #include <functional>
-namespace Gui::Console {
+namespace Andromeda::Gui::Console {
     
     namespace Flags {
         constexpr std::string_view info = "-info";

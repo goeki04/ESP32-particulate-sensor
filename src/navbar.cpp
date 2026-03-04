@@ -2,7 +2,7 @@
 #include "panels.h"
 #include "GuiRenderer.h"
 #include "Console.h"
-void Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
+void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
 {
     ImGuiStyle& style = ImGui::GetStyle();
     style.FramePadding.y = 9.0f;

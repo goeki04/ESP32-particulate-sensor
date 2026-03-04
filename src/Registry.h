@@ -5,7 +5,7 @@
 #include <memory>
 #include "ISubsystem.h"
 
-namespace ECS {
+namespace Andromeda::ECS {
     using Entity = uint32_t;
     class IComponentPool {
     public:

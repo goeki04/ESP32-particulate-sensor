@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Console.h"
 
-namespace Gui::Console {
+namespace Andromeda::Gui::Console {
 
     AppConsole::AppConsole()
     {
