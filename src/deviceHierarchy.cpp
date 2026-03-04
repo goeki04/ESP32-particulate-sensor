@@ -12,7 +12,7 @@ void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
     ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
     ImGui::Begin("Hierarchy", 0, guiRenderer.m_WindowFlags);
     ImGui::BeginChild("HierarchyList", ImVec2(0.0f, 0.0f), true, ImGuiWindowFlags_NoScrollbar);
-    auto& transformPool = guiRenderer.m_Registry->getPool<Andromeda::ECS::Component::Transform>();
+    auto& transformPool = guiRenderer.m_Registry->getPool<ECS::Component::Transform>();
     const auto& entityIDs = transformPool.getEntities();
     ImGuiListClipper clipper;
     clipper.Begin((int)entityIDs.size());
@@ -20,27 +20,27 @@ void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
     {
         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
         {
-            const Andromeda::ECS::Entity& e = entityIDs[i];
-            Andromeda::ECS::EntityHandle handle = { e, guiRenderer.m_Registry };
+            const ECS::Entity& e = entityIDs[i];
+            ECS::EntityHandle handle = { e, guiRenderer.m_Registry };
             bool isSelected = (guiRenderer.m_CurrentSelectedID == e);
             if (isSelected) {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.0f, 1.0f));
             }
             std::string label;
-            if (handle.has<Andromeda::ECS::Component::Tag>()) {
-                label = handle.get<Andromeda::ECS::Component::Tag>().name;
+            if (handle.has<ECS::Component::Tag>()) {
+                label = handle.get<ECS::Component::Tag>().name;
             }
             else {
                 label = "Unnamed";
             }
             if (ImGui::Selectable(label.c_str(), isSelected)) {
                 guiRenderer.m_CurrentSelectedID = e;
-                auto& selectedPool = guiRenderer.m_Registry->getPool<Andromeda::ECS::Component::Selected>();
-                std::vector<Andromeda::ECS::Entity> toDeselect = selectedPool.getEntities();
-                for (Andromeda::ECS::Entity oldE : toDeselect) {
+                auto& selectedPool = guiRenderer.m_Registry->getPool<ECS::Component::Selected>();
+                std::vector<ECS::Entity> toDeselect = selectedPool.getEntities();
+                for (ECS::Entity oldE : toDeselect) {
                     selectedPool.removeEntity(oldE);
                 };
-                handle.add<Andromeda::ECS::Component::Selected>({});
+                handle.add<ECS::Component::Selected>({});
             }
             if (isSelected) {
                 ImGui::PopStyleColor();

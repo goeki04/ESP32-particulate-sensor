@@ -2,9 +2,9 @@
 #include "components.h"
 #include "camera.h"
 namespace Andromeda::Collision {
-    inline bool RayIntersectAABB(const Andromeda::Camera& cam,const Andromeda::ECS::Component::AABB& aabb, const glm::mat4& modelMatrix)
+    inline bool RayIntersectAABB(const Camera& cam,const ECS::Component::AABB& aabb, const glm::mat4& modelMatrix)
     {
-        const Andromeda::Ray& rayW = cam.m_CursorToWorldRay;
+        const Ray& rayW = cam.m_CursorToWorldRay;
 
         glm::mat4 invModel = glm::inverse(modelMatrix);
 

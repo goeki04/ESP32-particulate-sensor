@@ -16,18 +16,18 @@ namespace Andromeda {
 	public:
 		void start() override;
 		void update() override;
-		void drawMesh(Andromeda::ResourceManager* rm, const Andromeda::ECS::Component::Mesh& mesh, const Andromeda::ECS::Component::Transform& transform);
-		void drawMesh(Andromeda::ResourceManager* rm, const Andromeda::ECS::Component::Mesh& mesh, const Andromeda::ECS::Component::Transform& transform, MaterialShaderType type);
+		void drawMesh(ResourceManager* rm, const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform);
+		void drawMesh(ResourceManager* rm, const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform, MaterialShaderType type);
 		void destroyFramebuffers();
 		void destroy() override;
 		void geometryPass();
-		void guiPass(Andromeda::Camera& cam);
+		void guiPass(Camera& cam);
 		void imGuiPass();
 		void selectionPass();
 		void postprocessingPass();
 		void scenePassBegin();
 		void proceduralPass();
-		void pickingPass(const Andromeda::Camera& cam);
+		void pickingPass(const Camera& cam);
 		void scenePassEndResolve();
 		void windowClearPass();
 		void createSceneFbo();
@@ -51,9 +51,9 @@ namespace Andromeda {
 		GLuint m_SelectionDepth = 0;
 		const unsigned int m_MSAAsamples = (int)MsaaSamples::x4;
 		void createFramebuffers();
-		Andromeda::ResourceManager* m_ResourceManager = nullptr;
-		Andromeda::ECS::ComponentRegistry* m_Registry = nullptr;
-		Andromeda::Gui::GuiRenderer m_GuiManager;
+		ResourceManager* m_ResourceManager = nullptr;
+		ECS::ComponentRegistry* m_Registry = nullptr;
+		Gui::GuiRenderer m_GuiManager;
 #ifdef DEBUG_RENDERING_OPENGL
 		bool m_DebugMode = false;
 #endif
