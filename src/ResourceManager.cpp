@@ -12,11 +12,11 @@ void ResourceManager::start()
     m_Registry = SystemManager::getInstance().getSubsystem<ECS::ComponentRegistry>();
     m_GlContext = SDL_GL_CreateContext(Window::g_Window);
     if (!m_GlContext) {
-        throw std::exception("Failed to create SDL_GL context!");
+        throw std::runtime_error("Failed to create SDL_GL context!");
     }
     GLenum err = glewInit();
     if (err != GLEW_OK) {
-        throw std::exception("Failed to call glewInit!");
+        throw std::runtime_error("Failed to call glewInit!");
     }
     addMaterialShader<LitShader>(SHADER_PATH "unlitVertex.glsl", SHADER_PATH "unlitFragment.glsl");
     addMaterialShader<ColorShader>(SHADER_PATH "colorVertex.glsl", SHADER_PATH "colorFragment.glsl");
