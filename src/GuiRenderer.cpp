@@ -13,7 +13,8 @@ namespace Andromeda::Gui {
     bool Gui::GuiRenderer::m_ShowVersion = false;
     bool Gui::GuiRenderer::m_HasLastHitpoint = false;
     glm::vec3 Gui::GuiRenderer::m_LastHitPoint{ 0.0f };
-    void Gui::GuiRenderer::init(SDL_Window* window, ResourceManager* rm, Andromeda::ECS::ComponentRegistry* registry) {
+    void Gui::GuiRenderer::init(SDL_Window* window, ResourceManager* rm, 
+        ECS::ComponentRegistry* registry) {
         m_ResourceManager = rm;
         m_Registry = registry;
         IMGUI_CHECKVERSION();
@@ -36,9 +37,9 @@ namespace Andromeda::Gui {
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockFlags);
         Panels::drawNavBar(*this);
         drawNotification();
+        Panels::drawDeviceBrowser(*this);
         Panels::drawDeviceHierarchy(*this);
         drawChart();
-        drawBottomWindow();
     }
 
     float GuiRenderer::getMenuBarHeight()
@@ -79,32 +80,6 @@ namespace Andromeda::Gui {
         ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
         ImGui::Begin("Chart", 0, m_WindowFlags);
-        ImGui::End();
-    }
-    void GuiRenderer::drawBottomWindow() {
-        ImVec2 windowSize = ImVec2(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 100, m_WindowHeight * 0.35f);
-        ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::CenterBottom);
-        float windowPadding = windowSize.x * 0.1f;
-        ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
-        ImGui::Begin("Device Browser", 0, m_WindowFlags | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar);
-        ImVec2 widgetSize = ImVec2(140, 0);
-        static int activeTab = 0;
-        if (ImGui::BeginMenuBar())
-        {
-            ImGui::SetCursorPosX(0.0f);
-            if (ImGui::BeginTabBar("DeviceBrowser"))
-            {
-                if (ImGui::BeginTabItem("Device Browser"))
-                {
-                    activeTab = 0;
-                    ImGui::EndTabItem();
-                }
-                ImGui::EndTabBar();
-            }
-            ImGui::EndMenuBar();
-        }
-
         ImGui::End();
     }
     void GuiRenderer::OpenURL(const std::string& url)

@@ -65,7 +65,7 @@ namespace Andromeda {
     void Renderer::update()
     {
         handleResize();
-        Andromeda::Camera& cam = m_ResourceManager->m_Cam;
+        Camera& cam = m_ResourceManager->m_Cam;
         windowClearPass();
         scenePassBegin();
         geometryPass();
@@ -113,11 +113,11 @@ namespace Andromeda {
             }
         }
     }
-    void Renderer::guiPass(Andromeda::Camera& cam)
+    void Renderer::guiPass(Camera& cam)
     {
         m_GuiManager.update();
 
-        Andromeda::Gui::Panels::drawViewportGUI(
+        Gui::Panels::drawViewportGUI(
             m_GuiManager,
             m_PostprocessTexture,
             ImVec2(m_FramebufferSize.x, m_FramebufferSize.y),
@@ -208,7 +208,7 @@ namespace Andromeda {
         glDisable(GL_BLEND);
         glEnable(GL_CULL_FACE);
     }
-    void Renderer::pickingPass(const Andromeda::Camera& cam)
+    void Renderer::pickingPass(const Camera& cam)
     {
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
             auto& aabbPool = m_Registry->getPool<Component::AABB>();
@@ -228,7 +228,7 @@ namespace Andromeda {
                 const glm::mat4 modelMatrix = handle.get<Component::Transform>().modelMatrix();
                 const auto& aabb = handle.get<Component::AABB>();
 
-                if (Andromeda::Collision::RayIntersectAABB(cam, aabb, modelMatrix)) {
+                if (Collision::RayIntersectAABB(cam, aabb, modelMatrix)) {
                     handle.add<Component::Selected>({});
                     m_GuiManager.m_CurrentSelectedID = e;
                     anyHit = true;

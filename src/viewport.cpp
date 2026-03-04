@@ -7,7 +7,7 @@ void Andromeda::Gui::Panels::drawViewportGUI(GuiRenderer& guiRenderer,unsigned i
     ImVec2 framebufferSize, float* ImGuiMouseX, float* ImGuiMouseY)
 {
     guiRenderer.m_ResourceManager->m_Cam;
-    Andromeda::Camera& cam = guiRenderer.m_ResourceManager->m_Cam;
+    Camera& cam = guiRenderer.m_ResourceManager->m_Cam;
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
     guiRenderer.m_ViewportPos = guiRenderer.getViewportWindowPos();
     ImVec2 viewportSize = guiRenderer.getViewportWindowSize();
