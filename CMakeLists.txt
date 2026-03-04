@@ -41,6 +41,8 @@ add_executable(ESP32
     ${PROTO_HDRS}
 )
 
+target_compile_definitions(ESP32 PRIVATE ASSET_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
+target_compile_definitions(ESP32 PRIVATE SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/src/shader/")
 source_group("Shader files" FILES ${SHADERS})
 target_include_directories(ESP32 PRIVATE bindings)
 target_include_directories(ESP32 PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${PROTOBUF_INCLUDE_DIRS})

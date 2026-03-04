@@ -47,7 +47,7 @@ float Gui::GuiRenderer::getMenuBarHeight()
 void Gui::GuiRenderer::loadFont()
 {
     ImGuiIO& io = ImGui::GetIO();(void)io;
-    ImFont* font = io.Fonts->AddFontFromFileTTF("../assets/fonts/Roboto-Regular.ttf",18.0f);
+    ImFont* font = io.Fonts->AddFontFromFileTTF(ASSET_PATH "fonts/Roboto-Regular.ttf",18.0f);
     if (font == nullptr) {
         throw std::runtime_error("failed loading Roboto font");
     }

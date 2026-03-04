@@ -18,11 +18,11 @@ void ResourceManager::start()
     if (err != GLEW_OK) {
         throw std::exception("Failed to call glewInit!");
     }
-    addMaterialShader<LitShader>("../src/shader/unlitVertex.glsl", "../src/shader/unlitFragment.glsl");
-    addMaterialShader<ColorShader>("../src/shader/colorVertex.glsl", "../src/shader/colorFragment.glsl");
-    addProceduralShader<GridShader>("../src/shader/gridVertex.glsl", "../src/shader/gridFragment.glsl");
-    addPostProcessShader<PostProcessShader>("../src/shader/outlineVertex.glsl","../src/shader/outlineFragment.glsl");
-    addPostProcessShader<PostProcessShader>("../src/shader/maskVertex.glsl", "../src/shader/maskFrag.glsl"),
+    addMaterialShader<LitShader>(SHADER_PATH "unlitVertex.glsl", SHADER_PATH "unlitFragment.glsl");
+    addMaterialShader<ColorShader>(SHADER_PATH "colorVertex.glsl", SHADER_PATH "colorFragment.glsl");
+    addProceduralShader<GridShader>(SHADER_PATH "gridVertex.glsl", SHADER_PATH "gridFragment.glsl");
+    addPostProcessShader<PostProcessShader>(SHADER_PATH "outlineVertex.glsl", SHADER_PATH "outlineFragment.glsl");
+    addPostProcessShader<PostProcessShader>(SHADER_PATH "maskVertex.glsl", SHADER_PATH "maskFrag.glsl"),
     loadModels();
     loadIcons();
     setupMeshes(); 
@@ -39,7 +39,7 @@ void ResourceManager::loadModels()
     std::array<std::string, 2> filter;
     filter[0] = ".fbx";
     filter[1] = ".obj";
-    std::vector<std::string> paths = getAllFilesInDirectoryRecursive("../assets/models",filter);
+    std::vector<std::string> paths = getAllFilesInDirectoryRecursive(ASSET_PATH "models",filter);
 
     for (auto& v : paths) {
         loadScene(v);
@@ -51,7 +51,7 @@ void ResourceManager::loadIcons()
     std::array<std::string,2> filter;
     filter[0] = ".png";
     filter[1] = ".jpg";
-    std::vector<std::string> paths = getAllFilesInDirectory("../assets/icons", filter);
+    std::vector<std::string> paths = getAllFilesInDirectory(ASSET_PATH "icons", filter);
 
     for (auto& v : paths) {
         std::string fileName = getFileName(v);
