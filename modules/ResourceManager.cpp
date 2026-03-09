@@ -2,7 +2,7 @@
 #include "ResourceManager.h"
 #include "SubsystemManager.h"
 #include "WindowManager.h"
-#include "util.h"
+#include "GuiRenderer.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 using namespace Andromeda::ECS;
@@ -30,8 +30,8 @@ namespace Andromeda {
     }
 
     void ResourceManager::update() {
-        m_Cam.setProjectionMatrix(Andromeda::Gui::GuiRenderer::s_ViewportSize.x, Andromeda::Gui::GuiRenderer::s_ViewportSize.y);
-        if (Andromeda::Gui::GuiRenderer::s_ViewportFocused)
+        m_Cam.setProjectionMatrix(Gui::GuiRenderer::s_ViewportSize.x, Gui::GuiRenderer::s_ViewportSize.y);
+        if (Gui::GuiRenderer::s_ViewportFocused)
             m_Cam.cameraMovement();
     }
 
@@ -140,29 +140,6 @@ namespace Andromeda {
         {
             m_Cam.zoom(event);
         }
-    }
-
-    SDL_Surface* ResourceManager::CreateSDLSurface(const char* path)
-    {
-        int w, h, channels;
-        unsigned char* pixels = stbi_load(path, &w, &h, &channels, 4);
-        if (!pixels) {
-            SDL_Log("Failed to load image: %s", stbi_failure_reason());
-            return nullptr;
-        }
-
-        SDL_Surface* surface = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_RGBA32);
-        if (!surface) {
-            stbi_image_free(pixels);
-            SDL_Log("Failed to create surface: %s", SDL_GetError());
-            return nullptr;
-        }
-        SDL_LockSurface(surface);
-        std::memcpy(surface->pixels, pixels, (size_t)w * (size_t)h * 4);
-        SDL_UnlockSurface(surface);
-
-        stbi_image_free(pixels);
-        return surface;
     }
 
     void ResourceManager::addEntity(unsigned int meshID, const std::string& name, Component::Transform transform)
@@ -325,6 +302,12 @@ namespace Andromeda {
             processNode(meshId, scene, node->mChildren[i]);
         }
     }
+
+    inline void stringToLower(std::string& data) {
+        std::transform(data.begin(), data.end(), data.begin(),
+            [](unsigned char c) {return std::tolower(c);
+            });
+    }
     /// <summary>
     /// This function sets the device type based on the path.
     /// Sets the device type to default if not found.
@@ -333,7 +316,7 @@ namespace Andromeda {
     /// <returns></returns>
     deviceType ResourceManager::findDeviceTypeByPath(const std::string& path) {
         std::string lowerString = path;
-        Util::stringToLower(lowerString);
+        stringToLower(lowerString);
         for (auto& [key, value] : m_DirectoryNames) {
             if (lowerString.find(key) != std::string::npos) {
                 return value;

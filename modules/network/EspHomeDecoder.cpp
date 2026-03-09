@@ -1,7 +1,6 @@
-#include "pch.h"
 #include "EspHomeDecoder.h"
 
-namespace Andromeda {
+namespace Andromeda::Network {
     void ESPHomeDecoder::appendData(const uint8_t* data, size_t length)
     {
         m_Buffer.insert(m_Buffer.end(), data, data + length);

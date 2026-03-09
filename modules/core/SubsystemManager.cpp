@@ -1,5 +1,5 @@
-#include "pch.h"
 #include "SubsystemManager.h"
+
 namespace Andromeda {
 	Uint64 SystemManager::lastCounter = SDL_GetPerformanceCounter();
 	float SystemManager::s_deltaTime = 0.0f;

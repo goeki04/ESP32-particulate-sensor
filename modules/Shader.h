@@ -1,15 +1,8 @@
 #pragma once
 #include "camera.h"
 #include <unordered_map>
+#include "a_material.hpp"
 namespace Andromeda {
-	struct DirLight {
-		glm::vec3 direction;
-		glm::vec3 color;
-	};
-
-	enum class MaterialShaderType { unlit, white };
-	enum class ProceduralShaderType { grid };
-	enum class PostProcessShaderType { outline, maskVertex };
 	class Shader {
 	public:
 		constexpr static const char* c_viewMatrix = "viewMatrix";

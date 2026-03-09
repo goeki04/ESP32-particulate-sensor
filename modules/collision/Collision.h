@@ -1,5 +1,4 @@
 #pragma once
-#include "components.h"
 #include "camera.h"
 namespace Andromeda::Collision {
     inline bool RayIntersectAABB(const Camera& cam,const ECS::Component::AABB& aabb, const glm::mat4& modelMatrix)

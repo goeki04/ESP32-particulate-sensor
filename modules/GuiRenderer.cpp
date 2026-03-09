@@ -1,12 +1,9 @@
 ﻿#include "pch.h"
 #include "GuiRenderer.h"
-#include "SubsystemManager.h"
-#include "Renderer.h"
-#include "camera.h"
+
 #include "ResourceManager.h"
 #include "panels.h"
 #include "Console.h"
-#include "util.h"
 namespace Andromeda::Gui {
     ImVec2 Gui::GuiRenderer::s_ViewportSize = ImVec2(0.0f, 0.0f);
     bool Gui::GuiRenderer::s_ViewportFocused = false;
@@ -151,9 +148,9 @@ namespace Andromeda::Gui {
         newPos.y = std::clamp(newPos.y, m_MenuBarHeight, containerHeight + m_MenuBarHeight - windowSize.y);
         return newPos;
     }
+
     ImVec2 GuiRenderer::getViewportWindowPos()
     {
-        using namespace Util;
         ImVec2 viewportSize = getViewportWindowSize();
         ImVec2 viewportPos = getNewWindowPos(Margin(0.0f, 0.0f, 0.0f, m_MarginDefault), viewportSize, Alignment::CenterTop);
         if (viewportSize == ImVec2(0, 0)) {

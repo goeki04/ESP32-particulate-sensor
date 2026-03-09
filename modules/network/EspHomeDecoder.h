@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <functional>
-namespace Andromeda {
+namespace Andromeda::Network {
     enum class DecoderState {
         WaitPreamble,
         ReadLength,

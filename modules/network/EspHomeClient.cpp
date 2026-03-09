@@ -1,8 +1,7 @@
-#include "pch.h"
-#include "ESPHomeClient.h"
+#include "EspHomeClient.h"
 #include <thread>
 
-namespace Andromeda {
+namespace Andromeda::Network {
     ESPHomeClient::ESPHomeClient() : m_IoContext(), m_Resolver(m_IoContext), m_Socket(m_IoContext), m_ReceiveBuffer{ 0 } {}
 
     ESPHomeClient::~ESPHomeClient()
@@ -28,11 +27,11 @@ namespace Andromeda {
         asio::async_connect(m_Socket, results,
             [this](const std::error_code& ec, const asio::ip::tcp::endpoint& endpoint) {
                 if (!ec) {
-                    SDL_Log("Verbunden mit %s", endpoint.address().to_string().c_str());
+                    //SDL_Log("Verbunden mit %s", endpoint.address().to_string().c_str());
                     startRead();
                 }
                 else {
-                    SDL_Log("Connect-Fehler: %s", ec.message().c_str());
+                    //SDL_Log("Connect-Fehler: %s", ec.message().c_str());
                 }
             });
     }
@@ -46,7 +45,7 @@ namespace Andromeda {
                     startRead();
                 }
                 else {
-                    SDL_Log("Verbindung zum ESP32 verloren: %s", ec.message().c_str());
+                    //SDL_Log("Verbindung zum ESP32 verloren: %s", ec.message().c_str());
                 }
             });
     }

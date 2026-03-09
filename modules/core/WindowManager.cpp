@@ -1,10 +1,34 @@
 #include "WindowManager.h"
-#include "pch.h"
-#include "ResourceManager.h"
+#include "stb_image.h"
+#include <cstring>
+#include <stdexcept>
 namespace Andromeda::Window {
+    SDL_Surface* WindowManager::CreateSDLSurface(const char* path)
+    {
+        int w, h, channels;
+        unsigned char* pixels = stbi_load(path, &w, &h, &channels, 4);
+        if (!pixels) {
+            SDL_Log("Failed to load image: %s", stbi_failure_reason());
+            return nullptr;
+        }
+
+        SDL_Surface* surface = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_RGBA32);
+        if (!surface) {
+            stbi_image_free(pixels);
+            SDL_Log("Failed to create surface: %s", SDL_GetError());
+            return nullptr;
+        }
+        SDL_LockSurface(surface);
+        std::memcpy(surface->pixels, pixels, (size_t)w * (size_t)h * 4);
+        SDL_UnlockSurface(surface);
+
+        stbi_image_free(pixels);
+        return surface;
+    }
     void WindowManager::start() {
         int16_t windowFlags = 0;
-        SDL_Surface* surface = ResourceManager::CreateSDLSurface(ASSET_PATH "logo.png");
+        std::printf(ASSET_PATH "\n");
+        SDL_Surface* surface = CreateSDLSurface(ASSET_PATH "logo.png");
 
         windowFlags |= SDL_WINDOW_MAXIMIZED;
         windowFlags |= SDL_WINDOW_RESIZABLE;
@@ -29,6 +53,6 @@ namespace Andromeda::Window {
 
     void WindowManager::updateEvent(SDL_Event* event)
     {
-        ImGui_ImplSDL3_ProcessEvent(event);
+        //ImGui_ImplSDL3_ProcessEvent(event);
     }
 }

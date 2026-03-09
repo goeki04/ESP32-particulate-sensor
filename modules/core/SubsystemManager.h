@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include "ISubsystem.h"
+#include <SDL3/SDL.h>
+#include <stdexcept>
 /// <summary>
 /// Singleton that handles subsystem management
 /// </summary>

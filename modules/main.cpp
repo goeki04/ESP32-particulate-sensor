@@ -4,19 +4,20 @@
 #include "ResourceManager.h"
 #include "Registry.h"
 #include "Renderer.h"
-#include "ESPHomeClient.h"
+#include "EspHomeClient.h"
+
 Andromeda::Window::WindowManager windowManager;
 Andromeda::Renderer renderer;
 Andromeda::ResourceManager resourceManager;
 Andromeda::ECS::ComponentRegistry componentManager;
-static Andromeda::ESPHomeClient g_EspClient;
+static Andromeda::Network::ESPHomeClient g_EspClient;
+
 SDL_AppResult SDL_Init() {
     SDL_SetAppMetadata("ESP32", "1.0", "ESP32.goeki.com");
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-
     return SDL_APP_CONTINUE;
 }
 

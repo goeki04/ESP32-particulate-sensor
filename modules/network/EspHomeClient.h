@@ -7,7 +7,7 @@
 #include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
 #include "EspHomeDecoder.h"
-namespace Andromeda {
+namespace Andromeda::Network {
 	class ESPHomeClient {
 	public:
 		ESPHomeClient();

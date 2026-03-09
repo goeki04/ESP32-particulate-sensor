@@ -2,6 +2,7 @@
 /// <summary>
 /// Interface which declares essential functions for all kind of Subsystems
 /// </summary>
+#include <SDL3/SDL.h>
 namespace Andromeda {
 	class ISubsystem {
 	public:

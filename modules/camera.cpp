@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "camera.h"
 #include "WindowManager.h"
+#include "GuiRenderer.h"
 #include "SubsystemManager.h"
 namespace Andromeda {
     glm::mat4 Camera::m_Projection = glm::mat4(1.0f);
