@@ -1,11 +1,11 @@
 ﻿#include "Renderer.h"
 #include "pch.h"
-#include "SubsystemManager.h"
-#include "WindowManager.h"
-#include "ResourceManager.h"
+#include "subsystem_manager.h"
+#include "window_manager.h"
+#include "resource_manager.h"
 #include "camera.h"
-#include "Shader.h"
-#include "Collision.h"
+#include "shader.h"
+#include "collision.h"
 #include "panels.h"
 using namespace Andromeda::ECS;
 namespace Andromeda {

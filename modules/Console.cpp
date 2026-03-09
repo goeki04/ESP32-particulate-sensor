@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Console.h"
+#include "console.h"
 
 namespace Andromeda::Gui::Console {
 

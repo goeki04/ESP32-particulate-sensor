@@ -1,7 +1,7 @@
 #pragma once
-#include "ISubsystem.h"
-#include "Registry.h"
-#include "GuiRenderer.h"
+#include "subsystem.h"
+#include "registry.h"
+#include "gui_renderer.h"
 #include "components.h"
 namespace Andromeda {
 	enum class MaterialShaderType : int;

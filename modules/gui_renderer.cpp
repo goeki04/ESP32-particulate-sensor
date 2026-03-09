@@ -1,9 +1,9 @@
 ﻿#include "pch.h"
-#include "GuiRenderer.h"
+#include "gui_renderer.h"
 
-#include "ResourceManager.h"
+#include "resource_manager.h"
 #include "panels.h"
-#include "Console.h"
+#include "console.h"
 namespace Andromeda::Gui {
     ImVec2 Gui::GuiRenderer::s_ViewportSize = ImVec2(0.0f, 0.0f);
     bool Gui::GuiRenderer::s_ViewportFocused = false;

@@ -1,6 +1,6 @@
 #pragma once
 #include "glm/glm.hpp"
-#include "Registry.h"
+#include "registry.h"
 namespace Andromeda {
     class ResourceManager;
 }

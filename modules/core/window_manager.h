@@ -1,5 +1,5 @@
 #pragma once
-#include "ISubsystem.h"
+#include "subsystem.h"
 #include <SDL3/SDL.h>
 namespace Andromeda::Window {
 	inline SDL_Window* g_Window = nullptr;

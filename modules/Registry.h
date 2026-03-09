@@ -3,7 +3,7 @@
 #include <typeindex>
 #include <vector>
 #include <memory>
-#include "ISubsystem.h"
+#include "subsystem.h"
 
 namespace Andromeda::ECS {
     using Entity = uint32_t;

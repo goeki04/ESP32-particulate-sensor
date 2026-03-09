@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "ResourceManager.h"
-#include "SubsystemManager.h"
-#include "WindowManager.h"
-#include "GuiRenderer.h"
+#include "resource_manager.h"
+#include "subsystem_manager.h"
+#include "window_manager.h"
+#include "gui_renderer.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 using namespace Andromeda::ECS;

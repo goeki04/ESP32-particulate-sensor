@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "panels.h"
-#include "GuiRenderer.h"
+#include "gui_renderer.h"
 #include "camera.h"
-#include "ResourceManager.h"
+#include "resource_manager.h"
 void Andromeda::Gui::Panels::drawViewportGUI(GuiRenderer& guiRenderer,unsigned int framebufferTexture, 
     ImVec2 framebufferSize, float* ImGuiMouseX, float* ImGuiMouseY)
 {

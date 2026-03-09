@@ -2,8 +2,8 @@ find_package(SDL3 REQUIRED)
 find_package(stb REQUIRED)
 find_package(imgui REQUIRED)
 add_library(core STATIC
-    SubsystemManager.cpp
-    WindowManager.cpp
+    subsystem_manager.cpp
+    window_manager.cpp
     )
 
 target_include_directories(core PUBLIC .)

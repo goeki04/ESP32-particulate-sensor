@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "panels.h"
-#include "GuiRenderer.h"
-#include "Console.h"
+#include "gui_renderer.h"
+#include "console.h"
 void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
 {
     ImGuiStyle& style = ImGui::GetStyle();
