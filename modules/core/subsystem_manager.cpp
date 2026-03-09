@@ -1,4 +1,4 @@
-#include "SubsystemManager.h"
+#include "subsystem_manager.h"
 
 namespace Andromeda {
 	Uint64 SystemManager::lastCounter = SDL_GetPerformanceCounter();

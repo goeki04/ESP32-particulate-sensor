@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "panels.h"
 #include "camera.h"
-#include "ResourceManager.h"
-#include "GuiRenderer.h"
+#include "resource_manager.h"
+#include "gui_renderer.h"
 namespace Andromeda::Gui::Panels {
     void deviceBrowserPicking(GuiRenderer& guiRenderer) {
         Camera& cam = guiRenderer.m_ResourceManager->m_Cam;

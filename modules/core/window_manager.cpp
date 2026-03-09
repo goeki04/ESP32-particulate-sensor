@@ -1,4 +1,4 @@
-#include "WindowManager.h"
+#include "window_manager.h"
 #include "stb_image.h"
 #include <cstring>
 #include <stdexcept>

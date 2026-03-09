@@ -1,10 +1,10 @@
 #pragma once
-#include "ISubsystem.h"
-#include "Shader.h"
-#include "Mesh.h"
+#include "subsystem.h"
+#include "shader.h"
+#include "mesh.h"
 #include "camera.h"
 #include <unordered_map>
-#include "Registry.h"
+#include "registry.h"
 #include "components.h"
 #include "a_texture.hpp"
 namespace Andromeda {

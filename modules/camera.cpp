@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "camera.h"
-#include "WindowManager.h"
-#include "GuiRenderer.h"
-#include "SubsystemManager.h"
+#include "window_manager.h"
+#include "gui_renderer.h"
+#include "subsystem_manager.h"
 namespace Andromeda {
     glm::mat4 Camera::m_Projection = glm::mat4(1.0f);
     Ray Camera::cursorToWorldRay() const

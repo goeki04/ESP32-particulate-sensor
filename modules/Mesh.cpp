@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Mesh.h"
+#include "mesh.h"
 namespace Andromeda {
     void Mesh::createMesh()
     {

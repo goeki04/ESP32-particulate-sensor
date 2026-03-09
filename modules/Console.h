@@ -1,8 +1,6 @@
 #pragma once
 
 #include <imgui.h>
-#include <ctype.h>
-#include <stdio.h>
 #include <vector>
 #include <set>
 #include <map>

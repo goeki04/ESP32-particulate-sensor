@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Shader.h"
+#include "shader.h"
 namespace Andromeda {
     std::string Shader::readShaderSource(const char* shaderPath)
     {

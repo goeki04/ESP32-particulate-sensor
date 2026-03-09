@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "SubsystemManager.h"
-#include "WindowManager.h"
-#include "ResourceManager.h"
-#include "Registry.h"
-#include "Renderer.h"
-#include "EspHomeClient.h"
+#include "subsystem_manager.h"
+#include "window_manager.h"
+#include "resource_manager.h"
+#include "registry.h"
+#include "renderer.h"
+#include "esphome_client.h"
 
 Andromeda::Window::WindowManager windowManager;
 Andromeda::Renderer renderer;
