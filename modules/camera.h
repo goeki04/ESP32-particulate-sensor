@@ -1,14 +1,10 @@
 #pragma once
 struct AABB;
-namespace Andromeda {
-	struct Ray {
-		glm::vec3 origin;
-		glm::vec3 direction;
-	};
+#include "a_math.hpp"
+namespace Andromeda  {
 
 	class Camera {
 	private:
-
 		glm::vec3 m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
 		glm::vec3 m_CameraPos = glm::vec3(0.0f, 5.0f, 0.0f);
 		glm::vec3 m_CameraTarget = glm::vec3(0.0f);

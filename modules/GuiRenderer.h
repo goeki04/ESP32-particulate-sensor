@@ -4,6 +4,22 @@
 namespace Andromeda {
     class ResourceManager;
 }
+inline ImVec2 operator+(const ImVec2& a, const ImVec2& b) {
+    return ImVec2(a.x + b.x, a.y + b.y);
+}
+
+inline ImVec2 operator-(const ImVec2& a, const ImVec2& b) {
+    return ImVec2(a.x - b.x, a.y - b.y);
+}
+
+inline bool operator==(const ImVec2& a, const ImVec2& b) {
+    if (a.x == b.x && a.y == b.y) return true;
+    return false;
+}
+
+inline ImVec2 operator*(const ImVec2& a, const float b) {
+    return ImVec2(a.x * b, a.y * b);
+}
 namespace Andromeda::Gui {
     struct Margin {
         float left;
@@ -22,6 +38,8 @@ namespace Andromeda::Gui {
             : left(left), right(right), bottom(bottom), top(top) {
         }
     };
+
+
 
     enum Alignment {
         TopLeft,

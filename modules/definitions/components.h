@@ -1,8 +1,7 @@
 #pragma once
-#include <glm/common.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Shader.h"
+#include "a_material.hpp"
 namespace Andromeda::ECS::Component {
     struct Transform {
         glm::vec3 position{ 0.0f, 0.0f, 0.0f };

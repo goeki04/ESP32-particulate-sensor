@@ -1,25 +1,23 @@
 cmake_minimum_required(VERSION 3.23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-project(ESP32 LANGUAGES CXX)
+project(Andromeda LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 
 find_package(glm REQUIRED)
 find_package(SDL3 REQUIRED)
 find_package(stb REQUIRED)
 find_package(imgui REQUIRED)
 find_package(protobuf REQUIRED)
-find_package(asio REQUIRED)
 find_package(glew REQUIRED)
 find_package(assimp REQUIRED)
 
-file(GLOB SHADERS "src/shader/*.glsl")
-file(GLOB SHADERS "src/shader/compute/*.compute")
-file(GLOB SOURCES "src/*.cpp")
-file(GLOB HEADERS "src/*.h")
+file(GLOB SHADERS "modules/shader/*.glsl")
+file(GLOB SHADERS "modules/shader/compute/*.compute")
+file(GLOB SOURCES "modules/*.cpp")
+file(GLOB HEADERS "modules/*.h")
 file(GLOB BINDING_SOURCES "bindings/*.cpp")
 file(GLOB BINDING_HEADERS "bindings/*.h")
 
@@ -31,7 +29,11 @@ set(PROTO_FILES
 set(PROTOBUF_GENERATE_CPP_APPEND_PATH TRUE)
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
 
-add_executable(ESP32 
+add_subdirectory(modules/network)
+add_subdirectory(modules/core)
+add_subdirectory(modules/collision)
+add_subdirectory(modules/definitions)
+add_executable(Andromeda 
     ${SOURCES} 
     ${HEADERS} 
     ${BINDING_SOURCES} 
@@ -41,23 +43,29 @@ add_executable(ESP32
     ${PROTO_HDRS}
 )
 
-target_compile_definitions(ESP32 PRIVATE ASSET_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
-target_compile_definitions(ESP32 PRIVATE SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/src/shader/")
+target_compile_definitions(Andromeda PRIVATE ASSET_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
+target_compile_definitions(Andromeda PRIVATE SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/modules/shader/")
 source_group("Shader files" FILES ${SHADERS})
-target_include_directories(ESP32 PRIVATE bindings)
-target_include_directories(ESP32 PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${PROTOBUF_INCLUDE_DIRS})
-target_include_directories(ESP32 PRIVATE 
+target_include_directories(Andromeda PRIVATE bindings)
+target_include_directories(Andromeda PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${PROTOBUF_INCLUDE_DIRS})
+target_include_directories(Andromeda PRIVATE 
     ${CMAKE_CURRENT_BINARY_DIR}/proto 
 )
-target_precompile_headers(ESP32 PRIVATE src/pch.h)
+target_precompile_headers(Andromeda PRIVATE modules/pch.h)
 
-target_link_libraries(ESP32 PRIVATE
+target_link_libraries(Andromeda PRIVATE
+    #External dependencies
     glm::glm
     sdl::sdl
     imgui::imgui
     GLEW::GLEW
     protobuf::libprotobuf
-    asio::asio
     stb::stb
     assimp::assimp
+    
+    #Engine modules
+    network
+    core
+    collision
+    definitions
 )

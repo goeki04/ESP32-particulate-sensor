@@ -3,10 +3,8 @@
 #include "camera.h"
 #include "ResourceManager.h"
 #include "GuiRenderer.h"
-#include "util.h"
 namespace Andromeda::Gui::Panels {
     void deviceBrowserPicking(GuiRenderer& guiRenderer) {
-        using namespace Util;
         Camera& cam = guiRenderer.m_ResourceManager->m_Cam;
         static char query[128] = "";
         ImGui::InputTextWithHint("##search", "Search components...", query, IM_ARRAYSIZE(query));
