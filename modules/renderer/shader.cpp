@@ -49,11 +49,11 @@ namespace Andromeda {
         setInt(uniformName, slot);
     }
 
-    void LitShader::setUniforms(const glm::mat4& modelMatrix)
+    void LitShader::setUniforms(const Camera& cam, const glm::mat4& modelMatrix)
     {
         use();
         setMat4x4("model", modelMatrix);
-        setCameraUniforms();
+        setCameraUniforms(cam);
         setVec3("sunLight.color", m_DirLight.color);
         setVec3("sunLight.direction", m_DirLight.direction);
         setVec3("ambientLight", m_AmbientLight);
@@ -105,14 +105,14 @@ namespace Andromeda {
         m_UniformCache.clear();
     }
 
-    void GridShader::setUniforms()
+    void GridShader::setUniforms(const Camera& cam)
     {
-        setCameraUniforms();
+        setCameraUniforms(cam);
     }
 
-    void ColorShader::setUniforms(const glm::mat4& modelMatrix)
+    void ColorShader::setUniforms(const Camera& cam, const glm::mat4& modelMatrix)
     {
-        setCameraUniforms();
+        setCameraUniforms(cam);
         setVec3("aColor", color);
         setMat4x4("model", modelMatrix);
     }

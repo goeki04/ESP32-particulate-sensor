@@ -13,11 +13,11 @@ namespace Andromeda {
     {
         m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
         m_Registry = SystemManager::getInstance().getSubsystem<ComponentRegistry>();
-        m_GuiManager.init(Window::g_Window, m_ResourceManager, m_Registry);
+        m_GuiManager.init(Window::g_Window, &m_Cam, m_Registry);
         ImVec2 viewportWindowSize = m_GuiManager.getViewportWindowSize();
         m_FramebufferSize = glm::ivec2(viewportWindowSize.x, viewportWindowSize.y);
         m_TexelSize = 1.0f / glm::vec2(m_FramebufferSize.x, m_FramebufferSize.y);
-        m_ResourceManager->m_Cam.m_framebufferSize = m_FramebufferSize;
+        m_Cam.m_framebufferSize = m_FramebufferSize;
         ImGui_ImplSDL3_InitForOpenGL(Window::g_Window, m_ResourceManager->m_GlContext);
         ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
         createFramebuffers();
@@ -48,8 +48,8 @@ namespace Andromeda {
                     m_FramebufferSize = m_TargetSize;
                     m_TexelSize = 1.0f / glm::vec2((float)m_FramebufferSize.x, (float)m_FramebufferSize.y);
 
-                    m_ResourceManager->m_Cam.m_framebufferSize = m_FramebufferSize;
-                    m_ResourceManager->m_Cam.setProjectionMatrix((float)m_FramebufferSize.x, (float)m_FramebufferSize.y);
+                    m_Cam.m_framebufferSize = m_FramebufferSize;
+                    m_Cam.setProjectionMatrix((float)m_FramebufferSize.x, (float)m_FramebufferSize.y);
 
                     destroyFramebuffers();
                     createFramebuffers();
@@ -64,8 +64,10 @@ namespace Andromeda {
     }
     void Renderer::update()
     {
+        m_Cam.setProjectionMatrix(Gui::GuiRenderer::s_ViewportSize.x, Gui::GuiRenderer::s_ViewportSize.y);
+        if (Gui::GuiRenderer::s_ViewportFocused)
+            m_Cam.cameraMovement();
         handleResize();
-        Camera& cam = m_ResourceManager->m_Cam;
         windowClearPass();
         scenePassBegin();
         geometryPass();
@@ -73,8 +75,8 @@ namespace Andromeda {
         scenePassEndResolve();
         selectionPass();
         postprocessingPass();
-        guiPass(cam);
-        pickingPass(cam);
+        guiPass(m_Cam);
+        pickingPass(m_Cam);
         imGuiPass();
     }
 

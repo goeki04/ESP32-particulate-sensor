@@ -2,7 +2,8 @@
 #include "subsystem.h"
 #include "registry.h"
 #include "gui_renderer.h"
-#include "components.h"
+#include "components.hpp"
+#include "camera.h"
 namespace Andromeda {
 	enum class MaterialShaderType : int;
 	namespace Window { class WindowManager; }
@@ -43,6 +44,7 @@ namespace Andromeda {
 		GLuint m_FramebufferTexture = 0, m_MsaaFramebufferTexture = 0;
 		GLuint m_SelectionFramebuffer = 0, m_SelectionTexture = 0;
 		GLuint m_PostprocessFramebuffer = 0, m_PostprocessTexture = 0;
+		Andromeda::Camera m_Cam;
 		unsigned int m_Rendererbuffer = 0;
 		float m_ResizeTimer = 0.0f;
 		bool m_ResizePending = false;

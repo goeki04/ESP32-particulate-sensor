@@ -2,7 +2,7 @@
 #include "glm/glm.hpp"
 #include "registry.h"
 namespace Andromeda {
-    class ResourceManager;
+    class Camera;
 }
 inline ImVec2 operator+(const ImVec2& a, const ImVec2& b) {
     return ImVec2(a.x + b.x, a.y + b.y);
@@ -60,7 +60,7 @@ namespace Andromeda::Gui {
         /// This is the coordinate of the viewport pivot relative to the screen (topLeft = 0)
         /// </summary>
         glm::vec2 m_ViewportRectMin = glm::vec2(0.0f, 0.0f);
-        void init(SDL_Window* window, ResourceManager* rm, ECS::ComponentRegistry* registry);
+        void init(SDL_Window* window, Camera* cam, ECS::ComponentRegistry* registry);
         void update();
         void destroy();
         float getMenuBarHeight();
@@ -71,7 +71,7 @@ namespace Andromeda::Gui {
         int m_CurrentSelectedID = 0;
         static glm::vec3 m_LastHitPoint;
         static bool m_HasLastHitpoint;
-        ResourceManager* m_ResourceManager = nullptr;
+        Camera* m_Cam = nullptr;
         ECS::ComponentRegistry* m_Registry = nullptr;
         std::vector<SDL_Surface> m_DeviceIcons;
         std::string m_ImguiVersion = "ImGui: " + std::string(IMGUI_VERSION);
