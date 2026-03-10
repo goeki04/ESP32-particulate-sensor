@@ -1,6 +1,10 @@
 #pragma once
 struct AABB;
 #include "a_math.hpp"
+union SDL_Event;
+#include <glm/glm.hpp>          
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 namespace Andromeda  {
 
 	class Camera {

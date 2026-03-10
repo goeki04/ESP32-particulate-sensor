@@ -1,8 +1,9 @@
-#include "pch.h"
 #include "camera.h"
-#include "window_manager.h"
-#include "gui_renderer.h"
+//#include "gui_renderer.h"
 #include "subsystem_manager.h"
+#include <imgui.h>
+#include "SDL3/SDL.h"
+#include <algorithm>
 namespace Andromeda {
     glm::mat4 Camera::m_Projection = glm::mat4(1.0f);
     Ray Camera::cursorToWorldRay() const
@@ -36,10 +37,12 @@ namespace Andromeda {
     void Camera::cameraMovement()
     {
         SDL_Window* currentWindow = SDL_GL_GetCurrentWindow();
-        if (!Gui::GuiRenderer::s_ViewportFocused) {
+        
+        /*if (!Gui::GuiRenderer::s_ViewportFocused) {
             SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), false);
             return;
-        }
+        }*/
+        
         Uint32 mouseState = SDL_GetMouseState(NULL, NULL);
         bool rightMouseDown = mouseState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT);
         static bool wasRightMouseDown = false;
