@@ -3,6 +3,7 @@
 
 #include "resource_manager.h"
 #include "panels.h"
+#include "camera.h"
 #include "console.h"
 namespace Andromeda::Gui {
     ImVec2 Gui::GuiRenderer::s_ViewportSize = ImVec2(0.0f, 0.0f);
@@ -10,9 +11,9 @@ namespace Andromeda::Gui {
     bool Gui::GuiRenderer::m_ShowVersion = false;
     bool Gui::GuiRenderer::m_HasLastHitpoint = false;
     glm::vec3 Gui::GuiRenderer::m_LastHitPoint{ 0.0f };
-    void Gui::GuiRenderer::init(SDL_Window* window, ResourceManager* rm, 
+    void Gui::GuiRenderer::init(SDL_Window* window, Camera* cam, 
         ECS::ComponentRegistry* registry) {
-        m_ResourceManager = rm;
+        m_Cam = cam;
         m_Registry = registry;
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();

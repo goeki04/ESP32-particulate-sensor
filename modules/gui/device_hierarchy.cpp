@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "panels.h"
 #include "gui_renderer.h"
-#include "components.h"
+#include "components.hpp"
 #include "registry.h"
 void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
 {
