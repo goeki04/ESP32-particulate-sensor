@@ -2,6 +2,7 @@
 #include "camera.h"
 #include <unordered_map>
 #include "a_material.hpp"
+#include <GL/glew.h>
 namespace Andromeda {
 	class Shader {
 	public:

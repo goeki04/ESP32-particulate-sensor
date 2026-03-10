@@ -1,5 +1,9 @@
-#include "pch.h"
+#include <filesystem>
+#include <fstream>
 #include "shader.h"
+#include <glm/glm.hpp>          
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 namespace Andromeda {
     std::string Shader::readShaderSource(const char* shaderPath)
     {
@@ -66,7 +70,6 @@ namespace Andromeda {
             GLsizei outLen = 0;
             glGetShaderInfoLog(sh, (GLsizei)log.size(), &outLen, log.data());
             log.resize(outLen);
-            std::cerr << stage << " compile error:\n" << log << std::endl;
             throw std::runtime_error(std::string(stage) + " compile error:\n" + log);
             };
         GLint success;

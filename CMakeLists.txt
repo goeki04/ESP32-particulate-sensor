@@ -33,6 +33,7 @@ add_subdirectory(modules/network)
 add_subdirectory(modules/core)
 add_subdirectory(modules/collision)
 add_subdirectory(modules/definitions)
+add_subdirectory(modules/renderer)
 add_executable(Andromeda 
     ${SOURCES} 
     ${HEADERS} 
@@ -66,6 +67,7 @@ target_link_libraries(Andromeda PRIVATE
     #Engine modules
     network
     core
+    renderer
     collision
     definitions
 )
