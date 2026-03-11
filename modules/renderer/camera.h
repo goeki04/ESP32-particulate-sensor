@@ -1,5 +1,4 @@
 #pragma once
-struct AABB;
 #include "a_math.hpp"
 union SDL_Event;
 #include <glm/glm.hpp>          

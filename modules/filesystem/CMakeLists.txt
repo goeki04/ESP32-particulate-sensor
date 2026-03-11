@@ -4,7 +4,6 @@ add_library(filesystem STATIC
 )
 
 target_include_directories(filesystem PUBLIC .)
-
 target_link_libraries(filesystem PUBLIC
     definitions
 )

@@ -1,17 +1,23 @@
 #pragma once
 #include "subsystem.h"
-#include "shader.h"
+#include "shader.hpp"
 #include "mesh.h"
 #include <unordered_map>
 #include "components.hpp"
 #include "a_texture.hpp"
+#include <memory>
 #include "a_device.hpp"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include "a_opengl_handles.hpp"
+#include "a_primitives.hpp"
 namespace Andromeda {
 
 
 	class ResourceManager : public Andromeda::ISubsystem {
 	public:
-		SDL_GLContext m_GlContext = NULL;
+
 		std::vector<std::unique_ptr<MaterialShader>> m_MaterialShaders;
 		std::vector<std::unique_ptr<ProceduralShader>> m_ProceduralShaders;
 		std::vector<std::unique_ptr<PostProcessShader>> m_PostProcessShaders;
@@ -51,6 +57,7 @@ namespace Andromeda {
 	private:
 
 		std::unordered_map<uint32_t, Device> m_DeviceRecords;
+		std::unordered_map<i32,MeshGPUHandle> m_GPUMeshes;
 		std::unordered_map<std::string, uint32_t> m_MeshIDbyName;
 		unsigned int m_NextMeshID = 0;
 

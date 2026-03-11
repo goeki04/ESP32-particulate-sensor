@@ -1,4 +1,5 @@
 #pragma once
+#include "a_geometry.hpp"
 namespace Andromeda {
 	enum class deviceType {
 		DEFAULT = -1,
@@ -11,7 +12,7 @@ namespace Andromeda {
 	struct Device {
 		uint32_t id;
 		std::string name;
-		Mesh mesh;
+		MeshData mesh;
 		deviceType type;
 	};
 }

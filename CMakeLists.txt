@@ -34,6 +34,11 @@ add_subdirectory(modules/core)
 add_subdirectory(modules/collision)
 add_subdirectory(modules/definitions)
 add_subdirectory(modules/renderer)
+add_subdirectory(modules/scene)
+add_subdirectory(modules/editor)
+add_subdirectory(modules/resource)
+add_subdirectory(modules/filesystem)
+add_subdirectory(modules/renderer_rhi)
 add_executable(Andromeda 
     ${SOURCES} 
     ${HEADERS} 
@@ -53,7 +58,6 @@ target_include_directories(Andromeda PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/proto 
 )
 target_precompile_headers(Andromeda PRIVATE modules/pch.h)
-
 target_link_libraries(Andromeda PRIVATE
     #External dependencies
     glm::glm
@@ -68,6 +72,9 @@ target_link_libraries(Andromeda PRIVATE
     network
     core
     renderer
+    renderer_rhi
     collision
+    filesystem
+    resource
     definitions
 )

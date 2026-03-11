@@ -1,30 +1,19 @@
-#include "pch.h"
 #include "resource_manager.h"
 #include "subsystem_manager.h"
-#include "window_manager.h"
-#include "gui_renderer.h"
+#include "a_filesystem.hpp"
+#include <string>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void ResourceManager::start()
     {
-        auto windowManager = SystemManager::getInstance().getSubsystem<Window::WindowManager>();
-        m_Registry = SystemManager::getInstance().getSubsystem<ComponentRegistry>();
-        m_GlContext = SDL_GL_CreateContext(Window::g_Window);
-        if (!m_GlContext) {
-            throw std::runtime_error("Failed to create SDL_GL context!");
-        }
-        GLenum err = glewInit();
-        if (err != GLEW_OK) {
-            throw std::runtime_error("Failed to call glewInit!");
-        }
         addMaterialShader<LitShader>(SHADER_PATH "unlitVertex.glsl", SHADER_PATH "unlitFragment.glsl");
         addMaterialShader<ColorShader>(SHADER_PATH "colorVertex.glsl", SHADER_PATH "colorFragment.glsl");
         addProceduralShader<GridShader>(SHADER_PATH "gridVertex.glsl", SHADER_PATH "gridFragment.glsl");
         addPostProcessShader<PostProcessShader>(SHADER_PATH "outlineVertex.glsl", SHADER_PATH "outlineFragment.glsl");
-        addPostProcessShader<PostProcessShader>(SHADER_PATH "maskVertex.glsl", SHADER_PATH "maskFrag.glsl"),
-            loadModels();
+        addPostProcessShader<PostProcessShader>(SHADER_PATH "maskVertex.glsl", SHADER_PATH "maskFrag.glsl");
+        loadModels();
         loadIcons();
         setupMeshes();
     }
@@ -37,7 +26,7 @@ namespace Andromeda {
         std::array<std::string, 2> filter;
         filter[0] = ".fbx";
         filter[1] = ".obj";
-        std::vector<std::string> paths = getAllFilesInDirectoryRecursive(ASSET_PATH "models", filter);
+        std::vector<std::string> paths = Filesystem::getAllFilesInDirectoryRecursive(ASSET_PATH "models", filter);
 
         for (auto& v : paths) {
             loadScene(v);
@@ -49,17 +38,17 @@ namespace Andromeda {
         std::array<std::string, 2> filter;
         filter[0] = ".png";
         filter[1] = ".jpg";
-        std::vector<std::string> paths = getAllFilesInDirectory(ASSET_PATH "icons", filter);
+        std::vector<std::string> paths = Filesystem::getAllFilesInDirectory(ASSET_PATH "icons", filter);
 
         for (auto& v : paths) {
-            std::string fileName = getFileName(v);
+            std::string fileName = Filesystem::getFileName(v);
             deviceType type = findDeviceIcon(fileName);
             m_DeviceIcons[type] = CreateOpenGLTexture(v.c_str());
         }
     }
 
     deviceType ResourceManager::findDeviceIcon(std::string iconName) {
-        for (auto& v : ResourceManager::m_DirectoryNames) {
+        for (auto& v : Filesystem::m_DirectoryNames) {
             if (v.first.find(iconName) != std::string::npos) {
                 return v.second;
             }
@@ -232,13 +221,13 @@ namespace Andromeda {
         if (!scene) {
             throw std::runtime_error(importer.GetErrorString());
         }
-        std::string meshName = getFileName(path);
+        std::string meshName = Filesystem::getFileName(path);
         if (m_MeshIDbyName.contains(meshName)) {
             std::printf("Mesh already exists!\n");
             return;
         }
         const uint32_t id = m_NextMeshID++;
-        deviceType dt = findDeviceTypeByPath(path);
+        deviceType dt = Filesystem::findDeviceTypeByPath(path);
         auto [it, inserted] = m_DeviceRecords.try_emplace(
             id,
             Device{ id, meshName, Mesh{}, dt }

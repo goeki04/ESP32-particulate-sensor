@@ -1,5 +1,4 @@
 #include "a_filesystem.hpp"
-
 #include <filesystem>
 namespace Andromeda {
     /// <summary>
@@ -75,7 +74,7 @@ namespace Andromeda {
         return filePaths;
     }
 
-    std::string Filesystem::getFileName(const std::string& path) const
+    std::string Filesystem::getFileName(const std::string& path)
     {
         size_t namePos = path.find_last_of("/");
         std::string objectName = (namePos == std::string::npos) ? path : path.substr(namePos + 1);

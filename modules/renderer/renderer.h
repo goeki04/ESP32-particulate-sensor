@@ -1,14 +1,15 @@
 #pragma once
 #include "subsystem.h"
 #include "registry.h"
-#include "gui_renderer.h"
 #include "components.hpp"
 #include "camera.h"
+#include "GL/glew.h"
 namespace Andromeda {
 	enum class MaterialShaderType : int;
 	namespace Window { class WindowManager; }
 	class ResourceManager;
 	class Camera;
+	class Mesh;
 	enum class MsaaSamples {
 		x2 = 2, x4 = 4, x8 = 8
 	};
@@ -17,6 +18,7 @@ namespace Andromeda {
 	public:
 		void start() override;
 		void update() override;
+		void createMesh(Mesh& mesh);
 		void drawMesh(ResourceManager* rm, const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform);
 		void drawMesh(ResourceManager* rm, const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform, MaterialShaderType type);
 		void destroyFramebuffers();
@@ -55,7 +57,6 @@ namespace Andromeda {
 		void createFramebuffers();
 		ResourceManager* m_ResourceManager = nullptr;
 		ECS::ComponentRegistry* m_Registry = nullptr;
-		Gui::GuiRenderer m_GuiManager;
 #ifdef DEBUG_RENDERING_OPENGL
 		bool m_DebugMode = false;
 #endif

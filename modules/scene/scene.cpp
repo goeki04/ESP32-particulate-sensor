@@ -1,7 +1,8 @@
 #include "scene.hpp"
 #include "components.hpp"
+#include "subsystem_manager.h"
 namespace Andromeda{
-    using Entity = uint32_t;
+
     void Scene::addEntity(unsigned int meshID, const std::string& name, ECS::Component::Transform transform)
     {
         auto handle = m_Registry->createHandle();
@@ -16,5 +17,9 @@ namespace Andromeda{
     void Scene::deleteEntity(Entity id)
     {
         m_Registry->destroyEntity(id);
+    }
+    void Scene::start()
+    {
+        m_Registry = SystemManager::getInstance().getSubsystem<ECS::ComponentRegistry>();
     }
 }
