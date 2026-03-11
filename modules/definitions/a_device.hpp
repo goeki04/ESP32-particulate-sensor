@@ -12,7 +12,7 @@ namespace Andromeda {
 	struct Device {
 		uint32_t id;
 		std::string name;
-		MeshData mesh;
+		Mesh mesh;
 		deviceType type;
 	};
 }

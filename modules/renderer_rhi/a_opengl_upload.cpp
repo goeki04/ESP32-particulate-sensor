@@ -3,21 +3,21 @@
 #include "a_opengl_handles.hpp"
 #include "a_geometry.hpp"
 namespace Andromeda {
-    void createMesh(MeshGPUHandle& mesh)
+    void createMesh(MeshGPUHandle& glMesh,const Mesh& mesh)
     {
-        glGenVertexArrays(1, &mesh.vao);
-        glGenBuffers(1, &mesh.vbo);
-        glGenBuffers(1, &mesh.ebo);
-        glBindVertexArray(mesh.vao);
-        glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+        glGenVertexArrays(1, &glMesh.vao);
+        glGenBuffers(1, &glMesh.vbo);
+        glGenBuffers(1, &glMesh.ebo);
+        glBindVertexArray(glMesh.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, glMesh.vbo);
         glBufferData(GL_ARRAY_BUFFER,
-            mesh.m_VertexBuffer.size() * sizeof(Vertex),
-            mesh.m_VertexBuffer.empty() ? nullptr : mesh.m_VertexBuffer.data(),
+            mesh.m_Vertexbuffer.size() * sizeof(Vertex),
+            mesh.m_Vertexbuffer.empty() ? nullptr : mesh.m_Vertexbuffer.data(),
             GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glMesh.ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-            mesh.m_IndexBuffer.size() * sizeof(unsigned int),
-            mesh.m_IndexBuffer.empty() ? nullptr : mesh.m_IndexBuffer.data(),
+            mesh.m_Indexbuffer.size() * sizeof(unsigned int),
+            mesh.m_Indexbuffer.empty() ? nullptr : mesh.m_Indexbuffer.data(),
             GL_STATIC_DRAW);
         //positions
         glEnableVertexAttribArray(0);

@@ -1,5 +1,6 @@
 #pragma once
 namespace Andromeda {
 	class MeshGPUHandle;
-	void createMesh(MeshGPUHandle& mesh);
+	class Mesh;
+	void createMesh(MeshGPUHandle& gpuMesh, const Mesh& mesh);
 } 
