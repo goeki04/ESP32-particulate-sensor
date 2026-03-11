@@ -1,19 +1,16 @@
 #pragma once
 #include "subsystem.h"
 #include "shader.hpp"
-#include "mesh.h"
 #include <unordered_map>
 #include "components.hpp"
 #include "a_texture.hpp"
 #include <memory>
 #include "a_device.hpp"
-#include <assimp/Importer.hpp>
+
 #include <assimp/scene.h>
-#include <assimp/postprocess.h>
 #include "a_opengl_handles.hpp"
 #include "a_primitives.hpp"
 namespace Andromeda {
-
 
 	class ResourceManager : public Andromeda::ISubsystem {
 	public:
@@ -34,11 +31,10 @@ namespace Andromeda {
 		void loadIcons();
 
 		deviceType findDeviceIcon(std::string iconName);
-		void setAABB(const Mesh& mesh, Andromeda::ECS::Component::AABB& aabb);
 
-		GLsizei getMeshVaoByID(uint32_t meshID) const;
+		u32 getMeshVaoByID(uint32_t meshID) const;
 
-		GLsizei getMeshIndexSizeByID(uint32_t meshID) const;
+		u32 getMeshIndexSizeByID(uint32_t meshID) const;
 
 		MaterialShader* getMaterialShaderByID(MaterialShaderType t)   const;
 
@@ -48,7 +44,7 @@ namespace Andromeda {
 
 		const Mesh& getMeshByID(uint32_t meshID) const;
 
-		size_t getDeviceRecordsSize() const;
+		u32 getDeviceRecordsSize() const;
 
 		const std::unordered_map<uint32_t, Device>& getDeviceRecords() const;
 

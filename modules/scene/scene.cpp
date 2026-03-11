@@ -6,12 +6,12 @@ namespace Andromeda{
     void Scene::addEntity(unsigned int meshID, const std::string& name, ECS::Component::Transform transform)
     {
         auto handle = m_Registry->createHandle();
+        
         handle.add<ECS::Component::Transform>(transform);
         handle.add<ECS::Component::Mesh>({ meshID, MaterialShaderType::unlit });
-        ECS::Component::AABB aabb;
-        setAABB(getMeshByID(meshID), aabb);
-        handle.add<ECS::Component::AABB>(aabb);
         handle.add<ECS::Component::Tag>({ name });
+        auto aabb = m_ResourceManager->getMeshByID(meshID).getAABB();
+        handle.add<ECS::Component::AABB>(aabb);
     }
 
     void Scene::deleteEntity(Entity id)

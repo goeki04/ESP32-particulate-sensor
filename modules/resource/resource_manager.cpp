@@ -4,6 +4,9 @@
 #include <string>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <assimp/Importer.hpp>
+#include "a_opengl_upload.hpp"
+#include <assimp/postprocess.h>
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void ResourceManager::start()
@@ -63,34 +66,13 @@ namespace Andromeda {
         }*/
     }
 
-    void ResourceManager::setAABB(const Mesh& mesh, Component::AABB& aabb)
+    u32 ResourceManager::getMeshVaoByID(uint32_t meshID) const
     {
-        if (mesh.m_VertexBuffer.empty())
-            throw std::runtime_error("Mesh has no vertices");
-
-        const auto& vb = mesh.m_VertexBuffer;
-        glm::vec3 min = vb[0].pos;
-        glm::vec3 max = min;
-
-        for (const auto& v : vb) {
-            const glm::vec3 p = v.pos;
-            min = glm::min(min, p);
-            max = glm::max(max, p);
-        }
-
-        glm::vec3 center = (min + max) * 0.5f;
-        aabb.min = min;
-        aabb.max = max;
-        aabb.center = center;
+        return m_GPUMeshes.at(meshID).vao;
     }
 
-    GLsizei ResourceManager::getMeshVaoByID(uint32_t meshID) const
-    {
-        return m_DeviceRecords.at(meshID).mesh.m_Vao;
-    }
-
-    GLsizei ResourceManager::getMeshIndexSizeByID(uint32_t meshID) const {
-        return m_DeviceRecords.at(meshID).mesh.m_IndexBuffer.size();
+    u32 ResourceManager::getMeshIndexSizeByID(uint32_t meshID) const {
+        return m_DeviceRecords.at(meshID).mesh.m_Indexbuffer.size();
     }
 
     MaterialShader* ResourceManager::getMaterialShaderByID(MaterialShaderType t) const
@@ -113,7 +95,7 @@ namespace Andromeda {
         return m_DeviceRecords.at(meshID).mesh;
     }
 
-    size_t ResourceManager::getDeviceRecordsSize() const
+    u32 ResourceManager::getDeviceRecordsSize() const
     {
         return m_DeviceRecords.size();
     }
@@ -152,8 +134,14 @@ namespace Andromeda {
 
     void ResourceManager::setupMeshes()
     {
-        for (auto it = m_DeviceRecords.begin(); it != m_DeviceRecords.end(); ++it) {
-            it->second.mesh.createMesh();
+        for (auto& [id, device] : m_DeviceRecords)
+        {
+            // 1. Hole oder erstelle das GPU-Handle für diese ID
+            MeshGPUHandle& gpuHandle = m_GPUMeshes[id];
+
+            // 2. Rufe die RHI-Funktion auf (Daten von CPU -> GPU)
+            // Wir nutzen die neue RHI::createMesh(handle, data)
+            createMesh(gpuHandle, device.mesh);
         }
     }
     void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, aiNode* node)
@@ -189,8 +177,8 @@ namespace Andromeda {
                 vertices.push_back(vertex);
             }
 
-            auto& vb = newMesh.m_VertexBuffer;
-            auto& ib = newMesh.m_IndexBuffer;
+            auto& vb = newMesh.m_Vertexbuffer;
+            auto& ib = newMesh.m_Indexbuffer;
 
             const uint32_t baseVertex = static_cast<uint32_t>(vb.size());
 
