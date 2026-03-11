@@ -44,6 +44,14 @@ namespace Andromeda::Window {
         }
         SDL_SetWindowMinimumSize(g_Window, g_WindowWidth, g_WindowHeight);
         SDL_SetWindowIcon(g_Window, surface);
+        m_GlContext = SDL_GL_CreateContext(g_Window);
+        if (!m_GlContext) {
+            throw std::runtime_error("Failed to create SDL_GL context!");
+        }
+        GLenum err = glewInit();
+        if (err != GLEW_OK) {
+            throw std::runtime_error("Failed to call glewInit!");
+        }
     }
 
     void WindowManager::destroy() {

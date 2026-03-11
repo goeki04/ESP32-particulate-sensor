@@ -7,7 +7,7 @@
 #include <vector>
 #include "a_device.hpp"
 namespace Andromeda {
-	class Filesystem{
+	namespace Filesystem{
 		static constexpr std::array<std::pair<std::string_view, deviceType>, 4> m_DirectoryNames{ {
 			{"dsensor",     deviceType::SENSOR},
 			{"dcontroller", deviceType::CONTROLLER},
@@ -24,6 +24,6 @@ namespace Andromeda {
 		std::vector<std::string> getAllFilesInDirectoryRecursive(const std::string& directory, std::span<const std::string> filter);
 		std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
 		std::vector<std::string> getAllFilesInDirectory(const std::string& directory);
-		std::string getFileName(const std::string& path) const;
+		std::string getFileName(const std::string& path);
 	};
 }

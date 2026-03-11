@@ -1,9 +1,10 @@
 #include <filesystem>
 #include <fstream>
-#include "shader.h"
+#include "shader.hpp"
 #include <glm/glm.hpp>          
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "camera.h"
 namespace Andromeda {
     std::string Shader::readShaderSource(const char* shaderPath)
     {
@@ -12,6 +13,11 @@ namespace Andromeda {
         buffer << fileStream.rdbuf();
         std::string shaderSource = buffer.str();
         return shaderSource;
+    }
+    void Shader::setCameraUniforms(const Camera& cam) {
+        setMat4x4(c_viewMatrix, cam.getViewMatrix());
+        setMat4x4(c_projMatrix, cam.getProjectionMatrix());
+        setVec3(c_camPos, cam.getCameraPos());
     }
 
     void Shader::setMat4x4(const char* uniformName, const glm::mat4& matrix)

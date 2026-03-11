@@ -3,7 +3,7 @@ find_package(glew REQUIRED)
 find_package(SDL3 REQUIRED)
 find_package(imgui REQUIRED)
 add_library(renderer STATIC
-    shader.cpp
+    renderer.cpp
     camera.cpp
 )
 
@@ -17,4 +17,5 @@ target_link_libraries(renderer PUBLIC
 
     definitions
     core
+    resource
 )

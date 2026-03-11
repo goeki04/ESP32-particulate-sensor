@@ -1,9 +1,11 @@
 #pragma once
 #include "camera.h"
 #include <unordered_map>
+#include <string>
 #include "a_material.hpp"
 #include <GL/glew.h>
 namespace Andromeda {
+	class Camera;
 	class Shader {
 	public:
 		constexpr static const char* c_viewMatrix = "viewMatrix";
@@ -17,7 +19,9 @@ namespace Andromeda {
 		}
 		Shader(const Shader&) = delete;
 		Shader& operator=(const Shader&) = delete;
-		virtual ~Shader() = default;
+		virtual ~Shader() {
+			if (m_Program) glDeleteProgram(m_Program);
+		}
 		void setMat4x4(const char* uniformName, const glm::mat4& matrix);
 		void setVec3(const char* uniformName, const glm::vec3& vector);
 		void setVec2(const char* uniformName, const glm::vec2& vector);
@@ -30,11 +34,7 @@ namespace Andromeda {
 			glUseProgram(m_Program);
 		}
 	protected:
-		void setCameraUniforms(const Camera& cam) {
-			setMat4x4(c_viewMatrix, cam.getViewMatrix());
-			setMat4x4(c_projMatrix, cam.getProjectionMatrix());
-			setVec3(c_camPos, cam.getCameraPos());
-		}
+		void setCameraUniforms(const Camera& cam);
 	private:
 		std::unordered_map<std::string, GLint> m_UniformCache;
 		GLint getUniformLocation(const char* name) {

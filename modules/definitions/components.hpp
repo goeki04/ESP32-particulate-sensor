@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "a_material.hpp"
+#include <string>
 namespace Andromeda::ECS::Component {
     struct Transform {
         glm::vec3 position{ 0.0f, 0.0f, 0.0f };
