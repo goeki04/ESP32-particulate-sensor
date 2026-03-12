@@ -14,24 +14,24 @@ namespace Andromeda {
         std::string shaderSource = buffer.str();
         return shaderSource;
     }
-    void Shader::setCameraUniforms(const Camera& cam) {
-        setMat4x4(c_viewMatrix, cam.getViewMatrix());
-        setMat4x4(c_projMatrix, cam.getProjectionMatrix());
-        setVec3(c_camPos, cam.getCameraPos());
+    void Shader::setCameraUniforms(const amath::CameraData& cam) {
+        setMat4x4(c_viewMatrix, cam.m_ViewMatrix);
+        setMat4x4(c_projMatrix, cam.m_Projection);
+        setVec3(c_camPos, cam.m_CameraPos);
     }
 
-    void Shader::setMat4x4(const char* uniformName, const glm::mat4& matrix)
+    void Shader::setMat4x4(const char* uniformName, const mat4& matrix)
     {
         GLuint matrixLocation = getUniformLocation(uniformName);
         glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
-    void Shader::setVec3(const char* uniformName, const glm::vec3& vector) {
+    void Shader::setVec3(const char* uniformName, const vec3& vector) {
         GLuint vec3Location = getUniformLocation(uniformName);
         glUniform3fv(vec3Location, 1, glm::value_ptr(vector));
     }
 
-    void Shader::setVec2(const char* uniformName, const glm::vec2& vector)
+    void Shader::setVec2(const char* uniformName, const vec2& vector)
     {
         GLuint vec2Location = getUniformLocation(uniformName);
         glUniform2fv(vec2Location, 1, glm::value_ptr(vector));
@@ -43,19 +43,19 @@ namespace Andromeda {
         glUniform1f(floatLocation, floatVal);
     }
 
-    void Shader::setInt(const char* uniformName, const int intValue)
+    void Shader::setInt(const char* uniformName, const i32 intValue)
     {
         GLuint intLocation = getUniformLocation(uniformName);
         glUniform1i(intLocation, intValue);
     }
 
-    void Shader::setTexture(const char* uniformName, GLuint textureID, GLuint slot) {
+    void Shader::setTexture(const char* uniformName, u32 textureID, u32 slot) {
         glActiveTexture(GL_TEXTURE0 + slot);
         glBindTexture(GL_TEXTURE_2D, textureID);
         setInt(uniformName, slot);
     }
 
-    void LitShader::setUniforms(const Camera& cam, const glm::mat4& modelMatrix)
+    void LitShader::setUniforms(const amath::CameraData& cam, const mat4& modelMatrix)
     {
         use();
         setMat4x4("model", modelMatrix);
@@ -67,8 +67,8 @@ namespace Andromeda {
 
     void Shader::compileShader()
     {
-        auto throwShaderLog = [](GLuint sh, const char* stage) {
-            GLint len = 0;
+        auto throwShaderLog = [](u32 sh, const char* stage) {
+            i32 len = 0;
             glGetShaderiv(sh, GL_INFO_LOG_LENGTH, &len);
             std::string log;
             log.resize((len > 1) ? len : 1);
@@ -78,7 +78,7 @@ namespace Andromeda {
             log.resize(outLen);
             throw std::runtime_error(std::string(stage) + " compile error:\n" + log);
             };
-        GLint success;
+        i32 success;
         std::string vertexShaderStr = readShaderSource(m_VertexShaderPath.c_str());
         const char* vertexShaderSource = vertexShaderStr.c_str();
         unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -111,12 +111,12 @@ namespace Andromeda {
         m_UniformCache.clear();
     }
 
-    void GridShader::setUniforms(const Camera& cam)
+    void GridShader::setUniforms(const amath::CameraData& cam)
     {
         setCameraUniforms(cam);
     }
 
-    void ColorShader::setUniforms(const Camera& cam, const glm::mat4& modelMatrix)
+    void ColorShader::setUniforms(const amath::CameraData& cam, const mat4& modelMatrix)
     {
         setCameraUniforms(cam);
         setVec3("aColor", color);

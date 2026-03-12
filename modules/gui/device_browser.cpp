@@ -1,5 +1,5 @@
 #include "panels.h"
-#include "camera.h"
+#include "a_device.hpp"
 #include "resource_manager.h"
 #include "gui_renderer.h"
 namespace Andromeda::Gui::Panels {
@@ -27,7 +27,7 @@ namespace Andromeda::Gui::Panels {
         for (int idx = 0; idx < itemCount; ++idx)
         {
             const auto& deviceRecord = guiRenderer.m_ResourceManager->getDeviceRecords().at(idx);
-            GLuint texID = guiRenderer.m_ResourceManager->m_DeviceIcons.at(deviceRecord.type).id;
+            u32 texID = guiRenderer.m_ResourceManager->m_DeviceIcons.at(deviceRecord.type).id;
 
             ImGui::PushID(idx);
 
@@ -130,7 +130,6 @@ namespace Andromeda::Gui::Panels {
             ImVec2 widgetSize = ImVec2(140, 0);
             deviceBrowserPicking(guiRenderer);
             ImGui::End();
-        }
-        
+        }   
     }
 }
