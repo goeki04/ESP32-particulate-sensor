@@ -1,21 +1,20 @@
 ﻿
 #include "gui_renderer.h"
-#include "resource_manager.h"
 #include "panels.h"
 #include <stdexcept>
-#include "camera.h"
 #include <algorithm>
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
 #include <filesystem>
 #include "console.h"
+
 namespace Andromeda::Gui {
     ImVec2 Gui::GuiRenderer::s_ViewportSize = ImVec2(0.0f, 0.0f);
     bool Gui::GuiRenderer::s_ViewportFocused = false;
     bool Gui::GuiRenderer::m_ShowVersion = false;
     bool Gui::GuiRenderer::m_HasLastHitpoint = false;
     glm::vec3 Gui::GuiRenderer::m_LastHitPoint{ 0.0f };
-    void Gui::GuiRenderer::init(SDL_Window* window, Camera* cam, 
+    void Gui::GuiRenderer::init(SDL_Window* window, amath::CameraData* cam, 
         ECS::ComponentRegistry* registry) {
         m_Cam = cam;
         m_Registry = registry;

@@ -1,8 +1,9 @@
 #pragma once
+#include "a_primitives.hpp"
 namespace Andromeda {
 	struct DirLight {
-		glm::vec3 direction;
-		glm::vec3 color;
+		vec3 direction;
+		vec3 color;
 	};
 
 	enum class MaterialShaderType { unlit, white };

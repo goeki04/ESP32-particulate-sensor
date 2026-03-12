@@ -1,12 +1,11 @@
 #pragma once
 #include <imgui.h>
-#include "a_primitives.hpp"
 #include <vector>
 #include <string>
 #include "registry.h"
-
+#include "a_math.hpp"
 namespace Andromeda {
-    class Camera;
+    class amath::CameraData;
 }
 inline ImVec2 operator+(const ImVec2& a, const ImVec2& b) {
     return ImVec2(a.x + b.x, a.y + b.y);
@@ -61,7 +60,7 @@ namespace Andromeda::Gui {
         /// This is the coordinate of the viewport pivot relative to the screen (topLeft = 0)
         /// </summary>
         vec2 m_ViewportRectMin = vec2(0.0f, 0.0f);
-        void init(SDL_Window* window, Camera* cam, ECS::ComponentRegistry* registry);
+        void init(SDL_Window* window, amath::CameraData* cam, ECS::ComponentRegistry* registry);
         void update();
         void destroy();
         float getMenuBarHeight();
@@ -72,7 +71,7 @@ namespace Andromeda::Gui {
         int m_CurrentSelectedID = 0;
         static vec3 m_LastHitPoint;
         static bool m_HasLastHitpoint;
-        Camera* m_Cam = nullptr;
+        amath::CameraData* m_Cam = nullptr;
         ECS::ComponentRegistry* m_Registry = nullptr;
         std::vector<SDL_Surface> m_DeviceIcons;
         std::string m_ImguiVersion = "ImGui: " + std::string(IMGUI_VERSION);

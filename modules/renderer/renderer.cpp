@@ -2,7 +2,6 @@
 #include "subsystem_manager.h"
 #include "window_manager.h"
 #include "resource_manager.h"
-#include "camera.h"
 
 using namespace Andromeda::ECS;
 namespace Andromeda {
@@ -108,7 +107,7 @@ namespace Andromeda {
             }
         }
     }
-    void Renderer::guiPass(Camera& cam)
+    void Renderer::guiPass(amath::CameraData& cam)
     {
         //m_GuiManager.update();
 
@@ -206,7 +205,7 @@ namespace Andromeda {
         glDisable(GL_BLEND);
         glEnable(GL_CULL_FACE);
     }
-    void Renderer::pickingPass(const Camera& cam)
+    void Renderer::pickingPass(const amath::CameraData& cam)
     {
         /*
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {

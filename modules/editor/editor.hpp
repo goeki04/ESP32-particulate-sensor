@@ -8,7 +8,7 @@ namespace Andromeda {
 	class Editor : public ISubsystem{
 		Renderer* m_Renderer = nullptr;
 		Scene* m_Scene = nullptr;
-		amath::Camera m_EditorCam;
+		amath::CameraData m_EditorCam;
 		Gui::GuiRenderer m_GuiRenderer;
 
 		void start() override;
@@ -16,14 +16,14 @@ namespace Andromeda {
 		void destroy() override;
 
 		bool RayIntersectsXZPlane(const amath::Ray& ray, float planeY, vec3& outHitPoint);
-		void cameraMovement();
-		vec3 getCameraPos() const;
-		mat4 getViewMatrix() const;
-		void updatePickingRay();
-		void zoom(SDL_Event* event);
-		void setProjectionMatrix(float viewPortSizeX, float viewportSizeY) const;
-		static mat4 getProjectionMatrix();
-		mat4 calculateCameraOrbit();
-		amath::Ray cursorToWorldRay() const;
+		void cameraMovement(amath::CameraData& cam);
+		vec3 getCameraPos(const amath::CameraData& cam) const;
+		mat4 getViewMatrix(const amath::CameraData& cam) const;
+		void updatePickingRay(amath::CameraData& cam);
+		void zoom(amath::CameraData& cam, SDL_Event* event);
+		void setProjectionMatrix(amath::CameraData& cam, float viewPortSizeX, float viewportSizeY) const;
+		static mat4 getProjectionMatrix(const amath::CameraData& cam);
+		mat4 calculateCameraOrbit(amath::CameraData& cam);
+		amath::Ray cursorToWorldRay(const amath::CameraData& cam) const;
 	};
 }

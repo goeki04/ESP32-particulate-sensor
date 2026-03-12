@@ -6,13 +6,13 @@ namespace Andromeda::amath {
 		vec3 direction;
 	};
 
-	struct Camera {
+	struct CameraData {
 		vec3 m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
 		vec3 m_CameraPos = glm::vec3(0.0f, 5.0f, 0.0f);
 		vec3 m_CameraTarget = glm::vec3(0.0f);
 		float m_Fov = 45.0f;
 		float m_FovMin = 10.0f, m_FovMax = 50.0f;
-		mat4 m_Projection = {1.0f};
+		mat4 m_Projection = { 1.0f };
 
 		float m_LastMouseY = 0.0f;
 		float m_LastMouseX = 0.0f;
@@ -49,5 +49,18 @@ namespace Andromeda::amath {
 	template<typename T>
 	[[nodiscard]] constexpr inline T cross(const T& x, const T& y) noexcept {
 		return glm::cross(x,y);
+	}
+
+	template<typename T>
+	[[nodiscard]] inline mat4 perspective(T fov, T aspect, T zNear, T zFar) noexcept {
+		return glm::perspective(fov, aspect, zNear, zFar);
+	}
+	[[nodiscard]] inline mat4 lookAt(const vec3& eye, const vec3& center, const vec3& up) noexcept {
+		return glm::lookAt(eye, center, up);
+	}
+
+	template<typename T>
+	[[nodiscard]] constexpr inline T abs(T value) noexcept {
+		return glm::abs(value);
 	}
 }
