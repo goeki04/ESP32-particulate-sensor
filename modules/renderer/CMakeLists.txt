@@ -4,7 +4,6 @@ find_package(SDL3 REQUIRED)
 find_package(imgui REQUIRED)
 add_library(renderer STATIC
     renderer.cpp
-    camera.cpp
 )
 
 target_include_directories(renderer PUBLIC .)

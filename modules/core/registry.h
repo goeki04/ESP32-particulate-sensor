@@ -52,7 +52,7 @@ namespace Andromeda::ECS {
     };
 
     struct EntityHandle;
-    class ComponentRegistry : public ISubsystem {
+    class ComponentRegistry {
     private:
         std::unordered_map<std::type_index, std::unique_ptr<IComponentPool>> m_Pools;
         Entity m_NextID = 0;
@@ -80,7 +80,6 @@ namespace Andromeda::ECS {
         }
         EntityHandle createHandle();
 
-        void start() override {}
     };
 
     struct EntityHandle {

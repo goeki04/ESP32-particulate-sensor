@@ -5,7 +5,8 @@ namespace Andromeda{
 
     void Scene::addEntity(unsigned int meshID, const std::string& name, ECS::Component::Transform transform)
     {
-        auto handle = m_Registry->createHandle();
+        m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
+        auto handle = m_Registry.createHandle();
         
         handle.add<ECS::Component::Transform>(transform);
         handle.add<ECS::Component::Mesh>({ meshID, MaterialShaderType::unlit });
@@ -16,10 +17,10 @@ namespace Andromeda{
 
     void Scene::deleteEntity(Entity id)
     {
-        m_Registry->destroyEntity(id);
+        m_Registry.destroyEntity(id);
     }
     void Scene::start()
     {
-        m_Registry = SystemManager::getInstance().getSubsystem<ECS::ComponentRegistry>();
+        
     }
 }

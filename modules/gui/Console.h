@@ -5,6 +5,8 @@
 #include <set>
 #include <map>
 #include <functional>
+#include <string_view>
+#include <string>
 namespace Andromeda::Gui::Console {
     
     namespace Flags {

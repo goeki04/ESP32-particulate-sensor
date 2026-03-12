@@ -8,6 +8,7 @@ target_include_directories(editor PUBLIC ${CMAKE_SOURCE_DIR}/bindings/)
 target_link_libraries(editor PUBLIC
     imgui::imgui
     core
+    scene
     renderer
     gui
     resource

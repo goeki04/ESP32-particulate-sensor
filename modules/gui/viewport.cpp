@@ -1,16 +1,15 @@
-#include "pch.h"
+
 #include "panels.h"
 #include "gui_renderer.h"
 #include "camera.h"
 #include "resource_manager.h"
-void Andromeda::Gui::Panels::drawViewportGUI(GuiRenderer& guiRenderer,unsigned int framebufferTexture, 
-    ImVec2 framebufferSize, float* ImGuiMouseX, float* ImGuiMouseY)
+void Andromeda::Gui::Panels::drawViewportGUI(Camera& cam, GuiRenderer& guiRenderer,u32 framebufferTexture, 
+    vec2 framebufferSize, float* ImGuiMouseX, float* ImGuiMouseY)
 {
-    guiRenderer.m_ResourceManager->m_Cam;
-    Camera& cam = guiRenderer.m_ResourceManager->m_Cam;
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
     guiRenderer.m_ViewportPos = guiRenderer.getViewportWindowPos();
-    ImVec2 viewportSize = guiRenderer.getViewportWindowSize();
+    vec2 vpSize = guiRenderer.getViewportWindowSize();
+    ImVec2 viewportSize = ImVec2(vpSize.x,vpSize.y);
     ImGui::SetNextWindowPos(guiRenderer.m_ViewportPos, ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(viewportSize, ImGuiCond_FirstUseEver);
 

@@ -35,6 +35,7 @@ add_subdirectory(modules/collision)
 add_subdirectory(modules/definitions)
 add_subdirectory(modules/renderer)
 add_subdirectory(modules/scene)
+add_subdirectory(modules/gui)
 add_subdirectory(modules/editor)
 add_subdirectory(modules/resource)
 add_subdirectory(modules/filesystem)
@@ -72,6 +73,7 @@ target_link_libraries(Andromeda PRIVATE
     network
     core
     renderer
+    editor
     renderer_rhi
     collision
     filesystem

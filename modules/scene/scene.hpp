@@ -6,12 +6,12 @@
 namespace Andromeda {
 	using Entity = uint32_t;
 	class Scene : public ISubsystem{
-		
-		ECS::ComponentRegistry* m_Registry;
+	public:
+		ECS::ComponentRegistry m_Registry;
 		ResourceManager* m_ResourceManager;
 		void addEntity(unsigned int meshID, const std::string& name, ECS::Component::Transform transform);
 		void deleteEntity(Entity id);
-
 		void start() override;
+		
 	};
 }

@@ -1,9 +1,13 @@
-﻿#include "pch.h"
+﻿
 #include "gui_renderer.h"
-
 #include "resource_manager.h"
 #include "panels.h"
+#include <stdexcept>
 #include "camera.h"
+#include <algorithm>
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdl3.h"
+#include <filesystem>
 #include "console.h"
 namespace Andromeda::Gui {
     ImVec2 Gui::GuiRenderer::s_ViewportSize = ImVec2(0.0f, 0.0f);
@@ -152,7 +156,8 @@ namespace Andromeda::Gui {
 
     ImVec2 GuiRenderer::getViewportWindowPos()
     {
-        ImVec2 viewportSize = getViewportWindowSize();
+        vec2 vpSize = getViewportWindowSize();
+        ImVec2 viewportSize = ImVec2(vpSize.x,vpSize.y);
         ImVec2 viewportPos = getNewWindowPos(Margin(0.0f, 0.0f, 0.0f, m_MarginDefault), viewportSize, Alignment::CenterTop);
         if (viewportSize == ImVec2(0, 0)) {
             throw std::runtime_error("Viewport has a size of 0!");
@@ -163,8 +168,9 @@ namespace Andromeda::Gui {
     /// Used to set window and framebuffer size
     /// </summary>
     /// <returns>Viewport size in pixels</returns>
-    ImVec2 GuiRenderer::getViewportWindowSize() {
-        return s_ViewportSize;
+    vec2 GuiRenderer::getViewportWindowSize() {
+        vec2 viewportSize = vec2(s_ViewportSize.x, s_ViewportSize.y);
+        return viewportSize;
     }
     void GuiRenderer::setViewportSize() const {
         if (m_WindowHeight == 0 || m_WindowWidth == 0 || m_WidgetWidth == 0) {

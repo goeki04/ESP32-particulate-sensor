@@ -3,70 +3,62 @@
 #include "window_manager.h"
 #include "resource_manager.h"
 #include "camera.h"
-#include "shader.h"
-#include "collision.h"
-#include "panels.h"
+
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void Renderer::start()
     {
         m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
-        m_Registry = SystemManager::getInstance().getSubsystem<ComponentRegistry>();
         //m_GuiManager.init(Window::g_Window, &m_Cam, m_Registry);
-        ImVec2 viewportWindowSize = m_GuiManager.getViewportWindowSize();
-        m_FramebufferSize = glm::ivec2(viewportWindowSize.x, viewportWindowSize.y);
+        m_FramebufferSize = glm::ivec2(Window::g_WindowWidth, Window::g_WindowHeight);
         m_TexelSize = 1.0f / glm::vec2(m_FramebufferSize.x, m_FramebufferSize.y);
         m_Cam.m_framebufferSize = m_FramebufferSize;
 
-        createFramebuffers();
+        fboManager.createFramebuffers(m_FramebufferSize,m_MSAAsamples);
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         glCullFace(GL_BACK);
         glGenVertexArrays(1, &m_Vao);
     }
 
-    void Renderer::handleResize()
+    u32 Renderer::getFinalSceneViewportTexture() const
     {
-        if (!m_ResourceManager) return;
+        return fboManager.m_PostprocessTexture;
+    }
 
-        ImVec2 currentUIViewportSize = m_GuiManager.getViewportWindowSize();
-        glm::ivec2 newSize = glm::ivec2((int)currentUIViewportSize.x, (int)currentUIViewportSize.y);
-        if (newSize.x > 0 && newSize.y > 0 && (newSize.x != m_FramebufferSize.x || newSize.y != m_FramebufferSize.y))
+    void Renderer::onViewportResize(ivec2 newSize)
+    {
+        if (newSize.x <= 0 || newSize.y <= 0) return;
+        if (newSize == m_FramebufferSize) return;
+
+        m_TargetSize = newSize;
+        m_ResizePending = true;
+        m_ResizeTimer = 0.15f;
+    }
+
+    void Renderer::processResizeTimer()
+    {
+        if (!m_ResizePending) return;
+
+        m_ResizeTimer -= SystemManager::s_deltaTime;
+        if (m_ResizeTimer <= 0.0f)
         {
-            m_TargetSize = newSize;
-            m_ResizePending = true;
-            m_ResizeTimer = 0.15f;
+            m_FramebufferSize = m_TargetSize;
+            m_TexelSize = 1.0f / vec2((float)m_FramebufferSize.x, (float)m_FramebufferSize.y);
+            m_Cam.m_framebufferSize = m_FramebufferSize;
 
-            if (m_ResizePending)
-            {
-                m_ResizeTimer -= SystemManager::s_deltaTime;
+            fboManager.destroyFramebuffers();
+            fboManager.createFramebuffers(m_FramebufferSize, m_MSAAsamples);
 
-                if (m_ResizeTimer <= 0.0f)
-                {
-                    m_FramebufferSize = m_TargetSize;
-                    m_TexelSize = 1.0f / glm::vec2((float)m_FramebufferSize.x, (float)m_FramebufferSize.y);
-
-                    m_Cam.m_framebufferSize = m_FramebufferSize;
-                    m_Cam.setProjectionMatrix((float)m_FramebufferSize.x, (float)m_FramebufferSize.y);
-
-                    destroyFramebuffers();
-                    createFramebuffers();
-
-                    glGenVertexArrays(1, &m_Vao);
-
-                    m_ResizePending = false;
-                    std::cout << "Snap! Framebuffer resized to: " << m_FramebufferSize.x << "x" << m_FramebufferSize.y << std::endl;
-                }
-            }
+            m_ResizePending = false;
         }
     }
+
     void Renderer::update()
     {
-        float sizeX, sizeY;
-        m_Cam.setProjectionMatrix(sizeX, sizeY);
+
         /*if (Gui::GuiRenderer::s_ViewportFocused)
             m_Cam.cameraMovement();*/
-        handleResize();
         windowClearPass();
         scenePassBegin();
         geometryPass();
@@ -151,7 +143,7 @@ namespace Andromeda {
     }
     void Renderer::selectionPass()
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, m_SelectionFramebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_SelectionFramebuffer);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         auto& selectedPool = m_Registry->getPool<Component::Selected>();
@@ -169,7 +161,7 @@ namespace Andromeda {
     }
     void Renderer::postprocessingPass()
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, m_PostprocessFramebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_PostprocessFramebuffer);
         glViewport(0, 0, m_FramebufferSize.x, m_FramebufferSize.y);
 
         glDisable(GL_DEPTH_TEST);
@@ -178,8 +170,8 @@ namespace Andromeda {
 
         auto* outlineShader = m_ResourceManager->getPostprocessShaderByID(PostProcessShaderType::outline);
         outlineShader->use();
-        outlineShader->setTexture("fboSampler", m_FramebufferTexture, 0);
-        outlineShader->setTexture("maskSampler", m_SelectionTexture, 1);
+        outlineShader->setTexture("fboSampler", fboManager.m_FramebufferTexture, 0);
+        outlineShader->setTexture("maskSampler", fboManager.m_SelectionTexture, 1);
         outlineShader->setVec2("texelSize", m_TexelSize);
         outlineShader->setVec2("fboSize", m_FramebufferSize);
 
@@ -193,7 +185,7 @@ namespace Andromeda {
     }
     void Renderer::scenePassBegin()
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, m_MsaaFramebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_MsaaFramebuffer);
         glViewport(0, 0, m_FramebufferSize.x, m_FramebufferSize.y);
 
         glClearColor(0.2f, 0.2f, 0.35f, 1.0f);
@@ -251,8 +243,8 @@ namespace Andromeda {
     }
     void Renderer::scenePassEndResolve()
     {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_MsaaFramebuffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Framebuffer);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fboManager.m_MsaaFramebuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboManager.m_Framebuffer);
 
         glBlitFramebuffer(
             0, 0, m_FramebufferSize.x, m_FramebufferSize.y,
@@ -272,18 +264,10 @@ namespace Andromeda {
 
 
     void Renderer::destroy() {
-        destroyFramebuffers();
+        fboManager.destroyFramebuffers();
         if (m_Vao) {
             glDeleteVertexArrays(1, &m_Vao);
         }
         m_Vao = 0;
-        m_SelectionDepth = 0;
-        m_PostprocessTexture = 0;
-        m_SelectionTexture = 0;
-        m_FramebufferTexture = 0;
-        m_MsaaFramebufferTexture = 0;
-        m_Rendererbuffer = 0;
-
-        m_GuiManager.destroy();
     }
 }

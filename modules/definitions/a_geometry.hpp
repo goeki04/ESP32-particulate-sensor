@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "components.hpp"
 #include "a_primitives.hpp"
+#include <stdexcept>
 namespace Andromeda {
     struct Vertex {
     public:
