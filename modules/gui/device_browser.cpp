@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "panels.h"
 #include "camera.h"
 #include "resource_manager.h"

@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include <stdexcept>
 namespace Andromeda {
-    void framebuffer::createSceneFbo(const ivec2 framebufferSize)
+    void framebufferManager::createSceneFbo(const ivec2 framebufferSize)
     {
         //Color attachment & main fbo
         glGenFramebuffers(1, &m_Framebuffer);
@@ -19,7 +19,7 @@ namespace Andromeda {
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-    void framebuffer::createMSAAFbo(const ivec2 framebufferSize, const u32 samples)
+    void framebufferManager::createMSAAFbo(const ivec2 framebufferSize, const u32 samples)
     {
         glGenFramebuffers(1, &m_MsaaFramebuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, m_MsaaFramebuffer);
@@ -36,7 +36,7 @@ namespace Andromeda {
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             throw std::runtime_error("MSAA FBO incomplete!");
     }
-    void framebuffer::createSelectionFBO(const ivec2 framebufferSize)
+    void framebufferManager::createSelectionFBO(const ivec2 framebufferSize)
     {
         //create selection framebuffer
         glGenFramebuffers(1, &m_SelectionFramebuffer);
@@ -59,7 +59,7 @@ namespace Andromeda {
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-    void framebuffer::createPostprocessFBO(const ivec2 framebufferSize) {
+    void framebufferManager::createPostprocessFBO(const ivec2 framebufferSize) {
         glGenFramebuffers(1, &m_PostprocessFramebuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, m_PostprocessFramebuffer);
 
@@ -78,7 +78,7 @@ namespace Andromeda {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void framebuffer::createFramebuffers(const ivec2 framebufferSize, u32 samples)
+    void framebufferManager::createFramebuffers(const ivec2 framebufferSize, u32 samples)
     {
         createMSAAFbo(framebufferSize,samples);
         createSceneFbo(framebufferSize);
@@ -86,7 +86,7 @@ namespace Andromeda {
         createPostprocessFBO(framebufferSize);
     }
 
-    void framebuffer::destroyFramebuffers() {
+    void framebufferManager::destroyFramebuffers() {
         if (m_FramebufferTexture)
             glDeleteTextures(1, &m_FramebufferTexture);
         if (m_PostprocessTexture) {

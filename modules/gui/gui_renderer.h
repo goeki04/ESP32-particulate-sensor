@@ -1,22 +1,23 @@
 #pragma once
-#include "glm/glm.hpp"
+#include <imgui.h>
+#include "a_primitives.hpp"
+#include <vector>
+#include <string>
 #include "registry.h"
+
 namespace Andromeda {
     class Camera;
 }
 inline ImVec2 operator+(const ImVec2& a, const ImVec2& b) {
     return ImVec2(a.x + b.x, a.y + b.y);
 }
-
 inline ImVec2 operator-(const ImVec2& a, const ImVec2& b) {
     return ImVec2(a.x - b.x, a.y - b.y);
 }
-
 inline bool operator==(const ImVec2& a, const ImVec2& b) {
     if (a.x == b.x && a.y == b.y) return true;
     return false;
 }
-
 inline ImVec2 operator*(const ImVec2& a, const float b) {
     return ImVec2(a.x * b, a.y * b);
 }
@@ -59,7 +60,7 @@ namespace Andromeda::Gui {
         /// <summary>
         /// This is the coordinate of the viewport pivot relative to the screen (topLeft = 0)
         /// </summary>
-        glm::vec2 m_ViewportRectMin = glm::vec2(0.0f, 0.0f);
+        vec2 m_ViewportRectMin = vec2(0.0f, 0.0f);
         void init(SDL_Window* window, Camera* cam, ECS::ComponentRegistry* registry);
         void update();
         void destroy();
@@ -67,9 +68,9 @@ namespace Andromeda::Gui {
         ImVec2 getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment);
         
         void loadFont();
-        ImVec2 getViewportWindowSize();
+        vec2 getViewportWindowSize();
         int m_CurrentSelectedID = 0;
-        static glm::vec3 m_LastHitPoint;
+        static vec3 m_LastHitPoint;
         static bool m_HasLastHitpoint;
         Camera* m_Cam = nullptr;
         ECS::ComponentRegistry* m_Registry = nullptr;

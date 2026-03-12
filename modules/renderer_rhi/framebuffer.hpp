@@ -1,7 +1,8 @@
 #pragma once
 #include "a_primitives.hpp"
 namespace Andromeda {
-	class framebuffer {
+	class framebufferManager {
+	public:
 		u32 m_SelectionDepth = 0;
 		u32 m_Framebuffer = 0, m_MsaaFramebuffer = 0;
 		u32 m_FramebufferTexture = 0, m_MsaaFramebufferTexture = 0;

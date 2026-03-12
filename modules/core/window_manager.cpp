@@ -2,6 +2,7 @@
 #include "stb_image.h"
 #include <cstring>
 #include <stdexcept>
+#include <GL/glew.h>
 namespace Andromeda::Window {
     SDL_Surface* WindowManager::CreateSDLSurface(const char* path)
     {
