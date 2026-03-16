@@ -13,4 +13,6 @@ target_link_libraries(core PUBLIC
     sdl::sdl
     stb::stb
     GLEW::GLEW
+
+    definitions
 )

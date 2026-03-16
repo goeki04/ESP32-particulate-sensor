@@ -2,7 +2,6 @@
 #include "panels.h"
 #include "gui_renderer.h"
 #include "camera.h"
-#include "resource_manager.h"
 void Andromeda::Gui::Panels::drawViewportGUI(Camera& cam, GuiRenderer& guiRenderer,u32 framebufferTexture, 
     vec2 framebufferSize, float* ImGuiMouseX, float* ImGuiMouseY)
 {

@@ -4,7 +4,7 @@
 #include "renderer.h"
 #include "window_manager.h"
 #include "subsystem_manager.h"
-
+#include <SDL3/SDL.h>
 namespace Andromeda {
 	void Editor::start()
 	{
