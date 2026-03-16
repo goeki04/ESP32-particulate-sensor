@@ -19,12 +19,12 @@ namespace Andromeda {
 
 		ImGui_ImplSDL3_InitForOpenGL(Window::g_Window, Window::m_GlContext);
 		ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
-		m_GuiRenderer.init(Window::g_Window, &m_EditorCam, &m_Scene->m_Registry);
+		m_GuiRenderer.init(Window::g_Window, &m_EditorCamData, &m_Scene->m_Registry);
 	}
 	void Editor::update()
 	{
 		vec2 viewportSize = m_GuiRenderer.getViewportWindowSize();
-		setProjectionMatrix(m_EditorCam,viewportSize.x, viewportSize.y);
+		setProjectionMatrix(m_EditorCamData,viewportSize.x, viewportSize.y);
         m_GuiRenderer.update();
 	}
 	void Editor::destroy()
@@ -46,6 +46,13 @@ namespace Andromeda {
         ray.direction = amath::normalize(vec3(rayDir4));
         ray.origin = cam.m_CameraPos;
         return ray;
+    }
+    //call this function after m_EditorCamData has been initialized
+    void Editor::updateEditorCameraRay()
+    {
+        if (m_EditorCamData.m_HasValidPickRay) {
+            m_EditorCamData.m_CursorToWorldRay = cursorToWorldRay(m_EditorCamData);
+        }
     }
     bool Editor::RayIntersectsXZPlane(const amath::Ray& ray, float planeY, vec3& outHitPoint)
     {
