@@ -1,5 +1,4 @@
 #pragma once
-#include "subsystem.h"
 #include "shader.hpp"
 #include <unordered_map>
 #include "components.hpp"
@@ -10,9 +9,10 @@
 #include <assimp/scene.h>
 #include "a_opengl_handles.hpp"
 #include "a_primitives.hpp"
+#include "a_ISubsystem.hpp"
 namespace Andromeda {
 
-	class ResourceManager : public Andromeda::ISubsystem {
+	class ResourceManager : public ISubsystem, IDeviceProvider {
 	public:
 
 		std::vector<std::unique_ptr<MaterialShader>> m_MaterialShaders;
@@ -49,11 +49,23 @@ namespace Andromeda {
 		const std::unordered_map<uint32_t, Device>& getDeviceRecords() const;
 
 		GLtexture CreateOpenGLTexture(const char* path);
+		
+		/// <summary>
+		/// Interface implementations of DeviceProvider which are being used from the guirenderer.
+		/// </summary>
+		/// <returns></returns>
+		u32 getDeviceCount() const override;
+		const Device& getDeviceData(u32 index) const override;
+		virtual u32 getDeviceIconID(deviceType type) const;
 
 	private:
 
 		std::unordered_map<uint32_t, Device> m_DeviceRecords;
 		std::unordered_map<i32,MeshGPUHandle> m_GPUMeshes;
+		/// <summary>
+		/// Stores the device index order. Used by the guimanager to draw the icons in the device browser
+		/// </summary>
+		std::vector<u32> m_DeviceIndexList;
 		std::unordered_map<std::string, uint32_t> m_MeshIDbyName;
 		unsigned int m_NextMeshID = 0;
 

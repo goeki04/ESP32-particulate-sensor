@@ -105,6 +105,18 @@ namespace Andromeda {
         return m_DeviceRecords;
     }
 
+    u32 ResourceManager::getDeviceCount() const {
+        return static_cast<u32>(m_DeviceIndexList.size());
+    }
+    const Device& ResourceManager::getDeviceData(u32 index) const {
+        u32 deviceID = m_DeviceIndexList.at(index);
+        return m_DeviceRecords.at(deviceID);
+    }
+
+    u32 ResourceManager::getDeviceIconID(deviceType type) const {
+        return static_cast<u32>(m_DeviceIcons.at(type).id);
+    }
+
     GLtexture ResourceManager::CreateOpenGLTexture(const char* path)
     {
         GLtexture texture;
@@ -196,7 +208,6 @@ namespace Andromeda {
         }
     }
 
-
     void ResourceManager::loadScene(const std::string& path) {
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(
@@ -206,27 +217,33 @@ namespace Andromeda {
             aiProcess_FlipUVs |
             aiProcess_GenNormals
         );
+
         if (!scene) {
             throw std::runtime_error(importer.GetErrorString());
         }
+
         std::string meshName = Filesystem::getFileName(path);
         if (m_MeshIDbyName.contains(meshName)) {
             std::printf("Mesh already exists!\n");
             return;
         }
+
         const uint32_t id = m_NextMeshID++;
         deviceType dt = Filesystem::findDeviceTypeByPath(path);
+
         auto [it, inserted] = m_DeviceRecords.try_emplace(
             id,
             Device{ id, meshName, Mesh{}, dt }
         );
+
         if (!inserted) {
             throw std::runtime_error("Failed to insert MeshRecord");
         }
 
+        m_DeviceIndexList.push_back(id);
         m_MeshIDbyName.emplace(meshName, id);
-        aiNode* rootNode = scene->mRootNode;
 
+        aiNode* rootNode = scene->mRootNode;
         processNode(id, scene, rootNode);
     }
 }

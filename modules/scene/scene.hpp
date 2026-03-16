@@ -1,7 +1,7 @@
 #pragma once
 #include "registry.h"
 #include <string>
-#include "subsystem.h"
+#include "a_ISubsystem.hpp"
 #include "resource_manager.h"
 namespace Andromeda {
 	using Entity = uint32_t;

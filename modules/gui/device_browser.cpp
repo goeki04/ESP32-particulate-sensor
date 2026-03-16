@@ -1,6 +1,5 @@
 #include "panels.h"
 #include "a_device.hpp"
-#include "resource_manager.h"
 #include "gui_renderer.h"
 namespace Andromeda::Gui::Panels {
     void deviceBrowserPicking(GuiRenderer& guiRenderer) {
@@ -21,13 +20,13 @@ namespace Andromeda::Gui::Panels {
         int perRow = (int)floor((availX + spacingX) / (tileSize.x + spacingX));
         if (perRow < 1) perRow = 1;
 
-        const int itemCount = guiRenderer.m_ResourceManager->getDeviceRecordsSize();
+        const int itemCount = guiRenderer.m_DeviceProvider->getDeviceCount();
         bool any_tile_clicked = false;
 
         for (int idx = 0; idx < itemCount; ++idx)
         {
-            const auto& deviceRecord = guiRenderer.m_ResourceManager->getDeviceRecords().at(idx);
-            u32 texID = guiRenderer.m_ResourceManager->m_DeviceIcons.at(deviceRecord.type).id;
+            const auto& deviceRecord = guiRenderer.m_DeviceProvider->getDeviceData(idx);
+            u32 texID = guiRenderer.m_DeviceProvider->getDeviceIconID(deviceRecord.type);
 
             ImGui::PushID(idx);
 

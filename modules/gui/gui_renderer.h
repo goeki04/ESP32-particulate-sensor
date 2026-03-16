@@ -4,6 +4,10 @@
 #include <string>
 #include "registry.h"
 #include "a_math.hpp"
+#include <SDL3/SDL.h>
+
+class IDeviceProvider;
+
 namespace Andromeda {
     class amath::CameraData;
 }
@@ -75,6 +79,7 @@ namespace Andromeda::Gui {
         ECS::ComponentRegistry* m_Registry = nullptr;
         std::vector<SDL_Surface> m_DeviceIcons;
         std::string m_ImguiVersion = "ImGui: " + std::string(IMGUI_VERSION);
+        IDeviceProvider* m_DeviceProvider;
         static bool m_ShowVersion;
         int m_WindowWidth = 0;
         int m_WindowHeight = 0;

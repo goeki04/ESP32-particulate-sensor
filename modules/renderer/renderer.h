@@ -1,5 +1,5 @@
 #pragma once
-#include "subsystem.h"
+#include "a_ISubsystem.hpp"
 #include "registry.h"
 #include "components.hpp"
 #include "GL/glew.h"
