@@ -1,4 +1,3 @@
-find_package(imgui REQUIRED)
 add_library(editor STATIC
     "editor.cpp"
 )
@@ -6,9 +5,9 @@ add_library(editor STATIC
 target_include_directories(editor PUBLIC .)
 target_include_directories(editor PUBLIC ${CMAKE_SOURCE_DIR}/bindings/)
 target_link_libraries(editor PUBLIC
-    imgui::imgui
     core
     scene
+    renderer_rhi
     renderer
     gui
     resource

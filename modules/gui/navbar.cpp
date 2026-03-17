@@ -61,9 +61,9 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
             ImGui::SetNextWindowSize(ImVec2(guiRenderer.m_WidgetWidth, guiRenderer.m_WidgetWidth), ImGuiCond_FirstUseEver);
             ImGui::Begin("Version", &guiRenderer.m_ShowVersion, guiRenderer.m_WindowFlags);
             ImGui::TextUnformatted("App version: V1.0.0");
-            std::string osName = "OS: " + std::string(g_os);
+            std::string osName = "OS: " + std::string(ANDROMEDA_OS);
             ImGui::TextUnformatted(osName.c_str());
-            std::string arch = "Arch: " + std::string(g_arch);
+            std::string arch = "Arch: " + std::string(ANDROMEDA_ARCH);
             ImGui::TextUnformatted(arch.c_str());
             ImGui::TextUnformatted("Dev: Goekdeniz Koeksal");
             ImGui::TextUnformatted(guiRenderer.m_ImguiVersion.c_str());

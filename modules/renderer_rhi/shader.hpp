@@ -34,7 +34,7 @@ namespace Andromeda {
 			glUseProgram(m_Program);
 		}
 	protected:
-		void setCameraUniforms(const amath::CameraData& cam);
+		void setCameraUniforms(const amath::CameraData* cam);
 	private:
 		std::unordered_map<std::string, i32> m_UniformCache;
 		i32 getUniformLocation(const char* name) {
@@ -61,7 +61,7 @@ namespace Andromeda {
 		MaterialShader(const char* vertexPath, const char* fragmentPath) : Shader(vertexPath, fragmentPath) {
 		}
 		virtual ~MaterialShader() = default;
-		virtual void setUniforms(const amath::CameraData& cam, const mat4& modelMatrix) = 0;
+		virtual void setUniforms(const amath::CameraData* cam, const mat4& modelMatrix) = 0;
 	};
 
 	class ProceduralShader : public Shader {
@@ -69,14 +69,14 @@ namespace Andromeda {
 		ProceduralShader(const char* vertexPath, const char* fragmentPath) : Shader(vertexPath, fragmentPath) {
 		}
 		virtual ~ProceduralShader() = default;
-		virtual void setUniforms(const amath::CameraData& cam) = 0;
+		virtual void setUniforms(const amath::CameraData* cam) = 0;
 
 	};
 
 	class GridShader : public ProceduralShader {
 	public:
 		GridShader(const char* vertexPath, const char* fragmentPath) : ProceduralShader(vertexPath, fragmentPath) {}
-		void setUniforms(const amath::CameraData& cam) override;
+		void setUniforms(const amath::CameraData* cam) override;
 	};
 
 	class LitShader : public MaterialShader {
@@ -88,14 +88,14 @@ namespace Andromeda {
 			m_DirLight.direction = vec3(1.0f, 1.0f, 0.5f);
 			m_AmbientLight = vec3(0.4f);
 		}
-		void setUniforms(const amath::CameraData& cam, const mat4& modelMatrix) override;
+		void setUniforms(const amath::CameraData* cam, const mat4& modelMatrix) override;
 	};
 
 	class ColorShader : public MaterialShader {
 	public:
 		vec3 color = vec3(1.0f, 1.0f, 1.0f);
 		ColorShader(const char* vertexPath, const char* fragmentPath) : MaterialShader(vertexPath, fragmentPath) {}
-		void setUniforms(const amath::CameraData& cam, const mat4& modelMatrix) override;
+		void setUniforms(const amath::CameraData* cam, const mat4& modelMatrix) override;
 	};
 
 	class OutlineShader : public PostProcessShader {

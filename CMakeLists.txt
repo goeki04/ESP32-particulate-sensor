@@ -6,20 +6,24 @@ project(Andromeda LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(glm REQUIRED)
+if(WIN32)
+    add_compile_definitions(ANDROMEDA_OS="Windows")
+elseif(UNIX)
+    add_compile_definitions(ANDROMEDA_OS="Linux")
+endif()
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    add_compile_definitions(ANDROMEDA_ARCH="x64")
+else()
+    add_compile_definitions(ANDROMEDA_ARCH="x86")
+endif()
+
 find_package(SDL3 REQUIRED)
-find_package(stb REQUIRED)
-find_package(imgui REQUIRED)
 find_package(protobuf REQUIRED)
 find_package(glew REQUIRED)
-find_package(assimp REQUIRED)
-
-file(GLOB SHADERS "modules/shader/*.glsl")
-file(GLOB SHADERS "modules/shader/compute/*.compute")
+find_package(GTest REQUIRED)
 file(GLOB SOURCES "modules/*.cpp")
 file(GLOB HEADERS "modules/*.h")
-file(GLOB BINDING_SOURCES "bindings/*.cpp")
-file(GLOB BINDING_HEADERS "bindings/*.h")
 
 get_filename_component(PROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/proto" ABSOLUTE)
 set(PROTO_FILES 
@@ -40,6 +44,7 @@ add_subdirectory(modules/editor)
 add_subdirectory(modules/resource)
 add_subdirectory(modules/filesystem)
 add_subdirectory(modules/renderer_rhi)
+
 add_executable(Andromeda 
     ${SOURCES} 
     ${HEADERS} 
@@ -50,24 +55,15 @@ add_executable(Andromeda
     ${PROTO_HDRS}
 )
 
-target_compile_definitions(Andromeda PRIVATE ASSET_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
-target_compile_definitions(Andromeda PRIVATE SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/modules/shader/")
-source_group("Shader files" FILES ${SHADERS})
-target_include_directories(Andromeda PRIVATE bindings)
 target_include_directories(Andromeda PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${PROTOBUF_INCLUDE_DIRS})
 target_include_directories(Andromeda PRIVATE 
     ${CMAKE_CURRENT_BINARY_DIR}/proto 
 )
-target_precompile_headers(Andromeda PRIVATE modules/pch.h)
 target_link_libraries(Andromeda PRIVATE
     #External dependencies
-    glm::glm
     sdl::sdl
-    imgui::imgui
     GLEW::GLEW
     protobuf::libprotobuf
-    stb::stb
-    assimp::assimp
     
     #Engine modules
     network
@@ -80,3 +76,23 @@ target_link_libraries(Andromeda PRIVATE
     resource
     definitions
 )
+
+enable_testing()
+include(GoogleTest)
+
+set(ANDROMEDA_TEST_SOURCES
+    "tests/test_system_start.cpp"
+)
+
+add_executable(AndromedaTests ${ANDROMEDA_TEST_SOURCES})
+target_compile_definitions(AndromedaTests PRIVATE ASSET_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
+target_compile_definitions(resource PRIVATE SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/modules/shader/")
+target_link_libraries(AndromedaTests PRIVATE
+    GTest::gtest_main
+    core
+    resource
+    renderer
+    definitions
+)
+
+gtest_discover_tests(AndromedaTests)

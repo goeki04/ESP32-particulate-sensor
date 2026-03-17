@@ -1,4 +1,8 @@
-#include "pch.h"
+
+#ifndef SDL_MAIN_USE_CALLBACKS 1
+#define SDL_MAIN_USE_CALLBACKS
+#endif
+#include <SDL3/SDL_main.h>
 #include "subsystem_manager.h"
 #include "window_manager.h"
 #include "resource_manager.h"
@@ -9,7 +13,6 @@
 Andromeda::Window::WindowManager windowManager;
 Andromeda::Renderer renderer;
 Andromeda::ResourceManager resourceManager;
-Andromeda::ECS::ComponentRegistry componentManager;
 static Andromeda::Network::ESPHomeClient g_EspClient;
 
 SDL_AppResult SDL_Init() {
@@ -26,7 +29,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_Init();
     Andromeda::SystemManager::getInstance().addSubsystem(&windowManager);
     Andromeda::SystemManager::getInstance().addSubsystem(&resourceManager);
-    Andromeda::SystemManager::getInstance().addSubsystem(&componentManager);
     Andromeda::SystemManager::getInstance().addSubsystem(&renderer);
     Andromeda::SystemManager::getInstance().startSubsystems();
 

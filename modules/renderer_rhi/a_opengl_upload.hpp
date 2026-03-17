@@ -1,6 +1,6 @@
 #pragma once
 namespace Andromeda {
-	class MeshGPUHandle;
-	class Mesh;
+	struct MeshGPUHandle;
+	struct Mesh;
 	void createMesh(MeshGPUHandle& gpuMesh, const Mesh& mesh);
 } 

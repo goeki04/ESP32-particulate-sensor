@@ -3,8 +3,6 @@
 #include "panels.h"
 #include <stdexcept>
 #include <algorithm>
-#include "imgui_impl_opengl3.h"
-#include "imgui_impl_sdl3.h"
 #include <filesystem>
 #include "console.h"
 
@@ -104,7 +102,6 @@ namespace Andromeda::Gui {
         if (margin.top < 0) margin.top = 0;
         if (margin.right < 0) margin.right = 0;
         if (margin.bottom < 0) margin.bottom = 0;
-
         // xPos     
         switch (alignment)
         {

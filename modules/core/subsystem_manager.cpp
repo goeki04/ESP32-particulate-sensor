@@ -13,9 +13,11 @@ namespace Andromeda {
 	}
 
 	void SystemManager::startSubsystems() {
+
 		for (auto& v : m_Subsystems) {
 			v->start();
 		}
+
 	}
 
 	void SystemManager::updateEvent(SDL_Event* event) {
