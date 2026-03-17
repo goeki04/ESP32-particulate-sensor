@@ -6,6 +6,7 @@
 #include <map>
 #include <functional>
 #include <string_view>
+#include <format>
 #include <string>
 namespace Andromeda::Gui::Console {
     

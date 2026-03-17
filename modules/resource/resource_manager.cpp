@@ -1,5 +1,4 @@
 #include "resource_manager.h"
-#include "subsystem_manager.h"
 #include "a_filesystem.hpp"
 #include <string>
 #define STB_IMAGE_IMPLEMENTATION
@@ -11,6 +10,7 @@ using namespace Andromeda::ECS;
 namespace Andromeda {
     void ResourceManager::start()
     {
+        std::printf("Shader path:\n" SHADER_PATH "unlitVertex.glsl");
         addMaterialShader<LitShader>(SHADER_PATH "unlitVertex.glsl", SHADER_PATH "unlitFragment.glsl");
         addMaterialShader<ColorShader>(SHADER_PATH "colorVertex.glsl", SHADER_PATH "colorFragment.glsl");
         addProceduralShader<GridShader>(SHADER_PATH "gridVertex.glsl", SHADER_PATH "gridFragment.glsl");
@@ -148,7 +148,6 @@ namespace Andromeda {
     {
         for (auto& [id, device] : m_DeviceRecords)
         {
-            // 1. Hole oder erstelle das GPU-Handle für diese ID
             MeshGPUHandle& gpuHandle = m_GPUMeshes[id];
 
             // 2. Rufe die RHI-Funktion auf (Daten von CPU -> GPU)

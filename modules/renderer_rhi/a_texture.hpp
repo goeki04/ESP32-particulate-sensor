@@ -1,9 +1,10 @@
 #pragma once
-
+#include "a_primitives.hpp"
+#include <SDL3/SDL.h>
 namespace Andromeda {
 	struct GLtexture
 	{
-		GLuint id = 0;
+		u32 id = 0;
 		int w = 0;
 		int h = 0;
 

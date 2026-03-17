@@ -4,8 +4,8 @@ add_library(resource STATIC
     resource_manager.cpp
 )
 
-target_compile_definitions(resource PRIVATE ASSET_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
-target_compile_definitions(resource PRIVATE SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/modules/shader/")
+target_compile_definitions(resource PRIVATE ASSET_PATH="${CMAKE_SOURCE_DIR}/assets/")
+target_compile_definitions(resource PRIVATE SHADER_PATH="${CMAKE_SOURCE_DIR}/modules/shader/")
 target_include_directories(resource PUBLIC .)
 
 target_link_libraries(resource PUBLIC

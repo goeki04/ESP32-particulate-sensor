@@ -13,10 +13,10 @@ namespace Andromeda {
         std::string shaderSource = buffer.str();
         return shaderSource;
     }
-    void Shader::setCameraUniforms(const amath::CameraData& cam) {
-        setMat4x4(c_viewMatrix, cam.m_ViewMatrix);
-        setMat4x4(c_projMatrix, cam.m_Projection);
-        setVec3(c_camPos, cam.m_CameraPos);
+    void Shader::setCameraUniforms(const amath::CameraData* cam) {
+        setMat4x4(c_viewMatrix, cam->m_ViewMatrix);
+        setMat4x4(c_projMatrix, cam->m_Projection);
+        setVec3(c_camPos, cam->m_CameraPos);
     }
 
     void Shader::setMat4x4(const char* uniformName, const mat4& matrix)
@@ -54,7 +54,7 @@ namespace Andromeda {
         setInt(uniformName, slot);
     }
 
-    void LitShader::setUniforms(const amath::CameraData& cam, const mat4& modelMatrix)
+    void LitShader::setUniforms(const amath::CameraData* cam, const mat4& modelMatrix)
     {
         use();
         setMat4x4("model", modelMatrix);
@@ -75,7 +75,7 @@ namespace Andromeda {
             GLsizei outLen = 0;
             glGetShaderInfoLog(sh, (GLsizei)log.size(), &outLen, log.data());
             log.resize(outLen);
-            throw std::runtime_error(std::string(stage) + " compile error:\n" + log);
+                throw std::runtime_error(std::string(stage) + " compile error:\n" + log);
             };
         i32 success;
         std::string vertexShaderStr = readShaderSource(m_VertexShaderPath.c_str());
@@ -110,12 +110,12 @@ namespace Andromeda {
         m_UniformCache.clear();
     }
 
-    void GridShader::setUniforms(const amath::CameraData& cam)
+    void GridShader::setUniforms(const amath::CameraData* cam)
     {
         setCameraUniforms(cam);
     }
 
-    void ColorShader::setUniforms(const amath::CameraData& cam, const mat4& modelMatrix)
+    void ColorShader::setUniforms(const amath::CameraData* cam, const mat4& modelMatrix)
     {
         setCameraUniforms(cam);
         setVec3("aColor", color);

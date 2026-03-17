@@ -10,11 +10,10 @@ target_include_directories(renderer PUBLIC .)
 
 target_link_libraries(renderer PUBLIC 
     glm::glm
-    GLEW::GLEW
-    sdl::sdl
     imgui::imgui
 
     definitions
     core
+    renderer_rhi
     resource
 )

@@ -1,6 +1,5 @@
 #pragma once
-#define SDL_MAIN_USE_CALLBACKS 1
-#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+
 #include <GL/glew.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>

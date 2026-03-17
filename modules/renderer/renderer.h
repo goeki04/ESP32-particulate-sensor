@@ -1,8 +1,8 @@
 #pragma once
+#include "a_graphics_base.hpp"
 #include "a_ISubsystem.hpp"
 #include "registry.h"
 #include "components.hpp"
-#include "GL/glew.h"
 #include "framebuffer.hpp"
 namespace Andromeda {
 	namespace amath {
@@ -24,7 +24,7 @@ namespace Andromeda {
 		void drawMesh(ResourceManager* rm, const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform, MaterialShaderType type);
 		void destroy() override;
 		void geometryPass();
-		void guiPass(amath::CameraData& cam);
+		void guiPass(amath::CameraData* cam);
 		void imGuiPass();
 		u32 getFinalSceneViewportTexture() const;
 		void onViewportResize(ivec2 newSize);
@@ -33,14 +33,14 @@ namespace Andromeda {
 		void postprocessingPass();
 		void scenePassBegin();
 		void proceduralPass();
-		void pickingPass(const amath::CameraData& cam);
+		void pickingPass(const amath::CameraData* cam);
 		void scenePassEndResolve();
 		void windowClearPass();
 		static constexpr const char* glsl_version = "#version 460";
 	private:
 		glm::ivec2 m_FramebufferSize = glm::ivec2(0, 0);
 		glm::vec2 m_TexelSize = glm::vec2(0.0, 0.0);
-
+		amath::CameraData* m_Cam;
 		float m_ResizeTimer = 0.0f;
 		bool m_ResizePending = false;
 		glm::ivec2 m_TargetSize;

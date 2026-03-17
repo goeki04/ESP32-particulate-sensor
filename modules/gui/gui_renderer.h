@@ -1,10 +1,9 @@
 #pragma once
-#include <imgui.h>
+#include "a_graphics_base.hpp"
 #include <vector>
 #include <string>
 #include "registry.h"
 #include "a_math.hpp"
-#include <SDL3/SDL.h>
 
 class IDeviceProvider;
 

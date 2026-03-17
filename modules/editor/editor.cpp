@@ -1,10 +1,8 @@
-#include "imgui_impl_sdl3.h"
-#include "imgui_impl_opengl3.h"
+#include "a_graphics_base.hpp"
 #include "editor.hpp"
 #include "renderer.h"
 #include "window_manager.h"
 #include "subsystem_manager.h"
-#include <SDL3/SDL.h>
 namespace Andromeda {
 	void Editor::start()
 	{

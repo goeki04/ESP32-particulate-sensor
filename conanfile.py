@@ -13,5 +13,6 @@ class CmakeTest(ConanFile):
         self.requires("assimp/6.0.2")
         self.requires("stb/cci.20230920")
         self.requires("protobuf/3.21.12")
+        self.requires("gtest/1.17.0")
     def layout(self):
         cmake_layout(self)

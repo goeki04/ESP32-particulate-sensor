@@ -2,7 +2,7 @@
 #include "subsystem_manager.h"
 #include "window_manager.h"
 #include "resource_manager.h"
-
+#include "a_math.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void Renderer::start()
@@ -11,7 +11,7 @@ namespace Andromeda {
         //m_GuiManager.init(Window::g_Window, &m_Cam, m_Registry);
         m_FramebufferSize = glm::ivec2(Window::g_WindowWidth, Window::g_WindowHeight);
         m_TexelSize = 1.0f / glm::vec2(m_FramebufferSize.x, m_FramebufferSize.y);
-        m_Cam.m_framebufferSize = m_FramebufferSize;
+        m_Cam->m_framebufferSize = m_FramebufferSize;
 
         fboManager.createFramebuffers(m_FramebufferSize,m_MSAAsamples);
         glEnable(GL_CULL_FACE);
@@ -44,7 +44,7 @@ namespace Andromeda {
         {
             m_FramebufferSize = m_TargetSize;
             m_TexelSize = 1.0f / vec2((float)m_FramebufferSize.x, (float)m_FramebufferSize.y);
-            m_Cam.m_framebufferSize = m_FramebufferSize;
+            m_Cam->m_framebufferSize = m_FramebufferSize;
 
             fboManager.destroyFramebuffers();
             fboManager.createFramebuffers(m_FramebufferSize, m_MSAAsamples);
@@ -107,7 +107,7 @@ namespace Andromeda {
             }
         }
     }
-    void Renderer::guiPass(amath::CameraData& cam)
+    void Renderer::guiPass(amath::CameraData* cam)
     {
         //m_GuiManager.update();
 
@@ -205,7 +205,7 @@ namespace Andromeda {
         glDisable(GL_BLEND);
         glEnable(GL_CULL_FACE);
     }
-    void Renderer::pickingPass(const amath::CameraData& cam)
+    void Renderer::pickingPass(const amath::CameraData* cam)
     {
         /*
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
