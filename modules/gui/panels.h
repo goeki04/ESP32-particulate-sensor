@@ -1,5 +1,6 @@
 #pragma once
 #include "a_primitives.hpp"
+#include "a_guiTypes.hpp"
 namespace Andromeda::Gui {
 	class GuiRenderer;
 }
@@ -11,5 +12,5 @@ namespace Andromeda::Gui::Panels {
 	void drawDeviceHierarchy(GuiRenderer& guiRenderer);
 	void deviceBrowserPicking(GuiRenderer& guiRenderer);
 	void drawDeviceBrowser(GuiRenderer& guiRenderer);
-	void drawViewportGUI(amath::CameraData& camData,GuiRenderer& guiRenderer, u32 framebufferTexture, vec2 framebufferSize, float* ImGuiMouseX, float* ImGuiMouseY);
+	void drawViewportGUI(GuiRenderer& guiRenderer, ViewportDrawInfo& drawInfo);
 }

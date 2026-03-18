@@ -52,12 +52,14 @@ TEST_F(SubsystemStartTest, CheckRenderer) {
     auto& manager = Andromeda::SystemManager::getInstance();
 
     ResourceManager rm;
+    SceneManager sm;
     Renderer renderer;
 
     manager.addSubsystem(&rm);
+    manager.addSubsystem(&sm);
     manager.addSubsystem(&renderer);
     rm.start();
-
+    sm.start();
     ASSERT_NO_THROW({
         renderer.start();
         }) << "Error in Renderer::start() - possible null pointer or missing dependency.";
@@ -71,9 +73,11 @@ TEST_F(SubsystemStartTest, CheckEditor) {
     Editor editor;
     Renderer renderer;
     ResourceManager rm;
+    SceneManager sm;
     Window::WindowManager wm;
     manager.addSubsystem(&wm);
     manager.addSubsystem(&rm);
+    manager.addSubsystem(&sm);
     manager.addSubsystem(&renderer);
     manager.addSubsystem(&editor);
     wm.start();
@@ -82,7 +86,7 @@ TEST_F(SubsystemStartTest, CheckEditor) {
         }) << "RM ERROR";
     ASSERT_NO_THROW({
     renderer.start();
-        }) << "RM ERROR";
+        }) << "RENDERER ERROR";
     ASSERT_NO_THROW({
         editor.start();
         }) << "Error in Editor::start()";

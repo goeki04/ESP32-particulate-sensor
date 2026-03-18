@@ -1,6 +1,7 @@
 #pragma once
 #include "a_ISubsystem.hpp"
 #include <SDL3/SDL.h>
+#include <string_view>
 namespace Andromeda::Window {
 	inline SDL_Window* g_Window = nullptr;
 	inline int g_WindowWidth = 0, g_WindowHeight = 0;
@@ -10,6 +11,10 @@ namespace Andromeda::Window {
 		void start() override;
 		void destroy() override;
 		void updateEvent(SDL_Event* event) override;
+		static constexpr std::string_view GetStaticName() { return "WindowManager"; }
+		const char* getSubsystemName() const override {
+			return GetStaticName().data();
+		}
 	private:
 		SDL_Surface* CreateSDLSurface(const char* path);
 	};

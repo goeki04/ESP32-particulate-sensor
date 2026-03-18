@@ -5,7 +5,7 @@
 #include "resource_manager.h"
 namespace Andromeda {
 	using Entity = uint32_t;
-	class Scene : public ISubsystem{
+	class SceneManager : public ISubsystem{
 	public:
 		static constexpr const char* subsystemName = "Scene";
 		ECS::ComponentRegistry m_Registry;
@@ -14,7 +14,7 @@ namespace Andromeda {
 		void deleteEntity(Entity id);
 		void start() override;
 
-		static constexpr std::string_view GetStaticName() { return "Renderer"; }
+		static constexpr std::string_view GetStaticName() { return "SceneManager"; }
 		const char* getSubsystemName() const override {
 			return GetStaticName().data();
 		}

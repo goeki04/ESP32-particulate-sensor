@@ -148,9 +148,6 @@ namespace Andromeda {
         for (auto& [id, device] : m_DeviceRecords)
         {
             MeshGPUHandle& gpuHandle = m_GPUMeshes[id];
-
-            // 2. Rufe die RHI-Funktion auf (Daten von CPU -> GPU)
-            // Wir nutzen die neue RHI::createMesh(handle, data)
             createMesh(gpuHandle, device.mesh);
         }
     }

@@ -10,7 +10,7 @@ namespace Andromeda {
     void Renderer::start()
     {
         m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
-        m_Scene = SystemManager::getInstance().getSubsystem<Scene>();
+        m_SceneManager = SystemManager::getInstance().getSubsystem<SceneManager>();
         
         //m_GuiManager.init(Window::g_Window, &m_Cam, m_Registry);
         m_FramebufferSize = ivec2(Window::g_WindowWidth, Window::g_WindowHeight);
@@ -101,8 +101,8 @@ namespace Andromeda {
     }
 
     void Renderer::geometryPass() {
-        auto& meshPool = m_Scene->m_Registry.getPool<Component::Mesh>();
-        auto& transformPool = m_Scene->m_Registry.getPool<Component::Transform>();
+        auto& meshPool = m_SceneManager->m_Registry.getPool<Component::Mesh>();
+        auto& transformPool = m_SceneManager->m_Registry.getPool<Component::Transform>();
         const auto& entitiesWithMesh = meshPool.getEntities();
         const auto& meshData = meshPool.data();
 

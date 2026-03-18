@@ -5,24 +5,28 @@
 #include <algorithm>
 #include <filesystem>
 #include "console.h"
-
 namespace Andromeda::Gui {
     ImVec2 Gui::GuiRenderer::s_ViewportSize = ImVec2(0.0f, 0.0f);
     bool Gui::GuiRenderer::s_ViewportFocused = false;
     bool Gui::GuiRenderer::m_ShowVersion = false;
     bool Gui::GuiRenderer::m_HasLastHitpoint = false;
     glm::vec3 Gui::GuiRenderer::m_LastHitPoint{ 0.0f };
-    void Gui::GuiRenderer::init(SDL_Window* window, amath::CameraData* cam, 
-        ECS::ComponentRegistry* registry) {
-        m_Cam = cam;
-        m_Registry = registry;
+
+    void Gui::GuiRenderer::init(GuiRendererConfig &guiConfig) {
+        assert(guiConfig.cam,"CameraData is nullptr in GuiRenderer::Init()");
+        assert(guiConfig.window, "window is nullptr in GuiRenderer:Init()");
+        assert(guiConfig.registry, "registry is nullptr in GuiRenderer::Init()");
+        m_Cam = guiConfig.cam;
+        m_Registry = guiConfig.registry;
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+        ImGui_ImplSDL3_InitForOpenGL(guiConfig.window, guiConfig.sdl_gl_context);
+        ImGui_ImplOpenGL3_Init(guiConfig.glsl_version);
         ImGui::StyleColorsDark();
         setFlags();
         setStyle();
         loadFont();
-        SDL_GetWindowSizeInPixels(window, &m_WindowWidth, &m_WindowHeight);
+        SDL_GetWindowSizeInPixels(guiConfig.window, &m_WindowWidth, &m_WindowHeight);
         m_WidgetWidth = m_WindowWidth * 0.125;
         m_MarginDefault = m_WindowHeight * 0.0225;
         setViewportSize();

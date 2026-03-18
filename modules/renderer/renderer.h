@@ -8,7 +8,7 @@ namespace Andromeda {
 	namespace amath {
 		class CameraData;
 	}
-	class Scene;
+	class SceneManager;
 	enum class MaterialShaderType : int;
 	namespace Window { class WindowManager; }
 	class ResourceManager;
@@ -21,6 +21,11 @@ namespace Andromeda {
 	public:
 		ivec2 m_FramebufferSize = glm::ivec2(0, 0);
 		static constexpr const char* glsl_version = "#version 460";
+
+		static constexpr std::string_view GetStaticName() { return "Renderer"; }
+		const char* getSubsystemName() const override {
+			return GetStaticName().data();
+		}
 		void start() override;
 		void update() override;
 		void drawMesh(ResourceManager* rm, const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform);
@@ -41,7 +46,7 @@ namespace Andromeda {
 		void windowClearPass();
 	private:
 		ResourceManager* m_ResourceManager = nullptr;
-		Scene* m_Scene = nullptr;
+		SceneManager* m_SceneManager = nullptr;
 		framebufferManager fboManager;
 		MsaaSamples m_MSAAsamples = MsaaSamples::x4;
 		vec2 m_TexelSize = vec2(0.0, 0.0);
