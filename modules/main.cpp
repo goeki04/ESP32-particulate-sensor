@@ -15,7 +15,7 @@ Andromeda::Window::WindowManager windowManager;
 Andromeda::Renderer renderer;
 Andromeda::ResourceManager resourceManager;
 Andromeda::Editor editor;
-Andromeda::Scene scene;
+Andromeda::SceneManager sceneManager;
 static Andromeda::Network::ESPHomeClient g_EspClient;
 
 SDL_AppResult SDL_Init() {
@@ -32,7 +32,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_Init();
     Andromeda::SystemManager::getInstance().addSubsystem(&windowManager);
     Andromeda::SystemManager::getInstance().addSubsystem(&resourceManager);
-    Andromeda::SystemManager::getInstance().addSubsystem(&scene);
+    Andromeda::SystemManager::getInstance().addSubsystem(&sceneManager);
     Andromeda::SystemManager::getInstance().addSubsystem(&renderer);
     Andromeda::SystemManager::getInstance().addSubsystem(&editor);
     Andromeda::SystemManager::getInstance().startSubsystems();

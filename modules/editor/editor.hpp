@@ -7,14 +7,17 @@ namespace Andromeda {
 	class Renderer;
 	class Editor : public ISubsystem{
 		Renderer* m_Renderer = nullptr;
-		Scene* m_Scene = nullptr;
+		SceneManager* m_SceneManager = nullptr;
 		amath::CameraData m_EditorCamData;
 		Gui::GuiRenderer m_GuiRenderer;
 	public:
 		void start() override;
 		void update() override;
 		void destroy() override;
-
+		static constexpr std::string_view GetStaticName() { return "Editor"; }
+		const char* getSubsystemName() const override {
+			return GetStaticName().data();
+		}
 		void updateEditorCameraRay();
 		bool RayIntersectsXZPlane(const amath::Ray& ray, float planeY, vec3& outHitPoint);
 		void cameraMovement(amath::CameraData& camdata);

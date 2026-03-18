@@ -20,6 +20,11 @@ namespace Andromeda {
 		std::vector<std::unique_ptr<PostProcessShader>> m_PostProcessShaders;
 		std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
 
+		static constexpr std::string_view GetStaticName() { return "ResourceManager"; }
+		const char* getSubsystemName() const override {
+			return GetStaticName().data();
+		}
+
 		void updateEvent(SDL_Event* event) override;
 
 		void start() override;

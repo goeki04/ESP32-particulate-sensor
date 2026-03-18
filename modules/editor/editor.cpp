@@ -3,27 +3,25 @@
 #include "renderer.h"
 #include "window_manager.h"
 #include "subsystem_manager.h"
+#include "a_guiTypes.hpp"
 namespace Andromeda {
 	void Editor::start()
 	{
-        
-		if (Window::m_GlContext == nullptr) {
-			throw std::runtime_error("OpenGL context is not initialized!");
-		}
+        assert(Window::m_GlContext,"OpenGL context is not initialized!");
 		m_Renderer = SystemManager::getInstance().getSubsystem<Renderer>();
-        if (m_Renderer == nullptr) {
-            throw std::runtime_error("m_Renderer has not been initialized");
-            return;
-        }
-        //m_Scene = SystemManager::getInstance().getSubsystem<Scene>();
-        if (!m_Scene) {
-            throw std::runtime_error("m_Scene has not been initialized!");
-        }
-        m_EditorCamData.m_framebufferSize = m_Renderer->m_FramebufferSize;
+        assert(m_Renderer, "m_Renderer is nullptr in Editor::Start()");
+        m_SceneManager = SystemManager::getInstance().getSubsystem<SceneManager>();
+        assert(m_SceneManager, "m_SceneManager is nullptr in Editor::Start()");
 
-		ImGui_ImplSDL3_InitForOpenGL(Window::g_Window, Window::m_GlContext);
-		ImGui_ImplOpenGL3_Init(Renderer::glsl_version);
-		m_GuiRenderer.init(Window::g_Window, &m_EditorCamData, &m_Scene->m_Registry);
+        m_EditorCamData.m_framebufferSize = m_Renderer->m_FramebufferSize;
+        Gui::GuiRendererConfig guiConfig{
+            Window::g_Window,
+            &m_EditorCamData,
+            &m_SceneManager->m_Registry,
+            Window::m_GlContext,
+            m_Renderer->glsl_version
+        };
+		m_GuiRenderer.init(guiConfig);
 	}
 	void Editor::update()
 	{

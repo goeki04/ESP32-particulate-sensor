@@ -4,7 +4,7 @@
 #include <string>
 #include "registry.h"
 #include "a_math.hpp"
-
+#include "a_guiTypes.hpp"
 class IDeviceProvider;
 
 namespace Andromeda {
@@ -24,35 +24,6 @@ inline ImVec2 operator*(const ImVec2& a, const float b) {
     return ImVec2(a.x * b, a.y * b);
 }
 namespace Andromeda::Gui {
-    struct Margin {
-        float left;
-        float right;
-        float bottom;
-        float top;
-        Margin() {
-            left = 0;
-            right = 0;
-            top = 0;
-            bottom = 0;
-        }
-        Margin(float margin) : left(margin), right(margin), top(margin), bottom(margin) {
-        }
-        Margin(float left, float right, float bottom, float top)
-            : left(left), right(right), bottom(bottom), top(top) {
-        }
-    };
-
-
-
-    enum Alignment {
-        TopLeft,
-        TopRight,
-        Center,
-        CenterBottom,
-        CenterTop,
-        BottomLeft,
-        BottomRight,
-    };
 
     class GuiRenderer {
     public:
@@ -63,7 +34,7 @@ namespace Andromeda::Gui {
         /// This is the coordinate of the viewport pivot relative to the screen (topLeft = 0)
         /// </summary>
         vec2 m_ViewportRectMin = vec2(0.0f, 0.0f);
-        void init(SDL_Window* window, amath::CameraData* cam, ECS::ComponentRegistry* registry);
+        void init(GuiRendererConfig& guiConfig);
         void update();
         void destroy();
         float getMenuBarHeight();

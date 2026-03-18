@@ -3,7 +3,7 @@
 #include "subsystem_manager.h"
 namespace Andromeda{
 
-    void Scene::addEntity(unsigned int meshID, const std::string& name, ECS::Component::Transform transform)
+    void SceneManager::addEntity(unsigned int meshID, const std::string& name, ECS::Component::Transform transform)
     {
         auto handle = m_Registry.createHandle();
         
@@ -14,11 +14,11 @@ namespace Andromeda{
         handle.add<ECS::Component::AABB>(aabb);
     }
 
-    void Scene::deleteEntity(Entity id)
+    void SceneManager::deleteEntity(Entity id)
     {
         m_Registry.destroyEntity(id);
     }
-    void Scene::start()
+    void SceneManager::start()
     {
         m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
         if (!m_ResourceManager) {
