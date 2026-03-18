@@ -6,14 +6,20 @@
 namespace Andromeda {
 	void Editor::start()
 	{
+        
 		if (Window::m_GlContext == nullptr) {
 			throw std::runtime_error("OpenGL context is not initialized!");
 		}
 		m_Renderer = SystemManager::getInstance().getSubsystem<Renderer>();
-		if (m_Renderer == nullptr) {
-			throw std::runtime_error("Renderer is nullptr");
-			return;
-		}
+        if (m_Renderer == nullptr) {
+            throw std::runtime_error("m_Renderer has not been initialized");
+            return;
+        }
+        //m_Scene = SystemManager::getInstance().getSubsystem<Scene>();
+        if (!m_Scene) {
+            throw std::runtime_error("m_Scene has not been initialized!");
+        }
+        m_EditorCamData.m_framebufferSize = m_Renderer->m_FramebufferSize;
 
 		ImGui_ImplSDL3_InitForOpenGL(Window::g_Window, Window::m_GlContext);
 		ImGui_ImplOpenGL3_Init(Renderer::glsl_version);

@@ -19,17 +19,17 @@ namespace Andromeda::amath {
 		float m_Yaw = -90.0f;
 		float m_Pitch = 0.0f;
 		float m_Sensitivity = 0.1f;
-		vec3 m_Target;
-		vec3 m_Forward;
-		vec3 m_Right;
+		vec3 m_Target = vec3(0.0f);
+		vec3 m_Forward = vec3(0.0f);
+		vec3 m_Right = vec3(0.0f);
 		float m_Speed = 25.0f;
 		mat4 m_ViewMatrix = { 1.0f };
-		bool m_HasValidPickRay;
-		vec2 m_framebufferSize;
-		vec2 m_ViewportSize;
-		vec2 m_ViewportPos;
-		float m_ImGuiMouseX;
-		float m_ImGuiMouseY;
+		bool m_HasValidPickRay = false;
+		vec2 m_framebufferSize = vec2(0.0f);
+		vec2 m_ViewportSize = vec2(0.0f);
+		vec2 m_ViewportPos = vec2(0.0f);
+		float m_ImGuiMouseX = 0.0f;
+		float m_ImGuiMouseY = 0.0f;
 		Ray m_CursorToWorldRay{ vec3(0.0f), vec3(0.0f) };
 	};
 

@@ -3,17 +3,23 @@
 #include "window_manager.h"
 #include "resource_manager.h"
 #include "a_math.hpp"
+#include "scene.hpp"
+#include <iostream>
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void Renderer::start()
     {
         m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
+        m_Scene = SystemManager::getInstance().getSubsystem<Scene>();
+        
         //m_GuiManager.init(Window::g_Window, &m_Cam, m_Registry);
-        m_FramebufferSize = glm::ivec2(Window::g_WindowWidth, Window::g_WindowHeight);
-        m_TexelSize = 1.0f / glm::vec2(m_FramebufferSize.x, m_FramebufferSize.y);
-        m_Cam->m_framebufferSize = m_FramebufferSize;
+        m_FramebufferSize = ivec2(Window::g_WindowWidth, Window::g_WindowHeight);
+        if (m_FramebufferSize.x == 0 || m_FramebufferSize.y == 0) {
+            throw std::runtime_error("Framebuffer has an start value of 0!!!");
+        }
+        m_TexelSize = 1.0f / vec2(m_FramebufferSize.x, m_FramebufferSize.y);
 
-        fboManager.createFramebuffers(m_FramebufferSize,m_MSAAsamples);
+        fboManager.createFramebuffers(m_FramebufferSize,(int)m_MSAAsamples);
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         glCullFace(GL_BACK);
@@ -47,7 +53,7 @@ namespace Andromeda {
             m_Cam->m_framebufferSize = m_FramebufferSize;
 
             fboManager.destroyFramebuffers();
-            fboManager.createFramebuffers(m_FramebufferSize, m_MSAAsamples);
+            fboManager.createFramebuffers(m_FramebufferSize, (int)m_MSAAsamples);
 
             m_ResizePending = false;
         }
@@ -95,8 +101,8 @@ namespace Andromeda {
     }
 
     void Renderer::geometryPass() {
-        auto& meshPool = m_Registry->getPool<Component::Mesh>();
-        auto& transformPool = m_Registry->getPool<Component::Transform>();
+        auto& meshPool = m_Scene->m_Registry.getPool<Component::Mesh>();
+        auto& transformPool = m_Scene->m_Registry.getPool<Component::Transform>();
         const auto& entitiesWithMesh = meshPool.getEntities();
         const auto& meshData = meshPool.data();
 
@@ -142,6 +148,7 @@ namespace Andromeda {
     }
     void Renderer::selectionPass()
     {
+        /*
         glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_SelectionFramebuffer);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -157,6 +164,7 @@ namespace Andromeda {
             }
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        */
     }
     void Renderer::postprocessingPass()
     {

@@ -10,7 +10,6 @@ using namespace Andromeda::ECS;
 namespace Andromeda {
     void ResourceManager::start()
     {
-        std::printf("Shader path:\n" SHADER_PATH "unlitVertex.glsl");
         addMaterialShader<LitShader>(SHADER_PATH "unlitVertex.glsl", SHADER_PATH "unlitFragment.glsl");
         addMaterialShader<ColorShader>(SHADER_PATH "colorVertex.glsl", SHADER_PATH "colorFragment.glsl");
         addProceduralShader<GridShader>(SHADER_PATH "gridVertex.glsl", SHADER_PATH "gridFragment.glsl");

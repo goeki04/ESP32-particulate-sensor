@@ -5,7 +5,6 @@ namespace Andromeda{
 
     void Scene::addEntity(unsigned int meshID, const std::string& name, ECS::Component::Transform transform)
     {
-        m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
         auto handle = m_Registry.createHandle();
         
         handle.add<ECS::Component::Transform>(transform);
@@ -21,6 +20,10 @@ namespace Andromeda{
     }
     void Scene::start()
     {
-        
+        m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
+        if (!m_ResourceManager) {
+            throw std::runtime_error("m_ResourceManager is not initialized");
+        }
     }
+
 }

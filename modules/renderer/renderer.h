@@ -1,13 +1,14 @@
 #pragma once
 #include "a_graphics_base.hpp"
 #include "a_ISubsystem.hpp"
-#include "registry.h"
 #include "components.hpp"
 #include "framebuffer.hpp"
+#include "a_primitives.hpp"
 namespace Andromeda {
 	namespace amath {
 		class CameraData;
 	}
+	class Scene;
 	enum class MaterialShaderType : int;
 	namespace Window { class WindowManager; }
 	class ResourceManager;
@@ -18,6 +19,8 @@ namespace Andromeda {
 
 	class Renderer : public ISubsystem {
 	public:
+		ivec2 m_FramebufferSize = glm::ivec2(0, 0);
+		static constexpr const char* glsl_version = "#version 460";
 		void start() override;
 		void update() override;
 		void drawMesh(ResourceManager* rm, const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform);
@@ -36,20 +39,17 @@ namespace Andromeda {
 		void pickingPass(const amath::CameraData* cam);
 		void scenePassEndResolve();
 		void windowClearPass();
-		static constexpr const char* glsl_version = "#version 460";
 	private:
-		glm::ivec2 m_FramebufferSize = glm::ivec2(0, 0);
-		glm::vec2 m_TexelSize = glm::vec2(0.0, 0.0);
-		amath::CameraData* m_Cam;
+		ResourceManager* m_ResourceManager = nullptr;
+		Scene* m_Scene = nullptr;
+		framebufferManager fboManager;
+		MsaaSamples m_MSAAsamples = MsaaSamples::x4;
+		vec2 m_TexelSize = vec2(0.0, 0.0);
+		u32 m_Vao = 0;
+		amath::CameraData* m_Cam = nullptr;
 		float m_ResizeTimer = 0.0f;
 		bool m_ResizePending = false;
-		glm::ivec2 m_TargetSize;
-		GLuint m_Vao = 0;
-
-		const unsigned int m_MSAAsamples = (int)MsaaSamples::x4;
-		framebufferManager fboManager;
-		ResourceManager* m_ResourceManager = nullptr;
-		ECS::ComponentRegistry* m_Registry = nullptr;
+		ivec2 m_TargetSize = ivec2(0.0f);
 #ifdef DEBUG_RENDERING_OPENGL
 		bool m_DebugMode = false;
 #endif

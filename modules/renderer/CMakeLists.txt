@@ -13,6 +13,7 @@ target_link_libraries(renderer PUBLIC
     imgui::imgui
 
     definitions
+    scene
     core
     renderer_rhi
     resource
