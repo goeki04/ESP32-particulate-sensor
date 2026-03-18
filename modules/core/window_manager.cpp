@@ -28,7 +28,6 @@ namespace Andromeda::Window {
     }
     void WindowManager::start() {
         int16_t windowFlags = 0;
-        std::printf(ASSET_PATH "\n");
         SDL_Surface* surface = CreateSDLSurface(ASSET_PATH "logo.png");
 
         windowFlags |= SDL_WINDOW_MAXIMIZED;

@@ -9,10 +9,13 @@
 #include "registry.h"
 #include "renderer.h"
 #include "esphome_client.h"
-
+#include "editor/editor.hpp"
+#include "scene.hpp"
 Andromeda::Window::WindowManager windowManager;
 Andromeda::Renderer renderer;
 Andromeda::ResourceManager resourceManager;
+Andromeda::Editor editor;
+Andromeda::Scene scene;
 static Andromeda::Network::ESPHomeClient g_EspClient;
 
 SDL_AppResult SDL_Init() {
@@ -29,7 +32,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_Init();
     Andromeda::SystemManager::getInstance().addSubsystem(&windowManager);
     Andromeda::SystemManager::getInstance().addSubsystem(&resourceManager);
+    Andromeda::SystemManager::getInstance().addSubsystem(&scene);
     Andromeda::SystemManager::getInstance().addSubsystem(&renderer);
+    Andromeda::SystemManager::getInstance().addSubsystem(&editor);
     Andromeda::SystemManager::getInstance().startSubsystems();
 
     g_EspClient.getDecoder().addOnMessageCallback([](uint32_t type, const std::vector<uint8_t>& payload) {

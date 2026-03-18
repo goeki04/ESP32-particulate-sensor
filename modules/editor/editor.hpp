@@ -10,7 +10,7 @@ namespace Andromeda {
 		Scene* m_Scene = nullptr;
 		amath::CameraData m_EditorCamData;
 		Gui::GuiRenderer m_GuiRenderer;
-
+	public:
 		void start() override;
 		void update() override;
 		void destroy() override;

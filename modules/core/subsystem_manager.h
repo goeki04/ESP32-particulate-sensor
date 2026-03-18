@@ -27,7 +27,9 @@ namespace Andromeda {
 					return casted;
 				}
 			}
-			throw std::runtime_error("Subsystem not found!");
+			std::string errorMsg = "Subsystem not found: ";
+			errorMsg += T::GetStaticName();
+			throw std::runtime_error(errorMsg);
 		}
 
 	private:

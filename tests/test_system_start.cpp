@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
-
+#include <iostream>
 #include "subsystem_manager.h"
 #include "window_manager.h"
+#include "editor.hpp"
 #include "resource_manager.h"
 #include "renderer.h"
 
@@ -10,33 +11,81 @@ using namespace Andromeda;
 class SubsystemStartTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        std::cout << "[ INFO ] Starte Test-Setup..." << std::endl;
+        std::cout << "[ INFO ] Starting Test Setup..." << std::endl;
+        auto& manager = SystemManager::getInstance();
+        manager.m_Subsystems.clear();
     }
 };
 
 TEST_F(SubsystemStartTest, CheckWindowManager) {
-    std::cout << "[ STEP ] Initialisiere WindowManager..." << std::endl;
+    std::cout << "[ STEP ] Initializing WindowManager..." << std::endl;
     Window::WindowManager windowManager;
 
-    ASSERT_NO_THROW({windowManager.start();}) << "Fehler im WindowManager::start()!";
+    ASSERT_NO_THROW({
+        windowManager.start();
+        }) << "Error in WindowManager::start()!";
 
-    std::cout << "[ OK ] WindowManager erfolgreich gestartet." << std::endl;
+    std::cout << "[ OK ] WindowManager started successfully." << std::endl;
+
+    EXPECT_GT(Window::g_WindowWidth, 0)
+        << "Error: WindowManager started, but g_WindowWidth is 0. "
+        << "This will cause a division by zero in the Renderer later!";
+
+    EXPECT_GT(Window::g_WindowHeight, 0)
+        << "Error: WindowManager started, but g_WindowHeight is 0!";
 }
 
 TEST_F(SubsystemStartTest, CheckResourceManager) {
-    std::cout << "[ STEP ] Initialisiere ResourceManager..." << std::endl;
+    std::cout << "[ STEP ] Initializing ResourceManager..." << std::endl;
     Andromeda::ResourceManager resourceManager;
 
-    ASSERT_NO_THROW({resourceManager.start();}) << "Fehler im ResourceManager::start()!";
+    ASSERT_NO_THROW({
+        resourceManager.start();
+        }) << "Error in ResourceManager::start()!";
 
-    std::cout << "[ OK ] ResourceManager erfolgreich gestartet." << std::endl;
+    std::cout << "[ OK ] ResourceManager started successfully." << std::endl;
 }
 
 TEST_F(SubsystemStartTest, CheckRenderer) {
-    std::cout << "[ STEP ] Initialisiere Renderer..." << std::endl;
-    Andromeda::Renderer renderer;
+    std::cout << "[ STEP ] Initializing Renderer..." << std::endl;
 
-    ASSERT_NO_THROW({renderer.start(); }) << "Fehler im Renderer::start()!";
+    auto& manager = Andromeda::SystemManager::getInstance();
 
-    std::cout << "[ OK ] Renderer erfolgreich gestartet." << std::endl;
+    ResourceManager rm;
+    Renderer renderer;
+
+    manager.addSubsystem(&rm);
+    manager.addSubsystem(&renderer);
+    rm.start();
+
+    ASSERT_NO_THROW({
+        renderer.start();
+        }) << "Error in Renderer::start() - possible null pointer or missing dependency.";
+
+    std::cout << "[ OK ] Renderer started successfully." << std::endl;
+}
+
+TEST_F(SubsystemStartTest, CheckEditor) {
+    std::cout << "[ STEP ] Initializing Editor..." << std::endl;
+    auto& manager = Andromeda::SystemManager::getInstance();
+    Editor editor;
+    Renderer renderer;
+    ResourceManager rm;
+    Window::WindowManager wm;
+    manager.addSubsystem(&wm);
+    manager.addSubsystem(&rm);
+    manager.addSubsystem(&renderer);
+    manager.addSubsystem(&editor);
+    wm.start();
+    ASSERT_NO_THROW({
+        rm.start();
+        }) << "RM ERROR";
+    ASSERT_NO_THROW({
+    renderer.start();
+        }) << "RM ERROR";
+    ASSERT_NO_THROW({
+        editor.start();
+        }) << "Error in Editor::start()";
+
+    std::cout << "[ OK ] Editor started successfully." << std::endl;
 }

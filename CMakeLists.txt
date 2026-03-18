@@ -82,7 +82,7 @@ include(GoogleTest)
 
 set(ANDROMEDA_TEST_SOURCES
     "tests/test_system_start.cpp"
-)
+) 
 
 add_executable(AndromedaTests ${ANDROMEDA_TEST_SOURCES})
 target_compile_definitions(AndromedaTests PRIVATE ASSET_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
@@ -92,6 +92,7 @@ target_link_libraries(AndromedaTests PRIVATE
     core
     resource
     renderer
+    editor
     definitions
 )
 
