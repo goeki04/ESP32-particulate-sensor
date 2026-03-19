@@ -5,7 +5,6 @@
 #include <algorithm>
 #include "window_manager.h"
 #include <filesystem>
-#include "console.h"
 namespace Andromeda::Gui {
     ImVec2 Gui::GuiRenderer::s_ViewportSize = ImVec2(0.0f, 0.0f);
     bool Gui::GuiRenderer::s_ViewportFocused = false;
@@ -34,7 +33,7 @@ namespace Andromeda::Gui {
         setViewportSize();
 
     }
-    void GuiRenderer::update() {
+    void GuiRenderer::update(ViewportDrawInfo vpInfo) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
@@ -45,13 +44,12 @@ namespace Andromeda::Gui {
         Panels::drawDeviceBrowser(*this);
         Panels::drawDeviceHierarchy(*this);
         drawChart();
-        ViewportDrawInfo vpDrawInfo;
-
-        Panels::drawViewportGUI(*this,);
+        Panels::drawViewportGUI(*this,vpInfo);
         EndFrame(Window::g_Window);
     }
 
     void GuiRenderer::EndFrame(SDL_Window* window) {
+        ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

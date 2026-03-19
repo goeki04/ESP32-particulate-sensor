@@ -16,7 +16,6 @@ namespace Andromeda {
         assert(m_ResourceManager && "ResourceManager is nullptr in Renderer::Start()");
         assert(m_SceneManager && "SceneManager is nullptr in Renderer::Start()");
         m_Cam = &m_SceneManager->m_EditorCamData;
-        //m_GuiManager.init(Window::g_Window, &m_Cam, m_Registry);
         m_FramebufferSize = ivec2(Window::g_WindowWidth, Window::g_WindowHeight);
 
         if (m_FramebufferSize.x == 0 || m_FramebufferSize.y == 0) {
@@ -82,31 +81,29 @@ namespace Andromeda {
         scenePassEndResolve();
         selectionPass();
         postprocessingPass();
-        guiPass(m_Cam);
         pickingPass(m_Cam);
-        imGuiPass();
     }
 
-    void Renderer::drawMesh(ResourceManager* rm, const Component::Mesh& mesh, const Component::Transform& transform)
+    void Renderer::drawMesh(const Component::Mesh& mesh, const Component::Transform& transform)
     {
-        auto* sh = rm->getMaterialShaderByID(MaterialShaderType::white);
+        auto* sh = m_ResourceManager->getMaterialShaderByID(MaterialShaderType::white);
         sh->use();
         glm::mat4 localMatrix = transform.modelMatrix();
         sh->setUniforms(m_Cam,localMatrix);
-        glBindVertexArray(rm->getMeshVaoByID(mesh.meshID));
-        glDrawElements(GL_TRIANGLES, rm->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(m_ResourceManager->getMeshVaoByID(mesh.meshID));
+        glDrawElements(GL_TRIANGLES, m_ResourceManager->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
 
-    void Renderer::drawMesh(ResourceManager* rm, const Component::Mesh& mesh, const Component::Transform& transform, MaterialShaderType type)
+    void Renderer::drawMesh(const Component::Mesh& mesh, const Component::Transform& transform, MaterialShaderType type)
     {
-        auto* sh = rm->getMaterialShaderByID(type);
+        auto* sh = m_ResourceManager->getMaterialShaderByID(type);
         sh->use();
         mat4 localMatrix = transform.modelMatrix();
         
         sh->setUniforms(m_Cam,localMatrix);
-        glBindVertexArray(rm->getMeshVaoByID(mesh.meshID));
-        glDrawElements(GL_TRIANGLES, rm->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(m_ResourceManager->getMeshVaoByID(mesh.meshID));
+        glDrawElements(GL_TRIANGLES, m_ResourceManager->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
 
@@ -119,42 +116,9 @@ namespace Andromeda {
         for (size_t i = 0; i < entitiesWithMesh.size(); ++i) {
             Entity e = entitiesWithMesh[i];
             if (transformPool.has(e)) {
-                drawMesh(m_ResourceManager, meshData[i], transformPool.get(e), MaterialShaderType::unlit);
+                drawMesh(meshData[i], transformPool.get(e), MaterialShaderType::unlit);
             }
         }
-    }
-    void Renderer::guiPass(amath::CameraData* cam)
-    {
-        //m_GuiManager.update();
-
-        /*Gui::Panels::drawViewportGUI(
-            m_GuiManager,
-            m_PostprocessTexture,
-            ImVec2(m_FramebufferSize.x, m_FramebufferSize.y),
-            &cam.m_ImGuiMouseX,
-            &cam.m_ImGuiMouseY
-        );
-        
-
-        ImGui::Render();
-        */
-    }
-    void Renderer::imGuiPass()
-    {
-        /*
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        ImGuiIO& io = ImGui::GetIO();
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-            SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
-            SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
-
-            ImGui::UpdatePlatformWindows();
-            ImGui::RenderPlatformWindowsDefault();
-
-            SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
-        }
-        SDL_GL_SwapWindow(Window::g_Window);*/
     }
     void Renderer::selectionPass()
     {

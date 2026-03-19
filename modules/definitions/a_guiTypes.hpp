@@ -60,14 +60,10 @@ namespace Andromeda::Gui {
      * @brief Data structure for passing rendering results to the ImGui viewport.
      */
     struct ViewportDrawInfo {
-        ViewportDrawInfo() : camData(nullptr), framebufferTexture(0), framebufferSize(0.0f, 0.0f),
-            ImGuiMouseX(nullptr), ImGuiMouseY(nullptr) {
-        }
+        ViewportDrawInfo() : camData(nullptr), postProcessingFboTexture(0), framebufferSize(0.0f, 0.0f){}
 
         amath::CameraData* camData;      // Source camera for this viewport
-        u32 framebufferTexture;         // OpenGL handle for the final scene texture
+        u32 postProcessingFboTexture;         // OpenGL handle for the final scene texture (post processing texture)
         vec2 framebufferSize;           // Dimensions of the viewport in pixels
-        float* ImGuiMouseX;             // Reference to the calculated mouse X coordinate
-        float* ImGuiMouseY;             // Reference to the calculated mouse Y coordinate
     };
 }
