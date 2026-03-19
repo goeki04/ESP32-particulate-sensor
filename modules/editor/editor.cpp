@@ -38,6 +38,11 @@ namespace Andromeda {
         vpInfo.postProcessingFboTexture = m_Renderer->fboManager.m_PostprocessTexture;
         m_GuiRenderer.update(vpInfo);
 	}
+    
+    void Editor::updateEvent(SDL_Event* event) {
+        ImGui_ImplSDL3_ProcessEvent(event);
+    }
+
 	void Editor::destroy()
 	{
 		m_GuiRenderer.destroy();
