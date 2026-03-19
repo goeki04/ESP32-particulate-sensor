@@ -26,8 +26,8 @@ void Andromeda::Gui::Panels::drawViewportGUI(GuiRenderer& guiRenderer,ViewportDr
     ImVec2 rectMin = ImGui::GetItemRectMin();
     ImVec2 rectMax = ImGui::GetItemRectMax();
     ImVec2 rectSize = ImVec2(rectMax.x - rectMin.x, rectMax.y - rectMin.y);
-    drawInfo.camData->m_ViewportSize = vec2(viewportSize.x, viewportSize.y);
-    drawInfo.camData->m_ViewportPos = vec2(guiRenderer.m_ViewportPos.x, guiRenderer.m_ViewportPos.y);
+    drawInfo.camData->m_ViewportSize = vec2(rectSize.x, rectSize.y);
+    drawInfo.camData->m_ViewportPos = vec2(rectMin.x, rectMin.y);
     ImVec2 mousePos = ImGui::GetMousePos();
     ImVec2 rel = ImVec2(mousePos.x - rectMin.x, mousePos.y - rectMin.y);
     bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);

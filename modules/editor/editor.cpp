@@ -6,6 +6,7 @@
 #include "resource_manager.h"
 #include "subsystem_manager.h"
 #include "a_guiTypes.hpp"
+#include "registry.h"
 namespace Andromeda {
 	void Editor::start()
 	{
@@ -16,6 +17,7 @@ namespace Andromeda {
         assert(m_SceneManager && "m_SceneManager is nullptr in Editor::Start()");
         ResourceManager* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
         assert(rm && "rm is nullptr in Editor::Start()");
+
         Gui::GuiRendererConfig guiConfig;
         guiConfig.cam = &m_SceneManager->m_EditorCamData;
         guiConfig.glsl_version = m_Renderer->glsl_version;
@@ -30,8 +32,11 @@ namespace Andromeda {
         if (Gui::GuiRenderer::s_ViewportFocused) {
             cameraMovement(m_SceneManager->m_EditorCamData);
         }
+
 		vec2 viewportSize = m_GuiRenderer.getViewportWindowSize();
         setProjectionMatrix(m_SceneManager->m_EditorCamData, viewportSize.x, viewportSize.y);
+        updatePickingRay(m_SceneManager->m_EditorCamData);
+        editorPicking(&m_SceneManager->m_EditorCamData);
         Gui::ViewportDrawInfo vpInfo;
         vpInfo.camData = &m_SceneManager->m_EditorCamData;
         vpInfo.framebufferSize = m_Renderer->m_FramebufferSize;
@@ -48,6 +53,72 @@ namespace Andromeda {
 		m_GuiRenderer.destroy();
 	}
 
+    inline bool Editor::RayIntersectAABB(const amath::CameraData& cam, const ECS::Component::AABB& aabb, const glm::mat4& modelMatrix)
+    {
+        const amath::Ray& rayW = cam.m_CursorToWorldRay;
+
+        mat4 invModel = glm::inverse(modelMatrix);
+
+        vec3 o = glm::vec3(invModel * vec4(rayW.origin, 1.0f));
+        vec3 d = glm::normalize(vec3(invModel * vec4(rayW.direction, 0.0f)));
+
+        float tMin = 0.001f;
+        float tMax = 1e30f;
+
+        for (int i = 0; i < 3; ++i)
+        {
+            float oi = o[i];
+            float di = d[i];
+
+            if (std::fabs(di) < 1e-8f) {
+                if (oi < aabb.min[i] || oi > aabb.max[i]) return false;
+                continue;
+            }
+
+            float invD = 1.0f / di;
+            float t0 = (aabb.min[i] - oi) * invD;
+            float t1 = (aabb.max[i] - oi) * invD;
+            if (t0 > t1) std::swap(t0, t1);
+
+            tMin = std::max(tMin, t0);
+            tMax = std::min(tMax, t1);
+            if (tMin > tMax) return false;
+        }
+        return true;
+    }
+    void Editor::editorPicking(const amath::CameraData* cam)
+    {
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            auto& aabbPool = m_SceneManager->m_Registry.getPool<ECS::Component::AABB>();
+            auto& selectedPool = m_SceneManager->m_Registry.getPool<ECS::Component::Selected>();
+            std::vector<Entity> currentlySelected = selectedPool.getEntities();
+            for (Entity e : currentlySelected) {
+                m_SceneManager->m_Registry.getPool<ECS::Component::Selected>().removeEntity(e);
+            }
+            bool anyHit = false;
+
+
+            for (Entity e : aabbPool.getEntities()) {
+                ECS::EntityHandle handle = { e,&m_SceneManager->m_Registry };
+                if (!handle.has<ECS::Component::Transform>()) {
+                    continue;
+                }
+                const mat4 modelMatrix = handle.get<ECS::Component::Transform>().modelMatrix();
+                const auto& aabb = handle.get<ECS::Component::AABB>();
+
+                if (RayIntersectAABB(*cam, aabb, modelMatrix)) {
+                    handle.add<ECS::Component::Selected>({});
+                    m_GuiRenderer.m_CurrentSelectedID = e;
+                    anyHit = true;
+                    break;
+                }
+            }
+
+            if (!anyHit) {
+                m_GuiRenderer.m_CurrentSelectedID = -1;
+            }
+        }
+    }
     amath::Ray Editor::cursorToWorldRay(const amath::CameraData& cam) const
     {
         float x = (2.0f * cam.m_ImGuiMouseX) / cam.m_framebufferSize.x - 1.0f;
@@ -87,11 +158,11 @@ namespace Andromeda {
     {
         SDL_Window* currentWindow = SDL_GL_GetCurrentWindow();
 
-        /*if (!Gui::GuiRenderer::s_ViewportFocused) {
+        if (!Gui::GuiRenderer::s_ViewportFocused) {
             SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), false);
             return;
-        }*/
-
+        }
+        
         Uint32 mouseState = SDL_GetMouseState(NULL, NULL);
         bool rightMouseDown = mouseState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT);
         static bool wasRightMouseDown = false;

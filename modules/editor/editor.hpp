@@ -14,6 +14,8 @@ namespace Andromeda {
 		void update() override;
 		void updateEvent(SDL_Event* event);
 		void destroy() override;
+		bool RayIntersectAABB(const amath::CameraData& cam, const ECS::Component::AABB& aabb, const mat4& modelMatrix);
+		void editorPicking(const amath::CameraData* cam);
 		static constexpr std::string_view GetStaticName() { return "Editor"; }
 		const char* getSubsystemName() const override {
 			return GetStaticName().data();
