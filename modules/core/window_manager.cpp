@@ -61,6 +61,6 @@ namespace Andromeda::Window {
 
     void WindowManager::updateEvent(SDL_Event* event)
     {
-        //ImGui_ImplSDL3_ProcessEvent(event);
+        
     }
 }

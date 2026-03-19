@@ -8,7 +8,6 @@ using namespace Andromeda::ECS;
 namespace Andromeda {
     void Renderer::start()
     {
-        
         m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
         m_SceneManager = SystemManager::getInstance().getSubsystem<SceneManager>();
         assert(m_ResourceManager && "ResourceManager is nullptr in Renderer::Start()");

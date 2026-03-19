@@ -12,6 +12,7 @@ namespace Andromeda {
 	public:
 		void start() override;
 		void update() override;
+		void updateEvent(SDL_Event* event);
 		void destroy() override;
 		static constexpr std::string_view GetStaticName() { return "Editor"; }
 		const char* getSubsystemName() const override {
