@@ -16,21 +16,24 @@ namespace Andromeda {
         assert(m_SceneManager && "m_SceneManager is nullptr in Editor::Start()");
         ResourceManager* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
         assert(rm && "rm is nullptr in Editor::Start()");
-        Gui::GuiRendererConfig guiConfig{
-            Window::g_Window,
-            & m_SceneManager->m_EditorCamData,
-            &m_SceneManager->m_Registry,
-            rm,
-            Window::m_GlContext,
-            m_Renderer->glsl_version
-        };
+        Gui::GuiRendererConfig guiConfig;
+        guiConfig.cam = &m_SceneManager->m_EditorCamData;
+        guiConfig.glsl_version = m_Renderer->glsl_version;
+        guiConfig.sdl_gl_context = Window::m_GlContext;
+        guiConfig.registry = &m_SceneManager->m_Registry;
+        guiConfig.window = Window::g_Window;
+        guiConfig.dp = rm;
 		m_GuiRenderer.init(guiConfig);
 	}
 	void Editor::update()
 	{
 		vec2 viewportSize = m_GuiRenderer.getViewportWindowSize();
-		setProjectionMatrix(m_SceneManager->m_EditorCamData,viewportSize.x, viewportSize.y);
-        m_GuiRenderer.update();
+        setProjectionMatrix(m_SceneManager->m_EditorCamData, viewportSize.x, viewportSize.y);
+        Gui::ViewportDrawInfo vpInfo;
+        vpInfo.camData = &m_SceneManager->m_EditorCamData;
+        vpInfo.framebufferSize = m_Renderer->m_FramebufferSize;
+        vpInfo.postProcessingFboTexture = m_Renderer->fboManager.m_PostprocessTexture;
+        m_GuiRenderer.update(vpInfo);
 	}
 	void Editor::destroy()
 	{

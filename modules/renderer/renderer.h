@@ -19,6 +19,7 @@ namespace Andromeda {
 
 	class Renderer : public ISubsystem {
 	public:
+		framebufferManager fboManager;
 		ivec2 m_FramebufferSize = glm::ivec2(0, 0);
 		static constexpr const char* glsl_version = "#version 460";
 
@@ -28,13 +29,11 @@ namespace Andromeda {
 		}
 		void start() override;
 		void update() override;
-		void drawMesh(ResourceManager* rm, const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform);
-		void drawMesh(ResourceManager* rm, const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform, MaterialShaderType type);
+		void drawMesh(const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform);
+		void drawMesh(const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform, MaterialShaderType type);
 		void destroy() override;
 		void SetActiveCamera(amath::CameraData* camData);
 		void geometryPass();
-		void guiPass(amath::CameraData* cam);
-		void imGuiPass();
 		u32 getFinalSceneViewportTexture() const;
 		void onViewportResize(ivec2 newSize);
 		void processResizeTimer();
@@ -48,7 +47,6 @@ namespace Andromeda {
 	private:
 		ResourceManager* m_ResourceManager = nullptr;
 		SceneManager* m_SceneManager = nullptr;
-		framebufferManager fboManager;
 		MsaaSamples m_MSAAsamples = MsaaSamples::x4;
 		vec2 m_TexelSize = vec2(0.0, 0.0);
 		u32 m_Vao = 0;
