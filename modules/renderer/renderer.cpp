@@ -3,9 +3,7 @@
 #include "window_manager.h"
 #include "resource_manager.h"
 #include "a_math.hpp"
-#include "a_math.hpp"
 #include "scene.hpp"
-#include <iostream>
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void Renderer::start()
@@ -71,9 +69,7 @@ namespace Andromeda {
 
     void Renderer::update()
     {
-
-        /*if (Gui::GuiRenderer::s_ViewportFocused)
-            m_Cam.cameraMovement();*/
+        processResizeTimer();
         windowClearPass();
         scenePassBegin();
         geometryPass();
@@ -122,23 +118,20 @@ namespace Andromeda {
     }
     void Renderer::selectionPass()
     {
-        /*
+        
         glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_SelectionFramebuffer);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        auto& selectedPool = m_Registry->getPool<Component::Selected>();
+        auto& selectedPool = m_SceneManager->m_Registry.getPool<Component::Selected>();
         for (Entity e : selectedPool.getEntities()) {
-            EntityHandle handle = { e, m_Registry };
+            EntityHandle handle = { e, &m_SceneManager->m_Registry };
             if (handle.has<Component::Mesh>() && handle.has<Component::Transform>()) {
-                drawMesh(
-                    m_ResourceManager,
-                    handle.get<Component::Mesh>(),
-                    handle.get<Component::Transform>(), MaterialShaderType::white
-                );
+                drawMesh(handle.get<Component::Mesh>(),handle.get<Component::Transform>(), 
+                    MaterialShaderType::white);
             }
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        */
+        
     }
     void Renderer::postprocessingPass()
     {
