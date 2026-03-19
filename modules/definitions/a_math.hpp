@@ -1,5 +1,8 @@
 #pragma once
 #include "a_primitives.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+#include <type_traits>
 namespace Andromeda::amath {
 	struct Ray {
 		vec3 origin;
@@ -62,5 +65,15 @@ namespace Andromeda::amath {
 	template<typename T>
 	[[nodiscard]] constexpr inline T abs(T value) noexcept {
 		return glm::abs(value);
+	}
+
+	template<typename T>
+	[[nodiscard]] inline std::string to_string(const T& value) {
+		if constexpr(std::is_arithmetic_v<T>) {
+			return std::to_string(value);
+		}
+		else {
+			return glm::to_string(value);
+		}
 	}
 }

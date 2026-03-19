@@ -19,7 +19,7 @@ namespace Andromeda::Gui::Panels {
 
         int perRow = (int)floor((availX + spacingX) / (tileSize.x + spacingX));
         if (perRow < 1) perRow = 1;
-
+        assert(guiRenderer.m_DeviceProvider && "DeviceProvider is nullptr in guiRenderer.cpp");
         const int itemCount = guiRenderer.m_DeviceProvider->getDeviceCount();
         bool any_tile_clicked = false;
 

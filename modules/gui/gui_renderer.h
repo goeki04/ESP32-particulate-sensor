@@ -36,6 +36,7 @@ namespace Andromeda::Gui {
         vec2 m_ViewportRectMin = vec2(0.0f, 0.0f);
         void init(GuiRendererConfig& guiConfig);
         void update();
+        void EndFrame(SDL_Window* window);
         void destroy();
         float getMenuBarHeight();
         ImVec2 getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment);

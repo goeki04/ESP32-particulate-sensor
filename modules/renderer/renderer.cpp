@@ -3,20 +3,26 @@
 #include "window_manager.h"
 #include "resource_manager.h"
 #include "a_math.hpp"
+#include "a_math.hpp"
 #include "scene.hpp"
 #include <iostream>
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void Renderer::start()
     {
+        
         m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
         m_SceneManager = SystemManager::getInstance().getSubsystem<SceneManager>();
-        
+        assert(m_ResourceManager && "ResourceManager is nullptr in Renderer::Start()");
+        assert(m_SceneManager && "SceneManager is nullptr in Renderer::Start()");
+        m_Cam = &m_SceneManager->m_EditorCamData;
         //m_GuiManager.init(Window::g_Window, &m_Cam, m_Registry);
         m_FramebufferSize = ivec2(Window::g_WindowWidth, Window::g_WindowHeight);
+
         if (m_FramebufferSize.x == 0 || m_FramebufferSize.y == 0) {
             throw std::runtime_error("Framebuffer has an start value of 0!!!");
         }
+        m_Cam->m_framebufferSize = m_FramebufferSize;
         m_TexelSize = 1.0f / vec2(m_FramebufferSize.x, m_FramebufferSize.y);
 
         fboManager.createFramebuffers(m_FramebufferSize,(int)m_MSAAsamples);
@@ -24,6 +30,11 @@ namespace Andromeda {
         glEnable(GL_DEPTH_TEST);
         glCullFace(GL_BACK);
         glGenVertexArrays(1, &m_Vao);
+    }
+
+    void Renderer::SetActiveCamera(amath::CameraData* camData) {
+        assert(camData && "CameraData is nullptr in Renderer::SetActiveCamera()");
+        m_Cam = camData;
     }
 
     u32 Renderer::getFinalSceneViewportTexture() const
@@ -76,8 +87,6 @@ namespace Andromeda {
         imGuiPass();
     }
 
-
-
     void Renderer::drawMesh(ResourceManager* rm, const Component::Mesh& mesh, const Component::Transform& transform)
     {
         auto* sh = rm->getMaterialShaderByID(MaterialShaderType::white);
@@ -93,7 +102,8 @@ namespace Andromeda {
     {
         auto* sh = rm->getMaterialShaderByID(type);
         sh->use();
-        glm::mat4 localMatrix = transform.modelMatrix();
+        mat4 localMatrix = transform.modelMatrix();
+        
         sh->setUniforms(m_Cam,localMatrix);
         glBindVertexArray(rm->getMeshVaoByID(mesh.meshID));
         glDrawElements(GL_TRIANGLES, rm->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, 0);
@@ -194,7 +204,6 @@ namespace Andromeda {
     {
         glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_MsaaFramebuffer);
         glViewport(0, 0, m_FramebufferSize.x, m_FramebufferSize.y);
-
         glClearColor(0.2f, 0.2f, 0.35f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 

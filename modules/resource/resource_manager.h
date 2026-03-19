@@ -12,7 +12,7 @@
 #include "a_ISubsystem.hpp"
 namespace Andromeda {
 
-	class ResourceManager : public ISubsystem, IDeviceProvider {
+	class ResourceManager : public ISubsystem, public IDeviceProvider {
 	public:
 
 		std::vector<std::unique_ptr<MaterialShader>> m_MaterialShaders;

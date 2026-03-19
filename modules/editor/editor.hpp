@@ -8,7 +8,6 @@ namespace Andromeda {
 	class Editor : public ISubsystem{
 		Renderer* m_Renderer = nullptr;
 		SceneManager* m_SceneManager = nullptr;
-		amath::CameraData m_EditorCamData;
 		Gui::GuiRenderer m_GuiRenderer;
 	public:
 		void start() override;
