@@ -27,6 +27,9 @@ namespace Andromeda {
 	}
 	void Editor::update()
 	{
+        if (Gui::GuiRenderer::s_ViewportFocused) {
+            cameraMovement(m_SceneManager->m_EditorCamData);
+        }
 		vec2 viewportSize = m_GuiRenderer.getViewportWindowSize();
         setProjectionMatrix(m_SceneManager->m_EditorCamData, viewportSize.x, viewportSize.y);
         Gui::ViewportDrawInfo vpInfo;
