@@ -2,22 +2,25 @@
 #include "editor.hpp"
 #include "renderer.h"
 #include "window_manager.h"
+#include "Scene.hpp"
+#include "resource_manager.h"
 #include "subsystem_manager.h"
 #include "a_guiTypes.hpp"
 namespace Andromeda {
 	void Editor::start()
 	{
-        assert(Window::m_GlContext,"OpenGL context is not initialized!");
+        assert(Window::m_GlContext && "OpenGL context is not initialized!");
 		m_Renderer = SystemManager::getInstance().getSubsystem<Renderer>();
-        assert(m_Renderer, "m_Renderer is nullptr in Editor::Start()");
+        assert(m_Renderer && "m_Renderer is nullptr in Editor::Start()");
         m_SceneManager = SystemManager::getInstance().getSubsystem<SceneManager>();
-        assert(m_SceneManager, "m_SceneManager is nullptr in Editor::Start()");
-
-        m_EditorCamData.m_framebufferSize = m_Renderer->m_FramebufferSize;
+        assert(m_SceneManager && "m_SceneManager is nullptr in Editor::Start()");
+        ResourceManager* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
+        assert(rm && "rm is nullptr in Editor::Start()");
         Gui::GuiRendererConfig guiConfig{
             Window::g_Window,
-            &m_EditorCamData,
+            & m_SceneManager->m_EditorCamData,
             &m_SceneManager->m_Registry,
+            rm,
             Window::m_GlContext,
             m_Renderer->glsl_version
         };
@@ -26,7 +29,7 @@ namespace Andromeda {
 	void Editor::update()
 	{
 		vec2 viewportSize = m_GuiRenderer.getViewportWindowSize();
-		setProjectionMatrix(m_EditorCamData,viewportSize.x, viewportSize.y);
+		setProjectionMatrix(m_SceneManager->m_EditorCamData,viewportSize.x, viewportSize.y);
         m_GuiRenderer.update();
 	}
 	void Editor::destroy()
@@ -52,8 +55,8 @@ namespace Andromeda {
     //call this function after m_EditorCamData has been initialized
     void Editor::updateEditorCameraRay()
     {
-        if (m_EditorCamData.m_HasValidPickRay) {
-            m_EditorCamData.m_CursorToWorldRay = cursorToWorldRay(m_EditorCamData);
+        if (m_SceneManager->m_EditorCamData.m_HasValidPickRay) {
+            m_SceneManager->m_EditorCamData.m_CursorToWorldRay = cursorToWorldRay(m_SceneManager->m_EditorCamData);
         }
     }
     bool Editor::RayIntersectsXZPlane(const amath::Ray& ray, float planeY, vec3& outHitPoint)

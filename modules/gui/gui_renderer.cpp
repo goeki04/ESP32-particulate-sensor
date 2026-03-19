@@ -3,6 +3,7 @@
 #include "panels.h"
 #include <stdexcept>
 #include <algorithm>
+#include "window_manager.h"
 #include <filesystem>
 #include "console.h"
 namespace Andromeda::Gui {
@@ -10,14 +11,15 @@ namespace Andromeda::Gui {
     bool Gui::GuiRenderer::s_ViewportFocused = false;
     bool Gui::GuiRenderer::m_ShowVersion = false;
     bool Gui::GuiRenderer::m_HasLastHitpoint = false;
-    glm::vec3 Gui::GuiRenderer::m_LastHitPoint{ 0.0f };
+    vec3 Gui::GuiRenderer::m_LastHitPoint{ 0.0f };
 
     void Gui::GuiRenderer::init(GuiRendererConfig &guiConfig) {
-        assert(guiConfig.cam,"CameraData is nullptr in GuiRenderer::Init()");
-        assert(guiConfig.window, "window is nullptr in GuiRenderer:Init()");
-        assert(guiConfig.registry, "registry is nullptr in GuiRenderer::Init()");
+        assert(guiConfig.cam &&"CameraData is nullptr in GuiRenderer::Init()");
+        assert(guiConfig.window && "window is nullptr in GuiRenderer:Init()");
+        assert(guiConfig.registry && "registry is nullptr in GuiRenderer::Init()");
         m_Cam = guiConfig.cam;
         m_Registry = guiConfig.registry;
+        m_DeviceProvider = guiConfig.dp;
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplSDL3_InitForOpenGL(guiConfig.window, guiConfig.sdl_gl_context);
@@ -43,6 +45,26 @@ namespace Andromeda::Gui {
         Panels::drawDeviceBrowser(*this);
         Panels::drawDeviceHierarchy(*this);
         drawChart();
+        ViewportDrawInfo vpDrawInfo;
+
+        Panels::drawViewportGUI(*this,);
+        EndFrame(Window::g_Window);
+    }
+
+    void GuiRenderer::EndFrame(SDL_Window* window) {
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+            SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+
+            SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+        }
+        SDL_GL_SwapWindow(window);
     }
 
     float GuiRenderer::getMenuBarHeight()

@@ -14,6 +14,7 @@ namespace Andromeda {
         return shaderSource;
     }
     void Shader::setCameraUniforms(const amath::CameraData* cam) {
+        assert(cam && "CameraData is nullptr in Shader:setCameraUniforms");
         setMat4x4(c_viewMatrix, cam->m_ViewMatrix);
         setMat4x4(c_projMatrix, cam->m_Projection);
         setVec3(c_camPos, cam->m_CameraPos);

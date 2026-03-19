@@ -2,6 +2,7 @@
 #include "registry.h"
 #include <string>
 #include "a_ISubsystem.hpp"
+#include "a_math.hpp"
 #include "resource_manager.h"
 namespace Andromeda {
 	using Entity = uint32_t;
@@ -9,7 +10,8 @@ namespace Andromeda {
 	public:
 		static constexpr const char* subsystemName = "Scene";
 		ECS::ComponentRegistry m_Registry;
-		ResourceManager* m_ResourceManager = nullptr;
+		amath::CameraData m_EditorCamData;
+
 		void addEntity(unsigned int meshID, const std::string& name, ECS::Component::Transform transform);
 		void deleteEntity(Entity id);
 		void start() override;
@@ -18,5 +20,7 @@ namespace Andromeda {
 		const char* getSubsystemName() const override {
 			return GetStaticName().data();
 		}
+	private:
+		ResourceManager* m_ResourceManager = nullptr;
 	};
 }
