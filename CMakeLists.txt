@@ -35,7 +35,6 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
 
 add_subdirectory(modules/network)
 add_subdirectory(modules/core)
-add_subdirectory(modules/collision)
 add_subdirectory(modules/definitions)
 add_subdirectory(modules/renderer)
 add_subdirectory(modules/scene)
@@ -47,7 +46,7 @@ add_subdirectory(modules/renderer_rhi)
 
 add_executable(Andromeda 
     ${SOURCES} 
-    ${HEADERS} 
+    ${HEADERS}
     ${BINDING_SOURCES} 
     ${BINDING_HEADERS} 
     ${SHADERS}
@@ -71,7 +70,6 @@ target_link_libraries(Andromeda PRIVATE
     renderer
     editor
     renderer_rhi
-    collision
     filesystem
     resource
     definitions

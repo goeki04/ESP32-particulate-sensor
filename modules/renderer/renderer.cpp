@@ -227,13 +227,13 @@ namespace Andromeda {
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
+
     void Renderer::windowClearPass()
     {
         glViewport(0, 0, Window::g_WindowWidth, Window::g_WindowHeight);
         glClearColor(0.10f, 0.10f, 0.10f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
     }
-
 
     void Renderer::destroy() {
         fboManager.destroyFramebuffers();

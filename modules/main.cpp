@@ -1,12 +1,11 @@
 
-#ifndef SDL_MAIN_USE_CALLBACKS 1
-#define SDL_MAIN_USE_CALLBACKS
+#ifndef SDL_MAIN_USE_CALLBACKS
+#define SDL_MAIN_USE_CALLBACKS 1
 #endif
 #include <SDL3/SDL_main.h>
 #include "subsystem_manager.h"
 #include "window_manager.h"
 #include "resource_manager.h"
-#include "registry.h"
 #include "renderer.h"
 #include "esphome_client.h"
 #include "editor/editor.hpp"
