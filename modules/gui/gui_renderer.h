@@ -6,7 +6,7 @@
 #include "a_math.hpp"
 #include "a_guiTypes.hpp"
 class IDeviceProvider;
-
+class SceneManager;
 namespace Andromeda {
     class amath::CameraData;
 }
@@ -48,9 +48,11 @@ namespace Andromeda::Gui {
         static bool m_HasLastHitpoint;
         amath::CameraData* m_Cam = nullptr;
         ECS::ComponentRegistry* m_Registry = nullptr;
+        
         std::vector<SDL_Surface> m_DeviceIcons;
         std::string m_ImguiVersion = "ImGui: " + std::string(IMGUI_VERSION);
         IDeviceProvider* m_DeviceProvider = nullptr;
+        SceneManager* m_SceneManager = nullptr;
         static bool m_ShowVersion;
         int m_WindowWidth = 0;
         int m_WindowHeight = 0;

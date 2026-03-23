@@ -10,7 +10,7 @@ namespace Andromeda::amath {
 namespace Andromeda::Gui::Panels {
 	void drawNavBar(GuiRenderer& guiRenderer);
 	void drawDeviceHierarchy(GuiRenderer& guiRenderer);
-	void deviceBrowserPicking(GuiRenderer& guiRenderer);
+	void deviceBrowserPicking(GuiRenderer& guiRenderer, const amath::CameraData* cam, ECS::ComponentRegistry* registry);
 	void drawDeviceBrowser(GuiRenderer& guiRenderer);
 	void drawViewportGUI(GuiRenderer& guiRenderer, ViewportDrawInfo& drawInfo);
 }

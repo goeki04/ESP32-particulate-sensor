@@ -22,6 +22,7 @@ target_link_libraries(gui PUBLIC
     sdl::sdl
 
     core
+    scene
     definitions
     renderer_rhi
 )

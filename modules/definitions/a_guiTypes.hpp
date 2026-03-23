@@ -4,7 +4,7 @@
 // Forward Declarations
 struct SDL_Window;
 namespace Andromeda::amath { struct CameraData; }
-namespace Andromeda { class IDeviceProvider; }
+namespace Andromeda { class IDeviceProvider; class SceneManager; }
 namespace Andromeda::ECS { class ComponentRegistry; }
 
 namespace Andromeda::Gui {
@@ -47,7 +47,7 @@ namespace Andromeda::Gui {
         GuiRendererConfig() : window(nullptr), cam(nullptr), registry(nullptr),
             dp(nullptr), sdl_gl_context(nullptr), glsl_version(nullptr) {
         }
-
+        SceneManager* sceneManager;       // Handle for placing objects in 3d space
         SDL_Window* window;               // Handle to the main SDL window
         amath::CameraData* cam;           // Pointer to the editor camera data
         ECS::ComponentRegistry* registry; // Pointer to the ECS registry
