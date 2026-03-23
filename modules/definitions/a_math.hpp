@@ -10,30 +10,30 @@ namespace Andromeda::amath {
 	};
 
 	struct CameraData {
-		vec3 m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
-		vec3 m_CameraPos = glm::vec3(0.0f, 5.0f, 0.0f);
-		vec3 m_CameraTarget = glm::vec3(0.0f);
-		float m_Fov = 45.0f;
-		float m_FovMin = 10.0f, m_FovMax = 50.0f;
-		mat4 m_Projection = { 1.0f };
-
-		float m_LastMouseY = 0.0f;
-		float m_LastMouseX = 0.0f;
-		float m_Yaw = -90.0f;
-		float m_Pitch = 0.0f;
-		float m_Sensitivity = 0.1f;
-		vec3 m_Target = vec3(0.0f);
-		vec3 m_Forward = vec3(0.0f);
-		vec3 m_Right = vec3(0.0f);
-		float m_Speed = 25.0f;
-		mat4 m_ViewMatrix = { 1.0f };
-		bool m_HasValidPickRay = false;
-		vec2 m_framebufferSize = vec2(0.0f);
-		vec2 m_ViewportSize = vec2(0.0f);
-		vec2 m_ViewportPos = vec2(0.0f);
-		float m_ImGuiMouseX = 0.0f;
-		float m_ImGuiMouseY = 0.0f;
-		Ray m_CursorToWorldRay{ vec3(0.0f), vec3(0.0f) };
+		vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+		vec3 cameraPos = glm::vec3(0.0f, 5.0f, 0.0f);
+		vec3 cameraTarget = glm::vec3(0.0f);
+		float fov = 45.0f;
+		float fovMin = 10.0f, fovMax = 50.0f;
+		mat4 projection = { 1.0f };
+		bool canRotate = false;
+		float lastMouseY = 0.0f;
+		float lastMouseX = 0.0f;
+		float yaw = -90.0f;
+		float pitch = 0.0f;
+		float sensitivity = 0.1f;
+		vec3 target = vec3(0.0f);
+		vec3 forward = vec3(0.0f);
+		vec3 right = vec3(0.0f);
+		float speed = 25.0f;
+		mat4 viewMatrix = { 1.0f };
+		bool hasValidPickRay = false;
+		vec2 framebufferSize = vec2(0.0f);
+		vec2 viewportSize = vec2(0.0f);
+		vec2 viewportPos = vec2(0.0f);
+		float imGuiMouseX = 0.0f;
+		float imGuiMouseY = 0.0f;
+		Ray cursorToWorldRay{ vec3(0.0f), vec3(0.0f) };
 	};
 
 	template<typename T>
@@ -75,5 +75,18 @@ namespace Andromeda::amath {
 		else {
 			return glm::to_string(value);
 		}
+	}
+
+	inline bool RayIntersectsXZPlane(const amath::Ray& ray, float planeY, vec3& outHitPoint)
+	{
+		if (amath::abs(ray.direction.y) < 1e-6f) {
+			return false;
+		}
+		float t = (planeY - ray.origin.y) / ray.direction.y;
+		if (t < 0.0f) {
+			return false;
+		}
+		outHitPoint = ray.origin + t * ray.direction;
+		return true;
 	}
 }

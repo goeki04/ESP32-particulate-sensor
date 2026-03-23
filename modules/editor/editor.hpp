@@ -21,7 +21,6 @@ namespace Andromeda {
 			return GetStaticName().data();
 		}
 		void updateEditorCameraRay();
-		bool RayIntersectsXZPlane(const amath::Ray& ray, float planeY, vec3& outHitPoint);
 		void cameraMovement(amath::CameraData& camdata);
 		vec3 getCameraPos(const amath::CameraData& cam) const;
 		mat4 getViewMatrix(const amath::CameraData& cam) const;

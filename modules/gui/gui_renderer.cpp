@@ -16,9 +16,11 @@ namespace Andromeda::Gui {
         assert(guiConfig.cam &&"CameraData is nullptr in GuiRenderer::Init()");
         assert(guiConfig.window && "window is nullptr in GuiRenderer:Init()");
         assert(guiConfig.registry && "registry is nullptr in GuiRenderer::Init()");
+        assert(guiConfig.sceneManager && "sceneManager is nullptr in GuiRenderer::Init()");
         m_Cam = guiConfig.cam;
         m_Registry = guiConfig.registry;
         m_DeviceProvider = guiConfig.dp;
+        m_SceneManager = guiConfig.sceneManager;
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplSDL3_InitForOpenGL(guiConfig.window, guiConfig.sdl_gl_context);
@@ -31,7 +33,6 @@ namespace Andromeda::Gui {
         m_WidgetWidth = m_WindowWidth * 0.125;
         m_MarginDefault = m_WindowHeight * 0.0225;
         setViewportSize();
-
     }
     void GuiRenderer::update(ViewportDrawInfo vpInfo) {
         ImGui_ImplOpenGL3_NewFrame();

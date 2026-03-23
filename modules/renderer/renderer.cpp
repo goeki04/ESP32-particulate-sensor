@@ -18,7 +18,7 @@ namespace Andromeda {
         if (m_FramebufferSize.x == 0 || m_FramebufferSize.y == 0) {
             throw std::runtime_error("Framebuffer has an start value of 0!!!");
         }
-        m_Cam->m_framebufferSize = m_FramebufferSize;
+        m_Cam->framebufferSize = m_FramebufferSize;
         m_TexelSize = 1.0f / vec2(m_FramebufferSize.x, m_FramebufferSize.y);
 
         fboManager.createFramebuffers(m_FramebufferSize,(int)m_MSAAsamples);
@@ -57,7 +57,7 @@ namespace Andromeda {
         {
             m_FramebufferSize = m_TargetSize;
             m_TexelSize = 1.0f / vec2((float)m_FramebufferSize.x, (float)m_FramebufferSize.y);
-            m_Cam->m_framebufferSize = m_FramebufferSize;
+            m_Cam->framebufferSize = m_FramebufferSize;
 
             fboManager.destroyFramebuffers();
             fboManager.createFramebuffers(m_FramebufferSize, (int)m_MSAAsamples);
