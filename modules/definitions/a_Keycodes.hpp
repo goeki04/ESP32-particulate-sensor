@@ -35,4 +35,10 @@ namespace Andromeda {
         RightShift = 229,
         RightAlt = 230
     };
+
+    enum class MouseCode {
+        MouseBtnLeft,
+        MouseBtnRight,
+        MouseBtnWheel
+    };
 }
