@@ -1,36 +1,21 @@
 #pragma once
-#include "a_KeyCodes.hpp"
+#include "a_Keycodes.hpp"
+#include <variant>
+
 namespace Andromeda {
-	enum class KeyEvents {
-		KeyPressed,
-		KeyRelease,
-		KeyHeld
+	struct IEvent {
+		virtual ~IEvent() = default;
+		EventType type;
 	};
-
-    struct KeyData {
-        Keycode Code;
-        KeyEvents Action;
-    };
-
-    struct MouseData {
-        u16 x, y;
-        u8 button;
-    };
-
-    struct Event {
-        enum class Type : u8 {
-            None = 0,
-            Keyboard,
-            Mouse,
-            Window,
-            Count
-        };
-
-        Type type;
-        bool handled = false;
-        union {
-            KeyData key;
-            MouseData mouse;
-        };
-    };
+	struct MouseEvent : public IEvent{
+		float x, y;
+		MouseEvent(float _x, float _y) : x(_x), y(_y){}
+	};
+	enum class EventType {
+		OnKeyPressed, OnKeyRelease,
+		OnMouseBtnPressed, OnMouseWheelScroll
+	};
 }
+
+
+

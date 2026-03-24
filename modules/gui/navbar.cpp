@@ -1,6 +1,7 @@
 #include "panels.h"
 #include "gui_renderer.h"
 #include "console.h"
+#include "sceneSerializer.hpp"
 void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
 {
     ImGuiStyle& style = ImGui::GetStyle();
@@ -12,7 +13,11 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
         guiRenderer.m_MenuBarHeight = ImGui::GetWindowSize().y;
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Save")) {}
+            if (ImGui::MenuItem("Save")) {
+                if (!SceneSerializer::save("save_1.json", *guiRenderer.m_Registry)) {
+                    throw std::runtime_error("saving the scene has failed!");
+                }
+            }
             if (ImGui::MenuItem("Load")) {}
             if (ImGui::MenuItem("Exit")) {}
             ImGui::EndMenu();

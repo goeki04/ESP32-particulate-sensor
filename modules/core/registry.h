@@ -72,6 +72,15 @@ namespace Andromeda::ECS {
             getPool<T>().add(entity, component);
         }
 
+        template<typename T>
+        bool hasComponent(Entity entity) {
+            auto index = std::type_index(typeid(T));
+            if (m_Pools.find(index) == m_Pools.end()) {
+                return false;
+            }
+            return static_cast<ComponentPool<T>&>(*m_Pools[index]).has(entity);
+        }
+
         void destroyEntity(Entity entity) {
             for (auto const& [type, pool] : m_Pools) {
                 pool->removeEntity(entity);
