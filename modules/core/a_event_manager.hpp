@@ -1,4 +1,5 @@
 #pragma once
+
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
@@ -9,97 +10,144 @@
 namespace Andromeda {
 
     /**
-     * @brief Unique identifier for a registered event listener.
-     * Used to specifically remove a listener at a later time.
+     * @brief A smart handle that uniquely identifies a registered listener.
+     * * This structure bundles the EventType and the internal ID. It allows the
+     * EventManager to locate and remove a listener efficiently without the
+     * user needing to remember which type the listener was registered for.
      */
-    using eventHandleID = size_t;
+    struct EventListenerID {
+        EventType type; ///< The category of the event this listener is attached to.
+        size_t id;      ///< The unique numerical ID assigned by the manager.
+    };
 
     /**
      * @class EventManager
-     * @brief Centralized system for registering and dispatching specialized events.
-     * * The EventManager enables a decoupled design where listeners can respond to
-     * specific events (e.g., Input, Collision) without knowing the source.
-     * It utilizes type erasure and C++20 concepts for maximum type safety and performance.
+     * @brief High-performance, type-safe event distribution system.
+     * * The EventManager facilitates decoupled communication between engine components.
+     * Features:
+     * - **Type Safety**: Uses C++20 concepts to enforce correct event inheritance.
+     * - **Performance**: Optimized dispatch loop using deferred removal to avoid
+     * expensive heap allocations (vector copies) during event firing.
+     * - **Reentrancy**: Safe to add or remove listeners even while a dispatch is in progress.
      */
     class EventManager {
     private:
+        EventManager() = default;
         /**
          * @struct EventListener
-         * @brief Internal representation of an active listener.
-         * Pairs a unique ID with the type-erased callback function.
+         * @brief Internal representation of a subscriber.
          */
         struct EventListener {
-            eventHandleID id;
-            std::function<void(const IEvent&)> callback;
+            size_t id;                                   ///< Unique ID for this specific listener.
+            std::function<void(const IEvent&)> callback; ///< The type-erased callback wrapper.
+            bool pendingRemoval = false;                 ///< Flag set if removed during a dispatch.
         };
 
-        /** @brief Internal storage mapping EventTypes to a list of registered listeners. */
+        /** @brief Maps event types to their respective list of subscribers. */
         std::unordered_map<EventType, std::vector<EventListener>> m_Events;
 
-        /** @brief Counter for assigning consecutive, unique listener IDs. */
-        eventHandleID m_NextID = 0;
+        /** @brief Monotonically increasing counter for listener IDs. */
+        size_t m_NextID = 0;
+
+        /** @brief Tracks the current recursion depth of Dispatch calls to ensure thread/reentrancy safety. */
+        int m_DispatchLevel = 0;
 
     public:
+        static EventManager& getInstance() {
+            static EventManager instance;
+            return instance;
+        }
+        EventManager(const EventManager&) = delete;
+        EventManager& operator=(const EventManager&) = delete;
         /**
-         * @brief Subscribes a callback to a specific event type.
-         * * @tparam T The concrete event struct (must derive from IEvent).
+         * @brief Registers a listener for a specific event type deduced from T.
+         * * @tparam T The concrete event structure (must derive from IEvent).
          * @tparam F The callable type (lambda, function pointer, etc.).
-         * * @param type The EventType enum key to listen for.
-         * @param handle The callback function. Expected signature: void(const T&).
-         * * @return eventHandleID The ID of the listener (required for RemoveEventListener).
+         * * @param handle The callback function. Expected signature: void(const T&).
+         * @return EventListenerID A handle required to unregister the listener later.
+         * * @note Requires T to implement 'static constexpr EventType GetStaticType()'.
          */
         template<typename T, typename F>
             requires std::derived_from<T, IEvent>
-        eventHandleID AddEventListener(F&& handle) {
+        EventListenerID AddEventListener(F&& handle) {
             static_assert(requires { T::GetStaticType(); },
-                "Event struct must implement static constexpr EventType GetStaticType()");
-            eventHandleID id = m_NextID++;
+                "Event struct must implement 'static constexpr EventType GetStaticType()'");
 
-            // Create a wrapper that casts the base IEvent to the target type T.
+            size_t id = m_NextID++;
+            EventType type = T::GetStaticType();
+
             auto wrapper = [handle = std::forward<F>(handle)](const IEvent& e) {
                 handle(static_cast<const T&>(e));
                 };
 
-            m_Events[T::GetStaticType()].push_back({id, std::move(wrapper)});
-            return id;
+            m_Events[type].push_back({ id, std::move(wrapper), false });
+            return { type, id };
         }
 
         /**
-         * @brief Dispatches an event to all registered listeners of the given type.
-         * * @param type The type of the event to trigger.
-         * @param event The actual event data object.
-         * * @warning Internally creates a temporary copy of the listener list.
-         * This prevents crashes (iterator invalidation) if a listener is removed
-         * while the dispatch loop is still running.
+         * @brief Broadcasts an event to all interested listeners.
+         * If listeners are removed during this call, they are marked as 'pending'
+         * and cleaned up once the outermost dispatch scope is exited.
+         * * @param type The type of event to trigger.
+         * @param event The event data object.
          */
         void Dispatch(const EventType& type, const IEvent& event) {
             auto it = m_Events.find(type);
-            if (it == m_Events.end()) {
-                return;
+            if (it == m_Events.end()) return;
+
+            m_DispatchLevel++;
+
+            for (auto& listener : it->second) {
+                if (!listener.pendingRemoval) {
+                    listener.callback(event);
+                }
             }
 
-            // Create a copy for reentrancy safety.
-            auto listenerCopy = it->second;
-            for (auto& listener : listenerCopy) {
-                listener.callback(event);
+            m_DispatchLevel--; 
+
+            // Perform cleanup only after the last nested dispatch finished
+            if (m_DispatchLevel == 0) {
+                ClearPendingListeners();
             }
         }
 
         /**
-         * @brief Removes a listener by its IDa and EventType.
-         * * @param type The EventType under which the listener was registered.
-         * @param id The ID returned by AddEventListener.
-         * * @details Uses C++20 std::erase_if for efficient removal from the vector.
+         * @brief Unregisters a listener using its handle.
+         * * If called during a Dispatch, the listener is marked for removal.
+         * If called outside, the listener is erased from memory immediately.
+         * * @param handle The ID object returned by AddEventListener.
          */
-        void RemoveEventListener(const EventType& type, eventHandleID id) {
-            auto it = m_Events.find(type);
-            if (it == m_Events.end()) {
-                return;
-            }
+        void RemoveEventListener(EventListenerID handle) {
+            auto it = m_Events.find(handle.type);
+            if (it == m_Events.end()) return;
 
-            std::erase_if(it->second, [id](const EventListener& l) {
-                return l.id == id;
-                });
+            if (m_DispatchLevel > 0) {
+                // We are currently dispatching; mark for later to keep iterators valid
+                for (auto& listener : it->second) {
+                    if (listener.id == handle.id) {
+                        listener.pendingRemoval = true;
+                        break;
+                    }
+                }
+            }
+            else {
+                // Safe to remove immediately
+                std::erase_if(it->second, [id = handle.id](const EventListener& l) {
+                    return l.id == id;
+                    });
+            }
+        }
+
+    private:
+        /**
+         * @brief Performs the actual memory cleanup for listeners marked as pendingRemoval.
+         */
+        void ClearPendingListeners() {
+            for (auto& [type, listeners] : m_Events) {
+                std::erase_if(listeners, [](const EventListener& l) {
+                    return l.pendingRemoval;
+                    });
+            }
         }
     };
 }

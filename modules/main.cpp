@@ -16,7 +16,6 @@ Andromeda::Renderer renderer;
 Andromeda::ResourceManager resourceManager;
 Andromeda::Editor editor;
 Andromeda::SceneManager sceneManager;
-Andromeda::EventManager eventManager;
 static Andromeda::Network::ESPHomeClient g_EspClient;
 
 SDL_AppResult SDL_Init() {
