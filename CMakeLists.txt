@@ -42,6 +42,7 @@ add_subdirectory(modules/gui)
 add_subdirectory(modules/editor)
 add_subdirectory(modules/resource)
 add_subdirectory(modules/filesystem)
+add_subdirectory(modules/serialization)
 add_subdirectory(modules/renderer_rhi)
 
 add_executable(Andromeda 
@@ -70,6 +71,7 @@ target_link_libraries(Andromeda PRIVATE
     renderer
     editor
     renderer_rhi
+    serialization
     filesystem
     resource
     definitions

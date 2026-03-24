@@ -10,7 +10,6 @@ namespace Andromeda::Window {
 	public:
 		void start() override;
 		void destroy() override;
-		void updateEvent(SDL_Event* event) override;
 		static constexpr std::string_view GetStaticName() { return "WindowManager"; }
 		const char* getSubsystemName() const override {
 			return GetStaticName().data();

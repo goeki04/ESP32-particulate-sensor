@@ -5,7 +5,7 @@ find_package(imgui REQUIRED)
 add_library(core STATIC
     subsystem_manager.cpp
     window_manager.cpp
-    a_event.cpp
+    a_event_manager.cpp
     )
 
 target_include_directories(core PUBLIC .)

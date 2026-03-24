@@ -9,6 +9,7 @@ class CmakeTest(ConanFile):
         self.requires("sdl/3.2.20")
         self.requires("imgui/1.92.5-docking")
         self.requires("glew/2.2.0")
+        self.requires("nlohmann_json/3.12.0")
         self.requires("asio/1.36.0")
         self.requires("assimp/6.0.2")
         self.requires("stb/cci.20230920")

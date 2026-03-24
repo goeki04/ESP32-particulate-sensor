@@ -37,7 +37,7 @@ namespace Andromeda::Window {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-        g_Window = SDL_CreateWindow("ESP32", NULL, NULL, windowFlags | SDL_WINDOW_OPENGL);
+        g_Window = SDL_CreateWindow("Andromeda", NULL, NULL, windowFlags | SDL_WINDOW_OPENGL);
         SDL_GetWindowSizeInPixels(g_Window, &g_WindowWidth, &g_WindowHeight);
         if (!g_Window) {
             throw std::runtime_error("Failed to call SDL_CreateWindow!");
@@ -57,10 +57,5 @@ namespace Andromeda::Window {
     void WindowManager::destroy() {
         SDL_DestroyWindow(g_Window);
         SDL_Quit();
-    }
-
-    void WindowManager::updateEvent(SDL_Event* event)
-    {
-        
     }
 }
