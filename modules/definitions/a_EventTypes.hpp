@@ -26,9 +26,9 @@ namespace Andromeda {
      * @brief Triggered when a keyboard key is pressed.
      */
     struct KeyPressed : public IEvent {
-        Keycode code; ///< The unique code of the pressed key.
+        Keycode keycode; ///< The unique code of the pressed key.
 
-        KeyPressed(Keycode _code) : code(_code) {}
+        KeyPressed(Keycode _code) : keycode(_code) {}
         static constexpr EventType GetStaticType() { return EventType::OnKeyPressed; }
     };
 
@@ -36,9 +36,9 @@ namespace Andromeda {
      * @brief Triggered when a keyboard key is released.
      */
     struct KeyRelease : public IEvent {
-        Keycode code; ///< The unique code of the released key.
+        Keycode keycode; ///< The unique code of the released key.
 
-        KeyRelease(Keycode _code) : code(_code) {}
+        KeyRelease(Keycode _code) : keycode(_code) {}
         static constexpr EventType GetStaticType() { return EventType::OnKeyRelease; }
     };
 
@@ -67,9 +67,9 @@ namespace Andromeda {
      * @brief Triggered when a mouse button is pressed.
      */
     struct MouseBtnPressed : public IEvent {
-        MouseCode code; ///< The specific mouse button (Left, Right, Middle, etc.).
+        MouseCode mousecode; ///< The specific mouse button (Left, Right, Middle, etc.).
 
-        MouseBtnPressed(MouseCode _code) : code(_code) {}
+        MouseBtnPressed(MouseCode _code) : mousecode(_code) {}
         static constexpr EventType GetStaticType() { return EventType::OnMouseBtnPressed; }
     };
 
@@ -77,9 +77,9 @@ namespace Andromeda {
      * @brief Triggered when a mouse button is released.
      */
     struct MouseBtnReleased : public IEvent {
-        MouseCode code; ///< The specific mouse button that was released.
+        MouseCode mousecode; ///< The specific mouse button that was released.
 
-        MouseBtnReleased(MouseCode _code) : code(_code) {}
+        MouseBtnReleased(MouseCode _code) : mousecode(_code) {}
         static constexpr EventType GetStaticType() { return EventType::OnMouseBtnReleased; }
     };
 }

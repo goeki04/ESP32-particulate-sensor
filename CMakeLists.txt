@@ -40,6 +40,7 @@ add_subdirectory(modules/renderer)
 add_subdirectory(modules/scene)
 add_subdirectory(modules/gui)
 add_subdirectory(modules/editor)
+add_subdirectory(modules/input)
 add_subdirectory(modules/resource)
 add_subdirectory(modules/filesystem)
 add_subdirectory(modules/serialization)
@@ -70,6 +71,7 @@ target_link_libraries(Andromeda PRIVATE
     core
     renderer
     editor
+    input
     renderer_rhi
     serialization
     filesystem
