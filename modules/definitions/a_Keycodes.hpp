@@ -38,6 +38,7 @@ namespace Andromeda {
     };
 
     enum class MouseCode {
+        Unknown = 0,
         MouseBtnLeft,
         MouseBtnRight,
         MouseBtnWheel

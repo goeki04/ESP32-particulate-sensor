@@ -19,7 +19,7 @@ namespace Andromeda {
         assert(m_SceneManager && "m_SceneManager is nullptr in Editor::Start()");
         ResourceManager* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
         assert(rm && "rm is nullptr in Editor::Start()");
-        EventManager::getInstance().AddEventListener<KeyPressed>([this](const KeyPressed& e) {
+        EventManager::getInstance().AddEventListener<KeyDown>([this](const KeyDown& e) {
             if (e.keycode == Keycode::F)
                 std::cout << "key f pressed\n";
             });

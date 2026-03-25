@@ -9,8 +9,8 @@ namespace Andromeda {
      * @brief Defines all supported event types within the Andromeda Engine.
      */
     enum class EventType {
-        OnKeyPressed, OnKeyRelease,
-        OnMouseBtnPressed, OnMouseBtnReleased, OnMouseWheelScroll,
+        OnKeyDown, OnKeyUp,
+        OnMouseBtnDown, OnMouseBtnUp, OnMouseWheelScroll,
         OnMouseMoved
     };
 
@@ -25,21 +25,21 @@ namespace Andromeda {
     /**
      * @brief Triggered when a keyboard key is pressed.
      */
-    struct KeyPressed : public IEvent {
+    struct KeyDown : public IEvent {
         Keycode keycode; ///< The unique code of the pressed key.
 
-        KeyPressed(Keycode _code) : keycode(_code) {}
-        static constexpr EventType GetStaticType() { return EventType::OnKeyPressed; }
+        KeyDown(Keycode _code) : keycode(_code) {}
+        static constexpr EventType GetStaticType() { return EventType::OnKeyDown; }
     };
 
     /**
      * @brief Triggered when a keyboard key is released.
      */
-    struct KeyRelease : public IEvent {
+    struct KeyUp : public IEvent {
         Keycode keycode; ///< The unique code of the released key.
 
-        KeyRelease(Keycode _code) : keycode(_code) {}
-        static constexpr EventType GetStaticType() { return EventType::OnKeyRelease; }
+        KeyUp(Keycode _code) : keycode(_code) {}
+        static constexpr EventType GetStaticType() { return EventType::OnKeyUp; }
     };
 
     /**
@@ -66,20 +66,20 @@ namespace Andromeda {
     /**
      * @brief Triggered when a mouse button is pressed.
      */
-    struct MouseBtnPressed : public IEvent {
+    struct MouseBtnDown : public IEvent {
         MouseCode mousecode; ///< The specific mouse button (Left, Right, Middle, etc.).
 
-        MouseBtnPressed(MouseCode _code) : mousecode(_code) {}
-        static constexpr EventType GetStaticType() { return EventType::OnMouseBtnPressed; }
+        MouseBtnDown(MouseCode _code) : mousecode(_code) {}
+        static constexpr EventType GetStaticType() { return EventType::OnMouseBtnDown; }
     };
 
     /**
      * @brief Triggered when a mouse button is released.
      */
-    struct MouseBtnReleased : public IEvent {
+    struct MouseBtnUp : public IEvent {
         MouseCode mousecode; ///< The specific mouse button that was released.
 
-        MouseBtnReleased(MouseCode _code) : mousecode(_code) {}
-        static constexpr EventType GetStaticType() { return EventType::OnMouseBtnReleased; }
+        MouseBtnUp(MouseCode _code) : mousecode(_code) {}
+        static constexpr EventType GetStaticType() { return EventType::OnMouseBtnUp; }
     };
 }
