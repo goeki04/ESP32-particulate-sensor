@@ -6,8 +6,9 @@
 #include "resource_manager.h"
 #include "subsystem_manager.h"
 #include "a_guiTypes.hpp"
-#include <iostream>
 #include "registry.h"
+#include <a_event_manager.hpp>
+#include <iostream>
 namespace Andromeda {
 	void Editor::start()
 	{
@@ -18,7 +19,10 @@ namespace Andromeda {
         assert(m_SceneManager && "m_SceneManager is nullptr in Editor::Start()");
         ResourceManager* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
         assert(rm && "rm is nullptr in Editor::Start()");
-
+        EventManager::getInstance().AddEventListener<KeyPressed>([this](const KeyPressed& e) {
+            if (e.keycode == Keycode::F)
+                std::cout << "key f pressed\n";
+            });
         Gui::GuiRendererConfig guiConfig;
         guiConfig.cam = &m_SceneManager->m_EditorCamData;
         guiConfig.glsl_version = m_Renderer->glsl_version;

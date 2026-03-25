@@ -5,13 +5,15 @@
 #include <SDL3/SDL_main.h>
 #include "subsystem_manager.h"
 #include "window_manager.h"
-#include "resource_manager.h"
-#include "renderer.h"
+#include "input/input_manager.hpp"
+#include "resource/resource_manager.h"
+#include "renderer/renderer.h"
 #include "core/a_event_manager.hpp"
-#include "esphome_client.h"
+#include "network/esphome_client.h"
 #include "editor/editor.hpp"
-#include "scene.hpp"
+#include "scene/scene.hpp"
 Andromeda::Window::WindowManager windowManager;
+Andromeda::InputSystem inputManager;
 Andromeda::Renderer renderer;
 Andromeda::ResourceManager resourceManager;
 Andromeda::Editor editor;
@@ -31,6 +33,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     SDL_Init();
     Andromeda::SystemManager::getInstance().addSubsystem(&windowManager);
+    Andromeda::SystemManager::getInstance().addSubsystem(&inputManager);
     Andromeda::SystemManager::getInstance().addSubsystem(&resourceManager);
     Andromeda::SystemManager::getInstance().addSubsystem(&sceneManager);
     Andromeda::SystemManager::getInstance().addSubsystem(&renderer);
@@ -51,6 +54,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         return SDL_APP_SUCCESS; 
     }
     Andromeda::SystemManager::getInstance().updateEvent(event);
+
     return SDL_APP_CONTINUE;
 }
 

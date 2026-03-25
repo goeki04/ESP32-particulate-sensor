@@ -33,7 +33,8 @@ namespace Andromeda {
         LeftAlt = 226,
         RightControl = 228,
         RightShift = 229,
-        RightAlt = 230
+        RightAlt = 230,
+        Count
     };
 
     enum class MouseCode {
