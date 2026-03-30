@@ -23,8 +23,7 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Guide")) {
-            ImGui::EndMenu();
+        if (ImGui::BeginMenu("Documentation")) {
         }
 
         if (ImGui::BeginMenu("Options"))
@@ -54,6 +53,14 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
             if (ImGui::MenuItem("Console", nullptr, guiRenderer.m_ConsoleOpen)) {
                 guiRenderer.m_ConsoleOpen = !guiRenderer.m_ConsoleOpen;
             }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Debug")) {
+            ImGui::Text("Vendor: %s", glGetString(GL_VENDOR));
+            ImGui::Text("Renderer: %s", glGetString(GL_RENDERER));
+            ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION));
+            ImGui::Text("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();

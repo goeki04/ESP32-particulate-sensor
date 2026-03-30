@@ -6,7 +6,6 @@ namespace Andromeda {
 	bool SceneSerializer::save(const std::string& filepath, ECS::ComponentRegistry& registry)
 	{
 		nlohmann::json root;
-		root["scene_name"] = "Example Room";
 		auto& entities = root["entities"];
 		auto& tagPool = registry.getPool<ECS::Component::Tag>();
 		for (ECS::Entity e : tagPool.getEntities()) {
@@ -20,7 +19,6 @@ namespace Andromeda {
 		}
 		return false;
 	}
-
 	bool SceneSerializer::load(const std::string& filepath, ECS::ComponentRegistry& registry)
 	{
 		std::ifstream file(filepath);
@@ -30,7 +28,6 @@ namespace Andromeda {
 
 		if (root.contains("entities") && root["entities"].is_array()) {
 			for (auto& eJson : root["entities"]) {
-
 				auto handle = registry.createHandle();
 
 				if (eJson.contains("tag")) {
@@ -49,7 +46,6 @@ namespace Andromeda {
 				}
 			}
 		}
-
 		return true;
 	}
 
@@ -57,7 +53,12 @@ namespace Andromeda {
 	{
 		nlohmann::json eJson;
 		ECS::EntityHandle handle = { entity, &registry };
+		auto& componentMask = handle.registry->m_EntityComponentMask[entity];
+		for (u32 i = 0; i < ECS::MAX_COMPONENT_SIZE; i++) {
+			if (componentMask.test(i)) {
 
+			}
+		}
 		eJson["id"] = handle.id;
 
 		if (handle.has<ECS::Component::Tag>()) {
