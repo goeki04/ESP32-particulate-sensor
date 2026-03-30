@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "a_material.hpp"
+#include "a_math.hpp"
 #include <string>
 namespace Andromeda::ECS::Component {
     struct ComponentID {
@@ -24,13 +25,13 @@ namespace Andromeda::ECS::Component {
 
         const glm::mat4 modelMatrix() const
         {
-            glm::mat4 m(1.0f);
-            m = glm::translate(m, position);
-            m = glm::rotate(m, rotation.x, glm::vec3(1, 0, 0));
-            m = glm::rotate(m, rotation.y, glm::vec3(0, 1, 0));
-            m = glm::rotate(m, rotation.z, glm::vec3(0, 0, 1));
-            m = glm::scale(m, scale);
-            m = glm::translate(m, glm::vec3(0.0, 0.5f, 0.0f));
+            mat4 m(1.0f);
+            m = amath::translate(m, position);
+            m = amath::rotate(m, rotation.x, vec3(1, 0, 0));
+            m = amath::rotate(m, rotation.y, vec3(0, 1, 0));
+            m = amath::rotate(m, rotation.z, vec3(0, 0, 1));
+            m = amath::scale(m, scale);
+            m = amath::translate(m, vec3(0.0, 0.5f, 0.0f));
             return m;
         }
     };
