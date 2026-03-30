@@ -30,9 +30,9 @@
      * @brief Container for camera state, projection, and transformation data.
      */
     struct CameraData {
-        vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);            /**< Up vector for view matrix calculation. */
-        vec3 cameraPos = glm::vec3(0.0f, 5.0f, 0.0f);     /**< Position of the camera in world space. */
-        vec3 cameraTarget = glm::vec3(0.0f);              /**< Point the camera is looking at. */
+        vec3 up = vec3(0.0f, 1.0f, 0.0f);            /**< Up vector for view matrix calculation. */
+        vec3 cameraPos = vec3(0.0f, 5.0f, 0.0f);     /**< Position of the camera in world space. */
+        vec3 cameraTarget = vec3(0.0f);              /**< Point the camera is looking at. */
 
         float fov = 45.0f;                                /**< Current vertical Field of View. */
         float fovMin = 10.0f, fovMax = 50.0f;             /**< Clamping range for FOV zoom. */

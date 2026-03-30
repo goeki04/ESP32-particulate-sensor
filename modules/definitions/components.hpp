@@ -47,14 +47,6 @@ namespace Andromeda::ECS::Component {
         MaterialShaderType shaderType;
     };
 
-    struct Particle{
-        vec3 position;
-        vec3 velocity;
-        vec3 accel;
-        vec4 color;
-        float life;
-    };
-
     struct AABB{
         vec3 min;
         vec3 max;
