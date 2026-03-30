@@ -3,9 +3,14 @@
 #include <typeindex>
 #include <vector>
 #include <memory>
-
+#include "a_primitives.hpp"
+#include "components.hpp"
+#include <bitset>
 namespace Andromeda::ECS {
     using Entity = uint32_t;
+
+    static inline const u32 MAX_COMPONENT_SIZE = 128;
+
     class IComponentPool {
     public:
         virtual ~IComponentPool() = default;
@@ -57,9 +62,10 @@ namespace Andromeda::ECS {
         Entity m_NextID = 0;
     public:
         Entity createEntity() { return m_NextID++; }
-
+        std::unordered_map<Entity, std::bitset<MAX_COMPONENT_SIZE>> m_EntityComponentMask;
         template<typename T>
         ComponentPool<T>& getPool() {
+
             auto index = std::type_index(typeid(T));
             if (m_Pools.find(index) == m_Pools.end()) {
                 m_Pools[index] = std::make_unique<ComponentPool<T>>();
@@ -69,6 +75,8 @@ namespace Andromeda::ECS {
 
         template<typename T>
         void addComponent(Entity entity, T component) {
+            u32 typeID = Component::ComponentID::template value<T>();
+            m_EntityComponentMask[entity].set(typeID);
             getPool<T>().add(entity, component);
         }
 
@@ -85,9 +93,9 @@ namespace Andromeda::ECS {
             for (auto const& [type, pool] : m_Pools) {
                 pool->removeEntity(entity);
             }
+            m_EntityComponentMask.erase(entity);
         }
         EntityHandle createHandle();
-
     };
 
     struct EntityHandle {
@@ -97,6 +105,7 @@ namespace Andromeda::ECS {
         template<typename T> void add(T component) { registry->addComponent<T>(id, component); }
         template<typename T> T& get() { return registry->getPool<T>().get(id); }
         template<typename T> bool has() { return registry->getPool<T>().has(id); }
+        std::bitset<MAX_COMPONENT_SIZE>& getComponentBitmask() { return registry->m_EntityComponentMask[id]; };
         void destroy() { registry->destroyEntity(id); }
         operator Entity() const { return id; }
     };

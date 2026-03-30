@@ -12,7 +12,7 @@ namespace Andromeda {
 		ECS::ComponentRegistry m_Registry;
 		amath::CameraData m_EditorCamData;
 
-		void addEntity(unsigned int meshID, const std::string& name, ECS::Component::Transform transform);
+		void addEntity(u32 meshID, const std::string& name, ECS::Component::Transform transform);
 		void deleteEntity(Entity id);
 		void start() override;
 

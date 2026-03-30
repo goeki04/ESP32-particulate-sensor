@@ -4,10 +4,23 @@
 #include "a_material.hpp"
 #include <string>
 namespace Andromeda::ECS::Component {
-    struct Transform {
-        glm::vec3 position{ 0.0f, 0.0f, 0.0f };
-        glm::vec3 rotation{ 0.0f, 0.0f, 0.0f };
-        glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+    struct ComponentID {
+        template <typename T>
+        static uint32_t value() {
+            static uint32_t id = nextID();
+            return id;
+        }
+
+        static uint32_t nextID() {
+            static uint32_t lastID = 0;
+            return lastID++;
+        }
+    };
+
+    struct Transform{
+        vec3 position{ 0.0f, 0.0f, 0.0f };
+        vec3 rotation{ 0.0f, 0.0f, 0.0f };
+        vec3 scale{ 1.0f, 1.0f, 1.0f };
 
         const glm::mat4 modelMatrix() const
         {
@@ -22,29 +35,29 @@ namespace Andromeda::ECS::Component {
         }
     };
 
-    struct Tag {
+    struct Tag{
         std::string name;
     };
 
-    struct Selected {};
+    struct Selected{};
 
-    struct Mesh {
+    struct Mesh{
         unsigned int meshID;
         MaterialShaderType shaderType;
     };
 
-    struct Particle {
-        glm::vec3 position;
-        glm::vec3 velocity;
-        glm::vec3 accel;
-        glm::vec4 color;
+    struct Particle{
+        vec3 position;
+        vec3 velocity;
+        vec3 accel;
+        vec4 color;
         float life;
     };
 
-    struct AABB {
-        glm::vec3 min;
-        glm::vec3 max;
-        glm::vec3 center;
+    struct AABB{
+        vec3 min;
+        vec3 max;
+        vec3 center;
         AABB() : min(0.0f), max(0.0f), center(0.0f) {};
     };
 }

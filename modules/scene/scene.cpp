@@ -3,10 +3,9 @@
 #include "subsystem_manager.h"
 namespace Andromeda{
 
-    void SceneManager::addEntity(unsigned int meshID, const std::string& name, ECS::Component::Transform transform)
+    void SceneManager::addEntity(u32 meshID, const std::string& name, ECS::Component::Transform transform)
     {
         auto handle = m_Registry.createHandle();
-        
         handle.add<ECS::Component::Transform>(transform);
         handle.add<ECS::Component::Mesh>({ meshID, MaterialShaderType::unlit });
         handle.add<ECS::Component::Tag>({ name });
@@ -25,5 +24,4 @@ namespace Andromeda{
             throw std::runtime_error("m_ResourceManager is not initialized");
         }
     }
-
 }

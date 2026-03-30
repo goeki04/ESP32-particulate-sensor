@@ -8,7 +8,6 @@
 #include "a_EventTypes.hpp"
 
 namespace Andromeda {
-
     /**
      * @brief A smart handle that uniquely identifies a registered listener.
      * * This structure bundles the EventType and the internal ID. It allows the
