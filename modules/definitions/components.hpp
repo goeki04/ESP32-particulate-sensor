@@ -4,26 +4,29 @@
 #include "a_material.hpp"
 #include "a_math.hpp"
 #include <string>
-namespace Andromeda::ECS::Component {
+#include "a_glm_json_parser.hpp"
+namespace Andromeda::ECS {
     struct ComponentID {
         template <typename T>
-        static uint32_t value() {
-            static uint32_t id = nextID();
+        static u32 value() {
+            static u32 id = nextID();
             return id;
         }
 
-        static uint32_t nextID() {
-            static uint32_t lastID = 0;
+        static u32 nextID() {
+            static std::atomic<u32> lastID = 0;
             return lastID++;
         }
     };
+}
+namespace Andromeda::ECS::Component {   
 
-    struct Transform{
+    struct Transform {
         vec3 position{ 0.0f, 0.0f, 0.0f };
         vec3 rotation{ 0.0f, 0.0f, 0.0f };
         vec3 scale{ 1.0f, 1.0f, 1.0f };
 
-        const glm::mat4 modelMatrix() const
+        const mat4 modelMatrix() const
         {
             mat4 m(1.0f);
             m = amath::translate(m, position);
@@ -36,21 +39,20 @@ namespace Andromeda::ECS::Component {
         }
     };
 
+    struct AABB {
+        vec3 min = { 0.0f,0.0f,0.0f };
+        vec3 max = { 0.0f,0.0f,0.0f };
+        vec3 center = { 0.0f,0.0f,0.0f };
+    };
+
     struct Tag{
         std::string name;
     };
 
     struct Selected{};
 
-    struct Mesh{
-        unsigned int meshID;
+    struct Mesh {
+        u32 meshID;
         MaterialShaderType shaderType;
-    };
-
-    struct AABB{
-        vec3 min;
-        vec3 max;
-        vec3 center;
-        AABB() : min(0.0f), max(0.0f), center(0.0f) {};
     };
 }

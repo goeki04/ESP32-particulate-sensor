@@ -1,16 +1,17 @@
 #pragma once
+
 /**
  * @namespace glm
  * @brief Extension of the glm namespace to support nlohmann::json serialization.
  */
 namespace glm {
     /** @brief vec3 to JSON array conversion. */
-    void to_json(nlohmann::json& json, const vec3& v) {
+    inline void to_json(nlohmann::json& json, const vec3& v) {
         json = { v.x, v.y, v.z };
     }
 
     /** @brief JSON array to vec3 conversion. @throws std::invalid_argument if format is incorrect. */
-    void from_json(const nlohmann::json& json, vec3& v) {
+    inline void from_json(const nlohmann::json& json, vec3& v) {
         if (!json.is_array() || json.size() != 3) {
             throw std::invalid_argument("JSON is not a 3d vector array");
         }
@@ -20,12 +21,12 @@ namespace glm {
     }
 
     /** @brief vec2 to JSON array conversion. */
-    void to_json(nlohmann::json& json, const vec2& v) {
+    inline void to_json(nlohmann::json& json, const vec2& v) {
         json = { v.x, v.y };
     }
 
     /** @brief JSON array to vec2 conversion. @throws std::invalid_argument if format is incorrect. */
-    void from_json(const nlohmann::json& json, vec2& v) {
+    inline void from_json(const nlohmann::json& json, vec2& v) {
         if (!json.is_array() || json.size() != 2) {
             throw std::invalid_argument("JSON is not a 2d vector array");
         }
@@ -34,12 +35,12 @@ namespace glm {
     }
 
     /** @brief vec4 to JSON array conversion. */
-    void to_json(nlohmann::json& json, const vec4& v) {
+    inline void to_json(nlohmann::json& json, const vec4& v) {
         json = { v.x, v.y, v.z, v.w };
     }
 
     /** @brief JSON array to vec4 conversion. @throws std::invalid_argument if format is incorrect. */
-    void from_json(const nlohmann::json& json, vec4& v) {
+    inline void from_json(const nlohmann::json& json, vec4& v) {
         if (!json.is_array() || json.size() != 4) {
             throw std::invalid_argument("JSON is not a 4d vector array");
         }
@@ -50,12 +51,12 @@ namespace glm {
     }
 
     /** @brief mat4 to nested JSON array conversion (column-major). */
-    void to_json(nlohmann::json& j, const mat4& m) {
+    inline void to_json(nlohmann::json& j, const mat4& m) {
         j = { m[0], m[1], m[2], m[3] };
     }
 
     /** @brief Nested JSON array to mat4 conversion. */
-    void from_json(const nlohmann::json& j, mat4& m) {
+    inline void from_json(const nlohmann::json& j, mat4& m) {
         if (!j.is_array() || j.size() != 4) {
             throw std::invalid_argument("JSON is not a mat4 array (expected 4 column vectors)");
         }
@@ -66,12 +67,12 @@ namespace glm {
     }
 
     /** @brief mat3 to nested JSON array conversion (column-major). */
-    void to_json(nlohmann::json& j, const mat3& m) {
+    inline void to_json(nlohmann::json& j, const mat3& m) {
         j = { m[0], m[1], m[2] };
     }
 
     /** @brief Nested JSON array to mat3 conversion. */
-    void from_json(const nlohmann::json& j, mat3& m) {
+    inline void from_json(const nlohmann::json& j, mat3& m) {
         if (!j.is_array() || j.size() != 3) {
             throw std::invalid_argument("JSON is not a mat3 array (expected 3 column vectors)");
         }
