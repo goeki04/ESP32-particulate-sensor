@@ -18,7 +18,11 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
                     throw std::runtime_error("saving the scene has failed!");
                 }
             }
-            if (ImGui::MenuItem("Load")) {}
+            if (ImGui::MenuItem("Load")) {
+                if (!SceneSerializer::load("save_1.json", *guiRenderer.m_Registry)) {
+                    throw std::runtime_error("loading the scene has failed!");
+                }
+            }
             if (ImGui::MenuItem("Exit")) {}
             ImGui::EndMenu();
         }

@@ -106,15 +106,15 @@
         return glm::abs(value);
     }
 
-    [[nodiscard]] constexpr inline mat4 translate(const mat4& m, const vec3& value) noexcept {
+    [[nodiscard]] inline mat4 translate(const mat4& m, const vec3& value) noexcept {
         return glm::translate(m, value);
     }
 
-    [[nodiscard]] constexpr inline mat4 scale(const mat4& m, const vec3& value) noexcept {
+    [[nodiscard]] inline mat4 scale(const mat4& m, const vec3& value) noexcept {
         return glm::scale(m, value);
     }
 
-    [[nodiscard]] constexpr inline mat4 rotate(const mat4& m, const float angle,const vec3& value) noexcept {
+    [[nodiscard]] inline mat4 rotate(const mat4& m, const float angle,const vec3& value) noexcept {
         return glm::rotate(m, angle, value);
     }
 
