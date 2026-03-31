@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>          
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "components.hpp"
+#include "a_components.hpp"
 #include "a_primitives.hpp"
 #include <stdexcept>
 

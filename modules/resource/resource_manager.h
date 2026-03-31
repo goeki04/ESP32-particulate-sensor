@@ -5,7 +5,7 @@
 #include <memory>
 #include <assimp/scene.h>
 #include "shader.hpp"
-#include "components.hpp"
+#include "a_components.hpp"
 #include "a_texture.hpp"
 #include "a_device.hpp"
 #include "a_opengl_handles.hpp"
