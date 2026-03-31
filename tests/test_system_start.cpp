@@ -5,7 +5,7 @@
 #include "editor.hpp"
 #include "resource_manager.h"
 #include "renderer.h"
-
+#include "scene.hpp"
 using namespace Andromeda;
 
 class SubsystemStartTest : public ::testing::Test {
@@ -52,7 +52,7 @@ TEST_F(SubsystemStartTest, CheckRenderer) {
     auto& manager = Andromeda::SystemManager::getInstance();
 
     ResourceManager rm;
-    SceneManager sm;
+    Andromeda::SceneManager sm;
     Renderer renderer;
 
     manager.addSubsystem(&rm);
@@ -73,7 +73,7 @@ TEST_F(SubsystemStartTest, CheckEditor) {
     Editor editor;
     Renderer renderer;
     ResourceManager rm;
-    SceneManager sm;
+    Andromeda::SceneManager sm;
     Window::WindowManager wm;
     manager.addSubsystem(&wm);
     manager.addSubsystem(&rm);

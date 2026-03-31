@@ -67,7 +67,6 @@ namespace Andromeda::Gui {
         bool m_ConsoleOpen = false;
         ImVec2 getViewportWindowPos();
         void OpenFolder() const;
-        void drawNotification();
         void OpenURL(const std::string& url);
         void drawChart();
         void setViewportSize() const;

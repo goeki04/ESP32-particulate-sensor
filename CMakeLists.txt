@@ -94,6 +94,7 @@ target_link_libraries(AndromedaTests PRIVATE
     core
     resource
     renderer
+    scene
     editor
     definitions
 )

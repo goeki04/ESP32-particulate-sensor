@@ -41,7 +41,7 @@ namespace Andromeda::Gui {
         ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode;
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockFlags);
         Panels::drawNavBar(*this);
-        drawNotification();
+        Panels::drawDetails(*this);
         Panels::drawDeviceBrowser(*this);
         Panels::drawDeviceHierarchy(*this);
         drawChart();
@@ -87,15 +87,6 @@ namespace Andromeda::Gui {
         system(cmd.c_str());
 
 #endif
-    }
-    void GuiRenderer::drawNotification()
-    {
-        ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight - m_MenuBarHeight - m_MarginDefault * 2);
-        ImVec2 newPos = getNewWindowPos(Margin(0.0f, m_MarginDefault, m_MarginDefault, m_MarginDefault), windowSize, Alignment::TopRight);
-        ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
-        ImGui::Begin("Notifications", 0, m_WindowFlags);
-        ImGui::End();
     }
 
     void GuiRenderer::drawChart() {

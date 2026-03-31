@@ -5,20 +5,6 @@
 #include "a_math.hpp"
 #include <string>
 #include "a_glm_json_parser.hpp"
-namespace Andromeda::ECS {
-    struct ComponentID {
-        template <typename T>
-        static u32 value() {
-            static u32 id = nextID();
-            return id;
-        }
-
-        static u32 nextID() {
-            static std::atomic<u32> lastID = 0;
-            return lastID++;
-        }
-    };
-}
 namespace Andromeda::ECS::Component {   
 
     struct Transform {
@@ -55,4 +41,5 @@ namespace Andromeda::ECS::Component {
         u32 meshID;
         MaterialShaderType shaderType;
     };
+    using ComponentDirectory = std::tuple<Transform, AABB, Tag, Selected, Mesh>;
 }
