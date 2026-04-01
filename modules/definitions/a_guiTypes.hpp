@@ -29,10 +29,10 @@ namespace Andromeda::Gui {
         float left, right, bottom, top;
 
         /// Default constructor: initializes all sides to 0.0f.
-        Margin() : left(0.0f), right(0.0f), top(0.0f), bottom(0.0f) {}
+        Margin() : left(0.0f), right(0.0f), bottom(0.0f), top(0.0f) {}
 
         /// Sets a uniform margin for all four sides.
-        Margin(float margin) : left(margin), right(margin), top(margin), bottom(margin) {}
+        explicit Margin(const float margin) : left(margin), right(margin), bottom(margin), top(margin) {}
 
         /// Sets individual values for each side.
         Margin(float left, float right, float bottom, float top)
@@ -47,7 +47,7 @@ namespace Andromeda::Gui {
         GuiRendererConfig() : window(nullptr), cam(nullptr), registry(nullptr),
             dp(nullptr), sdl_gl_context(nullptr), glsl_version(nullptr) {
         }
-        SceneManager* sceneManager;       // Handle for placing objects in 3d space
+        SceneManager* sceneManager{};       // Handle for placing objects in 3d space
         SDL_Window* window;               // Handle to the main SDL window
         amath::CameraData* cam;           // Pointer to the editor camera data
         ECS::ComponentRegistry* registry; // Pointer to the ECS registry
@@ -63,7 +63,7 @@ namespace Andromeda::Gui {
         ViewportDrawInfo() : camData(nullptr), postProcessingFboTexture(0), framebufferSize(0.0f, 0.0f){}
 
         amath::CameraData* camData;      // Source camera for this viewport
-        u32 postProcessingFboTexture;         // OpenGL handle for the final scene texture (post processing texture)
+        u32 postProcessingFboTexture;         // OpenGL handle for the final scene texture (post-processing texture)
         vec2 framebufferSize;           // Dimensions of the viewport in pixels
     };
 }

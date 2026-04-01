@@ -47,7 +47,8 @@ namespace Andromeda::Gui::Console {
                 [this](const CommandLine& cl) { printHelp(); }
             };
         }
-        CommandLine parseInput(std::string_view input);
+
+        static CommandLine parseInput(std::string_view input);
         void printHelp() {
             addLog("Help me");
         }

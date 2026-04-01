@@ -12,23 +12,29 @@ namespace Andromeda {
 	public:
 		void start() override;
 		void update() override;
-		void updateEvent(SDL_Event* event);
+		void updateEvent(SDL_Event* event) override;
 		void destroy() override;
-		bool RayIntersectAABB(const amath::CameraData& cam, const ECS::Component::AABB& aabb, const mat4& modelMatrix);
+
+		static bool RayIntersectAABB(const amath::CameraData& cam, const ECS::Component::AABB& aabb, const mat4& modelMatrix);
 		void editorPicking(const amath::CameraData* cam);
 		static constexpr std::string_view GetStaticName() { return "Editor"; }
-		const char* getSubsystemName() const override {
+		[[nodiscard]] const char* getSubsystemName() const override {
 			return GetStaticName().data();
 		}
-		void updateEditorCameraRay();
-		void cameraMovement(amath::CameraData& camdata);
-		vec3 getCameraPos(const amath::CameraData& cam) const;
-		mat4 getViewMatrix(const amath::CameraData& cam) const;
-		void updatePickingRay(amath::CameraData& cam);
-		void zoom(amath::CameraData& cam, SDL_Event* event);
-		void setProjectionMatrix(amath::CameraData& cam, float viewPortSizeX, float viewportSizeY) const;
+		void updateEditorCameraRay() const;
+
+		static void cameraMovement(amath::CameraData& cameraData);
+		[[nodiscard]] static vec3 getCameraPos(const amath::CameraData& cam);
+		[[nodiscard]] static mat4 getViewMatrix(const amath::CameraData& cam);
+
+		static void updatePickingRay(amath::CameraData& cam);
+
+		static void zoom(amath::CameraData& cam, const SDL_Event* event);
+
+		static void setProjectionMatrix(amath::CameraData& cam, float viewPortSizeX, float viewportSizeY);
 		static mat4 getProjectionMatrix(const amath::CameraData& cam);
-		mat4 calculateCameraOrbit(amath::CameraData& cam);
-		amath::Ray cursorToWorldRay(const amath::CameraData& cam) const;
+
+		static mat4 calculateCameraOrbit(amath::CameraData& cam);
+		[[nodiscard]] static amath::Ray cursorToWorldRay(const amath::CameraData& cam);
 	};
 }

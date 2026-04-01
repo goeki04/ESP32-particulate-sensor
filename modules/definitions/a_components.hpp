@@ -12,8 +12,7 @@ namespace Andromeda::ECS::Component {
         vec3 rotation{ 0.0f, 0.0f, 0.0f };
         vec3 scale{ 1.0f, 1.0f, 1.0f };
 
-        const mat4 modelMatrix() const
-        {
+        [[nodiscard]] mat4 modelMatrix() const {
             mat4 m(1.0f);
             m = amath::translate(m, position);
             m = amath::rotate(m, rotation.x, vec3(1, 0, 0));

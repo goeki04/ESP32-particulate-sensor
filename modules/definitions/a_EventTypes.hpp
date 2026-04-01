@@ -28,7 +28,7 @@ namespace Andromeda {
     struct KeyDown : public IEvent {
         Keycode keycode; ///< The unique code of the pressed key.
 
-        KeyDown(Keycode _code) : keycode(_code) {}
+        explicit KeyDown(const Keycode _code) : keycode(_code) {}
         static constexpr EventType GetStaticType() { return EventType::OnKeyDown; }
     };
 
@@ -38,7 +38,7 @@ namespace Andromeda {
     struct KeyUp : public IEvent {
         Keycode keycode; ///< The unique code of the released key.
 
-        KeyUp(Keycode _code) : keycode(_code) {}
+        explicit KeyUp(const Keycode _code) : keycode(_code) {}
         static constexpr EventType GetStaticType() { return EventType::OnKeyUp; }
     };
 
@@ -48,7 +48,7 @@ namespace Andromeda {
     struct MouseMoved : public IEvent {
         float x, y; ///< The new absolute window coordinates of the mouse.
 
-        MouseMoved(float _x, float _y) : x(_x), y(_y) {}
+        MouseMoved(const float _x, const float _y) : x(_x), y(_y) {}
         static constexpr EventType GetStaticType() { return EventType::OnMouseMoved; }
     };
 
@@ -67,9 +67,9 @@ namespace Andromeda {
      * @brief Triggered when a mouse button is pressed.
      */
     struct MouseBtnDown : public IEvent {
-        MouseCode mousecode; ///< The specific mouse button (Left, Right, Middle, etc.).
+        MouseCode m_MouseCode; ///< The specific mouse button (Left, Right, Middle, etc.).
 
-        MouseBtnDown(MouseCode _code) : mousecode(_code) {}
+        explicit MouseBtnDown(const MouseCode _code) : m_MouseCode(_code) {}
         static constexpr EventType GetStaticType() { return EventType::OnMouseBtnDown; }
     };
 
@@ -77,9 +77,9 @@ namespace Andromeda {
      * @brief Triggered when a mouse button is released.
      */
     struct MouseBtnUp : public IEvent {
-        MouseCode mousecode; ///< The specific mouse button that was released.
+        MouseCode m_MouseCode; ///< The specific mouse button that was released.
 
-        MouseBtnUp(MouseCode _code) : mousecode(_code) {}
+        explicit MouseBtnUp(const MouseCode _code) : m_MouseCode(_code) {}
         static constexpr EventType GetStaticType() { return EventType::OnMouseBtnUp; }
     };
 }

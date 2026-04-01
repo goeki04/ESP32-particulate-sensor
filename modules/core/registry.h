@@ -223,7 +223,7 @@ namespace Andromeda::ECS {
         template<typename T> bool has() { return registry->getPool<T>().has(id); }
 
         /** @brief Destroys the entity and removes all its components. */
-        void destroy() { registry->destroyEntity(id); }
+        void destroy() const { registry->destroyEntity(id); }
 
         /** @brief Implicit conversion to the raw Entity ID. */
         operator Entity() const { return id; }

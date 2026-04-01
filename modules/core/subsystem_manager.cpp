@@ -1,4 +1,6 @@
 #include "subsystem_manager.h"
+#include "a_ISubsystem.hpp"
+#include "a_primitives.hpp"
 
 namespace Andromeda {
 	Uint64 SystemManager::lastCounter = SDL_GetPerformanceCounter();
@@ -8,34 +10,33 @@ namespace Andromeda {
 		return instance;
 	}
 
-	void SystemManager::addSubsystem(ISubsystem* system) {
-		m_Subsystems.emplace_back(system);
+	void SystemManager::addSubsystem(ISubsystem* s) {
+		m_Subsystems.emplace_back(s);
 	}
 
-	void SystemManager::startSubsystems() {
+	void SystemManager::startSubsystems() const {
 
 		for (auto& v : m_Subsystems) {
 			v->start();
 		}
-
 	}
 
-	void SystemManager::updateEvent(SDL_Event* event) {
-		for (auto& v : m_Subsystems) {
+	void SystemManager::updateEvent(SDL_Event* event) const {
+		for (const auto& v : m_Subsystems) {
 			v->updateEvent(event);
 		}
 	}
 
-	void SystemManager::updateSubsystems() {
-		Uint64 currentCounter = SDL_GetPerformanceCounter();
-		s_deltaTime = (float)(currentCounter - lastCounter) / SDL_GetPerformanceFrequency();
+	void SystemManager::updateSubsystems() const {
+		const u32 currentCounter = SDL_GetPerformanceCounter();
+		s_deltaTime = static_cast<float>((currentCounter - lastCounter)) / static_cast<float>(SDL_GetPerformanceFrequency());
 		lastCounter = currentCounter;
 		for (auto& v : m_Subsystems) {
 			v->update();
 		}
 	}
 
-	void SystemManager::destroy() {
+	void SystemManager::destroy() const {
 		for (auto& v : m_Subsystems) {
 			v->destroy();
 		}

@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <functional>
+#include <ranges>
 #include <concepts>
 #include "a_EventTypes.hpp"
 
@@ -142,7 +143,7 @@ namespace Andromeda {
          * @brief Performs the actual memory cleanup for listeners marked as pendingRemoval.
          */
         void ClearPendingListeners() {
-            for (auto& [type, listeners] : m_Events) {
+            for (auto &listeners: m_Events | std::views::values) {
                 std::erase_if(listeners, [](const EventListener& l) {
                     return l.pendingRemoval;
                     });

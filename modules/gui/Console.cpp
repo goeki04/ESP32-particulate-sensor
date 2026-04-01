@@ -1,36 +1,15 @@
 #include "console.h"
 #include <filesystem>
+#include <ranges>
+
+#include "a_primitives.hpp"
+
 namespace Andromeda::Gui::Console {
-
-    AppConsole::AppConsole()
-    {
-        initRegistry();
-        clearLog();
-        m_HistoryPos = -1;
-        m_InputBuf.resize(256,'\0');
-        m_AutoScroll = true;
-        m_ScrollToBottom = false;
-        addLog("Type 'help' for command list.");
-    }
-
-    AppConsole::~AppConsole()
-    {
-        clearLog();
-        m_History.clear();
-        m_Items.clear();
-    }
-
-
-    void AppConsole::clearLog()
-    {
-        m_Items.clear();
-    }
 
     CommandLine AppConsole::parseInput(std::string_view input) {
         CommandLine cl;
-        size_t space_pos = input.find_first_of(" \t");
 
-        if (space_pos != std::string_view::npos) {
+        if (const size_t space_pos = input.find_first_of(" \t"); space_pos != std::string_view::npos) {
             cl.command = input.substr(0, space_pos);
 
             std::istringstream iss{ std::string(input.substr(space_pos)) };
@@ -44,6 +23,30 @@ namespace Andromeda::Gui::Console {
         }
 
         return cl;
+    }
+
+    AppConsole::AppConsole()
+    {
+        initRegistry();
+        clearLog();
+        m_HistoryPos = -1;
+        m_InputBuf.resize(256,'\0');
+        m_AutoScroll = true;
+        m_ScrollToBottom = false;
+        addLog("Type 'help' for command list.");
+    }
+
+
+    AppConsole::~AppConsole()
+    {
+        clearLog();
+        m_History.clear();
+        m_Items.clear();
+    }
+
+    void AppConsole::clearLog()
+    {
+        m_Items.clear();
     }
     void AppConsole::draw(const char* title, bool* p_open)
     {
@@ -132,14 +135,14 @@ namespace Andromeda::Gui::Console {
         ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
         if (ImGui::InputText("Input", m_InputBuf.data(), 256, input_text_flags, &AppConsole::textEditCallbackStub, (void*)this))
         {
-            std::string_view inputView = m_InputBuf.data();
-            size_t start = inputView.find_first_not_of(" \t\r\n");
-            size_t end = inputView.find_last_not_of(" \t\r\n");
+            const std::string_view inputView = m_InputBuf;
+            const size_t start = inputView.find_first_not_of(" \t\r\n");
+            const size_t end = inputView.find_last_not_of(" \t\r\n");
             if (start != std::string_view::npos)
             {
-                std::string_view trimmedCmd = inputView.substr(start, end - start + 1);
+                const std::string_view trimmedCmd = inputView.substr(start, end - start + 1);
 
-                CommandLine cl = parseInput(trimmedCmd);
+                const CommandLine cl = parseInput(trimmedCmd);
                 execCommand(cl);
             }
             m_InputBuf[0] = '\0';
@@ -156,22 +159,21 @@ namespace Andromeda::Gui::Console {
     {
         m_HistoryPos = -1;
         std::erase(m_History, std::string(line.command));
-        m_History.push_back(std::string(line.command));
-        auto it = m_CommandRegistry.find(line.command);
-        if (it != m_CommandRegistry.end())
+        m_History.emplace_back(line.command);
+        if (const auto it = m_CommandRegistry.find(line.command); it != m_CommandRegistry.end())
         {
-            const auto& profile = it->second;
+            const auto&[allowedFlags, action] = it->second;
             bool flagsValid = true;
             for (const auto& f : line.flags)
             {
-                if (profile.allowedFlags.find(f) == profile.allowedFlags.end())
+                if (allowedFlags.contains(f))
                 {
                     addLog("[E] Flag {} is not allowed for {}", f,line.command);
                     flagsValid = false;
                 }
             }
             if (flagsValid)
-                profile.action(line);
+                action(line);
         }
         else
             addLog("[E] Unknown command: {}", line.command);
@@ -180,7 +182,7 @@ namespace Andromeda::Gui::Console {
 
     int AppConsole::textEditCallbackStub(ImGuiInputTextCallbackData* data)
     {
-        AppConsole* console = (AppConsole*)data->UserData;
+        auto* console = static_cast<AppConsole*>(data->UserData);
         return console->textEditCallback(data);
     }
 
@@ -188,95 +190,96 @@ namespace Andromeda::Gui::Console {
     {
         switch (data->EventFlag)
         {
-        case ImGuiInputTextFlags_CallbackCompletion:
-        {
-            const char* word_end = data->Buf + data->CursorPos;
-            const char* word_start = word_end;
-            while (word_start > data->Buf)
+            case ImGuiInputTextFlags_CallbackCompletion:
             {
-                const char c = word_start[-1];
-                if (c == ' ' || c == '\t' || c == ',' || c == ';')
-                    break;
-                word_start--;
-            }
+                const char* word_end = data->Buf + data->CursorPos;
+                const char* word_start = word_end;
+                while (word_start > data->Buf)
+                {
+                    const char c = word_start[-1];
+                    if (c == ' ' || c == '\t' || c == ',' || c == ';')
+                        break;
+                    word_start--;
+                }
 
-            std::vector<std::string_view> candidates;
-            std::string_view current_word(word_start, static_cast<size_t>(word_end - word_start));
+                std::vector<std::string_view> candidates;
+                std::string_view current_word(word_start, static_cast<size_t>(word_end - word_start));
 
-            auto char_iequal = [](char a, char b) {
-                return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
+                auto char_iequal = [](char a, char b) {
+                    return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
                 };
 
-            for (auto const& [name, profile] : m_CommandRegistry)
-            {
-                if (name.size() >= current_word.size() &&
-                    std::equal(current_word.begin(), current_word.end(), name.begin(), char_iequal))
+                for (const auto &name: m_CommandRegistry | std::views::keys)
                 {
-                    candidates.push_back(name);
+                    if (name.size() >= current_word.size() &&
+                        std::equal(current_word.begin(), current_word.end(), name.begin(), char_iequal))
+                    {
+                        candidates.push_back(name);
+                    }
                 }
-            }
 
-            if (candidates.empty())
-            {
-                addLog("No match for {}", current_word);
-            }
-            else if (candidates.size() == 1)
-            {
-                data->DeleteChars((int)(word_start - data->Buf), (int)(word_end - word_start));
-                data->InsertChars(data->CursorPos, candidates[0].data());
-                data->InsertChars(data->CursorPos, " ");
-            }
-            else
-            {
-                size_t match_len = current_word.size();
-                while (match_len < candidates[0].size())
+                if (candidates.empty())
                 {
-                    const char expected_char = (char)toupper(candidates[0][match_len]);
-                    bool is_match = std::all_of(candidates.begin() + 1, candidates.end(), [&](std::string_view cand) {
-                        return match_len < cand.size() && (char)toupper(cand[match_len]) == expected_char;
+                    addLog("No match for {}", current_word);
+                }
+                else if (candidates.size() == 1)
+                {
+                    data->DeleteChars(static_cast<i32>(word_start - data->Buf), static_cast<i32>(word_end - word_start));
+                    data->InsertChars(data->CursorPos, candidates[0].data());
+                    data->InsertChars(data->CursorPos, " ");
+                }
+                else
+                {
+                    size_t match_len = current_word.size();
+                    while (match_len < candidates[0].size())
+                    {
+                        const char expected_char = static_cast<char>(toupper(candidates[0][match_len]));
+                        const bool is_match = std::all_of(candidates.begin() + 1, candidates.end(), [&](std::string_view cand) {
+                            return match_len < cand.size() && static_cast<char>(toupper(cand[match_len])) == expected_char;
                         });
 
-                    if (!is_match) break;
+                        if (!is_match) break;
 
-                    match_len++;
+                        match_len++;
+                    }
+
+                    if (match_len > 0)
+                    {
+                        data->DeleteChars(static_cast<i32>(word_start - data->Buf), static_cast<int>(word_end - word_start));
+                        data->InsertChars(data->CursorPos, candidates[0].data(), candidates[0].data() + match_len);
+                    }
+                    addLog("Commands:\n");
+                    for (auto const& cand : candidates)
+                        addLog("{}", cand);
                 }
-
-                if (match_len > 0)
+                break;
+            }
+            case ImGuiInputTextFlags_CallbackHistory:
+            {
+                const int prev_history_pos = m_HistoryPos;
+                if (data->EventKey == ImGuiKey_UpArrow)
                 {
-                    data->DeleteChars((int)(word_start - data->Buf), (int)(word_end - word_start));
-                    data->InsertChars(data->CursorPos, candidates[0].data(), candidates[0].data() + match_len);
+                    if (m_HistoryPos == -1)
+                        m_HistoryPos = static_cast<i32>(m_History.size()) - 1;
+                    else if (m_HistoryPos > 0)
+                        m_HistoryPos--;
                 }
-                addLog("Commands:\n");
-                for (auto const& cand : candidates)
-                    addLog("{}", cand);
-            }
-            break;
-        }
-        case ImGuiInputTextFlags_CallbackHistory:
-        {
-            const int prev_history_pos = m_HistoryPos;
-            if (data->EventKey == ImGuiKey_UpArrow)
-            {
-                if (m_HistoryPos == -1)
-                    m_HistoryPos = (int)m_History.size() - 1;
-                else if (m_HistoryPos > 0)
-                    m_HistoryPos--;
-            }
-            else if (data->EventKey == ImGuiKey_DownArrow)
-            {
-                if (m_HistoryPos != -1)
-                    if (++m_HistoryPos >= (int)m_History.size())
-                        m_HistoryPos = -1;
-            }
+                else if (data->EventKey == ImGuiKey_DownArrow)
+                {
+                    if (m_HistoryPos != -1)
+                        if (++m_HistoryPos >= static_cast<i32>(m_History.size()))
+                            m_HistoryPos = -1;
+                }
 
-            if (prev_history_pos != m_HistoryPos)
-            {
-                const char* historyStr = (m_HistoryPos >= 0) ? m_History[m_HistoryPos].c_str() : "";
-                data->DeleteChars(0, data->BufTextLen);
-                data->InsertChars(0, historyStr);
+                if (prev_history_pos != m_HistoryPos)
+                {
+                    const char* historyStr = (m_HistoryPos >= 0) ? m_History[m_HistoryPos].c_str() : "";
+                    data->DeleteChars(0, data->BufTextLen);
+                    data->InsertChars(0, historyStr);
+                }
+                break;
             }
-            break;
-        }
+            default: ;
         }
         return 0;
     }
