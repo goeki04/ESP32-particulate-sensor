@@ -1,6 +1,6 @@
 ﻿#include "Renderer.h"
-#include "subsystem_manager.h"
-#include "window_manager.h"
+#include "a_subsystem_manager.hpp"
+#include "window_manager.hpp"
 #include "resource_manager.h"
 #include "a_math.hpp"
 #include "scene.hpp"
@@ -21,16 +21,72 @@ namespace Andromeda {
         m_Cam->framebufferSize = m_FramebufferSize;
         m_TexelSize = 1.0f / vec2(m_FramebufferSize.x, m_FramebufferSize.y);
 
-        fboManager.createFramebuffers(m_FramebufferSize,(int)m_MSAAsamples);
+        fboManager.createFramebuffers(m_FramebufferSize,static_cast<int>(m_MSAAsamples));
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         glCullFace(GL_BACK);
         glGenVertexArrays(1, &m_Vao);
     }
 
+    void Renderer::update()
+    {
+        processResizeTimer();
+        windowClearPass();
+        scenePassBegin();
+        geometryPass();
+        proceduralPass();
+        scenePassEndResolve();
+        selectionPass();
+        postprocessingPass();
+        pickingPass(m_Cam);
+    }
+
+    void Renderer::drawMesh(const Component::Mesh& mesh, const Component::Transform& transform) const {
+        auto* sh = m_ResourceManager->getMaterialShaderByID(MaterialShaderType::white);
+        sh->use();
+        const mat4 localMatrix = transform.modelMatrix();
+        sh->setUniforms(m_Cam,localMatrix);
+        glBindVertexArray(m_ResourceManager->getMeshVaoByID(mesh.meshID));
+        glDrawElements(GL_TRIANGLES, m_ResourceManager->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
+    }
+
+    void Renderer::drawMesh(const Component::Mesh& mesh, const Component::Transform& transform, MaterialShaderType type) const {
+        auto* sh = m_ResourceManager->getMaterialShaderByID(type);
+        sh->use();
+        const mat4 localMatrix = transform.modelMatrix();
+
+        sh->setUniforms(m_Cam,localMatrix);
+        glBindVertexArray(m_ResourceManager->getMeshVaoByID(mesh.meshID));
+        glDrawElements(GL_TRIANGLES, m_ResourceManager->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
+    }
+
+    void Renderer::destroy() {
+        fboManager.destroyFramebuffers();
+        if (m_Vao) {
+            glDeleteVertexArrays(1, &m_Vao);
+        }
+        m_Vao = 0;
+    }
+
     void Renderer::SetActiveCamera(amath::CameraData* camData) {
         assert(camData && "CameraData is nullptr in Renderer::SetActiveCamera()");
         m_Cam = camData;
+    }
+
+    void Renderer::geometryPass() const {
+        auto& meshPool = m_SceneManager->m_Registry.getPool<Component::Mesh>();
+        auto& transformPool = m_SceneManager->m_Registry.getPool<Component::Transform>();
+        const auto& entitiesWithMesh = meshPool.getEntities();
+        const auto& meshData = meshPool.data();
+
+        for (size_t i = 0; i < entitiesWithMesh.size(); ++i) {
+            Entity e = entitiesWithMesh[i];
+            if (transformPool.has(e)) {
+                drawMesh(meshData[i], transformPool.get(e), MaterialShaderType::unlit);
+            }
+        }
     }
 
     u32 Renderer::getFinalSceneViewportTexture() const
@@ -47,7 +103,6 @@ namespace Andromeda {
         m_ResizePending = true;
         m_ResizeTimer = 0.15f;
     }
-
     void Renderer::processResizeTimer()
     {
         if (!m_ResizePending) return;
@@ -56,84 +111,31 @@ namespace Andromeda {
         if (m_ResizeTimer <= 0.0f)
         {
             m_FramebufferSize = m_TargetSize;
-            m_TexelSize = 1.0f / vec2((float)m_FramebufferSize.x, (float)m_FramebufferSize.y);
+            m_TexelSize = 1.0f / vec2(static_cast<float>(m_FramebufferSize.x), static_cast<float>(m_FramebufferSize.y));
             m_Cam->framebufferSize = m_FramebufferSize;
 
             fboManager.destroyFramebuffers();
-            fboManager.createFramebuffers(m_FramebufferSize, (int)m_MSAAsamples);
+            fboManager.createFramebuffers(m_FramebufferSize, static_cast<int>(m_MSAAsamples));
 
             m_ResizePending = false;
         }
     }
-
-    void Renderer::update()
-    {
-        processResizeTimer();
-        windowClearPass();
-        scenePassBegin();
-        geometryPass();
-        proceduralPass();
-        scenePassEndResolve();
-        selectionPass();
-        postprocessingPass();
-        pickingPass(m_Cam);
-    }
-
-    void Renderer::drawMesh(const Component::Mesh& mesh, const Component::Transform& transform)
-    {
-        auto* sh = m_ResourceManager->getMaterialShaderByID(MaterialShaderType::white);
-        sh->use();
-        glm::mat4 localMatrix = transform.modelMatrix();
-        sh->setUniforms(m_Cam,localMatrix);
-        glBindVertexArray(m_ResourceManager->getMeshVaoByID(mesh.meshID));
-        glDrawElements(GL_TRIANGLES, m_ResourceManager->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-    }
-
-    void Renderer::drawMesh(const Component::Mesh& mesh, const Component::Transform& transform, MaterialShaderType type)
-    {
-        auto* sh = m_ResourceManager->getMaterialShaderByID(type);
-        sh->use();
-        mat4 localMatrix = transform.modelMatrix();
-        
-        sh->setUniforms(m_Cam,localMatrix);
-        glBindVertexArray(m_ResourceManager->getMeshVaoByID(mesh.meshID));
-        glDrawElements(GL_TRIANGLES, m_ResourceManager->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-    }
-
-    void Renderer::geometryPass() {
-        auto& meshPool = m_SceneManager->m_Registry.getPool<Component::Mesh>();
-        auto& transformPool = m_SceneManager->m_Registry.getPool<Component::Transform>();
-        const auto& entitiesWithMesh = meshPool.getEntities();
-        const auto& meshData = meshPool.data();
-
-        for (size_t i = 0; i < entitiesWithMesh.size(); ++i) {
-            Entity e = entitiesWithMesh[i];
-            if (transformPool.has(e)) {
-                drawMesh(meshData[i], transformPool.get(e), MaterialShaderType::unlit);
-            }
-        }
-    }
-    void Renderer::selectionPass()
-    {
-        
+    void Renderer::selectionPass() const {
         glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_SelectionFramebuffer);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        auto& selectedPool = m_SceneManager->m_Registry.getPool<Component::Selected>();
-        for (Entity e : selectedPool.getEntities()) {
+        const auto& selectedPool = m_SceneManager->m_Registry.getPool<Component::Selected>();
+        for (const Entity e : selectedPool.getEntities()) {
             EntityHandle handle = { e, &m_SceneManager->m_Registry };
             if (handle.has<Component::Mesh>() && handle.has<Component::Transform>()) {
-                drawMesh(handle.get<Component::Mesh>(),handle.get<Component::Transform>(), 
-                    MaterialShaderType::white);
+                drawMesh(handle.get<Component::Mesh>(),handle.get<Component::Transform>(),
+                         MaterialShaderType::white);
             }
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        
+
     }
-    void Renderer::postprocessingPass()
-    {
+    void Renderer::postprocessingPass() const {
         glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_PostprocessFramebuffer);
         glViewport(0, 0, m_FramebufferSize.x, m_FramebufferSize.y);
 
@@ -156,16 +158,14 @@ namespace Andromeda {
         glEnable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-    void Renderer::scenePassBegin()
-    {
+    void Renderer::scenePassBegin() const {
         glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_MsaaFramebuffer);
         glViewport(0, 0, m_FramebufferSize.x, m_FramebufferSize.y);
         glClearColor(0.2f, 0.2f, 0.35f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     }
-    void Renderer::proceduralPass()
-    {
+    void Renderer::proceduralPass() const {
         glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -213,8 +213,8 @@ namespace Andromeda {
         }
         */
     }
-    void Renderer::scenePassEndResolve()
-    {
+
+    void Renderer::scenePassEndResolve() const {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, fboManager.m_MsaaFramebuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboManager.m_Framebuffer);
 
@@ -233,13 +233,5 @@ namespace Andromeda {
         glViewport(0, 0, Window::g_WindowWidth, Window::g_WindowHeight);
         glClearColor(0.10f, 0.10f, 0.10f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-    }
-
-    void Renderer::destroy() {
-        fboManager.destroyFramebuffers();
-        if (m_Vao) {
-            glDeleteVertexArrays(1, &m_Vao);
-        }
-        m_Vao = 0;
     }
 }

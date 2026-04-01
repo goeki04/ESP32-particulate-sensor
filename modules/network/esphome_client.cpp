@@ -23,7 +23,7 @@ namespace Andromeda::Network {
         }
     }
 
-    void ESPHomeClient::handleResolve(asio::ip::tcp::resolver::results_type results) {
+    void ESPHomeClient::handleResolve(const asio::ip::tcp::resolver::results_type &results) {
         asio::async_connect(m_Socket, results,
             [this](const std::error_code& ec, const asio::ip::tcp::endpoint& endpoint) {
                 if (!ec) {

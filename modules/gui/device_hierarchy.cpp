@@ -1,7 +1,7 @@
 #include "panels.h"
 #include "gui_renderer.h"
 #include "a_components.hpp"
-#include "registry.h"
+#include "a_registry.hpp"
 void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
 {
     ImVec2 windowSize = ImVec2(guiRenderer.m_WidgetWidth, guiRenderer.m_WindowHeight * 0.55f);

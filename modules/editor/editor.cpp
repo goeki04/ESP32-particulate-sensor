@@ -1,12 +1,12 @@
 #include "a_graphics_base.hpp"
 #include "editor.hpp"
 #include "renderer.h"
-#include "window_manager.h"
+#include "window_manager.hpp"
 #include "scene.hpp"
 #include "resource_manager.h"
-#include "subsystem_manager.h"
+#include "a_subsystem_manager.hpp"
 #include "a_guiTypes.hpp"
-#include "registry.h"
+#include "a_registry.hpp"
 #include <a_event_manager.hpp>
 #include <iostream>
 namespace Andromeda {

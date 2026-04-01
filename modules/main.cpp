@@ -2,8 +2,8 @@
 #define SDL_MAIN_USE_CALLBACKS 1
 #endif
 #include <SDL3/SDL_main.h>
-#include "subsystem_manager.h"
-#include "window_manager.h"
+#include "a_subsystem_manager.hpp"
+#include "window_manager.hpp"
 #include "input/input_manager.hpp"
 #include "resource/resource_manager.h"
 #include "renderer/renderer.h"

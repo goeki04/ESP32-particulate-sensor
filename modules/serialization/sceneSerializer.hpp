@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
-#include <nlohmann/json.hpp>
-#include "registry.h"
+#include "a_registry.hpp"
 namespace Andromeda {
 	class SceneSerializer{
 	public:

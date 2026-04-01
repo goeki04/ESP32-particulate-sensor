@@ -28,6 +28,7 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
         }
 
         if (ImGui::BeginMenu("Documentation")) {
+            ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("Options"))
@@ -49,7 +50,7 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
                 guiRenderer.OpenURL("https://github.com/goeki04/ESP32-particulate-sensor");
             }
             if (ImGui::MenuItem("Version")) {
-                guiRenderer.m_ShowVersion = true;
+                Andromeda::Gui::GuiRenderer::m_ShowVersion = true;
             }
             ImGui::EndMenu();
         }
@@ -73,13 +74,13 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
             networkConsole.draw("Console", &guiRenderer.m_ConsoleOpen);
         }
         ImGui::PopStyleVar();
-        if (guiRenderer.m_ShowVersion) {
+        if (Andromeda::Gui::GuiRenderer::m_ShowVersion) {
             ImGui::SetNextWindowSize(ImVec2(guiRenderer.m_WidgetWidth, guiRenderer.m_WidgetWidth), ImGuiCond_FirstUseEver);
-            ImGui::Begin("Version", &guiRenderer.m_ShowVersion, guiRenderer.m_WindowFlags);
+            ImGui::Begin("Version", &Andromeda::Gui::GuiRenderer::m_ShowVersion, guiRenderer.m_WindowFlags);
             ImGui::TextUnformatted("App version: V1.0.0");
-            std::string osName = "OS: " + std::string(ANDROMEDA_OS);
+            const std::string osName = "OS: " + std::string(ANDROMEDA_OS);
             ImGui::TextUnformatted(osName.c_str());
-            std::string arch = "Arch: " + std::string(ANDROMEDA_ARCH);
+            const std::string arch = "Arch: " + std::string(ANDROMEDA_ARCH);
             ImGui::TextUnformatted(arch.c_str());
             ImGui::TextUnformatted("Dev: Goekdeniz Koeksal");
             ImGui::TextUnformatted(guiRenderer.m_ImguiVersion.c_str());
@@ -87,7 +88,7 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
             int major = SDL_MAJOR_VERSION;
             int minor = SDL_MINOR_VERSION;
             int patch = SDL_MICRO_VERSION;
-            std::string sdlVersion = std::format("SDL {}.{}.{}", major, minor, patch);
+            const std::string sdlVersion = std::format("SDL {}.{}.{}", major, minor, patch);
             ImGui::TextUnformatted(sdlVersion.c_str());
             ImGui::End();
         }

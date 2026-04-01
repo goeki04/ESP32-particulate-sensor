@@ -11,25 +11,25 @@ namespace Andromeda {
         glBindVertexArray(glMesh.vao);
         glBindBuffer(GL_ARRAY_BUFFER, glMesh.vbo);
         glBufferData(GL_ARRAY_BUFFER,
-            mesh.m_Vertexbuffer.size() * sizeof(Vertex),
+            mesh.m_Vertexbuffer.size() * sizeof(Vertex), // NOLINT(*-narrowing-conversions)
             mesh.m_Vertexbuffer.empty() ? nullptr : mesh.m_Vertexbuffer.data(),
             GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glMesh.ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-            mesh.m_Indexbuffer.size() * sizeof(unsigned int),
+            mesh.m_Indexbuffer.size() * sizeof(u32), // NOLINT(*-narrowing-conversions)
             mesh.m_Indexbuffer.empty() ? nullptr : mesh.m_Indexbuffer.data(),
             GL_STATIC_DRAW);
         //positions
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), static_cast<void *>(nullptr));
         //normals
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, normal)));
         //texCoords
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, uv)));
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, color)));
         glBindVertexArray(0);
     }
 }

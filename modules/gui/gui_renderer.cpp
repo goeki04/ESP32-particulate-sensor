@@ -3,7 +3,7 @@
 #include "panels.h"
 #include <stdexcept>
 #include <algorithm>
-#include "window_manager.h"
+#include "window_manager.hpp"
 #include <filesystem>
 namespace Andromeda::Gui {
     ImVec2 Gui::GuiRenderer::s_ViewportSize = ImVec2(0.0f, 0.0f);

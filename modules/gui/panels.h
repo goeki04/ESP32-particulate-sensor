@@ -13,5 +13,5 @@ namespace Andromeda::Gui::Panels {
 	void deviceBrowserPicking(GuiRenderer& guiRenderer, const amath::CameraData* cam, ECS::ComponentRegistry* registry);
 	void drawDeviceBrowser(GuiRenderer& guiRenderer);
 	void drawDetails(GuiRenderer& guiRenderer);
-	void drawViewportGUI(GuiRenderer& guiRenderer, ViewportDrawInfo& drawInfo);
+	void drawViewportGUI(GuiRenderer& guiRenderer, const ViewportDrawInfo& drawInfo);
 }

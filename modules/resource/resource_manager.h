@@ -32,7 +32,7 @@ namespace Andromeda {
 
         // --- Subsystem Interface ---
         static constexpr std::string_view GetStaticName() { return "ResourceManager"; }
-        const char* getSubsystemName() const override { return GetStaticName().data(); }
+        [[nodiscard]] const char* getSubsystemName() const override { return GetStaticName().data(); }
 
         void updateEvent(SDL_Event* event) override;
         void start() override;
@@ -51,29 +51,30 @@ namespace Andromeda {
         /**
          * @brief Resolves a device type based on its icon's string name.
          */
-        deviceType findDeviceIcon(std::string iconName);
+        static deviceType findDeviceIcon(const std::string &iconName);
 
         // --- Resource Accessors (Mesh & Shaders) ---
-        u32 getMeshVaoByID(uint32_t meshID) const;
-        u32 getMeshIndexSizeByID(uint32_t meshID) const;
-        const Mesh& getMeshByID(uint32_t meshID) const;
+        [[nodiscard]] u32 getMeshVaoByID(uint32_t meshID) const;
+        [[nodiscard]] u32 getMeshIndexSizeByID(uint32_t meshID) const;
+        [[nodiscard]] const Mesh& getMeshByID(uint32_t meshID) const;
 
-        MaterialShader* getMaterialShaderByID(MaterialShaderType t) const;
-        ProceduralShader* getProceduralShaderByID(ProceduralShaderType t) const;
-        PostProcessShader* getPostprocessShaderByID(PostProcessShaderType t) const;
+        [[nodiscard]] MaterialShader* getMaterialShaderByID(MaterialShaderType t) const;
+        [[nodiscard]] ProceduralShader* getProceduralShaderByID(ProceduralShaderType t) const;
+        [[nodiscard]] PostProcessShader* getPostprocessShaderByID(PostProcessShaderType t) const;
 
         // Wrapper function for getting the amount of recorded devices
-        u32 getDeviceRecordsSize() const;
-        const std::unordered_map<uint32_t, Device>& getDeviceRecords() const;
+        [[nodiscard]] u32 getDeviceRecordsSize() const;
+        [[nodiscard]] const std::unordered_map<uint32_t, Device>& getDeviceRecords() const;
 
         /**
          * @brief Utility to create an OpenGL texture from a file path.
          */
-        GLtexture CreateOpenGLTexture(const char* path);
+        static GLtexture CreateOpenGLTexture(const char* path);
 
-        u32 getDeviceCount() const override;
-        const Device& getDeviceData(u32 index) const override;
-        virtual u32 getDeviceIconID(deviceType type) const;
+        [[nodiscard]] u32 getDeviceCount() const override;
+        [[nodiscard]] const Device& getDeviceData(u32 index) const override;
+
+        [[nodiscard]] u32 getDeviceIconID(deviceType type) const override;
 
     private:
         /// Internal storage for device metadata
@@ -112,7 +113,7 @@ namespace Andromeda {
         // --- Internal Model Loading (Assimp Integration) ---
 
         void setupMeshes();
-        void processNode(const uint32_t meshId, const aiScene* scene, aiNode* node);
+        void processNode(uint32_t meshId, const aiScene* scene, aiNode* node);
         void loadScene(const std::string& path);
     };
 }

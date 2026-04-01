@@ -19,13 +19,13 @@ namespace Andromeda::Gui::Panels {
         const float spacingX = style.ItemSpacing.x;
         const float spacingY = style.ItemSpacing.y;
 
-        int perRow = (int)floor((availX + spacingX) / (tileSize.x + spacingX));
+        int perRow = static_cast<i32>(floor((availX + spacingX) / (tileSize.x + spacingX)));
         if (perRow < 1) perRow = 1;
         assert(guiRenderer.m_DeviceProvider && "DeviceProvider is nullptr in guiRenderer.cpp");
-        const int itemCount = guiRenderer.m_DeviceProvider->getDeviceCount();
+        const u32 itemCount = guiRenderer.m_DeviceProvider->getDeviceCount();
         bool any_tile_clicked = false;
 
-        for (int idx = 0; idx < itemCount; ++idx)
+        for (i32 idx = 0; idx < itemCount; ++idx)
         {
             const auto& deviceRecord = guiRenderer.m_DeviceProvider->getDeviceData(idx);
             u32 texID = guiRenderer.m_DeviceProvider->getDeviceIconID(deviceRecord.type);
@@ -57,27 +57,26 @@ namespace Andromeda::Gui::Panels {
                 dl->AddRectFilled(tileMin, tileMax, IM_COL32(41, 46, 66, 255), 4.0f);
             }
             else {
-                dl->AddImage((ImTextureID)(intptr_t)texID, tileMin, tileMax);
+                dl->AddImage(static_cast<ImTextureID>(static_cast<intptr_t>(texID)), tileMin, tileMax);
             }
             if (dragged && active) {
-                glm::vec3 hitpoint;
-                guiRenderer.m_HasLastHitpoint = false;
+                Andromeda::Gui::GuiRenderer::m_HasLastHitpoint = false;
                 
-                if (cameraData->hasValidPickRay && amath::RayIntersectsXZPlane(cameraData->cursorToWorldRay, 0.0f, hitpoint)) {
-                    guiRenderer.m_LastHitPoint = hitpoint;
-                    guiRenderer.m_HasLastHitpoint = true;
+                if (glm::vec3 hitpoint; cameraData->hasValidPickRay && amath::RayIntersectsXZPlane(cameraData->cursorToWorldRay, 0.0f, hitpoint)) {
+                    Andromeda::Gui::GuiRenderer::m_LastHitPoint = hitpoint;
+                    Andromeda::Gui::GuiRenderer::m_HasLastHitpoint = true;
                 }
                 
                 ImDrawList* fg = ImGui::GetForegroundDrawList();
                 ImVec2 tileSizeDragged = tileSize * 0.75f;
                 ImVec2 tMin = ImGui::GetMousePos() - tileSizeDragged * 0.5f;
-                ImVec2 tMax = ImVec2(tMin + tileSizeDragged);
-                fg->AddImage((ImTextureID)(intptr_t)texID, tMin, tMax);
+                auto tMax = ImVec2(tMin + tileSizeDragged);
+                fg->AddImage(static_cast<ImTextureID>(static_cast<intptr_t>(texID)), tMin, tMax);
             }
             
-            if (dragEnded && cameraData->hasValidPickRay && guiRenderer.m_HasLastHitpoint) {
+            if (dragEnded && cameraData->hasValidPickRay && Andromeda::Gui::GuiRenderer::m_HasLastHitpoint) {
                 ECS::Component::Transform transform;
-                transform.position = guiRenderer.m_LastHitPoint;
+                transform.position = Andromeda::Gui::GuiRenderer::m_LastHitPoint;
                 guiRenderer.m_SceneManager->addEntity(deviceRecord.id, deviceRecord.name, transform);
             }
             if (hovered || active)
@@ -87,7 +86,7 @@ namespace Andromeda::Gui::Panels {
                 dl->AddRectFilled(tileMin, tileMax, IM_COL32(40, 120, 255, 80), 4.0f);
                 dl->AddRect(tileMin, tileMax, IM_COL32(40, 120, 255, 200), 4.0f, 0, 2.0f);
 
-                const float glow = 3.0f;
+                constexpr float glow = 3.0f;
                 dl->AddRect(tileMin - ImVec2(glow, glow),
                     tileMax + ImVec2(glow, glow),
                     IM_COL32(40, 120, 255, 90),
@@ -98,8 +97,7 @@ namespace Andromeda::Gui::Panels {
             float textY = tileMax.y + spacingY;
             dl->AddText(ImVec2(textX, textY), ImGui::GetColorU32(ImGuiCol_Text), label);
 
-            int col = idx % perRow;
-            if (col != perRow - 1)
+            if (int col = idx % perRow; col != perRow - 1)
                 ImGui::SameLine(0.0f, spacingX);
 
             ImGui::PopID();
@@ -116,19 +114,17 @@ namespace Andromeda::Gui::Panels {
 
     void drawDeviceBrowser(GuiRenderer& guiRenderer)
     {
-        ImVec2 windowSize = ImVec2
-        (guiRenderer.m_WindowWidth - guiRenderer.m_MarginDefault * 2 - 2 * guiRenderer.m_WidgetWidth - 100,
-            guiRenderer.m_WindowHeight * 0.35f);
+        const auto windowSize = ImVec2
+        (static_cast<float>(guiRenderer.m_WindowWidth) - guiRenderer.m_MarginDefault * 2 - 2 * guiRenderer.m_WidgetWidth - 100,
+         static_cast<float>(guiRenderer.m_WindowHeight) * 0.35f);
 
-        ImVec2 newPos = guiRenderer.getNewWindowPos
+        const ImVec2 newPos = guiRenderer.getNewWindowPos
         (Margin(guiRenderer.m_MarginDefault, 0, guiRenderer.m_MarginDefault, 0),
             windowSize, Alignment::CenterBottom);
 
-        float windowPadding = windowSize.x * 0.1f;
         ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
-        if (ImGui::Begin("Device Browser", 0, guiRenderer.m_WindowFlags)){
-            ImVec2 widgetSize = ImVec2(140, 0);
+        if (ImGui::Begin("Device Browser", nullptr, guiRenderer.m_WindowFlags)){
             deviceBrowserPicking(guiRenderer,guiRenderer.m_Cam);
             ImGui::End();
         }   

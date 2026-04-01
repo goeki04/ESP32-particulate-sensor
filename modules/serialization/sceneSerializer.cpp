@@ -7,8 +7,8 @@ namespace Andromeda {
 	bool SceneSerializer::save(const std::string& filepath, ECS::ComponentRegistry& registry)
 	{
 		nlohmann::json root;
-		for (const auto& [typeIndex, poolPtr] : registry.m_Pools) {
-			std::string typeName = poolPtr->getTypeName();
+		for (const auto &poolPtr: registry.m_Pools | std::views::values) {
+			const std::string typeName = poolPtr->getTypeName();
 			root[typeName] = poolPtr->serializePool();
 		}
 		std::ofstream file(filepath);
@@ -27,19 +27,19 @@ namespace Andromeda {
         file >> root;
         ECS::Entity maxID = 0;
 
-        std::string transformName = typeid(ECS::Component::Transform).name();
+        const std::string transformName = typeid(ECS::Component::Transform).name();
         if (root.contains(transformName)) {
             auto& pool = registry.getPool<ECS::Component::Transform>();
             pool.deserializePool(root[transformName]);
-            for (auto id : pool.getEntities()) if (id > maxID) maxID = id;
+            for (const auto id : pool.getEntities()) if (id > maxID) maxID = id;
         }
-        std::string tagName = typeid(ECS::Component::Tag).name();
+        const std::string tagName = typeid(ECS::Component::Tag).name();
         if (root.contains(tagName)) {
             auto& pool = registry.getPool<ECS::Component::Tag>();
             pool.deserializePool(root[tagName]);
-            for (auto id : pool.getEntities()) if (id > maxID) maxID = id;
+            for (const auto id : pool.getEntities()) if (id > maxID) maxID = id;
         }
-        std::string meshName = typeid(ECS::Component::Mesh).name();
+        const std::string meshName = typeid(ECS::Component::Mesh).name();
         if (root.contains(meshName)) {
             auto& pool = registry.getPool<ECS::Component::Mesh>();
             pool.deserializePool(root[meshName]);
