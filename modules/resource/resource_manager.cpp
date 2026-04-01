@@ -49,7 +49,7 @@ namespace Andromeda {
         }
     }
 
-    deviceType ResourceManager::findDeviceIcon(std::string iconName) {
+    deviceType ResourceManager::findDeviceIcon(const std::string &iconName) {
         for (auto& v : Filesystem::m_DirectoryNames) {
             if (v.first.find(iconName) != std::string::npos) {
                 return v.second;
@@ -76,20 +76,20 @@ namespace Andromeda {
 
     MaterialShader* ResourceManager::getMaterialShaderByID(MaterialShaderType t) const
     {
-        return m_MaterialShaders[(int)t].get();
+        return m_MaterialShaders[static_cast<int>(t)].get();
     }
 
     ProceduralShader* ResourceManager::getProceduralShaderByID(ProceduralShaderType t) const
     {
-        return m_ProceduralShaders[(int)t].get();
+        return m_ProceduralShaders[static_cast<int>(t)].get();
     }
 
     PostProcessShader* ResourceManager::getPostprocessShaderByID(PostProcessShaderType t) const
     {
-        return m_PostProcessShaders[(int)t].get();
+        return m_PostProcessShaders[static_cast<int>(t)].get();
     }
 
-    const Mesh& ResourceManager::getMeshByID(uint32_t meshID) const
+    const Mesh& ResourceManager::getMeshByID(const uint32_t meshID) const
     {
         return m_DeviceRecords.at(meshID).mesh;
     }
@@ -224,7 +224,7 @@ namespace Andromeda {
         }
 
         const uint32_t id = m_NextMeshID++;
-        deviceType dt = Filesystem::findDeviceTypeByPath(path);
+        const deviceType dt = Filesystem::findDeviceTypeByPath(path);
 
         auto [it, inserted] = m_DeviceRecords.try_emplace(
             id,

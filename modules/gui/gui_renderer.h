@@ -2,7 +2,7 @@
 #include "a_graphics_base.hpp"
 #include <vector>
 #include <string>
-#include "registry.h"
+#include "a_registry.hpp"
 #include "a_math.hpp"
 #include "a_guiTypes.hpp"
 class IDeviceProvider;

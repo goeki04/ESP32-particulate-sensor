@@ -6,7 +6,7 @@
 #include "a_primitives.hpp"
 namespace Andromeda {
 	namespace amath {
-		class CameraData;
+		struct CameraData;
 	}
 	class SceneManager;
 	enum class MaterialShaderType : int;
@@ -29,21 +29,25 @@ namespace Andromeda {
 		}
 		void start() override;
 		void update() override;
-		void drawMesh(const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform);
-		void drawMesh(const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform, MaterialShaderType type);
+		void drawMesh(const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform) const;
+		void drawMesh(const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform, MaterialShaderType type) const;
 		void destroy() override;
 		void SetActiveCamera(amath::CameraData* camData);
-		void geometryPass();
+		void geometryPass() const;
 		u32 getFinalSceneViewportTexture() const;
 		void onViewportResize(ivec2 newSize);
 		void processResizeTimer();
-		void selectionPass();
-		void postprocessingPass();
-		void scenePassBegin();
-		void proceduralPass();
-		void pickingPass(const amath::CameraData* cam);
-		void scenePassEndResolve();
-		void windowClearPass();
+		void selectionPass() const;
+		void postprocessingPass() const;
+
+		void scenePassBegin() const;
+
+		void proceduralPass() const;
+
+		static void pickingPass(const amath::CameraData* cam);
+		void scenePassEndResolve() const;
+
+		static void windowClearPass();
 	private:
 		ResourceManager* m_ResourceManager = nullptr;
 		SceneManager* m_SceneManager = nullptr;

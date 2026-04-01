@@ -9,7 +9,7 @@ namespace Andromeda {
         glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer);
         glGenTextures(1, &m_FramebufferTexture);
         glBindTexture(GL_TEXTURE_2D, m_FramebufferTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, framebufferSize.x, framebufferSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, framebufferSize.x, framebufferSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FramebufferTexture, 0);
@@ -25,12 +25,12 @@ namespace Andromeda {
         glBindFramebuffer(GL_FRAMEBUFFER, m_MsaaFramebuffer);
         glGenTextures(1, &m_MsaaFramebufferTexture);
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_MsaaFramebufferTexture);
-        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, framebufferSize.x, framebufferSize.y, GL_TRUE);
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, static_cast<GLsizei>(samples), GL_RGB, framebufferSize.x, framebufferSize.y, GL_TRUE);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_MsaaFramebufferTexture, 0);
 
         glGenRenderbuffers(1, &m_Rendererbuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, m_Rendererbuffer);
-        glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, framebufferSize.x, framebufferSize.y);
+        glRenderbufferStorageMultisample(GL_RENDERBUFFER, static_cast<GLsizei>(samples), GL_DEPTH24_STENCIL8, framebufferSize.x, framebufferSize.y);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Rendererbuffer);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -44,7 +44,7 @@ namespace Andromeda {
 
         glGenTextures(1, &m_SelectionTexture);
         glBindTexture(GL_TEXTURE_2D, m_SelectionTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, framebufferSize.x, framebufferSize.y, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, framebufferSize.x, framebufferSize.y, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_SelectionTexture, 0);

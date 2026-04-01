@@ -3,8 +3,8 @@ find_package(stb REQUIRED)
 find_package(glew REQUIRED)
 find_package(imgui REQUIRED)
 add_library(core STATIC
-    subsystem_manager.cpp
-    window_manager.cpp
+        a_subsystem_manager.cpp
+        window_manager.cpp
     )
 
 target_include_directories(core PUBLIC .)

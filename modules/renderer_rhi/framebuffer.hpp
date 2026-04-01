@@ -9,11 +9,11 @@ namespace Andromeda {
 		u32 m_SelectionFramebuffer = 0, m_SelectionTexture = 0;
 		u32 m_PostprocessFramebuffer = 0, m_PostprocessTexture = 0;
 		u32 m_Rendererbuffer = 0;
-		void createSceneFbo(const ivec2 framebufferSize);
-		void createMSAAFbo(const ivec2 framebufferSize,const u32 samples);
-		void createSelectionFBO(const ivec2 framebufferSize);
-		void createPostprocessFBO(const ivec2 framebufferSize);
-		void createFramebuffers(const ivec2 framebufferSize, const u32 samples);
+		void createSceneFbo(ivec2 framebufferSize);
+		void createMSAAFbo(ivec2 framebufferSize, u32 samples);
+		void createSelectionFBO(ivec2 framebufferSize);
+		void createPostprocessFBO(ivec2 framebufferSize);
+		void createFramebuffers(ivec2 framebufferSize, u32 samples);
 		void destroyFramebuffers();
 	};
 }

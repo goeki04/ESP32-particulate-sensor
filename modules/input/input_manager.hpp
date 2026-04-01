@@ -7,12 +7,13 @@ namespace Andromeda {
 	class InputSystem : public ISubsystem {
 		//std::unordered_map<SDL_Event, Keycode> m_KeyMap;
 		static constexpr std::string_view GetStaticName() { return "InputSystem"; }
-		const char* getSubsystemName() const override {
+		[[nodiscard]] const char* getSubsystemName() const override {
 			return GetStaticName().data();
 		}
 
 		void updateEvent(SDL_Event* event) override;
-		Keycode sdlKeyToAndromeda(const SDL_Event& e);
+
+		static Keycode sdlKeyToAndromeda(const SDL_Event& e);
 		MouseCode sdlMouseBtnToAndromeda(const SDL_Event& e);
 	};
 }

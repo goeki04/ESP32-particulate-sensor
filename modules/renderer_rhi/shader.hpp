@@ -5,7 +5,6 @@
 #include "a_math.hpp"
 #include <GL/glew.h>
 namespace Andromeda {
-	class amath::CameraData;
 	/**
 	 * @brief Base class for GLSL Shader Programs.
 	 * Manages shader compilation, linking, and provides an optimized interface
@@ -33,13 +32,13 @@ namespace Andromeda {
 		void setMat4x4(const char* uniformName, const mat4& matrix);
 		void setVec3(const char* uniformName, const vec3& vector);
 		void setVec2(const char* uniformName, const vec2& vector);
-		void setFloat(const char* uniformName, const float floatVal);
-		void setInt(const char* uniformName, const i32 intValue);
+		void setFloat(const char* uniformName,float floatVal);
+		void setInt(const char* uniformName, i32 intValue);
 		void setTexture(const char* uniformName, u32 textureID, u32 slot);
 		/**
 		 * @brief Reads shader source code from the provided file path.
 		 */
-		std::string readShaderSource(const char* shaderPath);
+		static std::string readShaderSource(const char* shaderPath);
 		/**
 		 * @brief Compiles vertex/fragment stages and links them into the final GPU program.
 		 */
@@ -82,7 +81,8 @@ namespace Andromeda {
 		PostProcessShader(const char* vertexPath, const char* fragmentPath)
 			: Shader(vertexPath, fragmentPath) {
 		};
-		virtual ~PostProcessShader() = default;
+
+		~PostProcessShader() override = default;
 	};
 	/**
 	 * @brief Specialized shader for 3D geometry that requires a model matrix.
@@ -91,7 +91,8 @@ namespace Andromeda {
 	public:
 		MaterialShader(const char* vertexPath, const char* fragmentPath) : Shader(vertexPath, fragmentPath) {
 		}
-		virtual ~MaterialShader() = default;
+
+		~MaterialShader() override = default;
 		virtual void setUniforms(const amath::CameraData* cam, const mat4& modelMatrix) = 0;
 	};
 
@@ -103,7 +104,8 @@ namespace Andromeda {
 	public:
 		ProceduralShader(const char* vertexPath, const char* fragmentPath) : Shader(vertexPath, fragmentPath) {
 		}
-		virtual ~ProceduralShader() = default;
+
+		~ProceduralShader() override = default;
 		virtual void setUniforms(const amath::CameraData* cam) = 0;
 
 	};
@@ -122,8 +124,8 @@ namespace Andromeda {
 	 */
 	class LitShader : public MaterialShader {
 	public:
-		DirLight m_DirLight;
-		vec3 m_AmbientLight;
+		DirLight m_DirLight{};
+		vec3 m_AmbientLight{};
 		LitShader(const char* vertexPath, const char* fragmentPath) : MaterialShader(vertexPath, fragmentPath) {
 			m_DirLight.color = vec3(1.0f, 1.0f, 1.0f);
 			m_DirLight.direction = vec3(1.0f, 1.0f, 0.5f);

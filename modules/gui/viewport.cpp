@@ -2,17 +2,17 @@
 #include "panels.h"
 #include "a_math.hpp"
 #include "gui_renderer.h"
-void Andromeda::Gui::Panels::drawViewportGUI(GuiRenderer& guiRenderer,ViewportDrawInfo& drawInfo)
+void Andromeda::Gui::Panels::drawViewportGUI(GuiRenderer& guiRenderer, const ViewportDrawInfo& drawInfo)
 {
-    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+    constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
     guiRenderer.m_ViewportPos = guiRenderer.getViewportWindowPos();
-    vec2 vpSize = guiRenderer.getViewportWindowSize();
-    ImVec2 viewportSize = ImVec2(vpSize.x,vpSize.y);
+    const vec2 vpSize = guiRenderer.getViewportWindowSize();
+    const auto viewportSize = ImVec2(vpSize.x,vpSize.y);
     ImGui::SetNextWindowPos(guiRenderer.m_ViewportPos, ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(viewportSize, ImGuiCond_FirstUseEver);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("Viewport", 0, windowFlags);
-    ImVec2 currentSize = ImGui::GetContentRegionAvail();
+    ImGui::Begin("Viewport", nullptr, windowFlags);
+    const ImVec2 currentSize = ImGui::GetContentRegionAvail();
     GuiRenderer::s_ViewportSize = currentSize;
     assert(drawInfo.camData && "drawInfo.camData is nullptr in Andromeda::Gui::Panels::drawViewportGui");
     if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
@@ -27,7 +27,7 @@ void Andromeda::Gui::Panels::drawViewportGUI(GuiRenderer& guiRenderer,ViewportDr
    
     drawInfo.camData->imGuiMouseX = -1.0f;
     drawInfo.camData->imGuiMouseY = -1.0f;
-    ImGui::Image((void*)(intptr_t)drawInfo.postProcessingFboTexture, currentSize, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void*)static_cast<intptr_t>(drawInfo.postProcessingFboTexture), currentSize, ImVec2(0, 1), ImVec2(1, 0));
 
     ImVec2 rectMin = ImGui::GetItemRectMin();
     ImVec2 rectMax = ImGui::GetItemRectMax();

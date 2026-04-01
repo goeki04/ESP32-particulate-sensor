@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "subsystem_manager.h"
-#include "window_manager.h"
+#include "a_subsystem_manager.hpp"
+#include "window_manager.hpp"
 #include "editor.hpp"
 #include "resource_manager.h"
 #include "renderer.h"

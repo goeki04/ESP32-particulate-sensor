@@ -73,8 +73,8 @@ namespace Andromeda {
             static_assert(requires { T::GetStaticType(); },
                 "Event struct must implement 'static constexpr EventType GetStaticType()'");
 
-            size_t id = m_NextID++;
-            EventType type = T::GetStaticType();
+            const size_t id = m_NextID++;
+            const EventType type = T::GetStaticType();
 
             auto wrapper = [handle = std::forward<F>(handle)](const IEvent& e) {
                 handle(static_cast<const T&>(e));
@@ -92,7 +92,7 @@ namespace Andromeda {
          * @param event The event data object.
          */
         void Dispatch(const EventType& type, const IEvent& event) {
-            auto it = m_Events.find(type);
+            const auto it = m_Events.find(type);
             if (it == m_Events.end()) return;
 
             m_DispatchLevel++;
@@ -118,7 +118,7 @@ namespace Andromeda {
          * * @param handle The ID object returned by AddEventListener.
          */
         void RemoveEventListener(EventListenerID handle) {
-            auto it = m_Events.find(handle.type);
+            const auto it = m_Events.find(handle.type);
             if (it == m_Events.end()) return;
 
             if (m_DispatchLevel > 0) {

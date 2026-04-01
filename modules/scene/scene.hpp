@@ -1,5 +1,5 @@
 #pragma once
-#include "registry.h"
+#include "a_registry.hpp"
 #include <string>
 #include "a_ISubsystem.hpp"
 #include "a_math.hpp"
