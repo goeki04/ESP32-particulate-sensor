@@ -1,2 +1,3 @@
 ﻿conan install . -s compiler.cppstd=20 -s build_type=Debug -of conan/ --build=missing -c tools.cmake.cmaketoolchain:generator=Ninja
 conan install . -s compiler.cppstd=20 -s build_type=Release -of conan/ --build=missing -c tools.cmake.cmaketoolchain:generator=Ninja
+Read-Host "Press Enter to close"
