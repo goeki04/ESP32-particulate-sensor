@@ -76,20 +76,18 @@ namespace Andromeda {
             errorMsg += T::GetStaticName(); // Expects a static GetStaticName() method in T
             throw std::runtime_error(errorMsg);
         }
-
-    private:
-        /// Private constructor for singleton pattern
-        SystemManager() {};
-
-        /// Destructor clearing the subsystem list
-        ~SystemManager() {
-            m_Subsystems.clear();
-        };
-
         /// Deleted copy constructor to prevent multiple instances
         SystemManager(const SystemManager&) = delete;
 
         /// Deleted assignment operator to prevent multiple instances
         SystemManager& operator=(const SystemManager&) = delete;
+    private:
+        /// Private constructor for singleton pattern
+        SystemManager() = default;
+
+        /// Destructor clearing the subsystem list
+        ~SystemManager() {
+            m_Subsystems.clear();
+        };
     };
 }

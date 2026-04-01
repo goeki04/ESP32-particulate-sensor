@@ -7,3 +7,4 @@ build/
 *.obj
 *.exe
 .idea/
+.venv/

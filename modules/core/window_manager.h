@@ -15,6 +15,6 @@ namespace Andromeda::Window {
 			return GetStaticName().data();
 		}
 	private:
-		SDL_Surface* CreateSDLSurface(const char* path);
+		static SDL_Surface* CreateSDLSurface(const char* path);
 	};
 }

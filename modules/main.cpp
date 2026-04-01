@@ -1,4 +1,3 @@
-
 #ifndef SDL_MAIN_USE_CALLBACKS
 #define SDL_MAIN_USE_CALLBACKS 1
 #endif
