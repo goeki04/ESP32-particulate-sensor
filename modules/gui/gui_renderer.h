@@ -7,21 +7,22 @@
 #include "a_guiTypes.hpp"
 class IDeviceProvider;
 class SceneManager;
-namespace Andromeda {
-    class amath::CameraData;
+namespace Andromeda::amath {
+    struct CameraData;
 }
+
 inline ImVec2 operator+(const ImVec2& a, const ImVec2& b) {
-    return ImVec2(a.x + b.x, a.y + b.y);
+    return {a.x + b.x, a.y + b.y};
 }
 inline ImVec2 operator-(const ImVec2& a, const ImVec2& b) {
-    return ImVec2(a.x - b.x, a.y - b.y);
+    return {a.x - b.x, a.y - b.y};
 }
 inline bool operator==(const ImVec2& a, const ImVec2& b) {
     if (a.x == b.x && a.y == b.y) return true;
     return false;
 }
 inline ImVec2 operator*(const ImVec2& a, const float b) {
-    return ImVec2(a.x * b, a.y * b);
+    return {a.x * b, a.y * b};
 }
 namespace Andromeda::Gui {
 
@@ -43,7 +44,7 @@ namespace Andromeda::Gui {
         
         void loadFont();
         vec2 getViewportWindowSize();
-        int m_CurrentSelectedID = 0;
+        u32 m_CurrentSelectedID = 0;
         static vec3 m_LastHitPoint;
         static bool m_HasLastHitpoint;
         amath::CameraData* m_Cam = nullptr;

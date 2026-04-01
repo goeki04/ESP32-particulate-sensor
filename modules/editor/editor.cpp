@@ -2,7 +2,7 @@
 #include "editor.hpp"
 #include "renderer.h"
 #include "window_manager.h"
-#include "Scene.hpp"
+#include "scene.hpp"
 #include "resource_manager.h"
 #include "subsystem_manager.h"
 #include "a_guiTypes.hpp"
@@ -17,15 +17,15 @@ namespace Andromeda {
         assert(m_Renderer && "m_Renderer is nullptr in Editor::Start()");
         m_SceneManager = SystemManager::getInstance().getSubsystem<SceneManager>();
         assert(m_SceneManager && "m_SceneManager is nullptr in Editor::Start()");
-        ResourceManager* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
+        auto* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
         assert(rm && "rm is nullptr in Editor::Start()");
-        EventManager::getInstance().AddEventListener<KeyDown>([this](const KeyDown& e) {
+        EventManager::getInstance().AddEventListener<KeyDown>([](const KeyDown& e) {
             if (e.keycode == Keycode::F)
                 std::cout << "key f pressed\n";
             });
         Gui::GuiRendererConfig guiConfig;
         guiConfig.cam = &m_SceneManager->m_EditorCamData;
-        guiConfig.glsl_version = m_Renderer->glsl_version;
+        guiConfig.glsl_version = Andromeda::Renderer::glsl_version;
         guiConfig.sdl_gl_context = Window::m_GlContext;
         guiConfig.registry = &m_SceneManager->m_Registry;
         guiConfig.window = Window::g_Window;
@@ -61,12 +61,12 @@ namespace Andromeda {
 
     inline bool Editor::RayIntersectAABB(const amath::CameraData& cam, const ECS::Component::AABB& aabb, const glm::mat4& modelMatrix)
     {
-        const amath::Ray& rayW = cam.cursorToWorldRay;
+        const auto&[origin, direction] = cam.cursorToWorldRay;
 
-        mat4 invModel = glm::inverse(modelMatrix);
+        const mat4 invModel = glm::inverse(modelMatrix);
 
-        vec3 o = glm::vec3(invModel * vec4(rayW.origin, 1.0f));
-        vec3 d = glm::normalize(vec3(invModel * vec4(rayW.direction, 0.0f)));
+        auto o = glm::vec3(invModel * vec4(origin, 1.0f));
+        vec3 d = glm::normalize(vec3(invModel * vec4(direction, 0.0f)));
 
         float tMin = 0.001f;
         float tMax = 1e30f;
@@ -95,15 +95,15 @@ namespace Andromeda {
     void Editor::editorPicking(const amath::CameraData* cam)
     {
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            auto& aabbPool = m_SceneManager->m_Registry.getPool<ECS::Component::AABB>();
-            auto& selectedPool = m_SceneManager->m_Registry.getPool<ECS::Component::Selected>();
-            std::vector<Entity> currentlySelected = selectedPool.getEntities();
-            for (Entity e : currentlySelected) {
+            const auto& aabbPool = m_SceneManager->m_Registry.getPool<ECS::Component::AABB>();
+            const auto& selectedPool = m_SceneManager->m_Registry.getPool<ECS::Component::Selected>();
+
+            for (const std::vector<Entity> currentlySelected = selectedPool.getEntities(); const Entity e : currentlySelected) {
                 m_SceneManager->m_Registry.getPool<ECS::Component::Selected>().removeEntity(e);
             }
             bool anyHit = false;
 
-            for (Entity e : aabbPool.getEntities()) {
+            for (const Entity e : aabbPool.getEntities()) {
                 ECS::EntityHandle handle = { e,&m_SceneManager->m_Registry };
                 if (!handle.has<ECS::Component::Transform>()) {
                     continue;
@@ -124,8 +124,7 @@ namespace Andromeda {
             }
         }
     }
-    amath::Ray Editor::cursorToWorldRay(const amath::CameraData& cam) const
-    {
+    amath::Ray Editor::cursorToWorldRay(const amath::CameraData& cam) {
         float x = (2.0f * cam.imGuiMouseX) / cam.framebufferSize.x - 1.0f;
         float y = 1.0f - (2.0f * cam.imGuiMouseY) / cam.framebufferSize.y;
         vec4 rayClip(x, y, -1.0f, 1.0f);
@@ -140,8 +139,7 @@ namespace Andromeda {
         return ray;
     }
     //call this function after m_EditorCamData has been initialized
-    void Editor::updateEditorCameraRay()
-    {
+    void Editor::updateEditorCameraRay() const {
         if (m_SceneManager->m_EditorCamData.hasValidPickRay) {
             m_SceneManager->m_EditorCamData.cursorToWorldRay = cursorToWorldRay(m_SceneManager->m_EditorCamData);
         }
@@ -157,9 +155,9 @@ namespace Andromeda {
             SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), false);
             return;
         }
-        
-        Uint32 mouseState = SDL_GetMouseState(NULL, NULL);
-        bool rightMouseDown = mouseState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT);
+
+        const Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
+        const bool rightMouseDown = mouseState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT);
         static bool wasRightMouseDown = false;
         if (rightMouseDown && !wasRightMouseDown) {
             ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -167,7 +165,7 @@ namespace Andromeda {
             SDL_GetMouseState(&cam.lastMouseX, &cam.lastMouseY);
             SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), true);
 
-            SDL_GetRelativeMouseState(NULL, NULL);
+            SDL_GetRelativeMouseState(nullptr, nullptr);
         }
         else if (!rightMouseDown && wasRightMouseDown) {
             ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -196,7 +194,7 @@ namespace Andromeda {
 
         cam.right = amath::normalize(amath::cross(cam.forward, glm::vec3(0.0f, 1.0f, 0.0f)));
 
-        const bool* keyboard = SDL_GetKeyboardState(NULL);
+        const bool* keyboard = SDL_GetKeyboardState(nullptr);
         glm::vec3 moveDir(0.0f);
 
         if (keyboard[SDL_SCANCODE_W]) moveDir += cam.forward;
@@ -213,21 +211,19 @@ namespace Andromeda {
         cam.viewMatrix = amath::lookAt(cam.cameraPos, cam.target, vec3(0.0f, 1.0f, 0.0f));
     }
 
-    vec3 Editor::getCameraPos(const amath::CameraData& cam) const
-    {
+    vec3 Editor::getCameraPos(const amath::CameraData& cam) {
         return cam.cameraPos;
     }
 
-    mat4 Editor::getViewMatrix(const amath::CameraData& cam) const
-    {
+    mat4 Editor::getViewMatrix(const amath::CameraData& cam) {
         return cam.viewMatrix;
     }
     void Editor::updatePickingRay(amath::CameraData& cam)
     {
-        ImVec2 mouse = ImGui::GetMousePos();
+        const ImVec2 mouse = ImGui::GetMousePos();
 
-        float localX = mouse.x - cam.viewportPos.x;
-        float localY = mouse.y - cam.viewportPos.y;
+        const float localX = mouse.x - cam.viewportPos.x;
+        const float localY = mouse.y - cam.viewportPos.y;
 
         if (localX < 0 || localY < 0 || localX >= cam.viewportSize.x || localY >= cam.viewportSize.y) {
             cam.hasValidPickRay = false;
@@ -241,7 +237,7 @@ namespace Andromeda {
         cam.cursorToWorldRay = cursorToWorldRay(cam);
     }
 
-    void Editor::zoom(amath::CameraData& cam,SDL_Event* event) {
+    void Editor::zoom(amath::CameraData& cam, const SDL_Event* event) {
         if (event->type == SDL_EVENT_MOUSE_WHEEL) {
             if (event->wheel.y > 0) {
                 cam.fov = std::clamp(cam.fov + 1, cam.fovMin, cam.fovMax);
@@ -253,8 +249,8 @@ namespace Andromeda {
         setProjectionMatrix(cam,cam.viewportSize.x, cam.viewportSize.y);
     }
 
-    void Editor::setProjectionMatrix(amath::CameraData& cam,float viewportSizeX, float viewportSizeY) const {
-        float aspect = (viewportSizeY > 0) ? (viewportSizeX / viewportSizeY) : 1.0f;
+    void Editor::setProjectionMatrix(amath::CameraData& cam,float viewportSizeX, float viewportSizeY) {
+        const float aspect = (viewportSizeY > 0) ? (viewportSizeX / viewportSizeY) : 1.0f;
         cam.projection = amath::perspective(amath::radians(cam.fov), aspect, 0.1f, 100.0f);
     }
 

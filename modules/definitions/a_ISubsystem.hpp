@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * @file ISubsystem.h
+ * @file a_ISubsystem.hpp
  * @brief Base interface for all Andromeda engine modules.
  */
 

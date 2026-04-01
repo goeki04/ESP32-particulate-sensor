@@ -16,9 +16,9 @@ namespace Andromeda {
 		} };
 		
 		inline void stringToLower(std::string& data) {
-				std::transform(data.begin(), data.end(), data.begin(),
-					[](unsigned char c) {return std::tolower(c);
-					});
+				std::ranges::transform(data, data.begin(),
+				                       [](const unsigned char c) {return std::tolower(c);
+				                       });
 		}
 		deviceType findDeviceTypeByPath(const std::string& path);
 		std::vector<std::string> getAllFilesInDirectoryRecursive(const std::string& directory, std::span<const std::string> filter);

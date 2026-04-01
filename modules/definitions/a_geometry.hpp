@@ -1,8 +1,6 @@
 #pragma once
 #include <vector>
-#include <glm/glm.hpp>          
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <glm/glm.hpp>
 #include "a_components.hpp"
 #include "a_primitives.hpp"
 #include <stdexcept>
@@ -56,7 +54,7 @@ namespace Andromeda {
          * @return Calculated AABB component.
          * @throws std::runtime_error if the vertex buffer is empty.
          */
-        ECS::Component::AABB getAABB() const
+        [[nodiscard]] ECS::Component::AABB getAABB() const
         {
             if (m_Vertexbuffer.empty())
                 throw std::runtime_error("Mesh has no vertices");

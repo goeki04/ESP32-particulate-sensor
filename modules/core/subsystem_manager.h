@@ -38,23 +38,23 @@ namespace Andromeda {
         /**
          * @brief Initializes all registered subsystems. Should be called once at engine start.
          */
-        void startSubsystems();
+        void startSubsystems() const;
 
         /**
          * @brief Updates all registered subsystems. Should be called every frame.
          */
-        void updateSubsystems();
+        void updateSubsystems() const;
 
         /**
          * @brief Passes SDL events to all subsystems that require event handling.
          * @param event Pointer to the current SDL_Event.
          */
-        void updateEvent(SDL_Event* event);
+        void updateEvent(SDL_Event* event) const;
 
         /**
          * @brief Cleans up and shuts down all subsystems.
          */
-        void destroy();
+        void destroy() const;
 
         /**
          * @brief Retrieves a specific subsystem by its type.

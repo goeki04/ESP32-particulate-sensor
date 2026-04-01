@@ -2,7 +2,7 @@
 
 /**
  * @namespace glm
- * @brief Extension of the glm namespace to support nlohmann::json serialization.
+ * @brief Extension of the glm namespace to support nlohmann::JSON serialization.
  */
 namespace glm {
     /** @brief vec3 to JSON array conversion. */
