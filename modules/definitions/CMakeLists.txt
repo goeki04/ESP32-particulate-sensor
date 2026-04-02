@@ -13,7 +13,9 @@ add_custom_command(
     VERBATIM
 )
 add_custom_target(generate_ecs_components DEPENDS ${GEN_OUTPUT})
-add_library(definitions INTERFACE)
+add_library(definitions INTERFACE
+        a_glm_json_parser.hpp
+		a_glm_json_parser.hpp)
 add_dependencies(definitions generate_ecs_components)
 
 target_sources(definitions INTERFACE ${GEN_OUTPUT})

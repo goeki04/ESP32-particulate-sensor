@@ -1,5 +1,5 @@
 #pragma once
-
+#include "a_glm_json_parser.hpp"
 /**
  * @file a_component_parser.hpp
  * @brief Provides JSON serialization logic for Andromeda ECS components.

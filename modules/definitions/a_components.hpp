@@ -1,10 +1,8 @@
 #pragma once
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "a_material.hpp"
 #include "a_math.hpp"
 #include <string>
-#include "a_glm_json_parser.hpp"
 namespace Andromeda::ECS::Component {   
 
     struct Transform {
@@ -40,5 +38,4 @@ namespace Andromeda::ECS::Component {
         u32 meshID;
         MaterialShaderType shaderType;
     };
-    using ComponentDirectory = std::tuple<Transform, AABB, Tag, Selected, Mesh>;
 }

@@ -1,5 +1,6 @@
 #pragma once
-
+#include "a_primitives.hpp"
+#include "nlohmann/json.hpp"
 /**
  * @namespace glm
  * @brief Extension of the glm namespace to support nlohmann::JSON serialization.
@@ -21,7 +22,7 @@ namespace glm {
     }
 
     /** @brief vec2 to JSON array conversion. */
-    inline void to_json(nlohmann::json& json, const vec2& v) {
+    inline void to_json(nlohmann::json& json, const Andromeda::vec2& v) {
         json = { v.x, v.y };
     }
 

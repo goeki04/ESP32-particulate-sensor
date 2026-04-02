@@ -4,17 +4,17 @@
 #include "a_registry.hpp"
 void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
 {
-    ImVec2 windowSize = ImVec2(guiRenderer.m_WidgetWidth, guiRenderer.m_WindowHeight * 0.55f);
-    ImVec2 newPos = guiRenderer.getNewWindowPos(Margin(guiRenderer.m_MarginDefault, 0, guiRenderer.m_MarginDefault, guiRenderer.m_MarginDefault), windowSize, Alignment::TopLeft);
+    const auto windowSize = ImVec2(guiRenderer.m_WidgetWidth, static_cast<float>(guiRenderer.m_WindowHeight) * 0.55f);
+    const auto newPos = guiRenderer.getNewWindowPos(Margin(guiRenderer.m_MarginDefault, 0, guiRenderer.m_MarginDefault, guiRenderer.m_MarginDefault), windowSize, Alignment::TopLeft);
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
     ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
-    ImGui::Begin("Hierarchy", 0, guiRenderer.m_WindowFlags);
+    ImGui::Begin("Hierarchy", nullptr, guiRenderer.m_WindowFlags);
     ImGui::BeginChild("HierarchyList", ImVec2(0.0f, 0.0f), true, ImGuiWindowFlags_NoScrollbar);
-    auto& transformPool = guiRenderer.m_Registry->getPool<ECS::Component::Transform>();
+    const auto& transformPool = guiRenderer.m_Registry->getPool<ECS::Component::Transform>();
     const auto& entityIDs = transformPool.getEntities();
     ImGuiListClipper clipper;
-    clipper.Begin((int)entityIDs.size());
+    clipper.Begin(static_cast<int>(entityIDs.size()));
     while (clipper.Step())
     {
         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
@@ -36,7 +36,7 @@ void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
                 guiRenderer.m_CurrentSelectedID = e;
                 auto& selectedPool = guiRenderer.m_Registry->getPool<ECS::Component::Selected>();
                 std::vector<ECS::Entity> toDeselect = selectedPool.getEntities();
-                for (ECS::Entity oldE : toDeselect) {
+                for (const ECS::Entity oldE : toDeselect) {
                     selectedPool.removeEntity(oldE);
                 };
                 handle.add<ECS::Component::Selected>({});

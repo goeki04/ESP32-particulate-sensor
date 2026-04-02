@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * @file ecs.hpp
+ * @file a_registry.hpp
  * @brief A minimal and efficient Sparse-Set based Entity Component System (ECS).
  */
 
@@ -13,8 +13,6 @@
 #include <array>
 #include <string>
 
-#include "a_primitives.hpp"
-#include "a_components.hpp"
 #include "a_component_parser.hpp"
 
  /**
@@ -44,7 +42,7 @@ namespace Andromeda::ECS {
         virtual void deserializePool(const nlohmann::json& data) = 0;
 
         /** @brief Returns the name of the stored component type. */
-        virtual std::string getTypeName() const = 0;
+        [[nodiscard]] virtual std::string getTypeName() const = 0;
     };
 
     /**
@@ -61,7 +59,7 @@ namespace Andromeda::ECS {
 
     public:
         /** @brief Returns the component type name (compiler-dependent via typeid). */
-        std::string getTypeName() const override {
+        [[nodiscard]] std::string getTypeName() const override {
             return typeid(T).name();
         }
 
@@ -70,7 +68,7 @@ namespace Andromeda::ECS {
          * @param entity The target entity ID.
          * @param component The component data to store.
          */
-        void add(Entity entity, T component) {
+        void add(const Entity entity, T component) {
             if (entity >= m_sparse.size()) {
                 m_sparse.resize(static_cast<size_t>(entity) + 1, 0xFFFFFFFF);
             }
@@ -111,7 +109,7 @@ namespace Andromeda::ECS {
          * @brief Removes the component associated with an entity.
          * @details Uses the "swap-and-pop" idiom to maintain a dense data array.
          */
-        void removeEntity(Entity entity) override {
+        void removeEntity(const Entity entity) override {
             if (entity >= m_sparse.size() || m_sparse[entity] == 0xFFFFFFFF) return;
 
             size_t indexToRemove = m_sparse[entity];
@@ -128,10 +126,10 @@ namespace Andromeda::ECS {
         }
 
         /** @brief Returns a reference to the component of the given entity. */
-        T& get(Entity entity) { return m_data[m_sparse[entity]]; }
+        T& get(const Entity entity) { return m_data[m_sparse[entity]]; }
 
         /** @brief Checks if the entity has a component in this pool. */
-        bool has(Entity entity) const {
+        [[nodiscard]] bool has(const Entity entity) const {
             return entity < m_sparse.size() && m_sparse[entity] != 0xFFFFFFFF;
         }
 
@@ -139,7 +137,7 @@ namespace Andromeda::ECS {
         std::vector<T>& data() { return m_data; }
 
         /** @brief Returns the raw dense vector of entity IDs. */
-        const std::vector<Entity>& getEntities() const { return m_Entitys; }
+        [[nodiscard]] const std::vector<Entity>& getEntities() const { return m_Entitys; }
     };
 
     struct EntityHandle;
@@ -165,8 +163,8 @@ namespace Andromeda::ECS {
          */
         template<typename T>
         ComponentPool<T>& getPool() {
-            auto index = std::type_index(typeid(T));
-            if (m_Pools.find(index) == m_Pools.end()) {
+            const auto index = std::type_index(typeid(T));
+            if (!m_Pools.contains(index)) {
                 m_Pools[index] = std::make_unique<ComponentPool<T>>();
             }
             return static_cast<ComponentPool<T>&>(*m_Pools[index]);
@@ -187,16 +185,16 @@ namespace Andromeda::ECS {
          */
         template<typename T>
         bool hasComponent(Entity entity) {
-            auto index = std::type_index(typeid(T));
-            if (m_Pools.find(index) == m_Pools.end()) {
+            const auto index = std::type_index(typeid(T));
+            if (!m_Pools.contains(index)) {
                 return false;
             }
             return static_cast<ComponentPool<T>&>(*m_Pools[index]).has(entity);
         }
 
         /** @brief Removes an entity from all existing pools. */
-        void destroyEntity(Entity entity) {
-            for (auto const& [type, pool] : m_Pools) {
+        void destroyEntity(const Entity entity) {
+            for (const auto& pool : m_Pools | std::views::values) {
                 pool->removeEntity(entity);
             }
         }
