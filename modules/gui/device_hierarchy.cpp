@@ -21,7 +21,7 @@ void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
         {
             const ECS::Entity& e = entityIDs[i];
             ECS::EntityHandle handle = { e, guiRenderer.m_Registry };
-            bool isSelected = (guiRenderer.m_CurrentSelectedID == e);
+            const bool isSelected = (guiRenderer.m_CurrentSelectedID == e);
             if (isSelected) {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.0f, 1.0f));
             }
@@ -62,7 +62,6 @@ void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
             }
         }
     }
-
     ImGui::EndChild();
     ImGui::PopStyleVar();
     ImGui::End();
