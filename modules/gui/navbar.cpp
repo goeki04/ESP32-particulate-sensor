@@ -62,6 +62,12 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
         }
 
         if (ImGui::BeginMenu("Debug")) {
+            const float fps = ImGui::GetIO().Framerate;
+            const float ms = 1000.0f / fps;
+
+            ImGui::Text("Performance: %.1f FPS (%.2f ms/frame)", fps, ms);
+            ImGui::Separator();
+
             ImGui::Text("Vendor: %s", glGetString(GL_VENDOR));
             ImGui::Text("Renderer: %s", glGetString(GL_RENDERER));
             ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION));
