@@ -59,7 +59,7 @@ namespace Andromeda {
 		m_GuiRenderer.destroy();
 	}
 
-    inline bool Editor::RayIntersectAABB(const amath::CameraData& cam, const ECS::Component::AABB& aabb, const glm::mat4& modelMatrix)
+    bool Editor::RayIntersectAABB(const amath::CameraData& cam, const ECS::Component::AABB& aabb, const glm::mat4& modelMatrix)
     {
         const auto&[origin, direction] = cam.cursorToWorldRay;
 
@@ -94,35 +94,45 @@ namespace Andromeda {
     }
     void Editor::editorPicking(const amath::CameraData* cam)
     {
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            const auto& aabbPool = m_SceneManager->m_Registry.getPool<ECS::Component::AABB>();
-            const auto& selectedPool = m_SceneManager->m_Registry.getPool<ECS::Component::Selected>();
-
-            for (const std::vector<Entity> currentlySelected = selectedPool.getEntities(); const Entity e : currentlySelected) {
-                m_SceneManager->m_Registry.getPool<ECS::Component::Selected>().removeEntity(e);
-            }
-            bool anyHit = false;
-
-            for (const Entity e : aabbPool.getEntities()) {
-                ECS::EntityHandle handle = { e,&m_SceneManager->m_Registry };
-                if (!handle.has<ECS::Component::Transform>()) {
-                    continue;
-                }
-                const mat4 modelMatrix = handle.get<ECS::Component::Transform>().modelMatrix();
-                const auto& aabb = handle.get<ECS::Component::AABB>();
-
-                if (RayIntersectAABB(*cam, aabb, modelMatrix)) {
-                    handle.add<ECS::Component::Selected>({});
-                    m_GuiRenderer.m_CurrentSelectedID = e;
-                    anyHit = true;
-                    break;
-                }
-            }
-
-            if (!anyHit) {
-                m_GuiRenderer.m_CurrentSelectedID = -1;
-            }
+        if (!m_GuiRenderer.m_ViewportHovered) {
+            return;
         }
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                bool overDetails = false;
+
+                const auto& aabbPool = m_SceneManager->m_Registry.getPool<ECS::Component::AABB>();
+                const auto& selectedPool = m_SceneManager->m_Registry.getPool<ECS::Component::Selected>();
+                //Implement multi selection in future
+                for (const std::vector<Entity> currentlySelected = selectedPool.getEntities(); const Entity e : currentlySelected) {
+                    m_SceneManager->m_Registry.getPool<ECS::Component::Selected>().removeEntity(e);
+                }
+                bool anyHit = false;
+
+                for (const Entity e : aabbPool.getEntities()) {
+                    ECS::EntityHandle handle = { e,&m_SceneManager->m_Registry };
+                    if (!handle.has<ECS::Component::Transform>()) {
+                        continue;
+                    }
+                    const mat4 modelMatrix = handle.get<ECS::Component::Transform>().modelMatrix();
+                    const auto& aabb = handle.get<ECS::Component::AABB>();
+
+                    if (RayIntersectAABB(*cam, aabb, modelMatrix)) {
+                        handle.add<ECS::Component::Selected>({});
+                        m_GuiRenderer.m_CurrentSelectedID = e;
+                        anyHit = true;
+                        break;
+                    }
+                }
+                if (m_GuiRenderer.m_ViewportHovered) {
+                    std::cout << "Viewport hovered = true" << std::endl;
+                }
+                else {
+                    std::cout << "Viewport hovered = false" << std::endl;
+                }
+                if (!anyHit) {
+                    m_GuiRenderer.m_CurrentSelectedID = -1;
+                }
+            }
     }
     amath::Ray Editor::cursorToWorldRay(const amath::CameraData& cam) {
         float x = (2.0f * cam.imGuiMouseX) / cam.framebufferSize.x - 1.0f;

@@ -37,7 +37,9 @@ void Andromeda::Gui::Panels::drawViewportGUI(GuiRenderer& guiRenderer, const Vie
     ImVec2 mousePos = ImGui::GetMousePos();
     ImVec2 rel = ImVec2(mousePos.x - rectMin.x, mousePos.y - rectMin.y);
     bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+
     GuiRenderer::s_ViewportFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+    guiRenderer.m_ViewportHovered = ImGui::IsWindowHovered(ImGuiFocusedFlags_RootAndChildWindows);
     drawInfo.camData->hasValidPickRay = hovered;
 
     if (hovered) {

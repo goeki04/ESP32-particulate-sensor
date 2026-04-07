@@ -10,7 +10,7 @@ namespace Andromeda {
     enum class EventType {
         OnKeyDown, OnKeyUp,
         OnMouseBtnDown, OnMouseBtnUp, OnMouseWheelScroll,
-        OnMouseMoved, OnSceneItemSelected
+        OnMouseMoved
     };
 
     /**
@@ -80,11 +80,5 @@ namespace Andromeda {
 
         explicit MouseBtnUp(const MouseCode _code) : m_MouseCode(_code) {}
         static constexpr EventType GetStaticType() { return EventType::OnMouseBtnUp; }
-    };
-
-    struct SceneItemSelected : public IEvent
-    {
-        explicit SceneItemSelected() {}
-        static constexpr EventType GetStaticType() { return EventType::OnSceneItemSelected; }
     };
 }
