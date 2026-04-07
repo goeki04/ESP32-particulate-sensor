@@ -89,7 +89,7 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
             const std::string arch = "Arch: " + std::string(ANDROMEDA_ARCH);
             ImGui::TextUnformatted(arch.c_str());
             ImGui::TextUnformatted("Dev: Goekdeniz Koeksal");
-            ImGui::TextUnformatted(guiRenderer.m_ImguiVersion.c_str());
+            ImGui::TextUnformatted(guiRenderer.m_ImGuiVersion.c_str());
 
             int major = SDL_MAJOR_VERSION;
             int minor = SDL_MINOR_VERSION;

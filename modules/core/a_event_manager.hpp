@@ -38,8 +38,8 @@ namespace Andromeda {
          * @brief Internal representation of a subscriber.
          */
         struct EventListener {
-            size_t id;                                   ///< Unique ID for this specific listener.
             std::function<void(const IEvent&)> callback; ///< The type-erased callback wrapper.
+            size_t id;                                   ///< Unique ID for this specific listener.
             bool pendingRemoval = false;                 ///< Flag set if removed during a dispatch.
         };
 
@@ -68,19 +68,16 @@ namespace Andromeda {
          * * @note Requires T to implement 'static constexpr EventType GetStaticType()'.
          */
         template<typename T, typename F>
-            requires std::derived_from<T, IEvent>
+     requires std::derived_from<T, IEvent> && requires { { T::GetStaticType() } -> std::convertible_to<EventType>; }
         EventListenerID AddEventListener(F&& handle) {
-            static_assert(requires { T::GetStaticType(); },
-                "Event struct must implement 'static constexpr EventType GetStaticType()'");
-
             const size_t id = m_NextID++;
             const EventType type = T::GetStaticType();
 
             auto wrapper = [handle = std::forward<F>(handle)](const IEvent& e) {
                 handle(static_cast<const T&>(e));
-                };
+            };
 
-            m_Events[type].push_back({ id, std::move(wrapper), false });
+            m_Events[type].push_back({ std::move(wrapper), id, false });
             return { type, id };
         }
 
