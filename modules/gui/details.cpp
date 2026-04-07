@@ -1,6 +1,9 @@
+#include "a_event_manager.hpp"
 #include "panels.h"
 #include "gui_renderer.h"
 #include "component_ui.hpp"
+#include <iostream>
+
 namespace Andromeda::Gui::Panels {
     void drawDetails(const GuiRenderer& guiRenderer)
     {
@@ -10,12 +13,12 @@ namespace Andromeda::Gui::Panels {
         ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
         ImGui::Begin("Details", nullptr, guiRenderer.m_WindowFlags);
-        if (guiRenderer.m_CurrentSelectedID != 0)
-        {
-        }
-        else
-        {
-            ImGui::Text("No entity selected.");
+        if (guiRenderer.m_CurrentSelectedID != ECS::INVALID_ENTITY_ID) {
+            ECS::EntityHandle handle = {
+                guiRenderer.m_CurrentSelectedID,
+                guiRenderer.m_Registry
+            };
+            Component::renderEntityComponentUI(handle);
         }
         ImGui::End();
     }

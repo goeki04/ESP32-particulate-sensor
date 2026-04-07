@@ -41,9 +41,9 @@ namespace Andromeda::Gui {
         constexpr ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode;
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockFlags);
         Panels::drawNavBar(*this);
-        Panels::drawDetails(*this);
         Panels::drawDeviceBrowser(*this);
         Panels::drawDeviceHierarchy(*this);
+        Panels::drawDetails(*this);
         drawChart();
         Panels::drawViewportGUI(*this,vpInfo);
         EndFrame(Window::g_Window);

@@ -21,9 +21,6 @@
   */
 namespace Andromeda::ECS {
 
-    /** @brief Type alias for Entity identifiers. */
-    using Entity = uint32_t;
-
     /**
      * @class IComponentPool
      * @brief Interface for component pools to allow polymorphic storage and serialization.

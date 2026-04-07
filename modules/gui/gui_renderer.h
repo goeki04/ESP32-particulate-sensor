@@ -30,7 +30,7 @@ namespace Andromeda::Gui {
     public:
         static ImVec2 s_ViewportSize;
         static bool s_ViewportFocused;
-
+        bool m_ViewportHovered;
         /// <summary>
         /// This is the coordinate of the viewport pivot relative to the screen (topLeft = 0)
         /// </summary>
@@ -44,7 +44,7 @@ namespace Andromeda::Gui {
 
         static void loadFont();
         static vec2 getViewportWindowSize();
-        u32 m_CurrentSelectedID = 0;
+        u32 m_CurrentSelectedID = ECS::INVALID_ENTITY_ID;
         static vec3 m_LastHitPoint;
         static bool m_HasLastHitpoint;
         amath::CameraData* m_Cam = nullptr;
