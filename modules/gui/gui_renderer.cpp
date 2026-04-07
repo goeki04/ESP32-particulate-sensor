@@ -12,7 +12,7 @@ namespace Andromeda::Gui {
     bool Gui::GuiRenderer::m_HasLastHitpoint = false;
     vec3 Gui::GuiRenderer::m_LastHitPoint{ 0.0f };
 
-    void Gui::GuiRenderer::init(GuiRendererConfig &guiConfig) {
+    void Gui::GuiRenderer::init(const GuiRendererConfig &guiConfig) {
         assert(guiConfig.cam &&"CameraData is nullptr in GuiRenderer::Init()");
         assert(guiConfig.window && "window is nullptr in GuiRenderer:Init()");
         assert(guiConfig.registry && "registry is nullptr in GuiRenderer::Init()");
@@ -30,15 +30,15 @@ namespace Andromeda::Gui {
         setStyle();
         loadFont();
         SDL_GetWindowSizeInPixels(guiConfig.window, &m_WindowWidth, &m_WindowHeight);
-        m_WidgetWidth = m_WindowWidth * 0.125;
-        m_MarginDefault = m_WindowHeight * 0.0225;
+        m_WidgetWidth = static_cast<float>(m_WindowWidth) * 0.125f;
+        m_MarginDefault = static_cast<float>(m_WindowHeight) * 0.0225f;
         setViewportSize();
     }
-    void GuiRenderer::update(ViewportDrawInfo vpInfo) {
+    void GuiRenderer::update(const ViewportDrawInfo& vpInfo) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
-        ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode;
+        constexpr ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode;
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockFlags);
         Panels::drawNavBar(*this);
         Panels::drawDetails(*this);
@@ -52,11 +52,11 @@ namespace Andromeda::Gui {
     void GuiRenderer::EndFrame(SDL_Window* window) {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        ImGuiIO& io = ImGui::GetIO();
+        const ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
             SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
-            SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+            const SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
 
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
@@ -66,7 +66,7 @@ namespace Andromeda::Gui {
         SDL_GL_SwapWindow(window);
     }
 
-    float GuiRenderer::getMenuBarHeight()
+    float GuiRenderer::getMenuBarHeight() const
     {
         return m_MenuBarHeight;
     }
@@ -79,33 +79,34 @@ namespace Andromeda::Gui {
         }
         io.FontDefault = font;
     }
-    void GuiRenderer::OpenFolder() const
+    void GuiRenderer::OpenFolder()
     {
 #if defined(_WIN32)
-        auto targetDirectory = std::filesystem::current_path().parent_path() / "Licenses";
-        std::string cmd = "explorer \"" + targetDirectory.string() + "\"";
+        const auto targetDirectory = std::filesystem::current_path().parent_path() / "Licenses";
+        const std::string cmd = "explorer \"" + targetDirectory.string() + "\"";
         system(cmd.c_str());
 
 #endif
     }
 
-    void GuiRenderer::drawChart() {
-        ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.35f);
-        ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::BottomLeft);
+    void GuiRenderer::drawChart() const
+    {
+        const ImVec2 windowSize = ImVec2(m_WidgetWidth, m_WindowHeight * 0.35f);
+        const ImVec2 newPos = getNewWindowPos(Margin(m_MarginDefault, 0, m_MarginDefault, 0), windowSize, Alignment::BottomLeft);
         ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
-        ImGui::Begin("Chart", 0, m_WindowFlags);
+        ImGui::Begin("Chart", nullptr, m_WindowFlags);
         ImGui::End();
     }
     void GuiRenderer::OpenURL(const std::string& url)
     {
         SDL_OpenURL(url.c_str());
     }
-    ImVec2 GuiRenderer::getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment)
+    ImVec2 GuiRenderer::getNewWindowPos(Margin margin, ImVec2 windowSize, const Alignment alignment) const
     {
-        float containerHeight = m_WindowHeight - m_MenuBarHeight;
-        float containerWidth = m_WindowWidth;
-        ImVec2 newPos = ImVec2(0, 0);
+        const float containerHeight = m_WindowHeight - m_MenuBarHeight;
+        const float containerWidth = m_WindowWidth;
+        auto newPos = ImVec2(0, 0);
 
         if (windowSize.x <= 0 || windowSize.y <= 0)
         {
@@ -166,11 +167,11 @@ namespace Andromeda::Gui {
         return newPos;
     }
 
-    ImVec2 GuiRenderer::getViewportWindowPos()
+    ImVec2 GuiRenderer::getViewportWindowPos() const
     {
-        vec2 vpSize = getViewportWindowSize();
-        ImVec2 viewportSize = ImVec2(vpSize.x,vpSize.y);
-        ImVec2 viewportPos = getNewWindowPos(Margin(0.0f, 0.0f, 0.0f, m_MarginDefault), viewportSize, Alignment::CenterTop);
+        const vec2 vpSize = getViewportWindowSize();
+        const auto viewportSize = ImVec2(vpSize.x,vpSize.y);
+        const ImVec2 viewportPos = getNewWindowPos(Margin(0.0f, 0.0f, 0.0f, m_MarginDefault), viewportSize, Alignment::CenterTop);
         if (viewportSize == ImVec2(0, 0)) {
             throw std::runtime_error("Viewport has a size of 0!");
         }
@@ -181,18 +182,18 @@ namespace Andromeda::Gui {
     /// </summary>
     /// <returns>Viewport size in pixels</returns>
     vec2 GuiRenderer::getViewportWindowSize() {
-        vec2 viewportSize = vec2(s_ViewportSize.x, s_ViewportSize.y);
+        const auto viewportSize = vec2(s_ViewportSize.x, s_ViewportSize.y);
         return viewportSize;
     }
     void GuiRenderer::setViewportSize() const {
         if (m_WindowHeight == 0 || m_WindowWidth == 0 || m_WidgetWidth == 0) {
             throw std::runtime_error("Window width/height or widgetWidth can't be zero");
         }
-        ImGuiStyle& style = ImGui::GetStyle();
-        float viewPortX = std::floor(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 100);
-        float viewPortY = std::floor(m_WindowHeight * 0.55f);
+        const float viewPortX = std::floor(m_WindowWidth - m_MarginDefault * 2 - 2 * m_WidgetWidth - 100);
+        const float viewPortY = std::floor(m_WindowHeight * 0.55f);
         s_ViewportSize = ImVec2(viewPortX, viewPortY);
     }
+    // ReSharper disable once CppMemberFunctionMayBeStatic
     void GuiRenderer::destroy() {
         ImGui::DestroyPlatformWindows();
         ImGui_ImplOpenGL3_Shutdown();

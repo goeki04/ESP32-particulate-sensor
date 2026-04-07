@@ -2,6 +2,7 @@
 #include "gui_renderer.h"
 #include "a_components.hpp"
 #include "a_registry.hpp"
+#include "a_event_manager.hpp"
 void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
 {
     const auto windowSize = ImVec2(guiRenderer.m_WidgetWidth, static_cast<float>(guiRenderer.m_WindowHeight) * 0.55f);

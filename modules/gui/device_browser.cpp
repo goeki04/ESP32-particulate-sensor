@@ -51,7 +51,7 @@ namespace Andromeda::Gui::Panels {
             bool selected = (guiRenderer.m_SelectedIdx == idx);
 
             ImVec2 tileMin = pMin;
-            ImVec2 tileMax = ImVec2(pMin.x + tileSize.x, pMin.y + tileSize.y);
+            auto tileMax = ImVec2(pMin.x + tileSize.x, pMin.y + tileSize.y);
 
             if (deviceRecord.type == deviceType::DEFAULT) {
                 dl->AddRectFilled(tileMin, tileMax, IM_COL32(41, 46, 66, 255), 4.0f);

@@ -35,15 +35,15 @@ namespace Andromeda::Gui {
         /// This is the coordinate of the viewport pivot relative to the screen (topLeft = 0)
         /// </summary>
         vec2 m_ViewportRectMin = vec2(0.0f, 0.0f);
-        void init(GuiRendererConfig& guiConfig);
-        void update(ViewportDrawInfo vpInfo);
-        void EndFrame(SDL_Window* window);
+        void init(const GuiRendererConfig& guiConfig);
+        void update(const ViewportDrawInfo& vpInfo);
+        static void EndFrame(SDL_Window* window);
         void destroy();
-        float getMenuBarHeight();
-        ImVec2 getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment);
-        
-        void loadFont();
-        vec2 getViewportWindowSize();
+        float getMenuBarHeight() const;
+        ImVec2 getNewWindowPos(Margin margin, ImVec2 windowSize, Alignment alignment) const;
+
+        static void loadFont();
+        static vec2 getViewportWindowSize();
         u32 m_CurrentSelectedID = 0;
         static vec3 m_LastHitPoint;
         static bool m_HasLastHitpoint;
@@ -51,7 +51,7 @@ namespace Andromeda::Gui {
         ECS::ComponentRegistry* m_Registry = nullptr;
         
         std::vector<SDL_Surface> m_DeviceIcons;
-        std::string m_ImguiVersion = "ImGui: " + std::string(IMGUI_VERSION);
+        std::string m_ImGuiVersion = "ImGui: " + std::string(IMGUI_VERSION);
         IDeviceProvider* m_DeviceProvider = nullptr;
         SceneManager* m_SceneManager = nullptr;
         static bool m_ShowVersion;
@@ -66,12 +66,12 @@ namespace Andromeda::Gui {
         ImGuiWindowFlags m_WindowFlags = 0;
         bool m_Debug = false;
         bool m_ConsoleOpen = false;
-        ImVec2 getViewportWindowPos();
-        void OpenFolder() const;
-        void OpenURL(const std::string& url);
-        void drawChart();
+        ImVec2 getViewportWindowPos() const;
+        static void OpenFolder();
+        static void OpenURL(const std::string& url);
+        void drawChart() const;
         void setViewportSize() const;
-        void setFlags();
-        void setStyle();
+        static void setFlags();
+        static void setStyle();
     };
 }

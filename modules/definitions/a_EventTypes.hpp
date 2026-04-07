@@ -1,7 +1,6 @@
 #pragma once
 
 #include "a_Keycodes.hpp"
-#include <variant>
 
 namespace Andromeda {
 
@@ -11,7 +10,7 @@ namespace Andromeda {
     enum class EventType {
         OnKeyDown, OnKeyUp,
         OnMouseBtnDown, OnMouseBtnUp, OnMouseWheelScroll,
-        OnMouseMoved
+        OnMouseMoved, OnSceneItemSelected
     };
 
     /**
@@ -81,5 +80,11 @@ namespace Andromeda {
 
         explicit MouseBtnUp(const MouseCode _code) : m_MouseCode(_code) {}
         static constexpr EventType GetStaticType() { return EventType::OnMouseBtnUp; }
+    };
+
+    struct SceneItemSelected : public IEvent
+    {
+        explicit SceneItemSelected() {}
+        static constexpr EventType GetStaticType() { return EventType::OnSceneItemSelected; }
     };
 }
