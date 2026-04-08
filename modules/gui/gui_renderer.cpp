@@ -17,10 +17,12 @@ namespace Andromeda::Gui {
         assert(guiConfig.window && "window is nullptr in GuiRenderer:Init()");
         assert(guiConfig.registry && "registry is nullptr in GuiRenderer::Init()");
         assert(guiConfig.sceneManager && "sceneManager is nullptr in GuiRenderer::Init()");
+        assert(guiConfig.resource && "resource is nullptr in GuiRenderer::Init()");
         m_Cam = guiConfig.cam;
         m_Registry = guiConfig.registry;
         m_DeviceProvider = guiConfig.dp;
         m_SceneManager = guiConfig.sceneManager;
+        m_ResourceManager = guiConfig.resource;
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplSDL3_InitForOpenGL(guiConfig.window, guiConfig.sdl_gl_context);
@@ -41,6 +43,8 @@ namespace Andromeda::Gui {
         constexpr ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode;
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockFlags);
         Panels::drawNavBar(*this);
+
+        drawToolBar(m_ResourceManager->getEditorIconID("box"));
         Panels::drawDeviceBrowser(*this);
         Panels::drawDeviceHierarchy(*this);
         Panels::drawDetails(*this);
@@ -48,6 +52,12 @@ namespace Andromeda::Gui {
         Panels::drawViewportGUI(*this,vpInfo);
         EndFrame(Window::g_Window);
     }
+
+    void GuiRenderer::drawToolBar(const u32& textureID)
+    {
+
+    }
+
 
     void GuiRenderer::EndFrame(SDL_Window* window) {
         ImGui::Render();

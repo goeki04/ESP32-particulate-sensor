@@ -29,14 +29,13 @@ namespace Andromeda {
 
         /// Maps device types to their respective UI icons (OpenGL texture handles)
         std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
+        std::unordered_map<std::string, GLtexture> m_EditorIcons;
 
         // --- Subsystem Interface ---
         static constexpr std::string_view GetStaticName() { return "ResourceManager"; }
         [[nodiscard]] const char* getSubsystemName() const override { return GetStaticName().data(); }
 
-        void updateEvent(SDL_Event* event) override;
         void start() override;
-        void update() override;
 
         /**
          * @brief Loads 3D models and initializes their GPU handles.
@@ -46,8 +45,9 @@ namespace Andromeda {
         /**
          * @brief Loads UI icons from disk and creates OpenGL textures.
          */
-        void loadIcons();
-
+        void loadDeviceIcons();
+        void loadEditorIcons();
+        u32 getEditorIconID(const std::string& name);
         /**
          * @brief Resolves a device type based on its icon's string name.
          */

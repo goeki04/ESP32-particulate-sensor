@@ -5,6 +5,68 @@
 #include "generated_component_names.hpp"
 namespace Andromeda::Gui::Panels
 {
+
+    bool passesFilter(std::string_view name, const char* filter)
+    {
+        if (filter == nullptr || filter[0] == '\0') {
+            return true;
+        }
+
+        auto it = std::search(
+            name.begin(), name.end(),
+            filter, filter + std::strlen(filter),
+            [](char a, char b) {
+                return std::tolower(static_cast<unsigned char>(a)) ==
+                    std::tolower(static_cast<unsigned char>(b));
+            }
+        );
+
+        return it != name.end();
+    }
+
+    void renderComponentList(ECS::EntityHandle handle, const char* filter)
+    {
+        std::apply([&]<typename... Args>(Args&&...)
+        {
+            ([&]
+                {
+                    if (!handle.has<Args>())
+                    {
+                        std::string_view name = ECS::Component::get_component_name<Args>();
+
+                        if (passesFilter(name, filter))
+                        {
+                            if (ImGui::Selectable(ECS::Component::get_component_name_ptr<Args>()))
+                            {
+                                handle.add<Args>({});
+                                ImGui::CloseCurrentPopup();
+                            }
+                        }
+                    }
+                }(), ...);
+        }, ECS::Component::ComponentDirectory{});
+    }
+
+    void renderComponentSearchPopup(ECS::EntityHandle handle, float width)
+    {
+        ImGui::SetNextWindowSize(ImVec2(width, 0));
+
+        if (ImGui::BeginPopup("ComponentSearchPopup")) {
+            static char searchBuffer[64] = "";
+
+            if (ImGui::IsWindowAppearing()) {
+                ImGui::SetKeyboardFocusHere();
+                searchBuffer[0] = '\0';
+            }
+
+            ImGui::InputTextWithHint("##Filter", "Search...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
+            ImGui::Separator();
+
+            renderComponentList(handle, searchBuffer);
+
+            ImGui::EndPopup();
+        }
+    }
     void drawAddComponentButton(ECS::EntityHandle handle)
     {
         const ImVec2 buttonPos = ImGui::GetCursorScreenPos();
@@ -14,41 +76,11 @@ namespace Andromeda::Gui::Panels
             ImGui::OpenPopup("ComponentSearchPopup");
         }
 
-        const auto popupPos = ImVec2(buttonPos.x, buttonPos.y + ImGui::GetFrameHeightWithSpacing());
+        const ImVec2 popupPos = ImVec2(buttonPos.x, buttonPos.y + ImGui::GetFrameHeightWithSpacing());
 
         ImGui::SetNextWindowPos(popupPos);
-        ImGui::SetNextWindowSize(ImVec2(buttonWidth, 0));
 
-        if (ImGui::BeginPopup("ComponentSearchPopup")) {
-            static char searchBuffer[64] = "";
-            if (ImGui::IsWindowAppearing()) {
-                ImGui::SetKeyboardFocusHere();
-                searchBuffer[0] = '\0';
-            }
-
-            ImGui::InputTextWithHint("##Filter", "Search...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
-            ImGui::Separator();
-            std::apply([&]<typename... Args>(Args&&...)
-            {
-                ([&]
-                {
-                    if (!handle.has<Args>())
-                    {
-                        const char* name = typeid(Args).name();
-
-                        if (searchBuffer[0] == '\0' || std::string(name).find(searchBuffer) != std::string::npos)
-                        {
-                            if (ImGui::Selectable(name))
-                            {
-                                handle.add<Args>({});
-                                ImGui::CloseCurrentPopup();
-                            }
-                        }
-                    }
-                }(), ...);
-            }, ECS::Component::ComponentDirectory{});
-            ImGui::EndPopup();
-        }
+        renderComponentSearchPopup(handle, buttonWidth);
     }
 
     void drawDetails(const GuiRenderer& guiRenderer)
