@@ -3,8 +3,7 @@
 #include "a_material.hpp"
 #include "a_math.hpp"
 #include <string>
-namespace Andromeda::ECS::Component {   
-
+namespace Andromeda::ECS::Component {
     struct Transform {
         vec3 position{ 0.0f, 0.0f, 0.0f };
         vec3 rotation{ 0.0f, 0.0f, 0.0f };
@@ -29,7 +28,7 @@ namespace Andromeda::ECS::Component {
     };
 
     struct Tag{
-        std::string name;
+        std::string name = "Unnamed";
     };
 
     struct Selected{};

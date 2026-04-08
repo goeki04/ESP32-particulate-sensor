@@ -2,8 +2,7 @@
 #include "panels.h"
 #include "gui_renderer.h"
 #include "component_ui.hpp"
-#include <iostream>
-
+#include "generated_components.hpp"
 namespace Andromeda::Gui::Panels
 {
     void drawAddComponentButton(ECS::EntityHandle handle)
@@ -29,7 +28,29 @@ namespace Andromeda::Gui::Panels
 
             ImGui::InputTextWithHint("##Filter", "Search...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
             ImGui::Separator();
+            std::apply([&]<typename... Args>(Args&&...)
+            {
+                ([&]
+                {
+                    if (!handle.has<Args>())
+                    {
+                        // 2. Den Namen der Komponente holen
+                        const char* name = typeid(Args).name();
 
+                        // 3. Suchfilter anwenden (case-sensitive Suche im Namen)
+                        // Falls der Buffer leer ist, wird alles angezeigt
+                        if (searchBuffer[0] == '\0' || std::string(name).find(searchBuffer) != std::string::npos)
+                        {
+                            // 4. Den Eintrag als klickbare Liste darstellen
+                            if (ImGui::Selectable(name))
+                            {
+                                handle.add<Args>({});     // Komponente hinzufügen
+                                ImGui::CloseCurrentPopup(); // Popup schließen
+                            }
+                        }
+                    }
+                }(), ...);
+            }, ECS::Component::ComponentDirectory{});
             ImGui::EndPopup();
         }
     }
