@@ -85,7 +85,6 @@ namespace Andromeda::Gui {
         const auto targetDirectory = std::filesystem::current_path().parent_path() / "Licenses";
         const std::string cmd = "explorer \"" + targetDirectory.string() + "\"";
         system(cmd.c_str());
-
 #endif
     }
 
