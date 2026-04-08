@@ -5,10 +5,8 @@
 #include "generated_components.hpp"
 namespace Andromeda::Gui::Component
 {
-
     template<typename T>
-    inline void drawComponentUI(ECS::EntityHandle handle)
-    {
+    inline void drawComponentUI(ECS::EntityHandle handle){
     }
     template<>
     inline void drawComponentUI<ECS::Component::Transform>(ECS::EntityHandle handle)
