@@ -5,11 +5,13 @@ set(GEN_SCRIPT "${CMAKE_SOURCE_DIR}/metaData/gen_components.py")
 set(GEN_OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/generated_components.hpp")
 set(GEN_NAME_SCRIPT "${CMAKE_SOURCE_DIR}/metaData/gen_components_name.py")
 set(GEN_NAME_OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/generated_component_names.hpp")
-
+set(COMPONENTS
+    a_components.hpp
+)
 add_custom_command(
     OUTPUT ${GEN_OUTPUT}
     COMMAND ${Python3_EXECUTABLE} ${GEN_SCRIPT}
-    DEPENDS ${GEN_SCRIPT}
+    DEPENDS ${GEN_SCRIPT} ${COMPONENTS}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Scanning modules for a_components.hpp to sync Tuple..."
     VERBATIM
