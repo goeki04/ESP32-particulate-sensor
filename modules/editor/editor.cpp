@@ -10,10 +10,10 @@
 #include <a_event_manager.hpp>
 #include <iostream>
 namespace Andromeda {
-	void Editor::start()
-	{
+    void Editor::start()
+    {
         assert(Window::m_GlContext && "OpenGL context is not initialized!");
-		m_Renderer = SystemManager::getInstance().getSubsystem<Renderer>();
+        m_Renderer = SystemManager::getInstance().getSubsystem<Renderer>();
         assert(m_Renderer && "m_Renderer is nullptr in Editor::Start()");
         m_SceneManager = SystemManager::getInstance().getSubsystem<SceneManager>();
         assert(m_SceneManager && "m_SceneManager is nullptr in Editor::Start()");
@@ -31,15 +31,15 @@ namespace Andromeda {
         guiConfig.window = Window::g_Window;
         guiConfig.sceneManager = m_SceneManager;
         guiConfig.dp = rm;
-		m_GuiRenderer.init(guiConfig);
-	}
-	void Editor::update()
-	{
+        m_GuiRenderer.init(guiConfig);
+    }
+    void Editor::update()
+    {
         if (Gui::GuiRenderer::s_ViewportFocused) {
             cameraMovement(m_SceneManager->m_EditorCamData);
         }
 
-		vec2 viewportSize = m_GuiRenderer.getViewportWindowSize();
+        vec2 viewportSize = m_GuiRenderer.getViewportWindowSize();
         setProjectionMatrix(m_SceneManager->m_EditorCamData, viewportSize.x, viewportSize.y);
         updatePickingRay(m_SceneManager->m_EditorCamData);
         editorPicking(&m_SceneManager->m_EditorCamData);
@@ -48,20 +48,20 @@ namespace Andromeda {
         vpInfo.framebufferSize = m_Renderer->m_FramebufferSize;
         vpInfo.postProcessingFboTexture = m_Renderer->fboManager.m_PostprocessTexture;
         m_GuiRenderer.update(vpInfo);
-	}
-    
+    }
+
     void Editor::updateEvent(SDL_Event* event) {
         ImGui_ImplSDL3_ProcessEvent(event);
     }
 
-	void Editor::destroy()
-	{
-		m_GuiRenderer.destroy();
-	}
+    void Editor::destroy()
+    {
+        m_GuiRenderer.destroy();
+    }
 
     bool Editor::RayIntersectAABB(const amath::CameraData& cam, const ECS::Component::AABB& aabb, const glm::mat4& modelMatrix)
     {
-        const auto&[origin, direction] = cam.cursorToWorldRay;
+        const auto& [origin, direction] = cam.cursorToWorldRay;
 
         const mat4 invModel = glm::inverse(modelMatrix);
 
@@ -97,42 +97,42 @@ namespace Andromeda {
         if (!m_GuiRenderer.m_ViewportHovered) {
             return;
         }
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-                bool overDetails = false;
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            bool overDetails = false;
 
-                const auto& aabbPool = m_SceneManager->m_Registry.getPool<ECS::Component::AABB>();
-                const auto& selectedPool = m_SceneManager->m_Registry.getPool<ECS::Component::Selected>();
-                //Implement multi selection in future
-                for (const std::vector<Entity> currentlySelected = selectedPool.getEntities(); const Entity e : currentlySelected) {
-                    m_SceneManager->m_Registry.getPool<ECS::Component::Selected>().removeEntity(e);
-                }
-                bool anyHit = false;
+            const auto& aabbPool = m_SceneManager->m_Registry.getPool<ECS::Component::AABB>();
+            const auto& selectedPool = m_SceneManager->m_Registry.getPool<ECS::Component::Selected>();
+            //Implement multi selection in future
+            for (const std::vector<Entity> currentlySelected = selectedPool.getEntities(); const Entity e : currentlySelected) {
+                m_SceneManager->m_Registry.getPool<ECS::Component::Selected>().removeEntity(e);
+            }
+            bool anyHit = false;
 
-                for (const Entity e : aabbPool.getEntities()) {
-                    ECS::EntityHandle handle = { e,&m_SceneManager->m_Registry };
-                    if (!handle.has<ECS::Component::Transform>()) {
-                        continue;
-                    }
-                    const mat4 modelMatrix = handle.get<ECS::Component::Transform>().modelMatrix();
-                    const auto& aabb = handle.get<ECS::Component::AABB>();
+            for (const Entity e : aabbPool.getEntities()) {
+                ECS::EntityHandle handle = { e,&m_SceneManager->m_Registry };
+                if (!handle.has<ECS::Component::Transform>()) {
+                    continue;
+                }
+                const mat4 modelMatrix = handle.get<ECS::Component::Transform>().modelMatrix();
+                const auto& aabb = handle.get<ECS::Component::AABB>();
 
-                    if (RayIntersectAABB(*cam, aabb, modelMatrix)) {
-                        handle.add<ECS::Component::Selected>({});
-                        m_GuiRenderer.m_CurrentSelectedID = e;
-                        anyHit = true;
-                        break;
-                    }
-                }
-                if (m_GuiRenderer.m_ViewportHovered) {
-                    std::cout << "Viewport hovered = true" << std::endl;
-                }
-                else {
-                    std::cout << "Viewport hovered = false" << std::endl;
-                }
-                if (!anyHit) {
-                    m_GuiRenderer.m_CurrentSelectedID = -1;
+                if (RayIntersectAABB(*cam, aabb, modelMatrix)) {
+                    handle.add<ECS::Component::Selected>({});
+                    m_GuiRenderer.m_CurrentSelectedID = e;
+                    anyHit = true;
+                    break;
                 }
             }
+            if (m_GuiRenderer.m_ViewportHovered) {
+                std::cout << "Viewport hovered = true" << std::endl;
+            }
+            else {
+                std::cout << "Viewport hovered = false" << std::endl;
+            }
+            if (!anyHit) {
+                m_GuiRenderer.m_CurrentSelectedID = -1;
+            }
+        }
     }
     amath::Ray Editor::cursorToWorldRay(const amath::CameraData& cam) {
         float x = (2.0f * cam.imGuiMouseX) / cam.framebufferSize.x - 1.0f;
@@ -256,10 +256,10 @@ namespace Andromeda {
                 cam.fov = std::clamp(cam.fov - 1, cam.fovMin, cam.fovMax);
             }
         }
-        setProjectionMatrix(cam,cam.viewportSize.x, cam.viewportSize.y);
+        setProjectionMatrix(cam, cam.viewportSize.x, cam.viewportSize.y);
     }
 
-    void Editor::setProjectionMatrix(amath::CameraData& cam,float viewportSizeX, float viewportSizeY) {
+    void Editor::setProjectionMatrix(amath::CameraData& cam, float viewportSizeX, float viewportSizeY) {
         const float aspect = (viewportSizeY > 0) ? (viewportSizeX / viewportSizeY) : 1.0f;
         cam.projection = amath::perspective(amath::radians(cam.fov), aspect, 0.1f, 100.0f);
     }

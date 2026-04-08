@@ -1,7 +1,7 @@
 find_package(glew REQUIRED)
 find_package(SDL3 REQUIRED)
 find_package(imgui REQUIRED)
-
+find_package(imguizmo REQUIRED)
 add_library(gui STATIC
     viewport.cpp
     navbar.cpp
@@ -21,6 +21,7 @@ target_compile_definitions(gui PRIVATE IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
 target_link_libraries(gui PUBLIC
     GLEW::GLEW
     imgui::imgui
+    imguizmo::imguizmo
     sdl::sdl
 
     core

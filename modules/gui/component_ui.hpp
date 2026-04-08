@@ -13,7 +13,10 @@ namespace Andromeda::Gui::Component
     template<>
     inline void drawComponentUI<ECS::Component::Transform>(ECS::EntityHandle handle)
     {
-            auto [position, rotation, scale] = handle.get<ECS::Component::Transform>();
+            auto& transform = handle.get<ECS::Component::Transform>();
+            auto& position = transform.position;
+            auto& rotation = transform.rotation;
+            auto& scale = transform.scale;
             ImGui::PushID("Transform");
             ImGui::Text("Position");
             ImGui::SameLine(100);
