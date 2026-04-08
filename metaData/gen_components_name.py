@@ -36,7 +36,7 @@ def generate_component_tuple(search_root, target_filename, rel_output_file):
     with open(abs_output_file, 'w') as f:
             f.write("#pragma once\n")
             f.write("#include <string_view>\n")
-            f.write('#include "generated_components.hpp"\n\n')
+            f.write('#include "a_components.hpp"\n\n')
             
             f.write("namespace Andromeda::ECS::Component {\n\n")
             
