@@ -19,16 +19,14 @@ namespace Andromeda {
         assert(m_SceneManager && "m_SceneManager is nullptr in Editor::Start()");
         auto* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
         assert(rm && "rm is nullptr in Editor::Start()");
-        EventManager::getInstance().AddEventListener<KeyDown>([](const KeyDown& e) {
-            if (e.keycode == Keycode::F)
-                std::cout << "key f pressed\n";
-            });
+
         Gui::GuiRendererConfig guiConfig;
         guiConfig.cam = &m_SceneManager->m_EditorCamData;
         guiConfig.glsl_version = Andromeda::Renderer::glsl_version;
         guiConfig.sdl_gl_context = Window::m_GlContext;
         guiConfig.registry = &m_SceneManager->m_Registry;
         guiConfig.window = Window::g_Window;
+        guiConfig.resource = rm;
         guiConfig.sceneManager = m_SceneManager;
         guiConfig.dp = rm;
         m_GuiRenderer.init(guiConfig);
@@ -98,7 +96,6 @@ namespace Andromeda {
             return;
         }
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            bool overDetails = false;
 
             const auto& aabbPool = m_SceneManager->m_Registry.getPool<ECS::Component::AABB>();
             const auto& selectedPool = m_SceneManager->m_Registry.getPool<ECS::Component::Selected>();
@@ -123,25 +120,19 @@ namespace Andromeda {
                     break;
                 }
             }
-            if (m_GuiRenderer.m_ViewportHovered) {
-                std::cout << "Viewport hovered = true" << std::endl;
-            }
-            else {
-                std::cout << "Viewport hovered = false" << std::endl;
-            }
             if (!anyHit) {
                 m_GuiRenderer.m_CurrentSelectedID = -1;
             }
         }
     }
     amath::Ray Editor::cursorToWorldRay(const amath::CameraData& cam) {
-        float x = (2.0f * cam.imGuiMouseX) / cam.framebufferSize.x - 1.0f;
-        float y = 1.0f - (2.0f * cam.imGuiMouseY) / cam.framebufferSize.y;
-        vec4 rayClip(x, y, -1.0f, 1.0f);
+        const float x = (2.0f * cam.imGuiMouseX) / cam.framebufferSize.x - 1.0f;
+        const float y = 1.0f - (2.0f * cam.imGuiMouseY) / cam.framebufferSize.y;
+        const vec4 rayClip(x, y, -1.0f, 1.0f);
 
         vec4 rayView = amath::inverse(cam.projection) * rayClip;
         rayView = vec4(rayView.x, rayView.y, -1.0f, 0.0f);
-        vec4 rayDir4 = amath::inverse(cam.viewMatrix) * rayView;
+        const vec4 rayDir4 = amath::inverse(cam.viewMatrix) * rayView;
         amath::Ray ray{ vec3(0.0f),vec3(0.0f) };
 
         ray.direction = amath::normalize(vec3(rayDir4));

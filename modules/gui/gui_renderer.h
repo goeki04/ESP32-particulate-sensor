@@ -5,6 +5,8 @@
 #include "a_registry.hpp"
 #include "a_math.hpp"
 #include "a_guiTypes.hpp"
+#include "resource_manager.h"
+#include "a_texture.hpp"
 class IDeviceProvider;
 class SceneManager;
 namespace Andromeda::amath {
@@ -37,6 +39,7 @@ namespace Andromeda::Gui {
         vec2 m_ViewportRectMin = vec2(0.0f, 0.0f);
         void init(const GuiRendererConfig& guiConfig);
         void update(const ViewportDrawInfo& vpInfo);
+        void drawToolBar(const u32& textureID);
         static void EndFrame(SDL_Window* window);
         void destroy();
         float getMenuBarHeight() const;
@@ -49,7 +52,7 @@ namespace Andromeda::Gui {
         static bool m_HasLastHitpoint;
         amath::CameraData* m_Cam = nullptr;
         ECS::ComponentRegistry* m_Registry = nullptr;
-        
+        ResourceManager* m_ResourceManager = nullptr;
         std::vector<SDL_Surface> m_DeviceIcons;
         std::string m_ImGuiVersion = "ImGui: " + std::string(IMGUI_VERSION);
         IDeviceProvider* m_DeviceProvider = nullptr;

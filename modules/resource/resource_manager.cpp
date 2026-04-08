@@ -2,6 +2,8 @@
 #include "a_filesystem.hpp"
 #include <string>
 #define STB_IMAGE_IMPLEMENTATION
+#include <iostream>
+
 #include "stb_image.h"
 #include <assimp/Importer.hpp>
 #include "a_opengl_upload.hpp"
@@ -16,11 +18,9 @@ namespace Andromeda {
         addPostProcessShader<PostProcessShader>(SHADER_PATH "outlineVertex.glsl", SHADER_PATH "outlineFragment.glsl");
         addPostProcessShader<PostProcessShader>(SHADER_PATH "maskVertex.glsl", SHADER_PATH "maskFrag.glsl");
         loadModels();
-        loadIcons();
+        loadDeviceIcons();
+        loadEditorIcons();
         setupMeshes();
-    }
-
-    void ResourceManager::update() {
     }
 
     void ResourceManager::loadModels()
@@ -28,24 +28,46 @@ namespace Andromeda {
         std::array<std::string, 2> filter;
         filter[0] = ".fbx";
         filter[1] = ".obj";
-        std::vector<std::string> paths = Filesystem::getAllFilesInDirectoryRecursive(ASSET_PATH "models", filter);
+        const std::vector<std::string> paths = Filesystem::getAllFilesInDirectoryRecursive(ASSET_PATH "models", filter);
 
         for (auto& v : paths) {
             loadScene(v);
         }
     }
 
-    void ResourceManager::loadIcons()
+    void ResourceManager::loadDeviceIcons()
     {
         std::array<std::string, 2> filter;
         filter[0] = ".png";
         filter[1] = ".jpg";
-        std::vector<std::string> paths = Filesystem::getAllFilesInDirectory(ASSET_PATH "icons", filter);
+        const std::vector<std::string> paths = Filesystem::getAllFilesInDirectory(ASSET_PATH "icons/device/", filter);
 
         for (auto& v : paths) {
             std::string fileName = Filesystem::getFileName(v);
             deviceType type = findDeviceIcon(fileName);
             m_DeviceIcons[type] = CreateOpenGLTexture(v.c_str());
+        }
+    }
+
+    u32 Andromeda::ResourceManager::getEditorIconID(const std::string& name)
+    {
+        auto it = m_EditorIcons.find(name);
+        if (it != m_EditorIcons.end()) {
+            return it->second.id;
+        }
+        throw std::runtime_error("Icon not found: " + name + "!");
+    }
+
+    void ResourceManager::loadEditorIcons()
+    {
+        std::array<std::string,2> filter;
+        filter[0] = ".png";
+        filter[1] = ".jpg";
+        const std::vector<std::string> paths = Filesystem::getAllFilesInDirectory(ASSET_PATH "icons/editor", filter);
+        for (auto& v : paths)
+        {
+            std::string fileName = Filesystem::getFileName(v);
+            m_EditorIcons[fileName] = CreateOpenGLTexture(v.c_str());
         }
     }
 
@@ -58,19 +80,12 @@ namespace Andromeda {
         return deviceType::DEFAULT;
     };
 
-    void ResourceManager::updateEvent(SDL_Event* event) {/*
-        if (Andromeda::Gui::GuiRenderer::s_ViewportFocused)
-        {
-            m_Cam.zoom(event);
-        }*/
-    }
-
-    u32 ResourceManager::getMeshVaoByID(uint32_t meshID) const
+    u32 ResourceManager::getMeshVaoByID(const u32 meshID) const
     {
         return m_GPUMeshes.at(meshID).vao;
     }
 
-    u32 ResourceManager::getMeshIndexSizeByID(uint32_t meshID) const {
+    u32 ResourceManager::getMeshIndexSizeByID(const u32 meshID) const {
         return m_DeviceRecords.at(meshID).mesh.m_Indexbuffer.size();
     }
 
@@ -112,7 +127,7 @@ namespace Andromeda {
         return m_DeviceRecords.at(deviceID);
     }
 
-    u32 ResourceManager::getDeviceIconID(deviceType type) const {
+    u32 ResourceManager::getDeviceIconID(const deviceType type) const {
         return static_cast<u32>(m_DeviceIcons.at(type).id);
     }
 
@@ -122,7 +137,7 @@ namespace Andromeda {
         int w, h, channels;
         unsigned char* pixels = stbi_load(path, &w, &h, &channels, 4);
         if (!pixels) {
-            std::string log = stbi_failure_reason();
+            const std::string log = stbi_failure_reason();
             throw std::runtime_error("Failed to load image: " + log);
         }
 

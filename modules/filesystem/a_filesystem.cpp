@@ -33,7 +33,7 @@ namespace Andromeda {
             const std::string ext = entry.path().extension().generic_string();
             const bool allowed =
                 filter.empty() ||
-                std::find(filter.begin(), filter.end(), ext) != filter.end();
+                std::ranges::find(filter, ext) != filter.end();
 
             if (allowed) {
                 filePaths.emplace_back(entry.path().generic_string());
@@ -52,8 +52,8 @@ namespace Andromeda {
             if (!entry.is_regular_file()) continue;
 
             std::string ext = entry.path().extension().generic_string();
-            bool allowed = filter.empty() ||
-                std::find(filter.begin(), filter.end(), ext) != filter.end();
+            const bool allowed = filter.empty() ||
+                std::ranges::find(filter, ext) != filter.end();
 
             if (allowed) {
                 filePaths.emplace_back(entry.path().generic_string());
@@ -76,10 +76,10 @@ namespace Andromeda {
 
     std::string Filesystem::getFileName(const std::string& path)
     {
-        size_t namePos = path.find_last_of("/");
-        std::string objectName = (namePos == std::string::npos) ? path : path.substr(namePos + 1);
+        const size_t namePos = path.find_last_of("/");
+        const std::string objectName = (namePos == std::string::npos) ? path : path.substr(namePos + 1);
 
-        size_t dotPos = objectName.find_last_of('.');
+        const size_t dotPos = objectName.find_last_of('.');
         std::string fileName = (dotPos == std::string::npos) ? objectName : objectName.substr(0, dotPos);
         return fileName;
     }

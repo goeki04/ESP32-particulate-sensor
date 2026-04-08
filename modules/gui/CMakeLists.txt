@@ -28,5 +28,6 @@ target_link_libraries(gui PUBLIC
     scene
     serialization
     definitions
+    resource
     renderer_rhi
 )

@@ -11,5 +11,8 @@ namespace Andromeda::ECS::Component {
     template<> constexpr std::string_view get_component_name<Selected>() { return "Selected"; }
     template<> constexpr std::string_view get_component_name<Tag>() { return "Tag"; }
     template<> constexpr std::string_view get_component_name<Transform>() { return "Transform"; }
-
+    template<typename T>
+    constexpr const char* get_component_name_ptr() {
+        return get_component_name<T>().data();
+    }
 }
