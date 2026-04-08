@@ -1,12 +1,15 @@
 #include "panels.h"
 #include "a_math.hpp"
 #include "gui_renderer.h"
-namespace Andromeda {
-    void drawWireframeControl(const u32& textureID, ImGuiWindowFlags flags) {
-        const ImTextureID imguiID = (ImTextureID)(intptr_t)textureID;
-        ImVec2 childSize = ImVec2(32, 32);
-        ImVec2 screenPos = ImGui::GetCursorScreenPos();
+namespace Andromeda::Gui {
 
+    struct ViewportDimension {
+        ImVec2 min;
+        ImVec2 max;
+        ImVec2 size;
+    };
+
+    void setOverlayStyle() {
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
@@ -14,6 +17,18 @@ namespace Andromeda {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
+    }
+
+    void resetOverlayStyle() {
+        ImGui::PopStyleColor(3);
+        ImGui::PopStyleVar(3);
+    }
+
+    void drawWireframeControl(const u32& textureID, ImGuiWindowFlags flags) {
+        const ImTextureID imguiID = (ImTextureID)(intptr_t)textureID;
+        ImVec2 childSize = ImVec2(32, 32);
+        ImVec2 screenPos = ImGui::GetCursorScreenPos();
+        setOverlayStyle();
 
         bool clicked = false;
         if (ImGui::BeginChild("Toolbar", childSize, ImGuiChildFlags_None, flags)) {
@@ -36,8 +51,7 @@ namespace Andromeda {
 
         drawList->AddCircleFilled(center, radius, ImGui::GetColorU32(color));
 
-        ImGui::PopStyleColor(3);
-        ImGui::PopStyleVar(3);
+        resetOverlayStyle();
 
         if (clicked) {
         }
@@ -62,6 +76,28 @@ namespace Andromeda {
             ImGuiWindowFlags_NoMove;
         drawWireframeControl(textureID,overlayFlags);
     }
+
+    void updateImGuiMousePos(const ViewportDimension& vpDimension, Gui::GuiRenderer& guiRenderer,const Gui::ViewportDrawInfo& drawInfo) {
+        auto* cam = drawInfo.camData;
+        cam->viewportSize = vec2(vpDimension.size.x, vpDimension.size.y);
+        cam->viewportPos = vec2(vpDimension.min.x, vpDimension.min.y);
+
+        ImVec2 mousePos = ImGui::GetMousePos();
+        bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+
+        Gui::GuiRenderer::s_ViewportFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+        guiRenderer.m_ViewportHovered = hovered;
+        cam->hasValidPickRay = hovered;
+
+        if (hovered) {
+            cam->imGuiMouseX = mousePos.x - vpDimension.min.x;
+            cam->imGuiMouseY = mousePos.y - vpDimension.min.y;
+            cam->framebufferSize = glm::vec2(vpDimension.size.x, vpDimension.size.y);
+        }
+        else {
+            cam->imGuiMouseX = cam->imGuiMouseY = -1.0f;
+        }
+    }
     void drawViewportImage(Gui::GuiRenderer& guiRenderer, const Gui::ViewportDrawInfo& drawInfo)
     {
         const ImVec2 currentSize = ImGui::GetContentRegionAvail();
@@ -73,24 +109,12 @@ namespace Andromeda {
         ImVec2 rectMin = ImGui::GetItemRectMin();
         ImVec2 rectMax = ImGui::GetItemRectMax();
    
-        auto* cam = drawInfo.camData;
-        cam->viewportSize = vec2(currentSize.x, currentSize.y);
-        cam->viewportPos = vec2(rectMin.x, rectMin.y);
-
-        ImVec2 mousePos = ImGui::GetMousePos();
-        bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
-    
-        Gui::GuiRenderer::s_ViewportFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
-        guiRenderer.m_ViewportHovered = hovered;
-        cam->hasValidPickRay = hovered;
-
-        if (hovered) {
-            cam->imGuiMouseX = mousePos.x - rectMin.x;
-            cam->imGuiMouseY = mousePos.y - rectMin.y;
-            cam->framebufferSize = glm::vec2(currentSize.x, currentSize.y);
-        } else {
-            cam->imGuiMouseX = cam->imGuiMouseY = -1.0f;
-        }
+        ViewportDimension vpDimension{
+            rectMin,
+            rectMax,
+            currentSize
+        };
+        updateImGuiMousePos(vpDimension, guiRenderer, drawInfo);
 
         drawViewportOverlay(rectMax, rectMin, guiRenderer.m_ResourceManager->getEditorIconID("box"));
     }
