@@ -90,7 +90,7 @@ void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
             }
             ImGui::EndChild();
         }
-        ImGui::End();
     }
+    ImGui::End();
     ImGui::PopStyleVar();
 }

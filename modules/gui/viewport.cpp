@@ -3,6 +3,16 @@
 #include "gui_renderer.h"
 namespace Andromeda::Gui {
 
+    struct TransformIcons {
+        enum Type { Translate, Scale, Rotate, Select, Count };
+
+        u32 handles[Count];
+
+        static constexpr const char* toolNames[Count] = {
+            "translate", "scale", "rotate", "select"
+        };
+    };
+
     struct ViewportDimension {
         ImVec2 min;
         ImVec2 max;
@@ -19,62 +29,157 @@ namespace Andromeda::Gui {
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
     }
 
+[[nodiscard]]
+    ImGuiWindowFlags setOverlayFlags(){
+        constexpr ImGuiWindowFlags overlayFlags = ImGuiWindowFlags_NoDecoration |
+        ImGuiWindowFlags_NoDocking |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoSavedSettings |
+        ImGuiWindowFlags_NoFocusOnAppearing |
+        ImGuiWindowFlags_NoBackground |
+        ImGuiWindowFlags_NoNav |
+        ImGuiWindowFlags_NoMove;
+        return overlayFlags;
+    }
+
     void resetOverlayStyle() {
         ImGui::PopStyleColor(3);
         ImGui::PopStyleVar(3);
     }
 
-    void drawWireframeControl(const u32& textureID, ImGuiWindowFlags flags) {
-        const ImTextureID imguiID = (ImTextureID)(intptr_t)textureID;
-        ImVec2 childSize = ImVec2(32, 32);
-        ImVec2 screenPos = ImGui::GetCursorScreenPos();
-        setOverlayStyle();
+    void drawTransformButtons(const TransformIcons& textureHandles, const ImGuiWindowFlags flags)
+{
+    constexpr float buttonSpacing = 15.0f;
+    constexpr auto buttonSize = ImVec2(28, 28);
 
-        bool clicked = false;
-        if (ImGui::BeginChild("Toolbar", childSize, ImGuiChildFlags_None, flags)) {
-            if (ImGui::ImageButton("wireframe", imguiID, childSize, ImVec2(0, 0), ImVec2(1, 1))) {
-                clicked = true;
-            }
+    constexpr float pillPaddingX = 8.0f;
+    constexpr float btnSizeX = 28.0f;
+
+    const float contentWidth = (btnSizeX * static_cast<float>(textureHandles.Count))
+                             + (buttonSpacing * static_cast<float>(textureHandles.Count - 1));
+
+    const float totalPillWidth = contentWidth + (2.0f * pillPaddingX);
+    constexpr float totalPillHeight = 42.0f; // Höhe der Pille
+
+    const ImVec2 startScreenPos = ImGui::GetCursorScreenPos();
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    const ImVec2 pillMin = startScreenPos;
+    const auto pillMax = ImVec2(startScreenPos.x + totalPillWidth, startScreenPos.y + totalPillHeight);
+
+    const ImU32 pillColor = ImGui::GetColorU32(ImVec4(0.1f, 0.1f, 0.1f, 0.6f));
+
+    constexpr float pillCornerRadius = totalPillHeight * 0.5f;
+
+    drawList->AddRectFilled(pillMin, pillMax, pillColor, pillCornerRadius);
+
+
+    ImGui::SetCursorScreenPos(ImVec2(startScreenPos.x + pillPaddingX, startScreenPos.y + 7.0f));
+
+    for (u32 i = 0; i < textureHandles.Count; i++)
+    {
+        const ImTextureID texID = static_cast<ImTextureID>(static_cast<intptr_t>(textureHandles.handles[i]));
+        const ImVec2 currentBtnScreenPos = ImGui::GetCursorScreenPos();
+
+        ImGui::PushID(i);
+
+        ImGui::InvisibleButton(textureHandles.toolNames[i], buttonSize);
+
+        const bool isHovered = ImGui::IsItemHovered();
+        const bool isActive = ImGui::IsItemActive();
+
+        if (isHovered || isActive) {
+            const auto btnCenter = ImVec2(currentBtnScreenPos.x + buttonSize.x * 0.5f, currentBtnScreenPos.y + buttonSize.y * 0.5f);
+
+            constexpr float circleRadius = (28.0f * 0.5f) + 4.0f;
+
+            auto circleColorVec = ImVec4(0.25f, 0.25f, 0.25f, 0.7f); // Hover-Farbe
+            if (isActive) circleColorVec = ImVec4(0.4f, 0.4f, 0.4f, 0.8f); // Active-Farbe
+
+            drawList->AddCircleFilled(btnCenter, circleRadius, ImGui::GetColorU32(circleColorVec));
         }
 
-        bool isHovered = ImGui::IsItemHovered();
-        bool isActive = ImGui::IsItemActive();
-        ImGui::EndChild();
+        ImGui::SetCursorScreenPos(currentBtnScreenPos);
+        ImGui::Image(texID, buttonSize);
 
-        ImDrawList* drawList = ImGui::GetWindowDrawList();
-        ImVec2 center = ImVec2(screenPos.x + childSize.x * 0.5f, screenPos.y + childSize.y * 0.5f);
-        float radius = (childSize.x * 0.5f) + 6.0f;
+        ImGui::PopID();
 
-        ImVec4 color = ImVec4(0.1f, 0.1f, 0.1f, 0.6f);
-        if (isActive)      color = ImVec4(0.4f, 0.4f, 0.4f, 0.8f);
-        else if (isHovered) color = ImVec4(0.25f, 0.25f, 0.25f, 0.7f);
-
-        drawList->AddCircleFilled(center, radius, ImGui::GetColorU32(color));
-
-        resetOverlayStyle();
-
-        if (clicked) {
+        if (i < textureHandles.Count - 1) {
+            ImGui::SetCursorScreenPos(ImVec2(currentBtnScreenPos.x + buttonSize.x + buttonSpacing, currentBtnScreenPos.y));
         }
     }
+}
+   void drawWireframeControl(const u32& textureID, const ImGuiWindowFlags flags) {
+    const ImTextureID imguiID = static_cast<ImTextureID>(static_cast<intptr_t>(textureID));
+    constexpr auto childSize = ImVec2(32, 32);
 
-    void drawViewportOverlay(ImVec2 rectMax, ImVec2 rectMin, const u32& textureID) {
-        float padding = 10.0f;
-        ImVec2 childSize = ImVec2(32.0f, 32.0f);
-        auto overlayPos = ImVec2(rectMax.x - padding, rectMin.x + padding);
-        ImVec2 startPos = ImGui::GetCursorStartPos();
-        float xPos = startPos.x + ImGui::GetContentRegionAvail().x - childSize.x - padding;
-        float yPos = startPos.y + padding;
-        ImGui::SetCursorPos(ImVec2(xPos,yPos));
-        ImGui::SetNextWindowBgAlpha(0.35f);
-        ImGuiWindowFlags overlayFlags = ImGuiWindowFlags_NoDecoration |
-            ImGuiWindowFlags_NoDocking |
-            ImGuiWindowFlags_AlwaysAutoResize |
-            ImGuiWindowFlags_NoSavedSettings |
-            ImGuiWindowFlags_NoFocusOnAppearing |
-            ImGuiWindowFlags_NoBackground |
-            ImGuiWindowFlags_NoNav |
-            ImGuiWindowFlags_NoMove;
-        drawWireframeControl(textureID,overlayFlags);
+    const ImVec2 screenPos = ImGui::GetCursorScreenPos();
+    const auto center = ImVec2(screenPos.x + childSize.x * 0.5f, screenPos.y + childSize.y * 0.5f);
+    constexpr float radius = (childSize.x * 0.5f) + 6.0f;
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    ImGui::PushID("wireframe_bg");
+
+
+    bool clicked = false;
+    ImGui::InvisibleButton("wireframe_logic", ImVec2(childSize.x, childSize.y));
+    const bool isHovered = ImGui::IsItemHovered();
+    const bool isActive = ImGui::IsItemActive();
+    if (ImGui::IsItemClicked()) clicked = true;
+
+    auto color = ImVec4(0.1f, 0.1f, 0.1f, 0.6f);
+    if (isActive)      color = ImVec4(0.4f, 0.4f, 0.4f, 0.8f);
+    else if (isHovered) color = ImVec4(0.25f, 0.25f, 0.25f, 0.7f);
+
+    drawList->AddCircleFilled(center, radius, ImGui::GetColorU32(color));
+
+    ImGui::SetCursorScreenPos(screenPos);
+    ImGui::Image(imguiID, childSize);
+
+    ImGui::PopID();
+
+    if (clicked) {
+
+    }
+}
+
+    void drawViewportOverlay(ImVec2 rectMax, ImVec2 rectMin, const u32& textureID, const TransformIcons& textureHandles) {
+        const ImVec2 startPos = ImGui::GetCursorStartPos();
+
+        const float availableWidth = ImGui::GetContentRegionAvail().x;
+
+        const float childWidth = availableWidth;
+        constexpr float childHeight = 55.0f;
+
+        ImGui::SetCursorPos(ImVec2(startPos.x,startPos.y));
+
+        const ImGuiWindowFlags overlayFlags = setOverlayFlags();
+        ImGui::SetNextWindowBgAlpha(0.0f);
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+        if (ImGui::BeginChild("ToolbarOverlay", ImVec2(childWidth, childHeight), ImGuiChildFlags_None, overlayFlags))
+        {
+            constexpr float padding = 10.0f;
+            setOverlayStyle();
+
+            ImGui::SetCursorPos(ImVec2(padding, 11.0f));
+            drawWireframeControl(textureID, overlayFlags);
+
+            constexpr float btnSize = 28.0f;
+            constexpr float btnSpacing = 10.0f;
+            constexpr float transformWidth = (btnSize * 4.0f) + (btnSpacing * 3.0f);
+
+            const float centerPosX = (childWidth - transformWidth) * 0.5f;
+
+            ImGui::SetCursorPos(ImVec2(centerPosX, 13.5f));
+            drawTransformButtons(textureHandles, overlayFlags);
+
+            resetOverlayStyle();
+        }
+        ImGui::EndChild();
+        ImGui::PopStyleVar();
     }
 
     void updateImGuiMousePos(const ViewportDimension& vpDimension, Gui::GuiRenderer& guiRenderer,const Gui::ViewportDrawInfo& drawInfo) {
@@ -82,8 +187,8 @@ namespace Andromeda::Gui {
         cam->viewportSize = vec2(vpDimension.size.x, vpDimension.size.y);
         cam->viewportPos = vec2(vpDimension.min.x, vpDimension.min.y);
 
-        ImVec2 mousePos = ImGui::GetMousePos();
-        bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+        const ImVec2 mousePos = ImGui::GetMousePos();
+        const bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
         Gui::GuiRenderer::s_ViewportFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
         guiRenderer.m_ViewportHovered = hovered;
@@ -103,20 +208,28 @@ namespace Andromeda::Gui {
         const ImVec2 currentSize = ImGui::GetContentRegionAvail();
         Gui::GuiRenderer::s_ViewportSize = currentSize;
 
-        ImGui::Image((void*)static_cast<intptr_t>(drawInfo.postProcessingFboTexture), 
+        ImGui::Image((void*)static_cast<intptr_t>(drawInfo.postProcessingFboTexture),
                      currentSize, ImVec2(0, 1), ImVec2(1, 0));
 
-        ImVec2 rectMin = ImGui::GetItemRectMin();
-        ImVec2 rectMax = ImGui::GetItemRectMax();
-   
-        ViewportDimension vpDimension{
+        const ImVec2 rectMin = ImGui::GetItemRectMin();
+        const ImVec2 rectMax = ImGui::GetItemRectMax();
+
+        const ViewportDimension vpDimension{
             rectMin,
             rectMax,
             currentSize
         };
         updateImGuiMousePos(vpDimension, guiRenderer, drawInfo);
+        const u32 id = guiRenderer.m_ResourceManager->getEditorIconID("box");
 
-        drawViewportOverlay(rectMax, rectMin, guiRenderer.m_ResourceManager->getEditorIconID("box"));
+        const TransformIcons icons{
+            guiRenderer.m_ResourceManager->getEditorIconID("translate"),
+            guiRenderer.m_ResourceManager->getEditorIconID("scale"),
+            guiRenderer.m_ResourceManager->getEditorIconID("rotate"),
+            guiRenderer.m_ResourceManager->getEditorIconID("select")
+        };
+
+        drawViewportOverlay(rectMax, rectMin, id,icons);
     }
 
     void handleViewportInput(const Gui::ViewportDrawInfo& drawInfo)
