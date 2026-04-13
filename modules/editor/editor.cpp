@@ -8,9 +8,8 @@
 #include "a_guiTypes.hpp"
 #include "a_registry.hpp"
 #include <a_event_manager.hpp>
-#include <iostream>
 namespace Andromeda {
-    void Editor::start()
+    void Editor::initEditorContext()
     {
         assert(Window::m_GlContext && "OpenGL context is not initialized!");
         m_Renderer = SystemManager::getInstance().getSubsystem<Renderer>();
@@ -20,32 +19,39 @@ namespace Andromeda {
         auto* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
         assert(rm && "rm is nullptr in Editor::Start()");
 
-        Gui::GuiRendererConfig guiConfig;
-        guiConfig.cam = &m_SceneManager->m_EditorCamData;
-        guiConfig.glsl_version = Andromeda::Renderer::glsl_version;
-        guiConfig.sdl_gl_context = Window::m_GlContext;
-        guiConfig.registry = &m_SceneManager->m_Registry;
-        guiConfig.window = Window::g_Window;
-        guiConfig.resource = rm;
-        guiConfig.sceneManager = m_SceneManager;
-        guiConfig.dp = rm;
-        m_GuiRenderer.init(guiConfig);
+        m_EditorContext.cameraData = &m_SceneManager->m_EditorCamData;
+        m_EditorContext.registry = &m_SceneManager->m_Registry;
+        m_EditorContext.sceneManager = m_SceneManager;
+        m_EditorContext.resourceManager = rm;
+        m_EditorContext.windowContext.glslVersion = Renderer::glsl_version;
+        m_EditorContext.windowContext.glContext = Window::m_GlContext;
+        m_EditorContext.windowContext.window = Window::g_Window;
+        m_EditorContext.deviceProvider = rm;
+
+    }
+
+    void Editor::start()
+    {
+        initEditorContext();
+        m_GuiRenderer.init(m_EditorContext);
     }
     void Editor::update()
     {
-        if (Gui::GuiRenderer::s_ViewportFocused) {
+        if (m_EditorContext.state.viewportFocused) {
             cameraMovement(m_SceneManager->m_EditorCamData);
         }
 
-        vec2 viewportSize = m_GuiRenderer.getViewportWindowSize();
-        setProjectionMatrix(m_SceneManager->m_EditorCamData, viewportSize.x, viewportSize.y);
+        vec2 viewportSize = m_EditorContext.layout.viewportSize;
+        if (viewportSize.x > 0 && viewportSize.y > 0) {
+            setProjectionMatrix(m_SceneManager->m_EditorCamData, viewportSize.x, viewportSize.y);
+        }
         updatePickingRay(m_SceneManager->m_EditorCamData);
         editorPicking(&m_SceneManager->m_EditorCamData);
         Gui::ViewportDrawInfo vpInfo;
         vpInfo.camData = &m_SceneManager->m_EditorCamData;
-        vpInfo.framebufferSize = m_Renderer->m_FramebufferSize;
+        vpInfo.framebufferSize = viewportSize;
         vpInfo.postProcessingFboTexture = m_Renderer->fboManager.m_PostprocessTexture;
-        m_GuiRenderer.update(vpInfo);
+        m_GuiRenderer.update(vpInfo, m_EditorContext);
     }
 
     void Editor::updateEvent(SDL_Event* event) {
@@ -92,7 +98,7 @@ namespace Andromeda {
     }
     void Editor::editorPicking(const amath::CameraData* cam)
     {
-        if (!m_GuiRenderer.m_ViewportHovered) {
+        if (!m_EditorContext.state.viewportHovered) {
             return;
         }
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
@@ -115,13 +121,13 @@ namespace Andromeda {
 
                 if (RayIntersectAABB(*cam, aabb, modelMatrix)) {
                     handle.add<ECS::Component::Selected>({});
-                    m_GuiRenderer.m_CurrentSelectedID = e;
+                    m_EditorContext.state.currentSelectedID = e;
                     anyHit = true;
                     break;
                 }
             }
             if (!anyHit) {
-                m_GuiRenderer.m_CurrentSelectedID = -1;
+                m_EditorContext.state.currentSelectedID = -1;
             }
         }
     }
@@ -152,7 +158,7 @@ namespace Andromeda {
         if (cam.canRotate == false) {
             return;
         }
-        if (!Gui::GuiRenderer::s_ViewportFocused) {
+        if (!m_EditorContext.state.viewportFocused) {
             SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), false);
             return;
         }

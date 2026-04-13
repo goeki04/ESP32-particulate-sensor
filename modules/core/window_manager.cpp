@@ -3,10 +3,12 @@
 #include <cstring>
 #include <stdexcept>
 #include <GL/glew.h>
+#include "a_primitives.hpp"
+#include <iostream>
 namespace Andromeda::Window {
     SDL_Surface* WindowManager::CreateSDLSurface(const char* path)
     {
-        int w, h, channels;
+        i32 w, h, channels;
         unsigned char* pixels = stbi_load(path, &w, &h, &channels, 4);
         if (!pixels) {
             SDL_Log("Failed to load image: %s", stbi_failure_reason());
@@ -27,7 +29,8 @@ namespace Andromeda::Window {
         return surface;
     }
     void WindowManager::start() {
-        int16_t windowFlags = 0;
+
+        i16 windowFlags = 0;
         SDL_Surface* surface = CreateSDLSurface(ASSET_PATH "logo.png");
 
         windowFlags |= SDL_WINDOW_MAXIMIZED;
@@ -38,10 +41,11 @@ namespace Andromeda::Window {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         g_Window = SDL_CreateWindow("Andromeda", NULL, NULL, windowFlags | SDL_WINDOW_OPENGL);
-        SDL_GetWindowSizeInPixels(g_Window, &g_WindowWidth, &g_WindowHeight);
         if (!g_Window) {
             throw std::runtime_error("Failed to call SDL_CreateWindow!");
         }
+
+        SDL_GetWindowSizeInPixels(g_Window, &g_WindowWidth, &g_WindowHeight);
         SDL_SetWindowMinimumSize(g_Window, g_WindowWidth, g_WindowHeight);
         SDL_SetWindowIcon(g_Window, surface);
         m_GlContext = SDL_GL_CreateContext(g_Window);

@@ -30,6 +30,7 @@ SDL_AppResult SDL_Init() {
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+
     SDL_Init();
     Andromeda::SystemManager::getInstance().addSubsystem(&windowManager);
     Andromeda::SystemManager::getInstance().addSubsystem(&inputManager);
@@ -37,6 +38,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Andromeda::SystemManager::getInstance().addSubsystem(&sceneManager);
     Andromeda::SystemManager::getInstance().addSubsystem(&renderer);
     Andromeda::SystemManager::getInstance().addSubsystem(&editor);
+
     Andromeda::SystemManager::getInstance().startSubsystems();
 
     g_EspClient.getDecoder().addOnMessageCallback([](uint32_t type, const std::vector<uint8_t>& payload) {

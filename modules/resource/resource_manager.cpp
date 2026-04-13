@@ -21,6 +21,7 @@ namespace Andromeda {
         loadDeviceIcons();
         loadEditorIcons();
         setupMeshes();
+
     }
 
     void ResourceManager::loadModels()

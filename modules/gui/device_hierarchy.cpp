@@ -11,31 +11,31 @@ std::string Andromeda::Gui::Panels::getEntityName(ECS::EntityHandle handle)
     return "Unnamed";
 }
 
-void Andromeda::Gui::Panels::selectEntity(GuiRenderer& guiRenderer, ECS::Entity entity)
+void Andromeda::Gui::Panels::selectEntity(EditorContext& ctx, ECS::Entity entity)
 {
-    if (guiRenderer.m_CurrentSelectedID != ECS::INVALID_ENTITY_ID)
+    if (ctx.state.currentSelectedID != ECS::INVALID_ENTITY_ID)
     {
-        auto& selectedPool = guiRenderer.m_Registry->getPool<ECS::Component::Selected>();
+        auto& selectedPool = ctx.registry->getPool<ECS::Component::Selected>();
 
-        if (selectedPool.has(guiRenderer.m_CurrentSelectedID)) {
-            selectedPool.removeEntity(guiRenderer.m_CurrentSelectedID);
+        if (selectedPool.has(ctx.state.currentSelectedID)) {
+            selectedPool.removeEntity(ctx.state.currentSelectedID);
         }
     }
 
-    guiRenderer.m_CurrentSelectedID = entity;
+    ctx.state.currentSelectedID = entity;
 
     if (entity != ECS::INVALID_ENTITY_ID)
     {
-        ECS::EntityHandle handle = { entity, guiRenderer.m_Registry };
+        ECS::EntityHandle handle = { entity, ctx.registry };
         handle.add<ECS::Component::Selected>({});
     }
 }
 
-void Andromeda::Gui::Panels::drawEntityNode(GuiRenderer& guiRenderer, ECS::Entity e)
+void Andromeda::Gui::Panels::drawEntityNode(EditorContext& ctx, ECS::Entity e)
 {
     ImGui::PushID(static_cast<i32>(e));
-    ECS::EntityHandle handle = { e, guiRenderer.m_Registry };
-    const bool isSelected = (guiRenderer.m_CurrentSelectedID == e);
+    ECS::EntityHandle handle = { e, ctx.registry };
+    const bool isSelected = (ctx.state.currentSelectedID == e);
     const std::string label = getEntityName(handle);
 
     if (isSelected) {
@@ -43,7 +43,7 @@ void Andromeda::Gui::Panels::drawEntityNode(GuiRenderer& guiRenderer, ECS::Entit
     }
 
     if (ImGui::Selectable(label.c_str(), isSelected)) {
-        selectEntity(guiRenderer, e);
+        selectEntity(ctx,e);
     }
 
     if (isSelected) {
@@ -51,14 +51,14 @@ void Andromeda::Gui::Panels::drawEntityNode(GuiRenderer& guiRenderer, ECS::Entit
     }
 
     if (ImGui::BeginPopupContextItem()) {
-        guiRenderer.m_CurrentSelectedID = e;
+        ctx.state.currentSelectedID = e;
         ImGui::Text("Context");
         ImGui::Separator();
 
         if (ImGui::MenuItem("Delete")) {
-            guiRenderer.m_Registry->destroyEntity(e);
-            if (guiRenderer.m_CurrentSelectedID == e) {
-                guiRenderer.m_CurrentSelectedID = ECS::INVALID_ENTITY_ID;
+            ctx.registry->destroyEntity(e);
+            if (ctx.state.currentSelectedID == e) {
+                ctx.state.currentSelectedID = ECS::INVALID_ENTITY_ID;
             }
         }
         ImGui::EndPopup();
@@ -66,18 +66,13 @@ void Andromeda::Gui::Panels::drawEntityNode(GuiRenderer& guiRenderer, ECS::Entit
     ImGui::PopID();
 }
 
-void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
+void Andromeda::Gui::Panels::drawDeviceHierarchy(EditorContext& ctx)
 {
-    const auto windowSize = ImVec2(guiRenderer.m_WidgetWidth, static_cast<float>(guiRenderer.m_WindowHeight) * 0.55f);
-    const auto newPos = guiRenderer.getNewWindowPos(Margin(guiRenderer.m_MarginDefault, 0, guiRenderer.m_MarginDefault, guiRenderer.m_MarginDefault), windowSize, Alignment::TopLeft);
-
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
-    ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
 
-    if (ImGui::Begin("Hierarchy", nullptr, guiRenderer.m_WindowFlags)) {
+    if (ImGui::Begin("Hierarchy", nullptr)) {
         if (ImGui::BeginChild("HierarchyList", ImVec2(0.0f, 0.0f), true, ImGuiWindowFlags_NoScrollbar)) {
-            const auto& transformPool = guiRenderer.m_Registry->getPool<ECS::Component::Transform>();
+            const auto& transformPool = ctx.registry->getPool<ECS::Component::Transform>();
             const auto& entityIDs = transformPool.getEntities();
 
             ImGuiListClipper clipper;
@@ -85,7 +80,7 @@ void Andromeda::Gui::Panels::drawDeviceHierarchy(GuiRenderer& guiRenderer)
 
             while (clipper.Step()) {
                 for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
-                    drawEntityNode(guiRenderer, entityIDs[i]);
+                    drawEntityNode(ctx, entityIDs[i]);
                 }
             }
             ImGui::EndChild();

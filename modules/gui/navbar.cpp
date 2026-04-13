@@ -2,7 +2,7 @@
 #include "gui_renderer.h"
 #include "console.h"
 #include "sceneSerializer.hpp"
-void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
+void Andromeda::Gui::Panels::drawNavBar(EditorContext& ctx)
 {
     ImGuiStyle& style = ImGui::GetStyle();
     style.FramePadding.y = 9.0f;
@@ -10,16 +10,15 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground;
     if (ImGui::BeginMainMenuBar())
     {
-        guiRenderer.m_MenuBarHeight = ImGui::GetWindowSize().y;
         if (ImGui::BeginMenu("File"))
         {
             if (ImGui::MenuItem("Save")) {
-                if (!SceneSerializer::save("save_1.json", *guiRenderer.m_Registry)) {
+                if (!SceneSerializer::save("save_1.json", *ctx.registry)) {
                     throw std::runtime_error("saving the scene has failed!");
                 }
             }
             if (ImGui::MenuItem("Load")) {
-                if (!SceneSerializer::load("save_1.json", *guiRenderer.m_Registry)) {
+                if (!SceneSerializer::load("save_1.json", *ctx.registry)) {
                     throw std::runtime_error("loading the scene has failed!");
                 }
             }
@@ -41,22 +40,19 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
         if (ImGui::BeginMenu("Info"))
         {
             if (ImGui::MenuItem("Licenses")) {
-                guiRenderer.OpenFolder();
+                GuiRenderer::OpenFolder();
             }
             if (ImGui::MenuItem("SDK")) {
-                guiRenderer.OpenURL("https://www.bosch-sensortec.com/software-tools/software/previous-sdk-bmv-080-versions/");
+                GuiRenderer::OpenURL("https://www.bosch-sensortec.com/software-tools/software/previous-sdk-bmv-080-versions/");
             }
             if (ImGui::MenuItem("Github")) {
-                guiRenderer.OpenURL("https://github.com/goeki04/ESP32-particulate-sensor");
-            }
-            if (ImGui::MenuItem("Version")) {
-                Andromeda::Gui::GuiRenderer::m_ShowVersion = true;
+                GuiRenderer::OpenURL("https://github.com/goeki04/ESP32-particulate-sensor");
             }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Window")) {
-            if (ImGui::MenuItem("Console", nullptr, guiRenderer.m_ConsoleOpen)) {
-                guiRenderer.m_ConsoleOpen = !guiRenderer.m_ConsoleOpen;
+            if (ImGui::MenuItem("Console", nullptr, ctx.state.consoleOpen)) {
+                ctx.state.consoleOpen = !ctx.state.consoleOpen;
             }
             ImGui::EndMenu();
         }
@@ -75,28 +71,11 @@ void Andromeda::Gui::Panels::drawNavBar(GuiRenderer& guiRenderer)
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
-        if (guiRenderer.m_ConsoleOpen) {
-            static Console::AppConsole networkConsole;
-            networkConsole.draw("Console", &guiRenderer.m_ConsoleOpen);
-        }
-        ImGui::PopStyleVar();
-        if (Andromeda::Gui::GuiRenderer::m_ShowVersion) {
-            ImGui::SetNextWindowSize(ImVec2(guiRenderer.m_WidgetWidth, guiRenderer.m_WidgetWidth), ImGuiCond_FirstUseEver);
-            ImGui::Begin("Version", &Andromeda::Gui::GuiRenderer::m_ShowVersion, guiRenderer.m_WindowFlags);
-            ImGui::TextUnformatted("App version: V1.0.0");
-            const std::string osName = "OS: " + std::string(ANDROMEDA_OS);
-            ImGui::TextUnformatted(osName.c_str());
-            const std::string arch = "Arch: " + std::string(ANDROMEDA_ARCH);
-            ImGui::TextUnformatted(arch.c_str());
-            ImGui::TextUnformatted("Dev: Goekdeniz Koeksal");
-            ImGui::TextUnformatted(guiRenderer.m_ImGuiVersion.c_str());
 
-            int major = SDL_MAJOR_VERSION;
-            int minor = SDL_MINOR_VERSION;
-            int patch = SDL_MICRO_VERSION;
-            const std::string sdlVersion = std::format("SDL {}.{}.{}", major, minor, patch);
-            ImGui::TextUnformatted(sdlVersion.c_str());
-            ImGui::End();
+        ImGui::PopStyleVar();
+        if (ctx.state.consoleOpen) {
+            static Console::AppConsole networkConsole;
+            networkConsole.draw("Console", &ctx.state.consoleOpen);
         }
     }
 }

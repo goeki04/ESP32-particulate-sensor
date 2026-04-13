@@ -6,7 +6,7 @@
 
 namespace Andromeda::Gui::Console {
 
-    CommandLine AppConsole::parseInput(std::string_view input) {
+    CommandLine AppConsole::parseInput(const std::string_view input) {
         CommandLine cl;
 
         if (const size_t space_pos = input.find_first_of(" \t"); space_pos != std::string_view::npos) {
@@ -249,8 +249,8 @@ namespace Andromeda::Gui::Console {
                         data->InsertChars(data->CursorPos, candidates[0].data(), candidates[0].data() + match_len);
                     }
                     addLog("Commands:\n");
-                    for (auto const& cand : candidates)
-                        addLog("{}", cand);
+                    for (auto const& candidate : candidates)
+                        addLog("{}", candidate);
                 }
                 break;
             }
