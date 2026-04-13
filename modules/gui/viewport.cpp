@@ -1,6 +1,9 @@
 #include "panels.h"
 #include "a_math.hpp"
 #include "gui_renderer.h"
+#include "resource_manager.h"
+#include "a_EditorContext.hpp"
+
 namespace Andromeda::Gui {
 
     struct TransformIcons {
@@ -93,8 +96,8 @@ namespace Andromeda::Gui {
 
             constexpr float circleRadius = (28.0f * 0.5f) + 4.0f;
 
-            auto circleColorVec = ImVec4(0.25f, 0.25f, 0.25f, 0.7f); // Hover-Farbe
-            if (isActive) circleColorVec = ImVec4(0.4f, 0.4f, 0.4f, 0.8f); // Active-Farbe
+            auto circleColorVec = ImVec4(0.25f, 0.25f, 0.25f, 0.7f);
+            if (isActive) circleColorVec = ImVec4(0.4f, 0.4f, 0.4f, 0.8f);
 
             drawList->AddCircleFilled(btnCenter, circleRadius, ImGui::GetColorU32(circleColorVec));
         }
@@ -182,7 +185,7 @@ namespace Andromeda::Gui {
         ImGui::PopStyleVar();
     }
 
-    void updateImGuiMousePos(const ViewportDimension& vpDimension, Gui::GuiRenderer& guiRenderer,const Gui::ViewportDrawInfo& drawInfo) {
+    void updateImGuiMousePos(const ViewportDimension& vpDimension, EditorContext& ctx,const Gui::ViewportDrawInfo& drawInfo) {
         auto* cam = drawInfo.camData;
         cam->viewportSize = vec2(vpDimension.size.x, vpDimension.size.y);
         cam->viewportPos = vec2(vpDimension.min.x, vpDimension.min.y);
@@ -190,8 +193,8 @@ namespace Andromeda::Gui {
         const ImVec2 mousePos = ImGui::GetMousePos();
         const bool hovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
-        Gui::GuiRenderer::s_ViewportFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
-        guiRenderer.m_ViewportHovered = hovered;
+        ctx.state.viewportFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+        ctx.state.viewportHovered = hovered;
         cam->hasValidPickRay = hovered;
 
         if (hovered) {
@@ -203,10 +206,10 @@ namespace Andromeda::Gui {
             cam->imGuiMouseX = cam->imGuiMouseY = -1.0f;
         }
     }
-    void drawViewportImage(Gui::GuiRenderer& guiRenderer, const Gui::ViewportDrawInfo& drawInfo)
+    void drawViewportImage(EditorContext& ctx, const Gui::ViewportDrawInfo& drawInfo)
     {
         const ImVec2 currentSize = ImGui::GetContentRegionAvail();
-        Gui::GuiRenderer::s_ViewportSize = currentSize;
+        ctx.layout.viewportSize = vec2(currentSize.x, currentSize.y);
 
         ImGui::Image((void*)static_cast<intptr_t>(drawInfo.postProcessingFboTexture),
                      currentSize, ImVec2(0, 1), ImVec2(1, 0));
@@ -219,17 +222,17 @@ namespace Andromeda::Gui {
             rectMax,
             currentSize
         };
-        updateImGuiMousePos(vpDimension, guiRenderer, drawInfo);
-        const u32 id = guiRenderer.m_ResourceManager->getEditorIconID("box");
+        updateImGuiMousePos(vpDimension, ctx, drawInfo);
+        const u32 id = ctx.resourceManager->getEditorIconID("box");
 
         const TransformIcons icons{
-            guiRenderer.m_ResourceManager->getEditorIconID("translate"),
-            guiRenderer.m_ResourceManager->getEditorIconID("scale"),
-            guiRenderer.m_ResourceManager->getEditorIconID("rotate"),
-            guiRenderer.m_ResourceManager->getEditorIconID("select")
+            ctx.resourceManager->getEditorIconID("translate"),
+            ctx.resourceManager->getEditorIconID("scale"),
+            ctx.resourceManager->getEditorIconID("rotate"),
+            ctx.resourceManager->getEditorIconID("select")
         };
 
-        drawViewportOverlay(rectMax, rectMin, id,icons);
+        //drawViewportOverlay(rectMax, rectMin, id,icons);
     }
 
     void handleViewportInput(const Gui::ViewportDrawInfo& drawInfo)
@@ -246,21 +249,14 @@ namespace Andromeda::Gui {
         }
     }
 
-    void Gui::Panels::drawViewportGUI(GuiRenderer& guiRenderer, const ViewportDrawInfo& drawInfo)
+    void Gui::Panels::drawViewportGUI(EditorContext& ctx,GuiRenderer& guiRenderer, const ViewportDrawInfo& drawInfo)
     {
         constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-
-        guiRenderer.m_ViewportPos = guiRenderer.getViewportWindowPos();
-        const vec2 vpSize = guiRenderer.getViewportWindowSize();
-
-        ImGui::SetNextWindowPos(guiRenderer.m_ViewportPos, ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(vpSize.x, vpSize.y), ImGuiCond_FirstUseEver);
-
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         if (ImGui::Begin("Viewport", nullptr, windowFlags))
         {
             handleViewportInput(drawInfo);
-            drawViewportImage(guiRenderer, drawInfo);
+            drawViewportImage(ctx, drawInfo);
         }
         ImGui::End();
         ImGui::PopStyleVar();

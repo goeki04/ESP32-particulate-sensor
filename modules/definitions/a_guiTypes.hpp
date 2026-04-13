@@ -1,61 +1,15 @@
 #pragma once
 #include "a_primitives.hpp"
 
-// Forward Declarations
-struct SDL_Window;
 namespace Andromeda::amath { struct CameraData; }
-namespace Andromeda { class IDeviceProvider; class SceneManager; class ResourceManager; }
-namespace Andromeda::ECS { class ComponentRegistry; }
 
 namespace Andromeda::Gui {
-
-    /**
-     * @brief Defines the screen alignment for UI elements.
+     /**
+     * @brief Type alias for ImGui window configuration flags.
+     * * This typedef allows the EditorPanel interface to store window flags (like
+     * ImGuiWindowFlags) without requiring the full 'imgui.h' header in this file.
      */
-    enum Alignment {
-        TopLeft,
-        TopRight,
-        Center,
-        CenterBottom,
-        CenterTop,
-        BottomLeft,
-        BottomRight,
-    };
-
-    /**
-     * @brief Structure to define margins or padding for layout elements.
-     */
-    struct Margin {
-        float left, right, bottom, top;
-
-        /// Default constructor: initializes all sides to 0.0f.
-        Margin() : left(0.0f), right(0.0f), bottom(0.0f), top(0.0f) {}
-
-        /// Sets a uniform margin for all four sides.
-        explicit Margin(const float margin) : left(margin), right(margin), bottom(margin), top(margin) {}
-
-        /// Sets individual values for each side.
-        Margin(float left, float right, float bottom, float top)
-            : left(left), right(right), bottom(bottom), top(top) {
-        }
-    };
-
-    /**
-     * @brief Initialization configuration for the GuiRenderer subsystem.
-     */
-    struct GuiRendererConfig {
-        GuiRendererConfig() : window(nullptr), cam(nullptr), registry(nullptr),
-            dp(nullptr), sdl_gl_context(nullptr), glsl_version(nullptr) {
-        }
-        SceneManager* sceneManager{};       // Handle for placing objects in 3d space
-        SDL_Window* window;               // Handle to the main SDL window
-        amath::CameraData* cam;           // Pointer to the editor camera data
-        ECS::ComponentRegistry* registry; // Pointer to the ECS registry
-        ResourceManager* resource;        // Pointer to the RM
-        IDeviceProvider* dp;              // Interface for resource and device management
-        void* sdl_gl_context;             // OpenGL context handle
-        const char* glsl_version;         // Version string for shader compatibility
-    };
+    typedef i32 EditorWindowFlags;
 
     /**
      * @brief Data structure for passing rendering results to the ImGui viewport.

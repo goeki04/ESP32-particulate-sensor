@@ -3,8 +3,9 @@
 #include "scene.hpp"
 #include "gui_renderer.h"
 #include "a_math.hpp"
+
 namespace Andromeda::Gui::Panels {
-    void deviceBrowserPicking(GuiRenderer& guiRenderer, const amath::CameraData* cameraData) {
+    void deviceBrowserPicking(EditorContext& ctx) {
         static char query[128] = "";
         ImGui::InputTextWithHint("##search", "Search components...", query, IM_ARRAYSIZE(query));
         ImGui::Spacing();
@@ -21,14 +22,13 @@ namespace Andromeda::Gui::Panels {
 
         int perRow = static_cast<i32>(floor((availX + spacingX) / (tileSize.x + spacingX)));
         if (perRow < 1) perRow = 1;
-        assert(guiRenderer.m_DeviceProvider && "DeviceProvider is nullptr in guiRenderer.cpp");
-        const u32 itemCount = guiRenderer.m_DeviceProvider->getDeviceCount();
+        const u32 itemCount = ctx.deviceProvider->getDeviceCount();
         bool any_tile_clicked = false;
 
         for (i32 idx = 0; idx < itemCount; ++idx)
         {
-            const auto& deviceRecord = guiRenderer.m_DeviceProvider->getDeviceData(idx);
-            u32 texID = guiRenderer.m_DeviceProvider->getDeviceIconID(deviceRecord.type);
+            const auto& deviceRecord = ctx.deviceProvider->getDeviceData(idx);
+            u32 texID = ctx.deviceProvider->getDeviceIconID(deviceRecord.type);
 
             ImGui::PushID(idx);
 
@@ -45,10 +45,10 @@ namespace Andromeda::Gui::Panels {
             bool dragged = ImGui::IsMouseDragging(ImGuiMouseButton_Left, 2.0f);
             bool dragEnded = ImGui::IsItemDeactivated() && ImGui::IsMouseReleased(ImGuiMouseButton_Left);
             if (clicked) {
-                guiRenderer.m_SelectedIdx = idx;
+                ctx.state.selectedIdx = idx;
                 any_tile_clicked = true;
             }
-            bool selected = (guiRenderer.m_SelectedIdx == idx);
+            bool selected = (ctx.state.selectedIdx == idx);
 
             ImVec2 tileMin = pMin;
             auto tileMax = ImVec2(pMin.x + tileSize.x, pMin.y + tileSize.y);
@@ -60,11 +60,12 @@ namespace Andromeda::Gui::Panels {
                 dl->AddImage(static_cast<ImTextureID>(static_cast<intptr_t>(texID)), tileMin, tileMax);
             }
             if (dragged && active) {
-                Andromeda::Gui::GuiRenderer::m_HasLastHitpoint = false;
+               ctx.state.hasLastHitpoint = false;
                 
-                if (glm::vec3 hitpoint; cameraData->hasValidPickRay && amath::RayIntersectsXZPlane(cameraData->cursorToWorldRay, 0.0f, hitpoint)) {
-                    Andromeda::Gui::GuiRenderer::m_LastHitPoint = hitpoint;
-                    Andromeda::Gui::GuiRenderer::m_HasLastHitpoint = true;
+                if (glm::vec3 hitpoint; ctx.cameraData->hasValidPickRay &&
+                    amath::RayIntersectsXZPlane(ctx.cameraData->cursorToWorldRay, 0.0f, hitpoint)) {
+                    ctx.state.lastHitPoint = hitpoint;
+                    ctx.state.hasLastHitpoint = true;
                 }
                 
                 ImDrawList* fg = ImGui::GetForegroundDrawList();
@@ -74,10 +75,10 @@ namespace Andromeda::Gui::Panels {
                 fg->AddImage(static_cast<ImTextureID>(static_cast<intptr_t>(texID)), tMin, tMax);
             }
             
-            if (dragEnded && cameraData->hasValidPickRay && Andromeda::Gui::GuiRenderer::m_HasLastHitpoint) {
+            if (dragEnded && ctx.cameraData->hasValidPickRay && ctx.state.hasLastHitpoint) {
                 ECS::Component::Transform transform;
-                transform.position = Andromeda::Gui::GuiRenderer::m_LastHitPoint;
-                guiRenderer.m_SceneManager->addEntity(deviceRecord.id, deviceRecord.name, transform);
+                transform.position = ctx.state.lastHitPoint;
+                ctx.sceneManager->addEntity(deviceRecord.id, deviceRecord.name, transform);
             }
             if (hovered || active)
                 dl->AddRect(tileMin, tileMax, IM_COL32(255, 255, 255, 60), 4.0f, 0, 1.5f);
@@ -108,25 +109,15 @@ namespace Andromeda::Gui::Panels {
             !ImGui::IsAnyItemHovered() &&
             ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
         {
-            guiRenderer.m_SelectedIdx = -1;
+            ctx.state.selectedIdx = -1;
         }
     }
 
-    void drawDeviceBrowser(GuiRenderer& guiRenderer)
+    void drawDeviceBrowser(EditorContext& ctx)
     {
-        const auto windowSize = ImVec2
-        (static_cast<float>(guiRenderer.m_WindowWidth) - guiRenderer.m_MarginDefault * 2 - 2 * guiRenderer.m_WidgetWidth - 100,
-         static_cast<float>(guiRenderer.m_WindowHeight) * 0.35f);
-
-        const ImVec2 newPos = guiRenderer.getNewWindowPos
-        (Margin(guiRenderer.m_MarginDefault, 0, guiRenderer.m_MarginDefault, 0),
-            windowSize, Alignment::CenterBottom);
-
-        ImGui::SetNextWindowPos(newPos, ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(windowSize, ImGuiCond_FirstUseEver);
-        if (ImGui::Begin("Device Browser", nullptr, guiRenderer.m_WindowFlags)){
-            deviceBrowserPicking(guiRenderer,guiRenderer.m_Cam);
+        if (ImGui::Begin("Device Browser", nullptr)){
+            deviceBrowserPicking(ctx);
             ImGui::End();
-        }   
+        }
     }
 }

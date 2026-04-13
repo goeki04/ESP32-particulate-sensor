@@ -9,6 +9,7 @@ add_library(gui STATIC
     gui_renderer.cpp
     device_hierarchy.cpp
     component_ui.cpp
+        HierarchyPanel.cpp
     device_browser.cpp
     console.cpp
     ${CMAKE_SOURCE_DIR}/bindings/imgui_impl_sdl3.cpp

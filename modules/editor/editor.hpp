@@ -3,13 +3,22 @@
 #include "gui_renderer.h"
 #include "scene.hpp"
 #include "a_math.hpp"
+#include "a_EditorContext.hpp"
 namespace Andromeda {
 	class Renderer;
 	class Editor : public ISubsystem{
-		Renderer* m_Renderer = nullptr;
-		SceneManager* m_SceneManager = nullptr;
+		Renderer* m_Renderer;
+		SceneManager* m_SceneManager;
 		Gui::GuiRenderer m_GuiRenderer;
+		Gui::EditorContext m_EditorContext;
 	public:
+		Editor()
+			: m_Renderer(nullptr),
+			  m_SceneManager(nullptr)
+		{
+		}
+
+		void initEditorContext();
 		void start() override;
 		void update() override;
 		void updateEvent(SDL_Event* event) override;
@@ -23,7 +32,7 @@ namespace Andromeda {
 		}
 		void updateEditorCameraRay() const;
 
-		static void cameraMovement(amath::CameraData& cameraData);
+		void cameraMovement(amath::CameraData& cameraData);
 		[[nodiscard]] static vec3 getCameraPos(const amath::CameraData& cam);
 		[[nodiscard]] static mat4 getViewMatrix(const amath::CameraData& cam);
 

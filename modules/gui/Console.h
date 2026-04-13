@@ -61,7 +61,7 @@ namespace Andromeda::Gui::Console {
         ~AppConsole();
         void clearLog();
         template<typename... Args>
-        void addLog(std::string_view fmt, Args&&... args)
+        void addLog(const std::string_view fmt, Args&&... args)
         {
             m_Items.push_back(std::vformat(fmt, std::make_format_args(args...)));
             m_ScrollToBottom = true;

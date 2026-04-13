@@ -2,6 +2,8 @@
 #include "a_primitives.hpp"
 #include "a_guiTypes.hpp"
 #include <string>
+
+#include "a_EditorContext.hpp"
 #include "a_registry.hpp"
 namespace Andromeda::Gui {
 	class GuiRenderer;
@@ -10,12 +12,12 @@ namespace Andromeda::amath {
 	struct CameraData;
 }
 namespace Andromeda::Gui::Panels {
-	void drawNavBar(GuiRenderer& guiRenderer);
+	void drawNavBar(EditorContext& context);
 	std::string getEntityName(ECS::EntityHandle handle);
-	void selectEntity(GuiRenderer& guiRenderer, ECS::Entity entity);
-	void drawEntityNode(GuiRenderer& guiRenderer, ECS::Entity e);
-	void drawDeviceHierarchy(GuiRenderer& guiRenderer);
-	void drawDeviceBrowser(GuiRenderer& guiRenderer);
-	void drawDetails(const GuiRenderer& guiRenderer);
-	void drawViewportGUI(GuiRenderer& guiRenderer, const ViewportDrawInfo& drawInfo);
+	void selectEntity(EditorContext& ctx, ECS::Entity entity);
+	void drawEntityNode(EditorContext& ctx, ECS::Entity e);
+	void drawDeviceHierarchy(EditorContext& ctx);
+	void drawDeviceBrowser(EditorContext& ctx);
+	void drawDetails(const EditorContext& ctx);
+	void drawViewportGUI(EditorContext& ctx, GuiRenderer& guiRenderer, const ViewportDrawInfo& drawInfo);
 }
