@@ -7,7 +7,7 @@
 #include <filesystem>
 #include "HierarchyPanel.hpp"
 #include "../editor/editor.hpp"
-
+#include <iostream>
 namespace Andromeda::Gui {
 
     void Gui::GuiRenderer::init(EditorContext& editorContext) {
@@ -20,8 +20,7 @@ namespace Andromeda::Gui {
         setStyle();
         loadFont();
 
-        m_Panels.push_back(std::make_unique<HierarchyPanel>(editorContext));
-
+        m_Panels.push_back(std::make_unique<HierarchyPanel>("Hierarchy"));
     }
     void GuiRenderer::update(const ViewportDrawInfo& vpInfo, EditorContext& editorContext) {
         
@@ -32,21 +31,18 @@ namespace Andromeda::Gui {
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockFlags);
         Panels::drawNavBar(editorContext);
         Panels::drawDeviceBrowser(editorContext);
-        Panels::drawDeviceHierarchy(editorContext);
         Panels::drawDetails(editorContext);
-        /*for (auto& panel : m_Panels)
+        for (auto& panel : m_Panels)
         {
             if (panel->m_IsOpen)
             {
                 panel->onImGuiRender(editorContext);
             }
-        }*/
+        }
         drawChart();
         Panels::drawViewportGUI(editorContext,*this, vpInfo);
         EndFrame(Window::g_Window);
-        
     }
-
 
     void GuiRenderer::EndFrame(SDL_Window* window) {
         ImGui::Render();

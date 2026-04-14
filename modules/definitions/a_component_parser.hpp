@@ -4,9 +4,8 @@
  * @file a_component_parser.hpp
  * @brief Provides JSON serialization logic for Andromeda ECS components.
  */
-
-#include <nlohmann/json.hpp>
 #include "a_components.hpp"
+#include <nlohmann/json.hpp>
 #include "a_material.hpp"
 
  /**
@@ -23,17 +22,6 @@
 
         /** @brief Serializes the Tag component used for entity identification. */
         NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Tag, name)
-
-        /**
-         * @brief Serializes the Selected marker component.
-         * @note As a marker component with no data, it is represented as an empty JSON object.
-         */
-        inline void to_json(nlohmann::json& json, const Selected& s) {
-        json = nlohmann::json::object();
-    }
-
-    /** @brief Deserializes the Selected marker component. */
-    inline void from_json(const nlohmann::json& json, Selected& s) {}
 
     /**
      * @brief Converts MaterialShaderType enum to a JSON integer.

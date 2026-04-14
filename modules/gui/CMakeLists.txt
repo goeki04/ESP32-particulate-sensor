@@ -7,7 +7,6 @@ add_library(gui STATIC
     navbar.cpp
     details.cpp
     gui_renderer.cpp
-    device_hierarchy.cpp
     component_ui.cpp
         HierarchyPanel.cpp
     device_browser.cpp

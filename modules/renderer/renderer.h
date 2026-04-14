@@ -37,7 +37,7 @@ namespace Andromeda {
 		u32 getFinalSceneViewportTexture() const;
 		void onViewportResize(ivec2 newSize);
 		void processResizeTimer();
-		void selectionPass() const;
+		void selectionPass(ECS::Entity selectedEntity) const;
 		void postprocessingPass() const;
 
 		void scenePassBegin() const;
@@ -49,6 +49,7 @@ namespace Andromeda {
 
 		static void windowClearPass();
 	private:
+		ECS::Entity m_SelectedForHighlighting = ECS::INVALID_ENTITY_ID;
 		ResourceManager* m_ResourceManager = nullptr;
 		SceneManager* m_SceneManager = nullptr;
 		MsaaSamples m_MSAAsamples = MsaaSamples::x4;

@@ -31,8 +31,6 @@ namespace Andromeda::ECS::Component {
         std::string name = "Unnamed";
     };
 
-    struct Selected{};
-
     struct Mesh {
         u32 meshID;
         MaterialShaderType shaderType;

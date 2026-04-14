@@ -4,19 +4,20 @@
 #include "scene.hpp"
 #include "a_math.hpp"
 #include "a_EditorContext.hpp"
+#include "a_SelectionContext.hpp"
 namespace Andromeda {
 	class Renderer;
 	class Editor : public ISubsystem{
 		Renderer* m_Renderer;
 		SceneManager* m_SceneManager;
 		Gui::GuiRenderer m_GuiRenderer;
+		SelectionContext m_Selection;
 		Gui::EditorContext m_EditorContext;
 	public:
 		Editor()
 			: m_Renderer(nullptr),
 			  m_SceneManager(nullptr)
-		{
-		}
+		{ }
 
 		void initEditorContext();
 		void start() override;

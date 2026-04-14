@@ -16,7 +16,6 @@ namespace Andromeda::Gui::Panels {
 	std::string getEntityName(ECS::EntityHandle handle);
 	void selectEntity(EditorContext& ctx, ECS::Entity entity);
 	void drawEntityNode(EditorContext& ctx, ECS::Entity e);
-	void drawDeviceHierarchy(EditorContext& ctx);
 	void drawDeviceBrowser(EditorContext& ctx);
 	void drawDetails(const EditorContext& ctx);
 	void drawViewportGUI(EditorContext& ctx, GuiRenderer& guiRenderer, const ViewportDrawInfo& drawInfo);

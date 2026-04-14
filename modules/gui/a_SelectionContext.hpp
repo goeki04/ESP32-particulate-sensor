@@ -2,7 +2,7 @@
 #include "a_primitives.hpp"
 namespace Andromeda
 {
-    /**
+  /**
   * @brief Manages the entity selection state within the editor.
   * * This structure acts as a central synchronization point for all UI panels.
   * When a user selects an entity in the Hierarchy, the Inspector (Details)
