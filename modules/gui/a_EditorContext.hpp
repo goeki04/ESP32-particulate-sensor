@@ -65,10 +65,8 @@ namespace Andromeda::Gui
 
             /** @brief True if the console window is currently open. */
             bool consoleOpen = false;
-            /** @brief Index of the currently selected entity in the scene. */
+            /** @brief Index of the currently selected entity in the device browser. */
             i32 selectedIdx = -1;
-            /** @brief ID of the currently selected entity in the scene. */
-            u32 currentSelectedID = ECS::INVALID_ENTITY_ID;
         } state;
 
         /**

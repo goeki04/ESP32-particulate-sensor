@@ -28,15 +28,8 @@ namespace Andromeda::Gui
          */
         virtual void onImGuiRender(EditorContext& ctx) = 0;
 
-        /**
-         * @brief Optional update hook for non-UI logic.
-         * * Use this for processing input shortcuts or background logic
-         * that should run even if the window is collapsed.
-         * @param deltaTime Time elapsed since the last frame.
-         */
-        virtual void onUpdate(float deltaTime) {}
-
     public:
+        explicit EditorPanel(const char* name) : m_Name(name){}
         const char* m_Name = nullptr; ///< The title of the ImGui window.
         bool m_IsOpen = true; ///< Controls the visibility of the panel.
         EditorWindowFlags m_WindowFlags = 0;

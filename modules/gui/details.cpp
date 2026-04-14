@@ -3,10 +3,9 @@
 #include "imgui.h"
 #include "component_ui.hpp"
 #include "generated_component_names.hpp"
-
+#include "a_SelectionContext.hpp"
 namespace Andromeda::Gui::Panels
 {
-
     bool passesFilter(std::string_view name, const char* filter)
     {
         if (filter == nullptr || filter[0] == '\0') {
@@ -88,10 +87,11 @@ namespace Andromeda::Gui::Panels
     void drawDetails(const EditorContext& ctx)
     {
         ImGui::Begin("Details", nullptr);
-        if (ctx.state.currentSelectedID != ECS::INVALID_ENTITY_ID)
+        ECS::Entity entity = ctx.selection->getSelectedEntity();
+        if (entity != ECS::INVALID_ENTITY_ID)
         {
             const ECS::EntityHandle handle = {
-                ctx.state.currentSelectedID,
+                entity,
                 ctx.registry
             };
             Component::renderEntityComponentUI(handle);

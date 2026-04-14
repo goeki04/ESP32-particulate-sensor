@@ -22,6 +22,7 @@ namespace Andromeda {
         m_EditorContext.cameraData = &m_SceneManager->m_EditorCamData;
         m_EditorContext.registry = &m_SceneManager->m_Registry;
         m_EditorContext.sceneManager = m_SceneManager;
+        m_EditorContext.selection = &m_Selection;
         m_EditorContext.resourceManager = rm;
         m_EditorContext.windowContext.glslVersion = Renderer::glsl_version;
         m_EditorContext.windowContext.glContext = Window::m_GlContext;
@@ -40,7 +41,6 @@ namespace Andromeda {
         if (m_EditorContext.state.viewportFocused) {
             cameraMovement(m_SceneManager->m_EditorCamData);
         }
-
         vec2 viewportSize = m_EditorContext.layout.viewportSize;
         if (viewportSize.x > 0 && viewportSize.y > 0) {
             setProjectionMatrix(m_SceneManager->m_EditorCamData, viewportSize.x, viewportSize.y);
@@ -102,15 +102,8 @@ namespace Andromeda {
             return;
         }
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-
             const auto& aabbPool = m_SceneManager->m_Registry.getPool<ECS::Component::AABB>();
-            const auto& selectedPool = m_SceneManager->m_Registry.getPool<ECS::Component::Selected>();
-            //Implement multi selection in future
-            for (const std::vector<Entity> currentlySelected = selectedPool.getEntities(); const Entity e : currentlySelected) {
-                m_SceneManager->m_Registry.getPool<ECS::Component::Selected>().removeEntity(e);
-            }
-            bool anyHit = false;
-
+            Entity hitEntity = ECS::INVALID_ENTITY_ID;
             for (const Entity e : aabbPool.getEntities()) {
                 ECS::EntityHandle handle = { e,&m_SceneManager->m_Registry };
                 if (!handle.has<ECS::Component::Transform>()) {
@@ -120,14 +113,13 @@ namespace Andromeda {
                 const auto& aabb = handle.get<ECS::Component::AABB>();
 
                 if (RayIntersectAABB(*cam, aabb, modelMatrix)) {
-                    handle.add<ECS::Component::Selected>({});
-                    m_EditorContext.state.currentSelectedID = e;
-                    anyHit = true;
+                    hitEntity = e;
                     break;
                 }
             }
-            if (!anyHit) {
-                m_EditorContext.state.currentSelectedID = -1;
+            if (hitEntity != m_EditorContext.selection->getSelectedEntity()) {
+                m_EditorContext.selection->setSelectedEntity(hitEntity);
+                EventManager::getInstance().Dispatch(EventType::OnSceneObjectSelected, SceneObjectSelected(static_cast<u32>(hitEntity)));
             }
         }
     }

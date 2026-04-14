@@ -4,6 +4,7 @@
 #include "resource_manager.h"
 #include "a_math.hpp"
 #include "scene.hpp"
+#include "a_event_manager.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void Renderer::start()
@@ -26,6 +27,9 @@ namespace Andromeda {
         glEnable(GL_DEPTH_TEST);
         glCullFace(GL_BACK);
         glGenVertexArrays(1, &m_Vao);
+        EventManager::getInstance().AddEventListener<SceneObjectSelected>([this](const SceneObjectSelected& event) {
+            this->m_SelectedForHighlighting = event.entity;
+            });
     }
 
     void Renderer::update()
@@ -36,7 +40,7 @@ namespace Andromeda {
         geometryPass();
         proceduralPass();
         scenePassEndResolve();
-        selectionPass();
+        selectionPass(m_SelectedForHighlighting);
         postprocessingPass();
         pickingPass(m_Cam);
     }
@@ -120,20 +124,17 @@ namespace Andromeda {
             m_ResizePending = false;
         }
     }
-    void Renderer::selectionPass() const {
+    void Renderer::selectionPass(Entity selectedEntity) const {
         glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_SelectionFramebuffer);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        const auto& selectedPool = m_SceneManager->m_Registry.getPool<Component::Selected>();
-        for (const Entity e : selectedPool.getEntities()) {
-            EntityHandle handle = { e, &m_SceneManager->m_Registry };
-            if (handle.has<Component::Mesh>() && handle.has<Component::Transform>()) {
-                drawMesh(handle.get<Component::Mesh>(),handle.get<Component::Transform>(),
-                         MaterialShaderType::white);
-            }
+        if (selectedEntity == ECS::INVALID_ENTITY_ID) { return; }
+        EntityHandle handle = { selectedEntity, &m_SceneManager->m_Registry };
+        if (handle.has<Component::Mesh>() && handle.has<Component::Transform>()) {
+            drawMesh(handle.get<Component::Mesh>(), handle.get<Component::Transform>(),
+                MaterialShaderType::white);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     }
     void Renderer::postprocessingPass() const {
         glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_PostprocessFramebuffer);

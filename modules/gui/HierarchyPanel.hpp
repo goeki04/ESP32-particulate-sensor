@@ -11,11 +11,13 @@ namespace Andromeda::Gui{
 
     class HierarchyPanel : public EditorPanel{
     public:
-        EditorContext& m_Context;
+        explicit HierarchyPanel(const char* name)
+            : EditorPanel(name)
+        { }
+
         static std::string getEntityName(ECS::EntityHandle& handle);
         void selectEntity(EditorContext& ctx, ECS::Entity entity);
         void drawEntityNode(EditorContext& ctx, ECS::Entity e);
-        explicit HierarchyPanel(EditorContext& ctx) : m_Context(ctx) {}
         void onImGuiRender(EditorContext& ctx) override;
     };
 }
