@@ -8,7 +8,10 @@ add_library(gui STATIC
     details.cpp
     gui_renderer.cpp
     component_ui.cpp
-        HierarchyPanel.cpp
+    a_HierarchyPanel.cpp
+    a_BrowserPanel.cpp
+    a_DetailsPanel.cpp
+    a_ConsolePanel.cpp
     device_browser.cpp
     console.cpp
     ${CMAKE_SOURCE_DIR}/bindings/imgui_impl_sdl3.cpp

@@ -15,6 +15,7 @@ namespace Andromeda::Gui
          * without the renderer needing to know the panel's specific implementation.
          */
     class EditorPanel {
+
     public:
         /**
          * @brief Virtual destructor to ensure proper cleanup of derived classes.
@@ -27,12 +28,12 @@ namespace Andromeda::Gui
          * ImGui::Begin() and ImGui::End() calls and all widgets in between.
          */
         virtual void onImGuiRender(EditorContext& ctx) = 0;
-
-    public:
+        const char* getName() const { return m_Name; }
         explicit EditorPanel(const char* name) : m_Name(name){}
-        const char* m_Name = nullptr; ///< The title of the ImGui window.
         bool m_IsOpen = true; ///< Controls the visibility of the panel.
         EditorWindowFlags m_WindowFlags = 0;
+    protected:
+        const char* m_Name = nullptr; ///< The title of the ImGui window.
     };
 
 }

@@ -29,138 +29,31 @@ namespace Andromeda::Gui::Console {
     {
         initRegistry();
         clearLog();
-        m_HistoryPos = -1;
-        m_InputBuf.resize(256,'\0');
-        m_AutoScroll = true;
-        m_ScrollToBottom = false;
+        historyPos = -1;
+        inputBuf.resize(256,'\0');
+        autoScroll = true;
+        scrollToBottom = false;
         addLog("Type 'help' for command list.");
     }
-
 
     AppConsole::~AppConsole()
     {
         clearLog();
-        m_History.clear();
-        m_Items.clear();
+        history.clear();
+        items.clear();
     }
 
     void AppConsole::clearLog()
     {
-        m_Items.clear();
-    }
-    void AppConsole::draw(const char* title, bool* p_open)
-    {
-        ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-        if (!ImGui::Begin(title, p_open))
-        {
-            ImGui::End();
-            return;
-        }
-
-        if (ImGui::BeginPopupContextItem())
-        {
-            if (ImGui::MenuItem("Close Console"))
-                *p_open = false;
-            ImGui::EndPopup();
-        }
-
-        ImGui::TextWrapped("Enter 'help' for help.");
-
-        if (ImGui::SmallButton("Clear")) { clearLog(); }
-        ImGui::SameLine();
-        bool copy_to_clipboard = ImGui::SmallButton("Copy");
-
-        ImGui::Separator();
-
-        if (ImGui::BeginPopup("Options"))
-        {
-            ImGui::Checkbox("Auto-scroll", &m_AutoScroll);
-            ImGui::EndPopup();
-        }
-
-        if (ImGui::Button("Options")) ImGui::OpenPopup("Options");
-        ImGui::SameLine();
-        m_Filter.Draw("Filter", 180);
-        ImGui::Separator();
-
-        const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-        if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar))
-        {
-            if (ImGui::BeginPopupContextWindow())
-            {
-                if (ImGui::Selectable("Clear")) clearLog();
-                ImGui::EndPopup();
-            }
-
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));
-            if (copy_to_clipboard) ImGui::LogToClipboard();
-
-            for (const auto& item : m_Items)
-            {
-                if (!m_Filter.PassFilter(item.c_str()))
-                    continue;
-
-                ImVec4 color;
-                bool has_color = false;
-
-                if (item.find("[E]") != std::string::npos)
-                {
-                    color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f);
-                    has_color = true;
-                }
-                else if (item.substr(0, 2) == "# ")
-                {
-                    color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f);
-                    has_color = true;
-                }
-
-                if (has_color)
-                    ImGui::PushStyleColor(ImGuiCol_Text, color);
-                ImGui::TextUnformatted(item.c_str());
-                if (has_color)
-                    ImGui::PopStyleColor();
-            }
-            if (copy_to_clipboard) ImGui::LogFinish();
-
-            if (m_ScrollToBottom || (m_AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
-                ImGui::SetScrollHereY(1.0f);
-
-            m_ScrollToBottom = false;
-            ImGui::PopStyleVar();
-        }
-        ImGui::EndChild();
-        ImGui::Separator();
-
-        bool reclaim_focus = false;
-        ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
-        if (ImGui::InputText("Input", m_InputBuf.data(), 256, input_text_flags, &AppConsole::textEditCallbackStub, (void*)this))
-        {
-            const std::string_view inputView = m_InputBuf;
-            const size_t start = inputView.find_first_not_of(" \t\r\n");
-            const size_t end = inputView.find_last_not_of(" \t\r\n");
-            if (start != std::string_view::npos)
-            {
-                const std::string_view trimmedCmd = inputView.substr(start, end - start + 1);
-
-                const CommandLine cl = parseInput(trimmedCmd);
-                execCommand(cl);
-            }
-            m_InputBuf[0] = '\0';
-            reclaim_focus = true;
-        }
-
-        ImGui::SetItemDefaultFocus();
-        if (reclaim_focus) ImGui::SetKeyboardFocusHere(-1);
-
-        ImGui::End();
+        items.clear();
     }
 
     void AppConsole::execCommand(CommandLine line)
     {
-        m_HistoryPos = -1;
-        std::erase(m_History, std::string(line.command));
-        m_History.emplace_back(line.command);
-        if (const auto it = m_CommandRegistry.find(line.command); it != m_CommandRegistry.end())
+        historyPos = -1;
+        std::erase(history, std::string(line.command));
+        history.emplace_back(line.command);
+        if (const auto it = commandRegistry.find(line.command); it != commandRegistry.end())
         {
             const auto&[allowedFlags, action] = it->second;
             bool flagsValid = true;
@@ -177,16 +70,16 @@ namespace Andromeda::Gui::Console {
         }
         else
             addLog("[E] Unknown command: {}", line.command);
-        m_ScrollToBottom = true;
+        scrollToBottom = true;
     }
 
-    int AppConsole::textEditCallbackStub(ImGuiInputTextCallbackData* data)
+    i32 AppConsole::textEditCallbackStub(ImGuiInputTextCallbackData* data)
     {
         auto* console = static_cast<AppConsole*>(data->UserData);
         return console->textEditCallback(data);
     }
 
-    int AppConsole::textEditCallback(ImGuiInputTextCallbackData* data)
+    i32 AppConsole::textEditCallback(ImGuiInputTextCallbackData* data)
     {
         switch (data->EventFlag)
         {
@@ -209,7 +102,7 @@ namespace Andromeda::Gui::Console {
                     return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
                 };
 
-                for (const auto &name: m_CommandRegistry | std::views::keys)
+                for (const auto &name: commandRegistry | std::views::keys)
                 {
                     if (name.size() >= current_word.size() &&
                         std::equal(current_word.begin(), current_word.end(), name.begin(), char_iequal))
@@ -256,24 +149,24 @@ namespace Andromeda::Gui::Console {
             }
             case ImGuiInputTextFlags_CallbackHistory:
             {
-                const int prev_history_pos = m_HistoryPos;
+                const int prev_history_pos = historyPos;
                 if (data->EventKey == ImGuiKey_UpArrow)
                 {
-                    if (m_HistoryPos == -1)
-                        m_HistoryPos = static_cast<i32>(m_History.size()) - 1;
-                    else if (m_HistoryPos > 0)
-                        m_HistoryPos--;
+                    if (historyPos == -1)
+                        historyPos = static_cast<i32>(history.size()) - 1;
+                    else if (historyPos > 0)
+                        historyPos--;
                 }
                 else if (data->EventKey == ImGuiKey_DownArrow)
                 {
-                    if (m_HistoryPos != -1)
-                        if (++m_HistoryPos >= static_cast<i32>(m_History.size()))
-                            m_HistoryPos = -1;
+                    if (historyPos != -1)
+                        if (++historyPos >= static_cast<i32>(history.size()))
+                            historyPos = -1;
                 }
 
-                if (prev_history_pos != m_HistoryPos)
+                if (prev_history_pos != historyPos)
                 {
-                    const char* historyStr = (m_HistoryPos >= 0) ? m_History[m_HistoryPos].c_str() : "";
+                    const char* historyStr = (historyPos >= 0) ? history[historyPos].c_str() : "";
                     data->DeleteChars(0, data->BufTextLen);
                     data->InsertChars(0, historyStr);
                 }
@@ -281,7 +174,5 @@ namespace Andromeda::Gui::Console {
             }
             default: ;
         }
-        return 0;
     }
-
 }

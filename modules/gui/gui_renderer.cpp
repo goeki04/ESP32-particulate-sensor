@@ -1,13 +1,11 @@
-﻿
-#include "gui_renderer.h"
+﻿#include "gui_renderer.h"
 #include "panels.h"
 #include <stdexcept>
 #include <algorithm>
 #include "window_manager.hpp"
 #include <filesystem>
-#include "HierarchyPanel.hpp"
-#include "../editor/editor.hpp"
-#include <iostream>
+#include "a_HierarchyPanel.hpp"
+#include "a_ConsolePanel.hpp"
 namespace Andromeda::Gui {
 
     void Gui::GuiRenderer::init(EditorContext& editorContext) {
@@ -21,6 +19,7 @@ namespace Andromeda::Gui {
         loadFont();
 
         m_Panels.push_back(std::make_unique<HierarchyPanel>("Hierarchy"));
+        m_Panels.push_back(std::make_unique<ConsolePanel>("Console"));
     }
     void GuiRenderer::update(const ViewportDrawInfo& vpInfo, EditorContext& editorContext) {
         
@@ -59,6 +58,24 @@ namespace Andromeda::Gui {
             SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
         }
         SDL_GL_SwapWindow(window);
+    }
+
+    bool GuiRenderer::isPanelOpen(std::string_view name) const {
+        for (const auto& panel : m_Panels) {
+            if (panel->getName() && std::string_view(panel->getName()) == name) {
+                return panel->m_IsOpen;
+            }
+        }
+        return false;
+    }
+
+    void GuiRenderer::setPanelOpen(std::string_view name, bool open) {
+        for (auto& panel : m_Panels) {
+            if (panel->getName() && std::string_view(panel->getName()) == name) {
+                panel->m_IsOpen = open;
+                return;
+            }
+        }
     }
 
     void GuiRenderer::loadFont()

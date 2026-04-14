@@ -1,4 +1,4 @@
-#include "HierarchyPanel.hpp"
+#include "a_HierarchyPanel.hpp"
 #include <imgui.h>
 #include "a_components.hpp"
 #include "a_SelectionContext.hpp"
@@ -13,7 +13,6 @@ namespace Andromeda::Gui{
         }
         return "Unnamed";
     }
-
     void HierarchyPanel::selectEntity(EditorContext& ctx,const ECS::Entity entity)
     {
         if (entity != ctx.selection->getSelectedEntity())

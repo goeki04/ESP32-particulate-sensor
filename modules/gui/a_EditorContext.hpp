@@ -1,7 +1,8 @@
 #pragma once
 #include "a_WindowContext.hpp"
 #include "a_primitives.hpp"
-
+#include <string_view>
+#include <functional>
 namespace Andromeda {
     struct SelectionContext;
     namespace ECS { class ComponentRegistry; }
@@ -13,6 +14,7 @@ namespace Andromeda {
 
 namespace Andromeda::Gui
 {
+    class IPanelController;
     /**
      * @brief A centralized dependency and state container for the Editor.
      * * This structure serves as the "Single Source of Truth" for UI panels,
@@ -30,6 +32,8 @@ namespace Andromeda::Gui
         IDeviceProvider* deviceProvider;     /**< Interface for hardware-specific data. */
         amath::CameraData* cameraData;       /**< Viewport camera parameters and controls. */
         /** @} */
+
+        IPanelController* panelController = nullptr;
 
         /** @brief Graphics API and OS window handles. */
         WindowContext windowContext;
@@ -63,8 +67,6 @@ namespace Andromeda::Gui
             /** @brief True if the mouse cursor is currently hovering over the viewport area. */
             bool viewportHovered = false;
 
-            /** @brief True if the console window is currently open. */
-            bool consoleOpen = false;
             /** @brief Index of the currently selected entity in the device browser. */
             i32 selectedIdx = -1;
         } state;
