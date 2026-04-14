@@ -26,23 +26,23 @@ namespace Andromeda::Gui::Console {
 
     struct AppConsole
     {
-        std::string                   m_InputBuf;
-        std::vector<std::string>      m_Items;
-        std::vector<std::string>      m_History;
-        int                           m_HistoryPos;
-        ImGuiTextFilter               m_Filter;
-        bool                          m_AutoScroll;
-        bool                          m_ScrollToBottom;
+        std::string                   inputBuf;
+        std::vector<std::string>      items;
+        std::vector<std::string>      history;
+        int                           historyPos;
+        ImGuiTextFilter               filter;
+        bool                          autoScroll;
+        bool                          scrollToBottom;
 
-        std::map<std::string_view, CommandProfile> m_CommandRegistry;
+        std::map<std::string_view, CommandProfile> commandRegistry;
 
         void initRegistry() {
-            m_CommandRegistry["network"] = {
+            commandRegistry["network"] = {
                 { Flags::info }, 
                 [this](const CommandLine& cl) { printNetworkStatus(cl); }
             };
 
-            m_CommandRegistry["help"] = {
+            commandRegistry["help"] = {
                 { Flags::info },
                 [this](const CommandLine& cl) { printHelp(); }
             };
@@ -63,10 +63,9 @@ namespace Andromeda::Gui::Console {
         template<typename... Args>
         void addLog(const std::string_view fmt, Args&&... args)
         {
-            m_Items.push_back(std::vformat(fmt, std::make_format_args(args...)));
-            m_ScrollToBottom = true;
+            items.push_back(std::vformat(fmt, std::make_format_args(args...)));
+            scrollToBottom = true;
         }
-        void draw(const char* title, bool* pOpen);
         void execCommand(CommandLine line);
 
         static int textEditCallbackStub(ImGuiInputTextCallbackData* data);

@@ -51,8 +51,14 @@ void Andromeda::Gui::Panels::drawNavBar(EditorContext& ctx)
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Window")) {
-            if (ImGui::MenuItem("Console", nullptr, ctx.state.consoleOpen)) {
-                ctx.state.consoleOpen = !ctx.state.consoleOpen;
+            if (ctx.panelController) {
+                bool isOpen = ctx.panelController->isPanelOpen("Console");
+                if (ImGui::MenuItem("Console", nullptr, &isOpen)) {
+                    ctx.panelController->setPanelOpen("Console", isOpen);
+                }
+            }
+            else {
+                ImGui::TextDisabled("No Panel Controller found!");
             }
             ImGui::EndMenu();
         }
@@ -73,9 +79,5 @@ void Andromeda::Gui::Panels::drawNavBar(EditorContext& ctx)
         ImGui::EndMainMenuBar();
 
         ImGui::PopStyleVar();
-        if (ctx.state.consoleOpen) {
-            static Console::AppConsole networkConsole;
-            networkConsole.draw("Console", &ctx.state.consoleOpen);
-        }
     }
 }

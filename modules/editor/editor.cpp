@@ -18,7 +18,6 @@ namespace Andromeda {
         assert(m_SceneManager && "m_SceneManager is nullptr in Editor::Start()");
         auto* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
         assert(rm && "rm is nullptr in Editor::Start()");
-
         m_EditorContext.cameraData = &m_SceneManager->m_EditorCamData;
         m_EditorContext.registry = &m_SceneManager->m_Registry;
         m_EditorContext.sceneManager = m_SceneManager;
@@ -28,7 +27,7 @@ namespace Andromeda {
         m_EditorContext.windowContext.glContext = Window::m_GlContext;
         m_EditorContext.windowContext.window = Window::g_Window;
         m_EditorContext.deviceProvider = rm;
-
+        m_EditorContext.panelController = &m_GuiRenderer;
     }
 
     void Editor::start()
