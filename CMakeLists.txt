@@ -54,8 +54,8 @@ add_executable(Andromeda
     ${SHADERS}
     ${PROTO_SRCS} 
     ${PROTO_HDRS}
-        modules/definitions/a_glm_json_parser.hpp
-        modules/definitions/a_glm_json_parser.hpp
+        modules/definitions/Math/a_glm_json_parser.hpp
+        modules/definitions/Math/a_glm_json_parser.hpp
 )
 
 target_include_directories(Andromeda PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${PROTOBUF_INCLUDE_DIRS})

@@ -12,9 +12,7 @@
 #include <bitset>
 #include <array>
 #include <string>
-
 #include "a_component_parser.hpp"
-
  /**
   * @namespace Andromeda::ECS
   * @brief Contains all classes and structures for Entity management and Component storage.

@@ -7,7 +7,6 @@
 #include "input/input_manager.hpp"
 #include "resource/resource_manager.h"
 #include "renderer/renderer.h"
-#include "core/a_event_manager.hpp"
 #include "network/esphome_client.h"
 #include "editor/editor.hpp"
 #include "scene/scene.hpp"

@@ -46,11 +46,12 @@ namespace Andromeda {
         }
         updatePickingRay(m_SceneManager->m_EditorCamData);
         editorPicking(&m_SceneManager->m_EditorCamData);
-        Gui::ViewportDrawInfo vpInfo;
-        vpInfo.camData = &m_SceneManager->m_EditorCamData;
-        vpInfo.framebufferSize = viewportSize;
-        vpInfo.postProcessingFboTexture = m_Renderer->fboManager.m_PostprocessTexture;
-        m_GuiRenderer.update(vpInfo, m_EditorContext);
+
+        m_VpDrawInfo.camData = &m_SceneManager->m_EditorCamData;
+        m_VpDrawInfo.framebufferSize = viewportSize;
+        m_VpDrawInfo.postProcessingFboTexture = m_Renderer->fboManager.m_PostprocessTexture;
+        m_EditorContext.viewportDrawInfo = &m_VpDrawInfo;
+        m_GuiRenderer.update(m_EditorContext);
     }
 
     void Editor::updateEvent(SDL_Event* event) {
