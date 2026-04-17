@@ -174,5 +174,6 @@ namespace Andromeda::Gui::Console {
             }
             default: ;
         }
+        return -1;
     }
 }

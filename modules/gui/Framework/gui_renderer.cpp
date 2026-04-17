@@ -1,11 +1,15 @@
 ﻿#include "gui_renderer.h"
-#include "panels.h"
 #include <stdexcept>
-#include <algorithm>
+#include "imgui_internal.h"
 #include "window_manager.hpp"
 #include <filesystem>
+#include "a_MainMenuBar.hpp"
 #include "a_HierarchyPanel.hpp"
 #include "a_ConsolePanel.hpp"
+#include "a_DetailsPanel.hpp"
+#include "a_BrowserPanel.hpp"
+#include "a_ViewportPanel.hpp"
+#include "a_Style.hpp"
 namespace Andromeda::Gui {
 
     void Gui::GuiRenderer::init(EditorContext& editorContext) {
@@ -20,17 +24,22 @@ namespace Andromeda::Gui {
 
         m_Panels.push_back(std::make_unique<HierarchyPanel>("Hierarchy"));
         m_Panels.push_back(std::make_unique<ConsolePanel>("Console"));
+        m_Panels.push_back(std::make_unique<DetailsPanel>("Details"));
+        m_Panels.push_back(std::make_unique<BrowserPanel>("Browser"));
+        m_Panels.push_back(std::make_unique<ViewportPanel>("Viewport"));
     }
-    void GuiRenderer::update(const ViewportDrawInfo& vpInfo, EditorContext& editorContext) {
+
+    void GuiRenderer::update(EditorContext& editorContext) {
         
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
         constexpr ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode;
-        ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockFlags);
-        Panels::drawNavBar(editorContext);
-        Panels::drawDeviceBrowser(editorContext);
-        Panels::drawDetails(editorContext);
+        ImGuiID dockspaceID = ImGui::DockSpaceOverViewport(ImGui::GetID("MyDockSpace"), ImGui::GetMainViewport());
+        if (ImGui::DockBuilderGetNode(dockspaceID) == nullptr || ImGui::DockBuilderGetNode(dockspaceID)->ChildNodes[0] == 0) {
+            DockBuilder::setDefaultLayout(dockspaceID);
+        }
+        MainMenuBar::drawMainMenuBar(editorContext);
         for (auto& panel : m_Panels)
         {
             if (panel->m_IsOpen)
@@ -39,7 +48,6 @@ namespace Andromeda::Gui {
             }
         }
         drawChart();
-        Panels::drawViewportGUI(editorContext,*this, vpInfo);
         EndFrame(Window::g_Window);
     }
 
@@ -68,7 +76,6 @@ namespace Andromeda::Gui {
         }
         return false;
     }
-
     void GuiRenderer::setPanelOpen(std::string_view name, bool open) {
         for (auto& panel : m_Panels) {
             if (panel->getName() && std::string_view(panel->getName()) == name) {
@@ -77,7 +84,16 @@ namespace Andromeda::Gui {
             }
         }
     }
-
+    std::vector<std::string_view> GuiRenderer::getPanelNames() const{
+        std::vector<std::string_view> names;
+        names.reserve(m_Panels.size());
+        for (const auto& panel : m_Panels) {
+            if (panel->getName()) {
+                names.emplace_back(panel->getName());
+            }
+        }
+        return names;
+    }
     void GuiRenderer::loadFont()
     {
         ImGuiIO& io = ImGui::GetIO();(void)io;
@@ -87,6 +103,7 @@ namespace Andromeda::Gui {
         }
         io.FontDefault = font;
     }
+
     void GuiRenderer::OpenFolder()
     {
 #if defined(_WIN32)
@@ -106,7 +123,6 @@ namespace Andromeda::Gui {
         SDL_OpenURL(url.c_str());
     }
 
-    // ReSharper disable once CppMemberFunctionMayBeStatic
     void GuiRenderer::destroy() {
         ImGui::DestroyPlatformWindows();
         ImGui_ImplOpenGL3_Shutdown();
@@ -122,67 +138,5 @@ namespace Andromeda::Gui {
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    }
-    /// <summary>
-    /// color scheme
-    /// </summary>
-    void GuiRenderer::setStyle() {
-        ImGuiStyle& style = ImGui::GetStyle();
-
-        float mainScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
-        style.ScaleAllSizes(mainScale);
-        style.WindowRounding = 2.0f;
-        style.ChildRounding = 2.0f;
-        style.FrameRounding = 2.0f;
-        style.PopupRounding = 2.0f;
-        style.ScrollbarRounding = 2.0f;
-        style.TabRounding = 2.0f;
-        style.WindowBorderSize = 1.0f;
-        style.FrameBorderSize = 1.0f;
-        style.ItemSpacing = ImVec2(8.0f, 4.0f);
-        style.FramePadding = ImVec2(6.0f, 4.0f);
-
-        ImVec4* colors = style.Colors;
-        colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-        colors[ImGuiCol_ChildBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
-        colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
-
-        colors[ImGuiCol_Border] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-        colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-
-        colors[ImGuiCol_MenuBarBg] = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-        colors[ImGuiCol_TitleBg] = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-        colors[ImGuiCol_TitleBgActive] = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-        colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-
-        colors[ImGuiCol_FrameBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-        colors[ImGuiCol_FrameBgHovered] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-        colors[ImGuiCol_FrameBgActive] = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
-
-        colors[ImGuiCol_Tab] = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
-        colors[ImGuiCol_TabHovered] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-        colors[ImGuiCol_TabActive] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-        colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-        colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-
-        colors[ImGuiCol_Button] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-        colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
-        colors[ImGuiCol_ButtonActive] = ImVec4(0.00f, 0.45f, 0.84f, 1.00f);
-
-        colors[ImGuiCol_Header] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-        colors[ImGuiCol_HeaderHovered] = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
-        colors[ImGuiCol_HeaderActive] = ImVec4(0.00f, 0.45f, 0.84f, 1.00f);
-
-        colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
-
-        colors[ImGuiCol_CheckMark] = ImVec4(0.00f, 0.45f, 0.84f, 1.00f);
-        colors[ImGuiCol_SliderGrab] = ImVec4(0.00f, 0.45f, 0.84f, 1.00f);
-        colors[ImGuiCol_SliderGrabActive] = ImVec4(0.00f, 0.55f, 0.95f, 1.00f);
-
-        colors[ImGuiCol_Text] = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
-        colors[ImGuiCol_TextDisabled] = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
     }
 }

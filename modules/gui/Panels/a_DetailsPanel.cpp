@@ -1,12 +1,38 @@
-#include "a_event_manager.hpp"
-#include "panels.h"
+#include "a_DetailsPanel.hpp"
 #include "imgui.h"
-#include "component_ui.hpp"
+#include <algorithm>
+#include <string>
+#include "generated_components.hpp"
 #include "generated_component_names.hpp"
+#include "a_EditorContext.hpp"
 #include "a_SelectionContext.hpp"
-namespace Andromeda::Gui::Panels
-{
-    bool passesFilter(std::string_view name, const char* filter)
+#include "component_ui.hpp"
+namespace Andromeda::Gui {
+    
+    void DetailsPanel::onImGuiRender(EditorContext& ctx)
+    {
+        if (!ImGui::Begin(m_Name, &m_IsOpen)) {
+            ImGui::End();
+            return;
+        }
+        ECS::Entity entity = ctx.selection->getSelectedEntity();
+        if (entity != ECS::INVALID_ENTITY_ID) {
+            ECS::EntityHandle handle = { entity, ctx.registry };
+
+            Component::renderEntityComponentUI(handle);
+
+            ImGui::Separator();
+            ImGui::Spacing();
+            drawAddComponentButton(handle);
+        }
+        else {
+            ImGui::TextDisabled("No Entity selected");
+        }
+
+        ImGui::End();
+    }
+
+    bool DetailsPanel::passesFilter(std::string_view name, const char* filter)
     {
         if (filter == nullptr || filter[0] == '\0') {
             return true;
@@ -24,7 +50,7 @@ namespace Andromeda::Gui::Panels
         return it != name.end();
     }
 
-    void renderComponentList(ECS::EntityHandle handle, const char* filter)
+    void DetailsPanel::renderComponentList(ECS::EntityHandle handle, const char* filter)
     {
         std::apply([&]<typename... Args>(Args&&...)
         {
@@ -48,7 +74,7 @@ namespace Andromeda::Gui::Panels
         }, ECS::Component::ComponentDirectory{});
     }
 
-    void renderComponentSearchPopup(const ECS::EntityHandle handle, const float width)
+    void DetailsPanel::renderComponentSearchPopup(const ECS::EntityHandle handle, const float width)
     {
         ImGui::SetNextWindowSize(ImVec2(width, 0));
 
@@ -68,7 +94,7 @@ namespace Andromeda::Gui::Panels
             ImGui::EndPopup();
         }
     }
-    void drawAddComponentButton(const ECS::EntityHandle handle)
+    void DetailsPanel::drawAddComponentButton(const ECS::EntityHandle handle)
     {
         const ImVec2 buttonPos = ImGui::GetCursorScreenPos();
         const float buttonWidth = ImGui::GetContentRegionAvail().x;
@@ -82,21 +108,5 @@ namespace Andromeda::Gui::Panels
         ImGui::SetNextWindowPos(popupPos);
 
         renderComponentSearchPopup(handle, buttonWidth);
-    }
-
-    void drawDetails(const EditorContext& ctx)
-    {
-        ImGui::Begin("Details", nullptr);
-        ECS::Entity entity = ctx.selection->getSelectedEntity();
-        if (entity != ECS::INVALID_ENTITY_ID)
-        {
-            const ECS::EntityHandle handle = {
-                entity,
-                ctx.registry
-            };
-            Component::renderEntityComponentUI(handle);
-            drawAddComponentButton(handle);
-        }
-        ImGui::End();
     }
 }

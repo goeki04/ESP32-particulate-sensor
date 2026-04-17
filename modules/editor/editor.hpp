@@ -13,6 +13,7 @@ namespace Andromeda {
 		Gui::GuiRenderer m_GuiRenderer;
 		SelectionContext m_Selection;
 		Gui::EditorContext m_EditorContext;
+		Gui::ViewportDrawInfo m_VpDrawInfo;
 	public:
 		Editor()
 			: m_Renderer(nullptr),

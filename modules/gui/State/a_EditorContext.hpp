@@ -14,6 +14,7 @@ namespace Andromeda {
 
 namespace Andromeda::Gui
 {
+    struct ViewportDrawInfo;
     class IPanelController;
     /**
      * @brief A centralized dependency and state container for the Editor.
@@ -31,6 +32,7 @@ namespace Andromeda::Gui
         SceneManager* sceneManager;          /**< Management of the active scene hierarchy. */
         IDeviceProvider* deviceProvider;     /**< Interface for hardware-specific data. */
         amath::CameraData* cameraData;       /**< Viewport camera parameters and controls. */
+        ViewportDrawInfo* viewportDrawInfo; /**< Information for rendering the viewport. */
         /** @} */
 
         IPanelController* panelController = nullptr;
