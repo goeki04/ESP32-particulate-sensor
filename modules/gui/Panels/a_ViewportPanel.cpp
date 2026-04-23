@@ -3,16 +3,64 @@
 #include "a_math.hpp"
 #include "a_EditorContext.hpp"
 #include "resource_manager.h"
+
+#include "a_event_manager.hpp"
 namespace Andromeda::Gui {
 
-    void ViewportPanel::onImGuiRender(EditorContext& ctx)
+    void ViewportPanel::initPanel(EditorContext& ctx) {
+        m_SelectedEntity.registry = ctx.registry;
+        EventManager::getInstance().AddEventListener<SceneObjectSelected>([this](const SceneObjectSelected& event) {
+                m_SelectedEntity.id = event.entity;
+            });
+
+    }
+    void ViewportPanel::onGuiRender(EditorContext& ctx)
     {
         constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
         if (ImGui::Begin("Viewport", nullptr, windowFlags))
         {
             handleViewportInput(*ctx.viewportDrawInfo);
             drawViewportImage(ctx, *ctx.viewportDrawInfo);
+
+            if (m_SelectedEntity.id != ECS::INVALID_ENTITY_ID && m_SelectedEntity.registry != nullptr)
+            {
+                if (m_SelectedEntity.has<ECS::Component::Transform>())
+                {
+                    auto& framebufferSize = ctx.viewportDrawInfo->framebufferSize;
+                    auto& objectTransform = m_SelectedEntity.get<ECS::Component::Transform>();
+                    mat4 localMatrix = objectTransform.modelMatrix();
+
+                    ImVec2 windowPos = ImGui::GetWindowPos();
+                    ImGuizmo::SetRect(windowPos.x, windowPos.y, framebufferSize.x, framebufferSize.y);
+
+                    ImGuizmo::SetDrawlist();
+
+                    ImGuizmo::Manipulate(
+                        glm::value_ptr(ctx.cameraData->viewMatrix),
+                        glm::value_ptr(ctx.cameraData->projection),
+                        TransformIcons::getImGuizmoTool(m_ActiveTool),
+                        ImGuizmo::WORLD,
+                        amath::glmValuePtr(localMatrix)
+                    );
+
+                    if (ImGuizmo::IsUsing())
+                    {
+                        vec3 translation, rotationDegrees, scale;
+                        ImGuizmo::DecomposeMatrixToComponents(
+                            amath::glmValuePtr(localMatrix),
+                            glm::value_ptr(translation),
+                            glm::value_ptr(rotationDegrees),
+                            glm::value_ptr(scale)
+                        );
+
+                        objectTransform.position = translation;
+                        objectTransform.scale = scale;
+                        objectTransform.rotation = glm::quat(glm::radians(rotationDegrees));
+                    }
+                }
+            }
         }
         ImGui::End();
         ImGui::PopStyleVar();
@@ -32,7 +80,7 @@ namespace Andromeda::Gui {
     ImGuiWindowFlags ViewportPanel::setOverlayFlags() {
         constexpr ImGuiWindowFlags overlayFlags = ImGuiWindowFlags_NoDecoration |
             ImGuiWindowFlags_NoDocking |
-            ImGuiWindowFlags_AlwaysAutoResize |
+           // ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoSavedSettings |
             ImGuiWindowFlags_NoFocusOnAppearing |
             ImGuiWindowFlags_NoBackground |
@@ -58,7 +106,7 @@ namespace Andromeda::Gui {
             + (buttonSpacing * static_cast<float>(textureHandles.Count - 1));
 
         const float totalPillWidth = contentWidth + (2.0f * pillPaddingX);
-        constexpr float totalPillHeight = 42.0f; // Höhe der Pille
+        constexpr float totalPillHeight = 42.0f;
 
         const ImVec2 startScreenPos = ImGui::GetCursorScreenPos();
         ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -87,6 +135,9 @@ namespace Andromeda::Gui {
             const bool isHovered = ImGui::IsItemHovered();
             const bool isActive = ImGui::IsItemActive();
 
+            if (isActive) {
+                m_ActiveTool = static_cast<TransformIcons::Type>(i);
+            }
             if (isHovered || isActive) {
                 const auto btnCenter = ImVec2(currentBtnScreenPos.x + buttonSize.x * 0.5f, currentBtnScreenPos.y + buttonSize.y * 0.5f);
 
@@ -147,10 +198,8 @@ namespace Andromeda::Gui {
         const ImVec2 startPos = ImGui::GetCursorStartPos();
 
         const float availableWidth = ImGui::GetContentRegionAvail().x;
-
         const float childWidth = availableWidth;
         constexpr float childHeight = 55.0f;
-
         ImGui::SetCursorPos(ImVec2(startPos.x, startPos.y));
 
         const ImGuiWindowFlags overlayFlags = setOverlayFlags();
@@ -230,7 +279,6 @@ namespace Andromeda::Gui {
 
         drawViewportOverlay(rectMax, rectMin, id,icons);
     }
-
     void ViewportPanel::handleViewportInput(const Gui::ViewportDrawInfo& drawInfo)
     {
         if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))

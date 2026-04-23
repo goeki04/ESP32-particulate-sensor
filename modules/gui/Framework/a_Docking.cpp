@@ -3,7 +3,6 @@
 namespace Andromeda::Gui {
     void DockBuilder::setDefaultLayout(ImGuiID dockspace_id)
     {
-
             ImGui::DockBuilderRemoveNode(dockspace_id);
             ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
             ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);

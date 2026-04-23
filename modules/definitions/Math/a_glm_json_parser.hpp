@@ -81,4 +81,14 @@ namespace glm {
         m[1] = j.at(1).get<vec3>();
         m[2] = j.at(2).get<vec3>();
     }
+
+    inline void to_json(nlohmann::json& j, const quat& q) {
+        j = nlohmann::json{ {"x", q.x}, {"y", q.y}, {"z", q.z}, {"w", q.w} };
+    }
+    inline void from_json(const nlohmann::json& j, quat& q) {
+        q.x = j.at("x").get<float>();
+        q.y = j.at("y").get<float>();
+        q.z = j.at("z").get<float>();
+        q.w = j.at("w").get<float>();
+    }
 }

@@ -9,7 +9,7 @@ namespace Andromeda::Gui {
         {
             m_IsOpen = false;
         }
-        void onImGuiRender(EditorContext& ctx) override;
+        void onGuiRender(EditorContext& ctx) override;
     private:
         Console::AppConsole m_Console;
 	};

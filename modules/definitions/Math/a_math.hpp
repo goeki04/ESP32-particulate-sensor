@@ -77,6 +77,33 @@
         return glm::radians(degrees);
     }
 
+    /**
+     * @brief Converts radians to degrees.
+     * * This is the inverse of the radians() function. It is particularly useful
+     * for converting internal math results (like quaternion euler angles)
+     * into a human-readable format for UI display or logging.
+     * * @param radians The angle expressed in radians.
+     * @return The angle converted to degrees.
+     */
+    template<typename T>
+    [[nodiscard]] constexpr inline T degrees(const T radians) noexcept {
+        return glm::degrees(radians);
+    }
+
+    /**
+     * @brief Extracts Euler angles from a quaternion.
+     * * Converts a rotation quaternion into a 3D vector of Euler angles.
+     * The angles are returned in **radians**. To display them in a UI,
+     * you should convert the result using amath::degrees().
+     * * @param q The source orientation quaternion.
+     * @return A vec3 containing the rotation angles (Pitch, Yaw, Roll) in radians.
+     * * @note Euler angles can be ambiguous (multiple angles can represent the same
+     * orientation). For internal logic, always prefer using the quaternion directly.
+     */
+    [[nodiscard]] inline vec3 eulerAngles(const quat& q) noexcept {
+        return glm::eulerAngles(q);
+    }
+
     /** @brief Returns a unit vector in the same direction as the input. */
     template<typename T>
     [[nodiscard]] constexpr inline T normalize(const T& value) noexcept {
@@ -106,15 +133,35 @@
         return glm::abs(value);
     }
 
+    /**
+         * @brief Builds a translation matrix by applying a 3D vector to an existing matrix.
+         * * @param m The source matrix to be translated.
+         * @param value The translation vector (x, y, z).
+         * @return The resulting transformation matrix.
+         */
     [[nodiscard]] inline mat4 translate(const mat4& m, const vec3& value) noexcept {
         return glm::translate(m, value);
     }
 
+    /**
+     * @brief Builds a scale matrix by applying a 3D vector to an existing matrix.
+     * * @param m The source matrix to be scaled.
+     * @param value The scale factors for each axis (x, y, z).
+     * @return The resulting transformation matrix.
+     */
     [[nodiscard]] inline mat4 scale(const mat4& m, const vec3& value) noexcept {
         return glm::scale(m, value);
     }
 
-    [[nodiscard]] inline mat4 rotate(const mat4& m, const float angle,const vec3& value) noexcept {
+    /**
+     * @brief Builds a rotation matrix around a specific axis.
+     * * @param m The source matrix to be rotated.
+     * @param angle The rotation angle expressed in **radians**.
+     * @param value The axis vector to rotate around (should be normalized).
+     * @return The resulting transformation matrix.
+     * * @note If using Euler angles in degrees, convert them using amath::radians()
+     */
+    [[nodiscard]] inline mat4 rotate(const mat4& m, const float angle, const vec3& value) noexcept {
         return glm::rotate(m, angle, value);
     }
 
@@ -128,7 +175,25 @@
             return glm::to_string(value);
         }
     }
-
+     /** * @brief Returns a pointer to the underlying float data of a 4x4 matrix.
+     * @note Useful for passing matrix data to APIs like ImGuizmo or OpenGL.
+     **/
+     [[nodiscard]] inline float* glmValuePtr(mat4& objectMatrix) {
+        return glm::value_ptr(objectMatrix);
+    }
+     /**
+     * @brief Converts a rotation quaternion into a 4x4 transformation matrix.
+     * * This function creates a rotation matrix that represents the same orientation
+     * as the provided quaternion. Using quaternions for rotation avoids the
+     * "Gimbal Lock" phenomenon associated with Euler angles.
+     * * @param q The source orientation stored as a quaternion.
+     * @return A 4x4 rotation matrix representing the quaternion's orientation.
+     * * @note Quaternions provide a more stable and efficient way to handle 3D rotations,
+     * especially when interpolating between two orientations.
+     */
+    [[nodiscard]] inline mat4 mat4_cast(const quat& q) {
+         return glm::mat4_cast(q);
+    }
     /**
      * @brief Calculates intersection point of a ray with the XZ plane.
      * @param ray The ray to test.

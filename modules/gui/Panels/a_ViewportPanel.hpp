@@ -1,7 +1,8 @@
 #pragma once
 #include "a_EditorPanel.hpp"
 #include "imgui.h"
-
+#include "ImGuizmo.h"
+#include "a_registry.hpp"
 namespace Andromeda::Gui {
     struct EditorContext;
     struct TransformIcons {
@@ -12,6 +13,14 @@ namespace Andromeda::Gui {
         static constexpr const char* toolNames[Count] = {
             "translate", "scale", "rotate", "select"
         };
+
+        static constexpr ImGuizmo::OPERATION getImGuizmoTool(Type tool) {
+            switch(tool) {
+                case Translate: return ImGuizmo::TRANSLATE;
+                case Scale: return ImGuizmo::SCALE;
+                case Rotate: return ImGuizmo::ROTATE;
+            }
+        }
     };
 
     struct ViewportDimension {
@@ -21,10 +30,12 @@ namespace Andromeda::Gui {
     };
     class ViewportPanel : public EditorPanel {
     public:
+        TransformIcons::Type m_ActiveTool = TransformIcons::Select;
+        explicit ViewportPanel(const char* name) : EditorPanel(name), m_SelectedEntity({ECS::INVALID_ENTITY_ID,nullptr}) {}
 
-        explicit ViewportPanel(const char* name) : EditorPanel(name) {}
+        void initPanel(EditorContext& ctx) override;
 
-        void onImGuiRender(EditorContext& ctx) override;
+        void onGuiRender(EditorContext& ctx) override;
 
         void setOverlayStyle();
 
@@ -43,5 +54,8 @@ namespace Andromeda::Gui {
         void drawViewportImage(EditorContext& ctx, const Gui::ViewportDrawInfo& drawInfo);
 
         void handleViewportInput(const Gui::ViewportDrawInfo& drawInfo);
+
+    private:
+        ECS::EntityHandle m_SelectedEntity;
     };
 }

@@ -34,7 +34,6 @@ namespace Andromeda::Gui
         amath::CameraData* cameraData;       /**< Viewport camera parameters and controls. */
         ViewportDrawInfo* viewportDrawInfo; /**< Information for rendering the viewport. */
         /** @} */
-
         IPanelController* panelController = nullptr;
 
         /** @brief Graphics API and OS window handles. */
@@ -75,7 +74,7 @@ namespace Andromeda::Gui
 
         /**
          * @brief Initializes the context with null pointers.
-         * Subsystems must be assigned before passing the context to UI panels.
+         * Subsystems must be assigwned before passing the context to UI panels.
          */
         EditorContext()
                 : registry(nullptr),
@@ -83,7 +82,8 @@ namespace Andromeda::Gui
                   selection(nullptr),
                   sceneManager(nullptr),
                   deviceProvider(nullptr),
-                  cameraData(nullptr)
+                  cameraData(nullptr),
+                  viewportDrawInfo(nullptr)
         { }
     };
 }

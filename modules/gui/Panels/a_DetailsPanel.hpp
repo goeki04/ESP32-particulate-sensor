@@ -12,7 +12,7 @@ namespace Andromeda::Gui {
             : EditorPanel(name)
         {
         }
-        void onImGuiRender(EditorContext& ctx) override;
+        void onGuiRender(EditorContext& ctx) override;
         bool passesFilter(std::string_view name, const char* filter);
         void renderComponentList(ECS::EntityHandle handle, const char* filter);
         void renderComponentSearchPopup(const ECS::EntityHandle handle, const float width);

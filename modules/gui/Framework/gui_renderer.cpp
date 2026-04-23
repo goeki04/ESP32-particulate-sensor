@@ -27,6 +27,10 @@ namespace Andromeda::Gui {
         m_Panels.push_back(std::make_unique<DetailsPanel>("Details"));
         m_Panels.push_back(std::make_unique<BrowserPanel>("Browser"));
         m_Panels.push_back(std::make_unique<ViewportPanel>("Viewport"));
+
+        for (auto& panel : m_Panels) {
+            panel->initPanel(editorContext);
+        }
     }
 
     void GuiRenderer::update(EditorContext& editorContext) {
@@ -44,7 +48,7 @@ namespace Andromeda::Gui {
         {
             if (panel->m_IsOpen)
             {
-                panel->onImGuiRender(editorContext);
+                panel->onGuiRender(editorContext);
             }
         }
         drawChart();
