@@ -55,7 +55,7 @@ namespace Andromeda::Gui{
         ImGui::PopID();
     }
 
-    void HierarchyPanel::onImGuiRender(EditorContext& ctx)
+    void HierarchyPanel::onGuiRender(EditorContext& ctx)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
         if (ImGui::Begin(m_Name, &m_IsOpen)) {

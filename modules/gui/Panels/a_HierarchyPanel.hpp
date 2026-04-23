@@ -18,6 +18,6 @@ namespace Andromeda::Gui{
         static std::string getEntityName(ECS::EntityHandle& handle);
         static void selectEntity(EditorContext& ctx, ECS::Entity entity);
         static void drawEntityNode(EditorContext& ctx, ECS::Entity e);
-        void onImGuiRender(EditorContext& ctx) override;
+        void onGuiRender(EditorContext& ctx) override;
     };
 }

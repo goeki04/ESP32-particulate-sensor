@@ -203,8 +203,8 @@ namespace Andromeda::ECS {
      * @brief A wrapper around an Entity ID and Registry for easier component manipulation.
      */
     struct EntityHandle {
-        Entity id;                  /**< The underlying Entity ID. */
-        ComponentRegistry* registry; /**< Pointer to the associated registry. */
+        Entity id = ECS::INVALID_ENTITY_ID;                  /**< The underlying Entity ID. */
+        ComponentRegistry* registry = nullptr; /**< Pointer to the associated registry. */
 
         /** @brief Adds a component to this entity. */
         template<typename T> void add(T component) { registry->addComponent<T>(id, component); }

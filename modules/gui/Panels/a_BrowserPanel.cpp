@@ -5,7 +5,7 @@
 #include "scene.hpp"
 namespace Andromeda::Gui {
 
-    void BrowserPanel::onImGuiRender(EditorContext& ctx) {
+    void BrowserPanel::onGuiRender(EditorContext& ctx) {
         if (ImGui::Begin(m_Name, &m_IsOpen)) {
             renderSearch(ctx);
             renderGrid(ctx);

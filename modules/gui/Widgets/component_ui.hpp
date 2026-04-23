@@ -13,7 +13,6 @@ namespace Andromeda::Gui::Component
     {
             auto& transform = handle.get<ECS::Component::Transform>();
             auto& position = transform.position;
-            auto& rotation = transform.rotation;
             auto& scale = transform.scale;
             ImGui::PushID("Transform");
             ImGui::Text("Position");
@@ -22,7 +21,11 @@ namespace Andromeda::Gui::Component
 
             ImGui::Text("Rotation");
             ImGui::SameLine(100);
-            ImGui::DragFloat3("##rot", &rotation.x, 0.1f);
+            vec3 rotationRad = amath::eulerAngles(transform.rotation);
+            vec3 rotationDeg = amath::degrees(rotationRad);
+            if (ImGui::DragFloat3("##rot", &rotationDeg.x, 0.1f)) {
+                transform.rotation = quat(amath::radians(rotationDeg));
+            }
 
             ImGui::Text("Scale");
             ImGui::SameLine(100);

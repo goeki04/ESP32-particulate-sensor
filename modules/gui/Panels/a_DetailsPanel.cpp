@@ -9,7 +9,7 @@
 #include "component_ui.hpp"
 namespace Andromeda::Gui {
     
-    void DetailsPanel::onImGuiRender(EditorContext& ctx)
+    void DetailsPanel::onGuiRender(EditorContext& ctx)
     {
         if (!ImGui::Begin(m_Name, &m_IsOpen)) {
             ImGui::End();

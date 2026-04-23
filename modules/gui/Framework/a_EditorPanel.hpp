@@ -27,7 +27,8 @@ namespace Andromeda::Gui
          * * This must be implemented by every panel. It contains the
          * ImGui::Begin() and ImGui::End() calls and all widgets in between.
          */
-        virtual void onImGuiRender(EditorContext& ctx) = 0;
+        virtual void onGuiRender(EditorContext& ctx) = 0;
+        virtual void initPanel(EditorContext& ctx) {}
         const char* getName() const { return m_Name; }
         explicit EditorPanel(const char* name) : m_Name(name){}
         bool m_IsOpen = true; ///< Controls the visibility of the panel.

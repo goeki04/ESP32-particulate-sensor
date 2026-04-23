@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>          
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <cstdint>
 namespace Andromeda {
     using vec2 = glm::vec2;
@@ -11,6 +12,7 @@ namespace Andromeda {
     using ivec3 = glm::ivec3;
     using ivec4 = glm::ivec4;
     using mat4 = glm::mat4;
+    using quat = glm::quat;
     using mat3 = glm::mat3;
     using u8 = std::uint8_t;
     using u16 = std::uint16_t;

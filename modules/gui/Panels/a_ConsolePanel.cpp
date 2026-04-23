@@ -1,7 +1,7 @@
 #include "a_ConsolePanel.hpp"
 #include "a_EditorContext.hpp"
 namespace Andromeda::Gui {
-    void ConsolePanel::onImGuiRender(EditorContext& ctx) {
+    void ConsolePanel::onGuiRender(EditorContext& ctx) {
         
         ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
         if (!ImGui::Begin(m_Name, &m_IsOpen))

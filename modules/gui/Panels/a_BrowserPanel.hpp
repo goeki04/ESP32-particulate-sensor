@@ -26,7 +26,7 @@ namespace Andromeda::Gui {
          * @brief Main render loop for the panel.
          * @param ctx Reference to the centralized editor context containing state and providers.
          */
-        void onImGuiRender(EditorContext& ctx) override;
+        void onGuiRender(EditorContext& ctx) override;
 
     private:
         /**
