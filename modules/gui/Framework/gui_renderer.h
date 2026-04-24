@@ -34,7 +34,6 @@ namespace Andromeda::Gui {
         }
         static void OpenFolder();
         static void OpenURL(const std::string& url);
-        void drawChart() const;
         static void setFlags();
     };
 }

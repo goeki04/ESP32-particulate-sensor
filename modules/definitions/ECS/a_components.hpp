@@ -4,6 +4,10 @@
 #include "a_math.hpp"
 #include <string>
 namespace Andromeda::ECS::Component {
+    template<typename T>
+    void resetComponent(T& component) {
+        component = T();
+    }
     struct Transform {
         vec3 position{ 0.0f, 0.0f, 0.0f };
         vec3 scale{ 1.0f, 1.0f, 1.0f };

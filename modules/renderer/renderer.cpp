@@ -30,6 +30,10 @@ namespace Andromeda {
         EventManager::getInstance().AddEventListener<SceneObjectSelected>([this](const SceneObjectSelected& event) {
             this->m_SelectedForHighlighting = event.entity;
             });
+
+        EventManager::getInstance().AddEventListener<OnEnableWireFrame>([this](const OnEnableWireFrame& event) {
+            this->m_WireframeActive = event.state;
+            });
     }
 
     void Renderer::update()
@@ -42,7 +46,6 @@ namespace Andromeda {
         scenePassEndResolve();
         selectionPass(m_SelectedForHighlighting);
         postprocessingPass();
-        pickingPass(m_Cam);
     }
 
     void Renderer::drawMesh(const Component::Mesh& mesh, const Component::Transform& transform) const {
@@ -80,6 +83,14 @@ namespace Andromeda {
     }
 
     void Renderer::geometryPass() const {
+        if (m_WireframeActive) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glDisable(GL_CULL_FACE);
+        }
+        else {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glEnable(GL_CULL_FACE);
+        }
         auto& meshPool = m_SceneManager->m_Registry.getPool<Component::Mesh>();
         auto& transformPool = m_SceneManager->m_Registry.getPool<Component::Transform>();
         const auto& entitiesWithMesh = meshPool.getEntities();
@@ -91,6 +102,8 @@ namespace Andromeda {
                 drawMesh(meshData[i], transformPool.get(e), MaterialShaderType::unlit);
             }
         }
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glEnable(GL_CULL_FACE);
     }
 
     u32 Renderer::getFinalSceneViewportTexture() const
@@ -178,41 +191,6 @@ namespace Andromeda {
         }
         glDisable(GL_BLEND);
         glEnable(GL_CULL_FACE);
-    }
-    void Renderer::pickingPass(const amath::CameraData* cam)
-    {
-        /*
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            auto& aabbPool = m_Registry->getPool<Component::AABB>();
-            auto& selectedPool = m_Registry->getPool<Component::Selected>();
-            std::vector<Entity> currentlySelected = selectedPool.getEntities();
-            for (Entity e : currentlySelected) {
-                m_Registry->getPool<Component::Selected>().removeEntity(e);
-            }
-            bool anyHit = false;
-
-
-            for (Entity e : aabbPool.getEntities()) {
-                EntityHandle handle = { e,m_Registry };
-                if (!handle.has<Component::Transform>()) {
-                    continue;
-                }
-                const glm::mat4 modelMatrix = handle.get<Component::Transform>().modelMatrix();
-                const auto& aabb = handle.get<Component::AABB>();
-
-                if (Collision::RayIntersectAABB(cam, aabb, modelMatrix)) {
-                    handle.add<Component::Selected>({});
-                    m_GuiManager.m_CurrentSelectedID = e;
-                    anyHit = true;
-                    break;
-                }
-            }
-
-            if (!anyHit) {
-                m_GuiManager.m_CurrentSelectedID = -1;
-            }
-        }
-        */
     }
 
     void Renderer::scenePassEndResolve() const {

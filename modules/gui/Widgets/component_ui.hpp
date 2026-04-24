@@ -3,6 +3,7 @@
 #include "a_registry.hpp"
 #include "imgui.h"
 #include "generated_components.hpp"
+#include "resource_manager.h"
 namespace Andromeda::Gui::Component
 {
     template<typename T>
@@ -35,7 +36,7 @@ namespace Andromeda::Gui::Component
             ImGui::Spacing();
     }
 
-    inline void renderEntityComponentUI(const ECS::EntityHandle handle)
+    inline void renderEntityComponentUI(const ECS::EntityHandle handle, ResourceManager* rm)
     {
         std::apply([&]<typename... T>(T&&... args)
         {

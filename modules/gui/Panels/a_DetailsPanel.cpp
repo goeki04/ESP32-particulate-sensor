@@ -19,7 +19,7 @@ namespace Andromeda::Gui {
         if (entity != ECS::INVALID_ENTITY_ID) {
             ECS::EntityHandle handle = { entity, ctx.registry };
 
-            Component::renderEntityComponentUI(handle);
+            Component::renderEntityComponentUI(handle,ctx.resourceManager);
 
             ImGui::Separator();
             ImGui::Spacing();

@@ -8,13 +8,16 @@
 #include "a_ConsolePanel.hpp"
 #include "a_DetailsPanel.hpp"
 #include "a_BrowserPanel.hpp"
+#include "a_Chart.hpp"
 #include "a_ViewportPanel.hpp"
 #include "a_Style.hpp"
+#include <implot.h>
 namespace Andromeda::Gui {
 
     void Gui::GuiRenderer::init(EditorContext& editorContext) {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+        ImPlot::CreateContext();
         ImGui_ImplSDL3_InitForOpenGL(editorContext.windowContext.window, editorContext.windowContext.glContext);
         ImGui_ImplOpenGL3_Init(editorContext.windowContext.glslVersion);
         ImGui::StyleColorsDark();
@@ -27,6 +30,7 @@ namespace Andromeda::Gui {
         m_Panels.push_back(std::make_unique<DetailsPanel>("Details"));
         m_Panels.push_back(std::make_unique<BrowserPanel>("Browser"));
         m_Panels.push_back(std::make_unique<ViewportPanel>("Viewport"));
+        m_Panels.push_back(std::make_unique<Chart>("Chart"));
 
         for (auto& panel : m_Panels) {
             panel->initPanel(editorContext);
@@ -51,7 +55,6 @@ namespace Andromeda::Gui {
                 panel->onGuiRender(editorContext);
             }
         }
-        drawChart();
         EndFrame(Window::g_Window);
     }
 
@@ -117,11 +120,6 @@ namespace Andromeda::Gui {
 #endif
     }
 
-    void GuiRenderer::drawChart() const
-    {
-        ImGui::Begin("Chart", nullptr);
-        ImGui::End();
-    }
     void GuiRenderer::OpenURL(const std::string& url)
     {
         SDL_OpenURL(url.c_str());
