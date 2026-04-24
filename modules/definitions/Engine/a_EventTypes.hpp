@@ -10,7 +10,7 @@ namespace Andromeda {
     enum class EventType {
         OnKeyDown, OnKeyUp,
         OnMouseBtnDown, OnMouseBtnUp, OnMouseWheelScroll,
-        OnMouseMoved, OnSceneObjectSelected
+        OnMouseMoved, OnSceneObjectSelected, OnEnableWireframe
     };
 
     /**
@@ -89,5 +89,15 @@ namespace Andromeda {
 
         explicit SceneObjectSelected(ECS::Entity e) : entity(e) {}
         static constexpr EventType GetStaticType() { return EventType::OnSceneObjectSelected; }
+    };
+
+    /**
+         * @brief Triggered when the wireframe rendering mode is toggled.
+         */
+    struct OnEnableWireFrame : public IEvent {
+        bool state; ///< True to enable wireframe, false for solid rendering.
+
+        explicit OnEnableWireFrame(bool _state) : state(_state) {}
+        static constexpr EventType GetStaticType() { return EventType::OnEnableWireframe; }
     };
 }

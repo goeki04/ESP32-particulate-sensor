@@ -3,16 +3,15 @@
 #include "a_math.hpp"
 #include "a_EditorContext.hpp"
 #include "resource_manager.h"
-
 #include "a_event_manager.hpp"
+#include "a_EventTypes.hpp"
+#include "ImGuizmo.h"
 namespace Andromeda::Gui {
-
     void ViewportPanel::initPanel(EditorContext& ctx) {
         m_SelectedEntity.registry = ctx.registry;
         EventManager::getInstance().AddEventListener<SceneObjectSelected>([this](const SceneObjectSelected& event) {
-                m_SelectedEntity.id = event.entity;
+            m_SelectedEntity.id = event.entity;
             });
-
     }
     void ViewportPanel::onGuiRender(EditorContext& ctx)
     {
@@ -33,7 +32,8 @@ namespace Andromeda::Gui {
                     mat4 localMatrix = objectTransform.modelMatrix();
 
                     ImVec2 windowPos = ImGui::GetWindowPos();
-                    ImGuizmo::SetRect(windowPos.x, windowPos.y, framebufferSize.x, framebufferSize.y);
+                    ImVec2 minBound = ImGui::GetWindowContentRegionMin();
+                    ImGuizmo::SetRect(windowPos.x + minBound.x, windowPos.y + minBound.y, framebufferSize.x, framebufferSize.y);
 
                     ImGuizmo::SetDrawlist();
 
@@ -80,7 +80,6 @@ namespace Andromeda::Gui {
     ImGuiWindowFlags ViewportPanel::setOverlayFlags() {
         constexpr ImGuiWindowFlags overlayFlags = ImGuiWindowFlags_NoDecoration |
             ImGuiWindowFlags_NoDocking |
-           // ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoSavedSettings |
             ImGuiWindowFlags_NoFocusOnAppearing |
             ImGuiWindowFlags_NoBackground |
@@ -122,7 +121,6 @@ namespace Andromeda::Gui {
 
 
         ImGui::SetCursorScreenPos(ImVec2(startScreenPos.x + pillPaddingX, startScreenPos.y + 7.0f));
-
         for (u32 i = 0; i < textureHandles.Count; i++)
         {
             const ImTextureID texID = static_cast<ImTextureID>(static_cast<intptr_t>(textureHandles.handles[i]));
@@ -138,7 +136,7 @@ namespace Andromeda::Gui {
             if (isActive) {
                 m_ActiveTool = static_cast<TransformIcons::Type>(i);
             }
-            if (isHovered || isActive) {
+            if (isHovered || isActive || m_ActiveTool == static_cast<TransformIcons::Type>(i)) {
                 const auto btnCenter = ImVec2(currentBtnScreenPos.x + buttonSize.x * 0.5f, currentBtnScreenPos.y + buttonSize.y * 0.5f);
 
                 constexpr float circleRadius = (28.0f * 0.5f) + 4.0f;
@@ -171,7 +169,6 @@ namespace Andromeda::Gui {
 
         ImGui::PushID("wireframe_bg");
 
-
         bool clicked = false;
         ImGui::InvisibleButton("wireframe_logic", ImVec2(childSize.x, childSize.y));
         const bool isHovered = ImGui::IsItemHovered();
@@ -179,7 +176,7 @@ namespace Andromeda::Gui {
         if (ImGui::IsItemClicked()) clicked = true;
 
         auto color = ImVec4(0.1f, 0.1f, 0.1f, 0.6f);
-        if (isActive)      color = ImVec4(0.4f, 0.4f, 0.4f, 0.8f);
+        if (isActive || m_WireframeEnabled)      color = ImVec4(0.3f, 0.3f, 0.3f, 0.8f);
         else if (isHovered) color = ImVec4(0.25f, 0.25f, 0.25f, 0.7f);
 
         drawList->AddCircleFilled(center, radius, ImGui::GetColorU32(color));
@@ -190,7 +187,8 @@ namespace Andromeda::Gui {
         ImGui::PopID();
 
         if (clicked) {
-
+            m_WireframeEnabled = !m_WireframeEnabled;
+            EventManager::getInstance().Dispatch(EventType::OnEnableWireframe,OnEnableWireFrame(m_WireframeEnabled));
         }
     }
 

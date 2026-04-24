@@ -2,10 +2,12 @@ find_package(glew REQUIRED)
 find_package(SDL3 REQUIRED)
 find_package(imgui REQUIRED)
 find_package(imguizmo REQUIRED)
+find_package(implot REQUIRED)
 add_library(gui STATIC
     Framework/gui_renderer.cpp
     Framework/a_Docking.cpp
     Panels/a_HierarchyPanel.cpp
+    Panels/a_Chart.cpp
     Panels/a_BrowserPanel.cpp
     Panels/a_DetailsPanel.cpp
     Panels/a_ConsolePanel.cpp
@@ -31,7 +33,8 @@ target_link_libraries(gui PUBLIC
     imgui::imgui
     imguizmo::imguizmo
     sdl::sdl
-
+    implot::implot
+    
     core
     scene
     serialization

@@ -43,8 +43,6 @@ namespace Andromeda {
 		void scenePassBegin() const;
 
 		void proceduralPass() const;
-
-		static void pickingPass(const amath::CameraData* cam);
 		void scenePassEndResolve() const;
 
 		static void windowClearPass();
@@ -56,11 +54,9 @@ namespace Andromeda {
 		vec2 m_TexelSize = vec2(0.0, 0.0);
 		u32 m_Vao = 0;
 		amath::CameraData* m_Cam = nullptr;
+		bool m_WireframeActive = false;
 		float m_ResizeTimer = 0.0f;
 		bool m_ResizePending = false;
 		ivec2 m_TargetSize = ivec2(0.0f);
-#ifdef DEBUG_RENDERING_OPENGL
-		bool m_DebugMode = false;
-#endif
 	};
 }

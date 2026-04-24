@@ -3,6 +3,7 @@
 #include "a_primitives.hpp"
 #include <string_view>
 #include <functional>
+
 namespace Andromeda {
     struct SelectionContext;
     namespace ECS { class ComponentRegistry; }
