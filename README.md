@@ -7,10 +7,11 @@ This project is a high-performance, data-oriented visualization engine for smart
 ## Key Features
 
 *   **Hybrid Networking Architecture:** 
-    *   **MQTT (Paho):** Asynchronous reception of real-time sensor data (e.g., Bosch sensors) via broker.
-    *   **REST API:** Reliable command transmission to Home Assistant actuators.
+    *   ESPHome Native API
+    *   Rest API
+    *   Matter
 *   **Data-Oriented Design (DOD):** Implements an ECS to strictly separate data (Components) from logic (Systems), optimized for CPU cache efficiency.
-*   **Multi-Threaded Rendering:** Complete decoupling of network I/O from the rendering loop to guarantee stable frame rates, even during blocking REST requests.
+*   **Renderer RHI:** Custom renderer hardware interface which you can extend by choice.  
 *   **Modern C++ Toolchain:** Full utilization of C++20 features, SDL3 for window management, and Conan for clean dependency handling.
 
 ---
