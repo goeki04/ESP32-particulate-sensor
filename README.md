@@ -4,7 +4,7 @@ This project is a high-performance, data-oriented visualization engine for smart
 
 ---
 
-##Key Features
+## Key Features
 
 *   **Hybrid Networking Architecture:** 
     *   **MQTT (Paho):** Asynchronous reception of real-time sensor data (e.g., Bosch sensors) via broker.
@@ -15,7 +15,7 @@ This project is a high-performance, data-oriented visualization engine for smart
 
 ---
 
-##Requirements
+## Requirements
 
 *   **Compiler:** C++20 compatible (MSVC 2022 recommended, GCC 11+, Clang 13+).
 *   **Graphics:** OpenGL 4.5 support (architecture prepared for Vulkan backend).
@@ -24,23 +24,23 @@ This project is a high-performance, data-oriented visualization engine for smart
 
 ---
 
-##Toolchain Setup
+## Toolchain Setup
 
-1.  **Installation:** Install CMake, Ninja-Build, and MSVC (with C++20 workload).
-2.  **Conan Configuration:**
+1.  ** Installation: ** Install CMake, Ninja-Build, and MSVC (with C++20 workload).
+2.  ** Conan Configuration: **
     ```powershell
     pip install conan
     conan profile detect --force
     ```
-3.  **Build Process:**
+3.  ** Build Process:**
     *   Run the `build.ps1` script to install dependencies and generate project files.
     *   Open the generated `.sln` file in the `build` directory.
-4.  **Coding Standard:**
+4.  ** Coding Standard:**
     *   **Important:** All code is written in **English** as per project guidelines.
 
 ---
 
-##Architecture Overview
+## Architecture Overview
 
 The project strictly separates **Frontend** (Rendering/UI) and **Backend** (Logic/Network):
 
@@ -52,7 +52,7 @@ The project strictly separates **Frontend** (Rendering/UI) and **Backend** (Logi
 
 ---
 
-##Why this Approach?
+## Why this Approach?
 
 In modern software engineering (keyword: *Data-Oriented Design*), the hardware is the reality. This engine avoids unnecessary OOP hierarchies to minimize the latency between sensor updates and visual representation. It combines the raw power of C++ with the flexibility of modern smart home interfaces.
 
