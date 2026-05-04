@@ -48,7 +48,7 @@ The project strictly separates **Frontend** (Rendering/UI) and **Backend** (Logi
 | :--- | :--- | :--- |
 | **Graphics** | OpenGL / ImGui | Visualization & Dashboard UI |
 | **Logic** | ECS (Systems) | Transforming sensor data into graphical components |
-| **Networking** | Paho MQTT / REST | Thread-safe communication with Smart Home hubs |
+| **Networking** |  ESPHome Native API | Thread-safe communication with Smart Home hubs |
 
 ---
 
