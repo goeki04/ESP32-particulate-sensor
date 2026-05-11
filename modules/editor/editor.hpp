@@ -5,8 +5,13 @@
 #include "a_math.hpp"
 #include "a_EditorContext.hpp"
 #include "a_SelectionContext.hpp"
+#include "a_undo_buffer.hpp"
+#include "a_event_manager.hpp"
 namespace Andromeda {
 	class Renderer;
+}
+namespace Andromeda::Editor {
+	
 	class Editor : public ISubsystem{
 		Renderer* m_Renderer;
 		SceneManager* m_SceneManager;
@@ -14,6 +19,10 @@ namespace Andromeda {
 		SelectionContext m_Selection;
 		Gui::EditorContext m_EditorContext;
 		Gui::ViewportDrawInfo m_VpDrawInfo;
+		Undo::UndoBuffer m_UndoBuffer;
+		EventListenerID m_UndoListenerId;
+		EventListenerID m_PushUndoListenerId;
+
 	public:
 		Editor()
 			: m_Renderer(nullptr),

@@ -121,7 +121,12 @@ namespace Andromeda::ECS {
         }
 
         /** @brief Returns a reference to the component of the given entity. */
-        T& get(const Entity entity) { return m_data[m_sparse[entity]]; }
+        T& get(const Entity entity) { 
+            assert(entity < m_sparse.size() && "Entity ID out of sparse bounds!");
+            size_t index = m_sparse[entity];
+            assert(index < m_data.size() && "Entity index out of dense bounds!");
+            return m_data[m_sparse[entity]]; 
+        }
 
         /** @brief Checks if the entity has a component in this pool. */
         [[nodiscard]] bool has(const Entity entity) const {

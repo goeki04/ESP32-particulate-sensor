@@ -2,24 +2,31 @@
 #include <SDL3/SDL.h>
 #include "a_event_manager.hpp"
 namespace Andromeda {
-
 	void InputSystem::updateEvent(SDL_Event* event)
 	{
 		switch (event->type) {
-		case SDL_EVENT_KEY_DOWN:
-			if (event->key.repeat) return;
-			EventManager::getInstance().Dispatch(EventType::OnKeyDown, KeyDown(sdlKeyToAndromeda(*event)));
-			break;
-		case SDL_EVENT_KEY_UP:
-			EventManager::getInstance().Dispatch(EventType::OnKeyUp, KeyUp(sdlKeyToAndromeda(*event)));
-			break;
-		case SDL_EVENT_MOUSE_BUTTON_DOWN:
-			EventManager::getInstance().Dispatch(EventType::OnMouseBtnDown, MouseBtnDown(sdlMouseBtnToAndromeda(*event)));
-			break;
-		case SDL_EVENT_MOUSE_BUTTON_UP:
-			EventManager::getInstance().Dispatch(EventType::OnMouseBtnUp, MouseBtnUp(sdlMouseBtnToAndromeda(*event)));
-			break;
-		default: ;
+			case SDL_EVENT_KEY_DOWN: {
+				Keycode keyDown = sdlKeyToAndromeda(*event);
+				s_keyStates[static_cast<size_t>(keyDown)] = true;
+				if (event->key.repeat) return;
+				EventManager::getInstance().Dispatch(EventType::OnKeyDown, KeyDown(keyDown));
+				break;
+			}
+			case SDL_EVENT_KEY_UP: {
+				Keycode keyUp = sdlKeyToAndromeda(*event);
+				s_keyStates[static_cast<size_t>(keyUp)] = false;
+				EventManager::getInstance().Dispatch(EventType::OnKeyUp, KeyUp(keyUp));
+				break;
+			}
+			case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+				EventManager::getInstance().Dispatch(EventType::OnMouseBtnDown, MouseBtnDown(sdlMouseBtnToAndromeda(*event)));
+				break;
+			}
+			case SDL_EVENT_MOUSE_BUTTON_UP: {
+				EventManager::getInstance().Dispatch(EventType::OnMouseBtnUp, MouseBtnUp(sdlMouseBtnToAndromeda(*event)));
+				break;
+			}
+			default: ;
 		}
 	}
 		/**
@@ -32,15 +39,29 @@ namespace Andromeda {
 	 * @return Keycode The corresponding Andromeda Keycode if valid and mapped;
 	 * otherwise, Keycode::Unknown.
 	 */
-    Keycode InputSystem::sdlKeyToAndromeda(const SDL_Event& e) {
-        if (e.type == SDL_EVENT_KEY_DOWN || e.type == SDL_EVENT_KEY_UP) {
-            auto andromedaCode = static_cast<Keycode>(e.key.scancode);
-            if (andromedaCode < Keycode::Count) {
+	Keycode InputSystem::sdlKeyToAndromeda(const SDL_Event& e) {
+		if (e.type == SDL_EVENT_KEY_DOWN || e.type == SDL_EVENT_KEY_UP) {
+
+			auto andromedaCode = static_cast<Keycode>(e.key.scancode);
+
+			SDL_Keycode virtualKey = e.key.key;
+
+			// OVERRIDE: If it's a letter (a-z), map it mathematically to our enum.
+			// ASCII 'a' is 97. Keycode::A is 4.
+			if (virtualKey >= 'a' && virtualKey <= 'z') {
+				andromedaCode = static_cast<Keycode>((virtualKey - 'a') + static_cast<u8>(Keycode::A));
+			}
+			// Fallback just in case SDL sends uppercase via caps lock
+			else if (virtualKey >= 'A' && virtualKey <= 'Z') {
+				andromedaCode = static_cast<Keycode>((virtualKey - 'A') + static_cast<u8>(Keycode::A));
+			}
+
+			if (andromedaCode < Keycode::Count) {
 				return andromedaCode;
-            }
-        }
+			}
+		}
 		return Keycode::Unknown;
-    }
+	}
 	/**
 	* @brief Translates a raw SDL event into an Andromeda-specific MouseCode.
 	* * @param e The raw SDL_Event received from the OS/Windowing system.

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "a_Keycodes.hpp"
-
+#include <any>
 namespace Andromeda {
 
     /**
@@ -10,7 +10,8 @@ namespace Andromeda {
     enum class EventType {
         OnKeyDown, OnKeyUp,
         OnMouseBtnDown, OnMouseBtnUp, OnMouseWheelScroll,
-        OnMouseMoved, OnSceneObjectSelected, OnEnableWireframe
+        OnMouseMoved, OnSceneObjectSelected, OnEnableWireframe,
+        OnPushUndoTransform
     };
 
     /**
@@ -99,5 +100,16 @@ namespace Andromeda {
 
         explicit OnEnableWireFrame(bool _state) : state(_state) {}
         static constexpr EventType GetStaticType() { return EventType::OnEnableWireframe; }
+    };
+
+    struct PushUndoTransformEvent : public IEvent {
+        ECS::Entity entity;
+        std::any oldState;
+
+        PushUndoTransformEvent(ECS::Entity e, std::any state)
+            : entity(e), oldState(std::move(state)) {
+        }
+
+        static constexpr EventType GetStaticType() { return EventType::OnPushUndoTransform; }
     };
 }

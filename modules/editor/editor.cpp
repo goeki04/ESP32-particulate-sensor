@@ -8,22 +8,23 @@
 #include "a_guiTypes.hpp"
 #include "a_registry.hpp"
 #include <a_event_manager.hpp>
-namespace Andromeda {
+#include "input_manager.hpp"
+namespace Andromeda::Editor {
     void Editor::initEditorContext()
     {
         assert(Window::m_GlContext && "OpenGL context is not initialized!");
-        m_Renderer = SystemManager::getInstance().getSubsystem<Renderer>();
+        m_Renderer = Andromeda::SystemManager::getInstance().getSubsystem<Andromeda::Renderer>();
         assert(m_Renderer && "m_Renderer is nullptr in Editor::Start()");
-        m_SceneManager = SystemManager::getInstance().getSubsystem<SceneManager>();
+        m_SceneManager = Andromeda::SystemManager::getInstance().getSubsystem<Andromeda::SceneManager>();
         assert(m_SceneManager && "m_SceneManager is nullptr in Editor::Start()");
-        auto* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
+        auto* rm = Andromeda::SystemManager::getInstance().getSubsystem<Andromeda::ResourceManager>();
         assert(rm && "rm is nullptr in Editor::Start()");
         m_EditorContext.cameraData = &m_SceneManager->m_EditorCamData;
         m_EditorContext.registry = &m_SceneManager->m_Registry;
         m_EditorContext.sceneManager = m_SceneManager;
         m_EditorContext.selection = &m_Selection;
         m_EditorContext.resourceManager = rm;
-        m_EditorContext.windowContext.glslVersion = Renderer::glsl_version;
+        m_EditorContext.windowContext.glslVersion = Andromeda::Renderer::glsl_version;
         m_EditorContext.windowContext.glContext = Window::m_GlContext;
         m_EditorContext.windowContext.window = Window::g_Window;
         m_EditorContext.deviceProvider = rm;
@@ -34,6 +35,27 @@ namespace Andromeda {
     {
         initEditorContext();
         m_GuiRenderer.init(m_EditorContext);
+        m_PushUndoListenerId = EventManager::getInstance().AddEventListener<PushUndoTransformEvent>(
+            [this](const PushUndoTransformEvent& event) {
+                Undo::UndoTransformData undoData;
+                undoData.entityID = event.entity;
+                undoData.oldState = std::any_cast<ECS::Component::Transform>(event.oldState);
+
+                m_UndoBuffer.pushCommand(Undo::CommandType::UpdateTransform, undoData);
+            }
+        );
+        m_UndoListenerId = EventManager::getInstance().AddEventListener<KeyDown>([this](const KeyDown& keyEvent) {
+            if (keyEvent.keycode == Keycode::Z) {
+                bool isCtrlDown = InputSystem::isKeyHeld(Keycode::LeftControl) ||
+                    InputSystem::isKeyHeld(Keycode::RightControl);
+
+                if (isCtrlDown) {
+                    if (m_SceneManager) {
+                        m_UndoBuffer.undo(*m_EditorContext.registry);
+                    }
+                }
+            }
+        });
     }
     void Editor::update()
     {
@@ -61,6 +83,8 @@ namespace Andromeda {
     void Editor::destroy()
     {
         m_GuiRenderer.destroy();
+        EventManager::getInstance().RemoveEventListener(m_UndoListenerId);
+        EventManager::getInstance().RemoveEventListener(m_PushUndoListenerId);
     }
 
     bool Editor::RayIntersectAABB(const amath::CameraData& cam, const ECS::Component::AABB& aabb, const glm::mat4& modelMatrix)

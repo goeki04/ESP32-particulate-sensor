@@ -12,7 +12,7 @@
 
 			auto index = static_cast<size_t>(header->type);
 
-			assert(index < static_cast<size_t>(CommandType::Count));
+			assert(index < static_cast<size_t>(CommandType::COUNT));
 			if (index < static_cast<uint16_t>(CommandType::COUNT)) {
 				g_undoDispatchTable[index](payload, reg);
 			}

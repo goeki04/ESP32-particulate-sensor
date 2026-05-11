@@ -6,6 +6,7 @@
 #include "a_event_manager.hpp"
 #include "a_EventTypes.hpp"
 #include "ImGuizmo.h"
+#include "generated_undo_commands.hpp"
 namespace Andromeda::Gui {
     void ViewportPanel::initPanel(EditorContext& ctx) {
         m_SelectedEntity.registry = ctx.registry;
@@ -47,6 +48,10 @@ namespace Andromeda::Gui {
 
                     if (ImGuizmo::IsUsing())
                     {
+                        if (!m_IsDraggingGizmo) {
+                            m_IsDraggingGizmo = true;
+                            m_ActiveUndoState = objectTransform;
+                        }
                         vec3 translation, rotationDegrees, scale;
                         ImGuizmo::DecomposeMatrixToComponents(
                             amath::glmValuePtr(localMatrix),
@@ -58,6 +63,23 @@ namespace Andromeda::Gui {
                         objectTransform.position = translation;
                         objectTransform.scale = scale;
                         objectTransform.rotation = glm::quat(glm::radians(rotationDegrees));
+                    }
+                    else {
+                        if (m_IsDraggingGizmo) {
+                            m_IsDraggingGizmo = false;
+
+                            auto oldTransform = std::any_cast<ECS::Component::Transform>(m_ActiveUndoState);
+
+                            if (objectTransform.position != oldTransform.position ||
+                                objectTransform.scale != oldTransform.scale ||
+                                objectTransform.rotation != oldTransform.rotation)
+                            {
+                                EventManager::getInstance().Dispatch(
+                                    EventType::OnPushUndoTransform,
+                                    PushUndoTransformEvent(m_SelectedEntity.id, m_ActiveUndoState)
+                                );
+                            }
+                        }
                     }
                 }
             }
