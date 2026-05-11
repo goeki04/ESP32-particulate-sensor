@@ -1,5 +1,6 @@
 add_library(editor STATIC
     "editor.cpp"
+    "a_command_dispatcher.cpp"
 )
 
 target_include_directories(editor PUBLIC .)

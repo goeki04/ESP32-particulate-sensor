@@ -77,8 +77,8 @@ namespace Andromeda {
         m_Vao = 0;
     }
 
-    void Renderer::SetActiveCamera(amath::CameraData* camData) {
-        assert(camData && "CameraData is nullptr in Renderer::SetActiveCamera()");
+    void Renderer::setActiveCamera(amath::CameraData* camData) {
+        assert(camData && "CameraData is nullptr in Renderer::setActiveCamera()");
         m_Cam = camData;
     }
 

@@ -34,7 +34,7 @@ namespace Andromeda {
 	 */
     Keycode InputSystem::sdlKeyToAndromeda(const SDL_Event& e) {
         if (e.type == SDL_EVENT_KEY_DOWN || e.type == SDL_EVENT_KEY_UP) {
-            Keycode andromedaCode = static_cast<Keycode>(e.key.scancode);
+            auto andromedaCode = static_cast<Keycode>(e.key.scancode);
             if (andromedaCode < Keycode::Count) {
 				return andromedaCode;
             }
@@ -55,6 +55,7 @@ namespace Andromeda {
 			case SDL_BUTTON_LEFT: mouseCode = MouseCode::MouseBtnLeft; break;
 			case SDL_BUTTON_RIGHT: mouseCode = MouseCode::MouseBtnRight; break;
 			case SDL_BUTTON_MIDDLE: mouseCode = MouseCode::MouseBtnWheel; break;
+			default: mouseCode = MouseCode::Unknown;
 			}
 		}
 		return mouseCode;

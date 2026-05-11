@@ -32,7 +32,7 @@ namespace Andromeda {
 		void drawMesh(const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform) const;
 		void drawMesh(const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform, MaterialShaderType type) const;
 		void destroy() override;
-		void SetActiveCamera(amath::CameraData* camData);
+		void setActiveCamera(amath::CameraData* camData);
 		void geometryPass() const;
 		u32 getFinalSceneViewportTexture() const;
 		void onViewportResize(ivec2 newSize);

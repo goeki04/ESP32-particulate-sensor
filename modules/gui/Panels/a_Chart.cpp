@@ -10,6 +10,7 @@ namespace Andromeda::Gui {
             m_SelectedEntity.id = event.entity;
             });
     }
+
     void Chart::onGuiRender(EditorContext& ctx) {
             ImGui::Begin("Live Performance Chart", nullptr);
 

@@ -3,8 +3,9 @@ find_package(stb REQUIRED)
 find_package(glew REQUIRED)
 find_package(imgui REQUIRED)
 add_library(core STATIC
-        a_subsystem_manager.cpp
-        window_manager.cpp
+        "a_subsystem_manager.cpp"
+        "window_manager.cpp"
+        "a_undo_buffer.cpp"
     )
 
 target_include_directories(core PUBLIC .)
