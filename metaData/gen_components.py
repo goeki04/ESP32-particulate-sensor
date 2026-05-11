@@ -53,20 +53,37 @@ def generate_component_tuple(search_root, target_filename, rel_output_file, outp
     # File 2: Undo Commands
     os.makedirs(os.path.dirname(abs_output_undo), exist_ok=True) 
     with open(abs_output_undo, 'w') as f:
-        f.write("#pragma once\n#include \"a_components.hpp\"\n#include <cstdint>\n\n")
-        f.write("namespace Andromeda::Editor::Undo {\n\nenum class CommandType : uint16_t {\n    None = 0,\n")
-        for c in sorted(undo_components): 
-            f.write(f"    Update{c},\n")
+        f.write("#pragma once\n#include \"a_components.hpp\"\n#include <cstdint>\n#include \"a_primitives.hpp\"\n\n")
+        f.write("namespace Andromeda::Editor::Undo {\n\n")
+        f.write("enum class CommandType : uint16_t {\n")
+        sorted_undo = sorted(undo_components)
+        for i, c in enumerate(sorted_undo):
+            f.write(f"    Update{c} = {i},\n")
+        f.write(f"    COUNT = {len(sorted_undo)}\n")
         f.write("};\n")
         
-        for c in sorted(undo_components):
-            f.write(f"\nstruct Undo{c}Data {{\n    uint64_t entityID;\n")
+        f.write("struct CommandHeader {\n    CommandType type;\n    u32 dataSize;\n};\n")
+        for c in sorted_undo:
+            f.write(f"\nstruct Undo{c}Data {{\n    ECS::Entity entityID;\n")
             f.write(f"    ECS::Component::{c} oldState;\n")
             f.write(f"    ECS::Component::{c} newState;\n}};\n")
-            
-        f.write("\n}")
+        f.write("\n}\n")
 
-    print(f"-- Generator: Success! Total: {len(all_components)}, Undo-ready: {len(undo_components)}")
+    # File 3
+    dispatcher_inc = abs_output_undo.replace("generated_undo_commands.hpp", "generated_dispatcher.inc")
+    with open(dispatcher_inc, 'w') as f:
+        f.write("// Generated jump table\n\n")
+        for c in sorted_undo:
+            f.write(f"static void undo_func_{c}(uint8_t* payload, ECS::ComponentRegistry& reg) {{\n")
+            f.write(f"    auto* d = reinterpret_cast<Undo{c}Data*>(payload);\n")
+            f.write(f"    reg.getPool<ECS::Component::{c}>().get(d->entityID) = d->oldState;\n")
+            f.write(f"}}\n\n")
+        f.write(f"static void(*g_undoDispatchTable[(size_t)CommandType::COUNT])(uint8_t*, ECS::ComponentRegistry&) = {{\n")
+        for c in sorted_undo:
+            f.write(f"    undo_func_{c},\n")
+        f.write("};\n")
+
+    print(f"Generator: Success! Total: {len(all_components)}, Undo-ready: {len(undo_components)}")
 
 if __name__ == "__main__":
     generate_component_tuple(

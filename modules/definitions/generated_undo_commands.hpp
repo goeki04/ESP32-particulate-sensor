@@ -1,23 +1,28 @@
 #pragma once
 #include "a_components.hpp"
 #include <cstdint>
+#include "a_primitives.hpp"
 
 namespace Andromeda::Editor::Undo {
 
 enum class CommandType : uint16_t {
-    None = 0,
-    UpdateTag,
-    UpdateTransform,
+    UpdateTag = 0,
+    UpdateTransform = 1,
+    COUNT = 2
+};
+struct CommandHeader {
+    CommandType type;
+    u32 dataSize;
 };
 
 struct UndoTagData {
-    uint64_t entityID;
+    ECS::Entity entityID;
     ECS::Component::Tag oldState;
     ECS::Component::Tag newState;
 };
 
 struct UndoTransformData {
-    uint64_t entityID;
+    ECS::Entity entityID;
     ECS::Component::Transform oldState;
     ECS::Component::Transform newState;
 };
