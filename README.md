@@ -1,34 +1,61 @@
-# ESP32 Particulate Matter Monitor
+# Smart Home Visual Engine (C++20 / OpenGL)
 
-This project uses an ESP32 paired with a particulate matter (PM) sensor to measure air quality (PM2.5 and PM10) and display the readings in real-time. It is ideal for DIY air quality monitoring or smart home applications.
+This project is a high-performance, data-oriented visualization engine for smart home environments. Instead of relying on traditional, often sluggish web frontends, this application leverages an **Entity Component System (ECS)** and **hardware-near graphics APIs** to display sensor and actuator data (e.g., Home Assistant, ESPHome) in real-time.
 
-## Features
+---
 
-- Real-time measurement of PM1, PM2.5 and PM10
-- Display measurements on a connected screen or via serial output
-- Easy integration with ESP32 projects
-- Cross-platform build using CMake and Conan
+## Key Features
+
+*   **Hybrid Networking Architecture:** 
+    *   ESPHome Native API
+    *   Rest API
+    *   Matter
+*   **Data-Oriented Design (DOD):** Implements an ECS to strictly separate data (Components) from logic (Systems), optimized for CPU cache efficiency.
+*   **Renderer RHI:** Custom renderer hardware interface which you can extend by choice.  
+*   **Modern C++ Toolchain:** Full utilization of C++20 features, SDL3 for window management, and Conan for clean dependency handling.
+
+---
 
 ## Requirements
 
-To build and run this project, you will need:
+*   **Compiler:** C++20 compatible (MSVC 2022 recommended, GCC 11+, Clang 13+).
+*   **Graphics:** OpenGL 4.5 support (architecture prepared for Vulkan backend).
+*   **Package Manager:** [Conan](https://conan.io/) for automated library management.
+*   **Build System:** [CMake](https://cmake.org/) ≥ 3.23.
 
-- **CMake** version 3.23 or higher
-- A **C++20 compatible compiler** (MSVC recommended)
-- **Conan** package manager for dependency management
-- Install ultralytics via python
+---
 
 ## Toolchain Setup
 
-1. Install [CMake](https://cmake.org/download/) ≥ 3.23
-2. Install Ninja
-3. Install [MSVC](https://visualstudio.microsoft.com/) with C++20 support
-4. Install [Conan](https://conan.io/) and configure it:
-   ```bash
-   pip install conan
-   conan profile new default --detect
-   conan profile update settings.compiler.cppstd=20 default
-5. Run the build.ps1 script
-6. Open the .sln file in the cmake directory
-7. In MSV right-click the ESP32 Project in the solution explorer and set "Set as startup Project"
-8. Run the program
+1.  ** Installation: ** Install CMake, Ninja-Build, and MSVC (with C++20 workload).
+2.  ** Conan Configuration: **
+    ```powershell
+    pip install conan
+    conan profile detect --force
+    ```
+3.  ** Build Process:**
+    *   Run the `build.ps1` script to install dependencies and generate project files.
+    *   Open the generated `.sln` file in the `build` directory.
+4.  ** Coding Standard:**
+    *   **Important:** All code is written in **English** as per project guidelines.
+
+---
+
+## Architecture Overview
+
+The project strictly separates **Frontend** (Rendering/UI) and **Backend** (Logic/Network):
+
+| Layer | Technology | Responsibility |
+| :--- | :--- | :--- |
+| **Graphics** | OpenGL / ImGui | Visualization & Dashboard UI |
+| **Logic** | ECS (Systems) | Transforming sensor data into graphical components |
+| **Networking** |  ESPHome Native API | Thread-safe communication with Smart Home hubs |
+
+---
+
+## Why this Approach?
+
+In modern software engineering (keyword: *Data-Oriented Design*), the hardware is the reality. This engine avoids unnecessary OOP hierarchies to minimize the latency between sensor updates and visual representation. It combines the raw power of C++ with the flexibility of modern smart home interfaces.
+
+---
+*This project serves as a deep-dive into high-performance systems programming and asynchronous I/O during my first year of apprenticeship.*
