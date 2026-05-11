@@ -10,6 +10,7 @@ target_link_libraries(editor PUBLIC
     core
     scene
     renderer_rhi
+    input
     renderer
     gui
     resource

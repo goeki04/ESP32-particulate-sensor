@@ -1,11 +1,12 @@
 #pragma once
 #include "a_ISubsystem.hpp"
 #include <string_view>
-#include <unordered_map>
+#include <array>
 #include "a_Keycodes.hpp"
 namespace Andromeda {
 	class InputSystem : public ISubsystem {
-		//std::unordered_map<SDL_Event, Keycode> m_KeyMap;
+	private:
+		inline static std::array<bool, static_cast<size_t>(Keycode::Count)> s_keyStates;
 		static constexpr std::string_view GetStaticName() { return "InputSystem"; }
 		[[nodiscard]] const char* getSubsystemName() const override {
 			return GetStaticName().data();
@@ -15,5 +16,9 @@ namespace Andromeda {
 
 		static Keycode sdlKeyToAndromeda(const SDL_Event& e);
 		static MouseCode sdlMouseBtnToAndromeda(const SDL_Event& e);
+
+	public:
+		static bool isKeyHeld(Keycode key) { return s_keyStates[static_cast<size_t>(key)]; }
 	};
+
 }

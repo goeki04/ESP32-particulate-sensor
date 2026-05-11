@@ -3,7 +3,6 @@
 #include "a_primitives.hpp"
 #include <string_view>
 #include <functional>
-
 namespace Andromeda {
     struct SelectionContext;
     namespace ECS { class ComponentRegistry; }
@@ -11,6 +10,10 @@ namespace Andromeda {
     class ResourceManager;
     class IDeviceProvider;
     class SceneManager;
+}
+
+namespace Andromeda::Editor::Undo{
+    class UndoBuffer;
 }
 
 namespace Andromeda::Gui
@@ -34,6 +37,7 @@ namespace Andromeda::Gui
         IDeviceProvider* deviceProvider;     /**< Interface for hardware-specific data. */
         amath::CameraData* cameraData;       /**< Viewport camera parameters and controls. */
         ViewportDrawInfo* viewportDrawInfo; /**< Information for rendering the viewport. */
+        Andromeda::Editor::Undo::UndoBuffer* undoBuffer;       /**< Undo buffer for managing editor actions. */
         /** @} */
         IPanelController* panelController = nullptr;
 
@@ -78,13 +82,15 @@ namespace Andromeda::Gui
          * Subsystems must be assigwned before passing the context to UI panels.
          */
         EditorContext()
-                : registry(nullptr),
-                  resourceManager(nullptr),
-                  selection(nullptr),
-                  sceneManager(nullptr),
-                  deviceProvider(nullptr),
-                  cameraData(nullptr),
-                  viewportDrawInfo(nullptr)
-        { }
+            : registry(nullptr),
+            resourceManager(nullptr),
+            selection(nullptr),
+            sceneManager(nullptr),
+            deviceProvider(nullptr),
+            cameraData(nullptr),
+            viewportDrawInfo(nullptr),
+            undoBuffer(nullptr)
+        {
+        }
     };
 }

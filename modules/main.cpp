@@ -14,7 +14,7 @@ Andromeda::Window::WindowManager windowManager;
 Andromeda::InputSystem inputManager;
 Andromeda::Renderer renderer;
 Andromeda::ResourceManager resourceManager;
-Andromeda::Editor editor;
+Andromeda::Editor::Editor editor;
 Andromeda::SceneManager sceneManager;
 static Andromeda::Network::ESPHomeClient g_EspClient;
 

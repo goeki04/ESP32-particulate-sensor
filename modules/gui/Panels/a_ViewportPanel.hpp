@@ -58,5 +58,7 @@ namespace Andromeda::Gui {
     private:
         ECS::EntityHandle m_SelectedEntity;
         bool m_WireframeEnabled = false;
+        bool m_IsDraggingGizmo = false;
+        std::any m_ActiveUndoState;
     };
 }
