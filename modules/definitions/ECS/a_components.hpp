@@ -3,12 +3,36 @@
 #include "a_material.hpp"
 #include "a_math.hpp"
 #include <string>
+
 namespace Andromeda::ECS::Component {
+
     template<typename T>
     void resetComponent(T& component) {
         component = T();
     }
-    struct Transform {
+
+    /**
+    * @brief Marker attribute for the automated Undo/Redo system.
+    *
+    * @details Components marked with this attribute are parsed by the
+    *          Python metadata pre-processor (gen_undo.py). The build
+    *          system uses this information to automatically generate:
+    *          - Command-specific POD data structures.
+    *          - Dispatcher logic for the Data-Oriented Undo buffer.
+    *          - Memory-efficient snapshot logic for editor state management.
+    *
+    * @note Only components intended for manual user editing in the
+    *       Inspector should be marked. Volatile or calculated data
+    *       (like AABB or Physics state) should be excluded to save memory.
+    */
+
+    /**
+     * @struct [[Andromeda::Undo]]
+     * @brief Spatial representation of an entity.
+     * @details Marked with [[Andromeda::Undo]] to track position, scale,
+     *          and rotation changes in the editor.
+     */
+    struct [[Andromeda::Undo]] Transform {
         vec3 position{ 0.0f, 0.0f, 0.0f };
         vec3 scale{ 1.0f, 1.0f, 1.0f };
         quat rotation = quat(1.0f,0.0f,0.0f,0.0f);
@@ -27,7 +51,7 @@ namespace Andromeda::ECS::Component {
         vec3 center = { 0.0f,0.0f,0.0f };
     };
 
-    struct Tag{
+    struct [[Andromeda::Undo]] Tag{
         std::string name = "Unnamed";
     };
 

@@ -13,9 +13,9 @@ namespace Andromeda::Gui {
         {
         }
         void onGuiRender(EditorContext& ctx) override;
-        bool passesFilter(std::string_view name, const char* filter);
-        void renderComponentList(ECS::EntityHandle handle, const char* filter);
-        void renderComponentSearchPopup(const ECS::EntityHandle handle, const float width);
+        static bool passesFilter(std::string_view name, const char* filter);
+        static void renderComponentList(ECS::EntityHandle handle, const char* filter);
+        static void renderComponentSearchPopup(const ECS::EntityHandle handle, const float width);
         void drawAddComponentButton(const ECS::EntityHandle handle);
 	};
 }

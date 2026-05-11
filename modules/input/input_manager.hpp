@@ -14,6 +14,6 @@ namespace Andromeda {
 		void updateEvent(SDL_Event* event) override;
 
 		static Keycode sdlKeyToAndromeda(const SDL_Event& e);
-		MouseCode sdlMouseBtnToAndromeda(const SDL_Event& e);
+		static MouseCode sdlMouseBtnToAndromeda(const SDL_Event& e);
 	};
 }
