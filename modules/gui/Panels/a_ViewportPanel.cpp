@@ -14,6 +14,7 @@ namespace Andromeda::Gui {
             m_SelectedEntity.id = event.entity;
             });
     }
+    
     void ViewportPanel::onGuiRender(EditorContext& ctx)
     {
         constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
@@ -26,66 +27,89 @@ namespace Andromeda::Gui {
 
             if (m_SelectedEntity.id != ECS::INVALID_ENTITY_ID && m_SelectedEntity.registry != nullptr)
             {
-                if (m_SelectedEntity.has<ECS::Component::Transform>())
-                {
-                    auto& framebufferSize = ctx.viewportDrawInfo->framebufferSize;
-                    auto& objectTransform = m_SelectedEntity.get<ECS::Component::Transform>();
-                    mat4 localMatrix = objectTransform.modelMatrix();
-
-                    ImVec2 windowPos = ImGui::GetWindowPos();
-                    ImVec2 minBound = ImGui::GetWindowContentRegionMin();
-                    ImGuizmo::SetRect(windowPos.x + minBound.x, windowPos.y + minBound.y, framebufferSize.x, framebufferSize.y);
-
-                    ImGuizmo::SetDrawlist();
-
-                    ImGuizmo::Manipulate(
-                        glm::value_ptr(ctx.cameraData->viewMatrix),
-                        glm::value_ptr(ctx.cameraData->projection),
-                        TransformIcons::getImGuizmoTool(m_ActiveTool),
-                        ImGuizmo::WORLD,
-                        amath::glmValuePtr(localMatrix)
-                    );
-
-                    if (ImGuizmo::IsUsing())
-                    {
-                        if (!m_IsDraggingGizmo) {
-                            m_IsDraggingGizmo = true;
-                            m_ActiveUndoState = objectTransform;
-                        }
-                        vec3 translation, rotationDegrees, scale;
-                        ImGuizmo::DecomposeMatrixToComponents(
-                            amath::glmValuePtr(localMatrix),
-                            glm::value_ptr(translation),
-                            glm::value_ptr(rotationDegrees),
-                            glm::value_ptr(scale)
-                        );
-
-                        objectTransform.position = translation;
-                        objectTransform.scale = scale;
-                        objectTransform.rotation = glm::quat(glm::radians(rotationDegrees));
-                    }
-                    else {
-                        if (m_IsDraggingGizmo) {
-                            m_IsDraggingGizmo = false;
-
-                            auto oldTransform = std::any_cast<ECS::Component::Transform>(m_ActiveUndoState);
-
-                            if (objectTransform.position != oldTransform.position ||
-                                objectTransform.scale != oldTransform.scale ||
-                                objectTransform.rotation != oldTransform.rotation)
-                            {
-                                EventManager::getInstance().Dispatch(
-                                    EventType::OnPushUndoTransform,
-                                    PushUndoTransformEvent(m_SelectedEntity.id, m_ActiveUndoState)
-                                );
-                            }
-                        }
-                    }
-                }
+                updateGizmos(ctx);
             }
         }
+
         ImGui::End();
         ImGui::PopStyleVar();
+    }
+
+    void ViewportPanel::updateGizmos(EditorContext& ctx)
+    {
+        if (!m_SelectedEntity.has<ECS::Component::Transform>()) return;
+
+        auto& objectTransform = m_SelectedEntity.get<ECS::Component::Transform>();
+        mat4 modelMatrix = objectTransform.modelMatrix();
+
+        prepareImGuizmo(ctx);
+        ImGuizmo::Manipulate(
+            glm::value_ptr(ctx.cameraData->viewMatrix),
+            glm::value_ptr(ctx.cameraData->projection),
+            TransformIcons::getImGuizmoTool(m_ActiveTool),
+            ImGuizmo::WORLD,
+            amath::glmValuePtr(modelMatrix)
+        );
+
+        handleGizmoInteraction(objectTransform, modelMatrix);
+    }
+
+    void ViewportPanel::prepareImGuizmo(EditorContext& ctx)
+    {
+        auto& framebufferSize = ctx.viewportDrawInfo->framebufferSize;
+        ImVec2 windowPos = ImGui::GetWindowPos();
+        ImVec2 minBound = ImGui::GetWindowContentRegionMin();
+
+        ImGuizmo::SetRect(windowPos.x + minBound.x, windowPos.y + minBound.y, framebufferSize.x, framebufferSize.y);
+        ImGuizmo::SetDrawlist();
+    }
+
+    void ViewportPanel::handleGizmoInteraction(ECS::Component::Transform& transform, mat4& deltaMatrix)
+    {
+        if (ImGuizmo::IsUsing())
+        {
+            if (!m_IsDraggingGizmo) {
+                m_IsDraggingGizmo = true;
+                m_ActiveUndoState = transform;
+            }
+
+            applyGizmoTransform(transform, deltaMatrix);
+        }
+        else if (m_IsDraggingGizmo)
+        {
+            finalizeGizmoInteraction(transform);
+        }
+    }
+
+    void ViewportPanel::applyGizmoTransform(ECS::Component::Transform& transform, mat4& matrix)
+    {
+        vec3 translation, rotationDegrees, scale;
+        ImGuizmo::DecomposeMatrixToComponents(
+            amath::glmValuePtr(matrix),
+            glm::value_ptr(translation),
+            glm::value_ptr(rotationDegrees),
+            glm::value_ptr(scale)
+        );
+
+        transform.position = translation;
+        transform.scale = scale;
+        transform.rotation = glm::quat(glm::radians(rotationDegrees));
+    }
+
+    void ViewportPanel::finalizeGizmoInteraction(ECS::Component::Transform& currentTransform)
+    {
+        m_IsDraggingGizmo = false;
+        auto oldTransform = std::any_cast<ECS::Component::Transform>(m_ActiveUndoState);
+
+        if (currentTransform.position != oldTransform.position ||
+            currentTransform.scale != oldTransform.scale ||
+            currentTransform.rotation != oldTransform.rotation)
+        {
+            EventManager::getInstance().Dispatch(
+                EventType::OnPushUndoTransform,
+                PushUndoTransformEvent(m_SelectedEntity.id, m_ActiveUndoState)
+            );
+        }
     }
 
     void ViewportPanel::setOverlayStyle() {

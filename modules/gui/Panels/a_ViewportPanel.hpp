@@ -37,6 +37,16 @@ namespace Andromeda::Gui {
 
         void onGuiRender(EditorContext& ctx) override;
 
+        void updateGizmos(EditorContext& ctx);
+
+        void prepareImGuizmo(EditorContext& ctx);
+
+        void handleGizmoInteraction(ECS::Component::Transform& transform, mat4& deltaMatrix);
+
+        void applyGizmoTransform(ECS::Component::Transform& transform,mat4& matrix);
+
+        void finalizeGizmoInteraction(ECS::Component::Transform& currentTransform);
+
         void setOverlayStyle();
 
         ImGuiWindowFlags setOverlayFlags();
