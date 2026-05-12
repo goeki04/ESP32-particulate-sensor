@@ -2,7 +2,7 @@
 #include "a_EditorPanel.hpp"
 #include <string_view>
 #include "a_registry.hpp"
-
+#include <any>
 namespace Andromeda::Gui {
     struct EditorContext;
 
@@ -17,5 +17,7 @@ namespace Andromeda::Gui {
         static void renderComponentList(ECS::EntityHandle handle, const char* filter);
         static void renderComponentSearchPopup(const ECS::EntityHandle handle, const float width);
         void drawAddComponentButton(const ECS::EntityHandle handle);
+    private:
+        std::any m_ActiveUndoState;
 	};
 }
