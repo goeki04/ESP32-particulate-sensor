@@ -1,5 +1,4 @@
 #pragma once
-
 #include "a_registry.hpp"
 #include "imgui.h"
 #include "generated_components.hpp"
