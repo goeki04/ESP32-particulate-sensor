@@ -60,7 +60,7 @@ namespace Andromeda {
 		static void windowClearPass();
 
 		//--- Resource Management ---
-		void createCubemapTexture(const CubemapData& data);
+		void createCubemapTexture(CubemapData& data);
 	private:
 		AndromedaGXAPI m_GXAPI = AndromedaGXAPI::OpenGL;
 		ECS::Entity m_SelectedForHighlighting = ECS::INVALID_ENTITY_ID;

@@ -11,7 +11,7 @@ namespace Andromeda {
 
 		struct Directory
 		{
-			std::string directoryName;
+			std::string name;
 			std::vector<std::string> files;
 		};
 

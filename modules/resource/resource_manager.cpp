@@ -20,7 +20,7 @@ namespace Andromeda {
         loadDeviceIcons();
         loadEditorIcons();
         setupMeshes();
-        
+        loadAllCubeMaps();
     }
 
     void ResourceManager::loadModels()
@@ -37,11 +37,17 @@ namespace Andromeda {
 
     void ResourceManager::loadAllCubeMaps()
     {
-        std::vector<std::string> directoryNames = Filesystem::getAllDirectoryNames(CUBEMAP_PATH);
-        std::vector<std::string> skyboxPathsInDirectory;
-        for (auto& directoryName : directoryNames)
+        std::vector<Filesystem::Directory> directories = Filesystem::getAllDirectories(CUBEMAP_PATH);
+        if (!directories.empty())
         {
-            m_CubemapData[directoryName] = CubemapData();
+            for (auto& directory : directories)
+            {
+                loadAndStoreCubemap(directory.name,directory.files);
+            }
+        }
+        else
+        {
+            std::printf("[WARNING]: No cubemaps found in %s!\n", CUBEMAP_PATH);
         }
     }
 
@@ -144,17 +150,30 @@ namespace Andromeda {
     void ResourceManager::loadCubemapTexture(CubemapData& data){
         i32 width, height, channels;
         for (u32 i = 0; i < data.faceTexturePath.size(); i++) {
-            unsigned char* pixels = stbi_load(data.faceTexturePath[i], &width, &height, &channels, 0);
+            unsigned char* pixels = stbi_load(data.faceTexturePath[i].c_str(), &width, &height, &channels, 0);
             data.pixelData[i] = pixels;
         }
     }
 
-    void ResourceManager::loadAndStoreCubemap(const std::string& name, const std::array<const char*, 6>& paths) {
-        CubemapData data;
-        data.faceTexturePath = paths;
-        loadCubemapTexture(data);
+    void ResourceManager::loadAndStoreCubemap(const std::string& name, const std::vector<std::string>& paths) {
+        constexpr i32 cubemapSize = 6;
+        if (paths.size() == cubemapSize)
+        {
+            CubemapData data;
+            for (u32 i = 0; i < cubemapSize; i++)
+            {
+                data.faceTexturePath[i] = paths[i];
+            }
 
-        m_CubemapData[name] = std::move(data);
+            loadCubemapTexture(data);
+
+            m_CubemapData[name] = std::move(data);
+        }
+        else
+        {
+            std::printf("[WARNING]: Cubemap directory '%s' contains more or less files than 6! Skipping...\n",
+            name.c_str());
+        }
     }
 
     GLtexture ResourceManager::CreateOpenGLTexture(const char* path)

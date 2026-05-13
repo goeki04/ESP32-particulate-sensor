@@ -25,7 +25,7 @@ namespace Andromeda {
     /**
      * @brief Triggered when a keyboard key is pressed.
      */
-    struct KeyDown : public IEvent {
+    struct KeyDown : IEvent {
         Keycode keycode; ///< The unique code of the pressed key.
 
         explicit KeyDown(const Keycode _code) : keycode(_code) {}
@@ -35,7 +35,7 @@ namespace Andromeda {
     /**
      * @brief Triggered when a keyboard key is released.
      */
-    struct KeyUp : public IEvent {
+    struct KeyUp : IEvent {
         Keycode keycode; ///< The unique code of the released key.
 
         explicit KeyUp(const Keycode _code) : keycode(_code) {}
@@ -45,7 +45,7 @@ namespace Andromeda {
     /**
      * @brief Triggered when the mouse is moved across the window.
      */
-    struct MouseMoved : public IEvent {
+    struct MouseMoved : IEvent {
         float x, y; ///< The new absolute window coordinates of the mouse.
 
         MouseMoved(const float _x, const float _y) : x(_x), y(_y) {}
@@ -55,7 +55,7 @@ namespace Andromeda {
     /**
      * @brief Triggered by the mouse wheel or touchpad scrolling.
      */
-    struct MouseWheelScroll : public IEvent {
+    struct MouseWheelScroll : IEvent {
         float mouseWheelX; ///< Horizontal scroll delta.
         float mouseWheelY; ///< Vertical scroll delta (common scroll wheel).
 
@@ -66,7 +66,7 @@ namespace Andromeda {
     /**
      * @brief Triggered when a mouse button is pressed.
      */
-    struct MouseBtnDown : public IEvent {
+    struct MouseBtnDown : IEvent {
         MouseCode m_MouseCode; ///< The specific mouse button (Left, Right, Middle, etc.).
 
         explicit MouseBtnDown(const MouseCode _code) : m_MouseCode(_code) {}
@@ -76,7 +76,7 @@ namespace Andromeda {
     /**
      * @brief Triggered when a mouse button is released.
      */
-    struct MouseBtnUp : public IEvent {
+    struct MouseBtnUp : IEvent {
         MouseCode m_MouseCode; ///< The specific mouse button that was released.
 
         explicit MouseBtnUp(const MouseCode _code) : m_MouseCode(_code) {}
@@ -85,7 +85,7 @@ namespace Andromeda {
     /**
      * @brief Dispatches if the user selects an object in the viewport
      */
-    struct SceneObjectSelected : public IEvent {
+    struct SceneObjectSelected : IEvent {
         ECS::Entity entity; ///< The ID of the selected entity.
 
         explicit SceneObjectSelected(ECS::Entity e) : entity(e) {}
@@ -95,14 +95,14 @@ namespace Andromeda {
     /**
          * @brief Triggered when the wireframe rendering mode is toggled.
          */
-    struct OnEnableWireFrame : public IEvent {
+    struct OnEnableWireFrame : IEvent {
         bool state; ///< True to enable wireframe, false for solid rendering.
 
         explicit OnEnableWireFrame(bool _state) : state(_state) {}
         static constexpr EventType GetStaticType() { return EventType::OnEnableWireframe; }
     };
 
-    struct PushUndoTransformEvent : public IEvent {
+    struct PushUndoTransformEvent : IEvent {
         ECS::Entity entity;
         std::any oldState;
 
@@ -112,4 +112,5 @@ namespace Andromeda {
 
         static constexpr EventType GetStaticType() { return EventType::OnPushUndoTransform; }
     };
+
 }

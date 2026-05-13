@@ -69,8 +69,8 @@ TEST_F(SubsystemStartTest, CheckRenderer) {
 
 TEST_F(SubsystemStartTest, CheckEditor) {
     std::cout << "[ STEP ] Initializing Editor..." << std::endl;
-    auto& manager = Andromeda::SystemManager::getInstance();
-    Editor editor;
+    auto& manager = SystemManager::getInstance();
+    Editor::Editor editor;
     Renderer renderer;
     ResourceManager rm;
     Andromeda::SceneManager sm;

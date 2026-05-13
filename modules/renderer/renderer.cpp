@@ -108,9 +108,9 @@ namespace Andromeda {
         glEnable(GL_CULL_FACE);
     }
 
-    void Renderer::createCubemapTexture(const CubemapData& data) {
+    void Renderer::createCubemapTexture(CubemapData& data) {
         if (m_GXAPI == AndromedaGXAPI::OpenGL) {
-            CubemapGL::CreateCubemapTextureGL(data);
+            CubemapGL::CubemapTextureUploadGL(data);
         }
     }
 
