@@ -120,6 +120,7 @@ namespace Andromeda {
         return m_DeviceRecords;
     }
 
+
     u32 ResourceManager::getDeviceCount() const {
         return static_cast<u32>(m_DeviceIndexList.size());
     }
@@ -132,10 +133,19 @@ namespace Andromeda {
         return static_cast<u32>(m_DeviceIcons.at(type).id);
     }
 
+    
+    void ResourceManager::LoadCubemapTexture(const CubemapData& data){
+        i32 width, height, channels;
+        unsigned char* pixels;
+        for (u32 i = 0; i < data.faceTextures.size(); i++) {
+            pixels = stbi_load(data.faceTextures[i], &width, &height, &channels, 0);
+        }
+    }
+
     GLtexture ResourceManager::CreateOpenGLTexture(const char* path)
     {
         GLtexture texture;
-        int w, h, channels;
+        i32 w, h, channels;
         unsigned char* pixels = stbi_load(path, &w, &h, &channels, 4);
         if (!pixels) {
             const std::string log = stbi_failure_reason();

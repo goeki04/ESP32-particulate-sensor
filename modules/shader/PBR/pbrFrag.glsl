@@ -84,7 +84,6 @@ void main()
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
         vec3 specular     = numerator / denominator;  
             
-        // add to outgoing radiance Lo
         float NdotL = max(dot(N, L), 0.0);                
         Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
     }   
