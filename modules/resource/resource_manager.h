@@ -41,6 +41,7 @@ namespace Andromeda {
          * @brief Loads 3D models and initializes their GPU handles.
          */
         void loadModels();
+        void loadAllCubeMaps();
 
         /**
          * @brief Loads UI icons from disk and creates OpenGL textures.
@@ -70,13 +71,15 @@ namespace Andromeda {
          * @brief Utility to create an OpenGL texture from a file path.
          */
         static GLtexture CreateOpenGLTexture(const char* path);
-        static void LoadCubemapTexture(const CubemapData& data);
+
+        void loadAndStoreCubemap(const std::string& name, const std::array<const char*, 6>& paths);
         [[nodiscard]] u32 getDeviceCount() const override;
         [[nodiscard]] const Device& getDeviceData(u32 index) const override;
 
         [[nodiscard]] u32 getDeviceIconID(deviceType type) const override;
 
     private:
+        static void loadCubemapTexture(CubemapData& data);
         /// Internal storage for device metadata
         std::unordered_map<uint32_t, Device> m_DeviceRecords;
 
@@ -89,6 +92,10 @@ namespace Andromeda {
         /// Helper map to find internal IDs by their mesh filenames/names
         std::unordered_map<std::string, uint32_t> m_MeshIDbyName;
         unsigned int m_NextMeshID = 0;
+
+        void AddCubemap() {
+
+        }
 
         // --- Template Helpers for Type-Safe Shader Registration ---
 
