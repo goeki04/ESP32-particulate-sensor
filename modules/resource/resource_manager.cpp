@@ -37,6 +37,12 @@ namespace Andromeda {
 
     void ResourceManager::loadAllCubeMaps()
     {
+        std::vector<std::string> directoryNames = Filesystem::getAllDirectoryNames(CUBEMAP_PATH);
+        std::vector<std::string> skyboxPathsInDirectory;
+        for (auto& directoryName : directoryNames)
+        {
+            m_CubemapData[directoryName] = CubemapData();
+        }
     }
 
     void ResourceManager::loadDeviceIcons()
