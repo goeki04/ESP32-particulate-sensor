@@ -5,6 +5,8 @@
 #include "a_math.hpp"
 #include "scene.hpp"
 #include "a_event_manager.hpp"
+#include "a_CubemapData.hpp"
+#include "a_GLcubemap.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void Renderer::start()
@@ -68,7 +70,7 @@ namespace Andromeda {
         glDrawElements(GL_TRIANGLES, m_ResourceManager->getMeshIndexSizeByID(mesh.meshID), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
     }
-
+     
     void Renderer::destroy() {
         fboManager.destroyFramebuffers();
         if (m_Vao) {
@@ -104,6 +106,10 @@ namespace Andromeda {
         }
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_CULL_FACE);
+    }
+
+    void Renderer::createCubemapTexture(const CubemapData& data) {
+         CubemapGL::CreateCubemapTextureGL(data);
     }
 
     u32 Renderer::getFinalSceneViewportTexture() const

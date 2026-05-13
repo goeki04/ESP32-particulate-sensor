@@ -33,6 +33,7 @@ target_include_directories(definitions INTERFACE
    .   
    Math
    Engine
+   renderer
    ECS
 )
 

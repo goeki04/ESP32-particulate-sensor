@@ -11,7 +11,7 @@
 #include "a_opengl_handles.hpp"
 #include "a_primitives.hpp"
 #include "a_ISubsystem.hpp"
-
+#include "a_cubemapData.hpp"
 namespace Andromeda {
 
     /**
@@ -30,7 +30,7 @@ namespace Andromeda {
         /// Maps device types to their respective UI icons (OpenGL texture handles)
         std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
         std::unordered_map<std::string, GLtexture> m_EditorIcons;
-
+        std::unordered_map<std::string, CubemapData> m_CubemapData;
         // --- Subsystem Interface ---
         static constexpr std::string_view GetStaticName() { return "ResourceManager"; }
         [[nodiscard]] const char* getSubsystemName() const override { return GetStaticName().data(); }
@@ -70,7 +70,7 @@ namespace Andromeda {
          * @brief Utility to create an OpenGL texture from a file path.
          */
         static GLtexture CreateOpenGLTexture(const char* path);
-
+        static void LoadCubemapTexture(const CubemapData& data);
         [[nodiscard]] u32 getDeviceCount() const override;
         [[nodiscard]] const Device& getDeviceData(u32 index) const override;
 

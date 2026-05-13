@@ -8,6 +8,7 @@ namespace Andromeda {
 	namespace amath {
 		struct CameraData;
 	}
+	class CubemapData;
 	class SceneManager;
 	enum class MaterialShaderType : int;
 	namespace Window { class WindowManager; }
@@ -15,6 +16,17 @@ namespace Andromeda {
 	class Mesh;
 	enum class MsaaSamples {
 		x2 = 2, x4 = 4, x8 = 8
+	};
+
+	/// <summary>
+	/// TODO: abstract OpenGL specific code from the renderer into the rhi. Also if theres enough time, implement
+	/// a Vulkan renderer. MacOS should also be supported via MoltenVK
+	/// </summary>
+	enum class AndromedaGXAPI {
+		OpenGL,
+		Directx12,
+		Vulkan,
+		Metal
 	};
 
 	class Renderer : public ISubsystem {
@@ -46,7 +58,11 @@ namespace Andromeda {
 		void scenePassEndResolve() const;
 
 		static void windowClearPass();
+
+		//--- Resource Management ---
+		void createCubemapTexture(const CubemapData& data);
 	private:
+		AndromedaGXAPI m_GXAPI = AndromedaGXAPI::OpenGL;
 		ECS::Entity m_SelectedForHighlighting = ECS::INVALID_ENTITY_ID;
 		ResourceManager* m_ResourceManager = nullptr;
 		SceneManager* m_SceneManager = nullptr;
