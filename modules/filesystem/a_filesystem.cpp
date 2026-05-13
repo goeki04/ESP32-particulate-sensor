@@ -85,23 +85,25 @@ namespace Andromeda {
     }
 
     /// Returns a list of directory names within the specified path
-    std::vector<std::string> Filesystem::getDirectoryNames(const std::string& path)
+    std::vector<Filesystem::Directory> Filesystem::getAllDirectories(const std::string& path)
     {
-        std::vector<std::string> directoryNames;
+        std::vector<Directory> directories;
         std::error_code ec;
 
         if (!std::filesystem::exists(path, ec) || !std::filesystem::is_directory(path, ec)) {
-            return directoryNames;
+            return directories;
         }
 
         for (const auto& entry : std::filesystem::directory_iterator(path, ec)) {
             if (ec) break;
-
             if (entry.is_directory()) {
-                directoryNames.emplace_back(entry.path().filename().generic_string());
+                std::string directoryName = entry.path().filename().generic_string();
+                std::string combinedDirectoryPath = entry.path().generic_string();
+                std::vector<std::string> fileNames = getAllFilesInDirectory(combinedDirectoryPath);
+                directories.emplace_back(directoryName, fileNames);
             }
         }
 
-        return directoryNames;
+        return directories;
     }
 }
