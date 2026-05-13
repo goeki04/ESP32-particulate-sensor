@@ -83,4 +83,25 @@ namespace Andromeda {
         std::string fileName = (dotPos == std::string::npos) ? objectName : objectName.substr(0, dotPos);
         return fileName;
     }
+
+    /// Returns a list of directory names within the specified path
+    std::vector<std::string> Filesystem::getDirectoryNames(const std::string& path)
+    {
+        std::vector<std::string> directoryNames;
+        std::error_code ec;
+
+        if (!std::filesystem::exists(path, ec) || !std::filesystem::is_directory(path, ec)) {
+            return directoryNames;
+        }
+
+        for (const auto& entry : std::filesystem::directory_iterator(path, ec)) {
+            if (ec) break;
+
+            if (entry.is_directory()) {
+                directoryNames.emplace_back(entry.path().filename().generic_string());
+            }
+        }
+
+        return directoryNames;
+    }
 }

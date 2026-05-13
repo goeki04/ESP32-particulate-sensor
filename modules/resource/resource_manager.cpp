@@ -2,7 +2,6 @@
 #include "a_filesystem.hpp"
 #include <string>
 #define STB_IMAGE_IMPLEMENTATION
-#include <iostream>
 
 #include "stb_image.h"
 #include <assimp/Importer.hpp>
@@ -21,7 +20,7 @@ namespace Andromeda {
         loadDeviceIcons();
         loadEditorIcons();
         setupMeshes();
-
+        
     }
 
     void ResourceManager::loadModels()
@@ -34,6 +33,10 @@ namespace Andromeda {
         for (auto& v : paths) {
             loadScene(v);
         }
+    }
+
+    void ResourceManager::loadAllCubeMaps()
+    {
     }
 
     void ResourceManager::loadDeviceIcons()
@@ -120,7 +123,6 @@ namespace Andromeda {
         return m_DeviceRecords;
     }
 
-
     u32 ResourceManager::getDeviceCount() const {
         return static_cast<u32>(m_DeviceIndexList.size());
     }
@@ -130,16 +132,23 @@ namespace Andromeda {
     }
 
     u32 ResourceManager::getDeviceIconID(const deviceType type) const {
-        return static_cast<u32>(m_DeviceIcons.at(type).id);
+        return m_DeviceIcons.at(type).id;
+    }
+    
+    void ResourceManager::loadCubemapTexture(CubemapData& data){
+        i32 width, height, channels;
+        for (u32 i = 0; i < data.faceTexturePath.size(); i++) {
+            unsigned char* pixels = stbi_load(data.faceTexturePath[i], &width, &height, &channels, 0);
+            data.pixelData[i] = pixels;
+        }
     }
 
-    
-    void ResourceManager::LoadCubemapTexture(const CubemapData& data){
-        i32 width, height, channels;
-        unsigned char* pixels;
-        for (u32 i = 0; i < data.faceTextures.size(); i++) {
-            pixels = stbi_load(data.faceTextures[i], &width, &height, &channels, 0);
-        }
+    void ResourceManager::loadAndStoreCubemap(const std::string& name, const std::array<const char*, 6>& paths) {
+        CubemapData data;
+        data.faceTexturePath = paths;
+        loadCubemapTexture(data);
+
+        m_CubemapData[name] = std::move(data);
     }
 
     GLtexture ResourceManager::CreateOpenGLTexture(const char* path)
@@ -156,7 +165,6 @@ namespace Andromeda {
 
         glGenTextures(1, &texture.id);
         glBindTexture(GL_TEXTURE_2D, texture.id);
-
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

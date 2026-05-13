@@ -25,5 +25,6 @@ namespace Andromeda {
 		std::vector<std::string> getAllFilesInDirectory(const std::string& directory, std::span<std::string> filter);
 		std::vector<std::string> getAllFilesInDirectory(const std::string& directory);
 		std::string getFileName(const std::string& path);
+		std::vector<std::string> getDirectoryNames(const std::string& path);
 	};
 }

@@ -5,7 +5,7 @@
 #include "a_math.hpp"
 #include "scene.hpp"
 #include "a_event_manager.hpp"
-#include "a_CubemapData.hpp"
+#include <a_CubemapData.hpp>
 #include "a_GLcubemap.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
@@ -109,7 +109,9 @@ namespace Andromeda {
     }
 
     void Renderer::createCubemapTexture(const CubemapData& data) {
-         CubemapGL::CreateCubemapTextureGL(data);
+        if (m_GXAPI == AndromedaGXAPI::OpenGL) {
+            CubemapGL::CreateCubemapTextureGL(data);
+        }
     }
 
     u32 Renderer::getFinalSceneViewportTexture() const
