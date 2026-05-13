@@ -21,6 +21,15 @@ namespace Andromeda {
         loadEditorIcons();
         setupMeshes();
         loadAllCubeMaps();
+        for (const auto& [name, data] : m_CubemapData) {
+            std::printf("Cubemap Name: %s\n", name.c_str());
+            std::printf("  - ID: %u\n", data.textureID);
+            std::printf("  - Resolution: %dx%d\n", data.width, data.height);
+
+            for (const auto& path : data.faceTexturePath) {
+                std::printf("    Path: %s\n", path.c_str());
+            }
+        }
     }
 
     void ResourceManager::loadModels()
@@ -65,7 +74,7 @@ namespace Andromeda {
         }
     }
 
-    u32 Andromeda::ResourceManager::getEditorIconID(const std::string& name)
+    u32 ResourceManager::getEditorIconID(const std::string& name)
     {
         auto it = m_EditorIcons.find(name);
         if (it != m_EditorIcons.end()) {
@@ -155,6 +164,25 @@ namespace Andromeda {
         }
     }
 
+    void ResourceManager::MapCubemapFaces(CubemapData& data, const std::string& path)
+    {
+        std::string fileName = Filesystem::getFileName(path);
+
+        std::string lowerName = fileName;
+        std::ranges::transform(lowerName, lowerName.begin(),
+                               [](const unsigned char c){ return std::tolower(c); });
+
+        if (lowerName.find("right") != std::string::npos)       data.faceTexturePath[0] = path;
+        else if (lowerName.find("left") != std::string::npos)   data.faceTexturePath[1] = path;
+        else if (lowerName.find("top") != std::string::npos)    data.faceTexturePath[2] = path;
+        else if (lowerName.find("bottom") != std::string::npos) data.faceTexturePath[3] = path;
+        else if (lowerName.find("back") != std::string::npos)   data.faceTexturePath[4] = path;
+        else if (lowerName.find("front") != std::string::npos)  data.faceTexturePath[5] = path;
+        else {
+            std::printf("[WARNING]: Could not map cubemap face for file: %s\n", path.c_str());
+        }
+    }
+
     void ResourceManager::loadAndStoreCubemap(const std::string& name, const std::vector<std::string>& paths) {
         constexpr i32 cubemapSize = 6;
         if (paths.size() == cubemapSize)
@@ -162,7 +190,7 @@ namespace Andromeda {
             CubemapData data;
             for (u32 i = 0; i < cubemapSize; i++)
             {
-                data.faceTexturePath[i] = paths[i];
+                MapCubemapFaces(data, paths[i]);
             }
 
             loadCubemapTexture(data);
@@ -171,8 +199,8 @@ namespace Andromeda {
         }
         else
         {
-            std::printf("[WARNING]: Cubemap directory '%s' contains more or less files than 6! Skipping...\n",
-            name.c_str());
+            std::printf("[WARNING]: Cubemap directory '%s' contains %zu files! Skipping...\n",
+                    name.c_str(), paths.size());
         }
     }
 

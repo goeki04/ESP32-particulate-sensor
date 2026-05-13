@@ -80,6 +80,7 @@ namespace Andromeda {
 
     private:
         static void loadCubemapTexture(CubemapData& data);
+        static void MapCubemapFaces(CubemapData& data, const std::string& path);
         /// Internal storage for device metadata
         std::unordered_map<uint32_t, Device> m_DeviceRecords;
 
