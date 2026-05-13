@@ -72,7 +72,7 @@ namespace Andromeda {
          */
         static GLtexture CreateOpenGLTexture(const char* path);
 
-        void loadAndStoreCubemap(const std::string& name, const std::array<const char*, 6>& paths);
+        void loadAndStoreCubemap(const std::string& name, const std::vector<std::string>& paths);
         [[nodiscard]] u32 getDeviceCount() const override;
         [[nodiscard]] const Device& getDeviceData(u32 index) const override;
 
@@ -93,9 +93,6 @@ namespace Andromeda {
         std::unordered_map<std::string, uint32_t> m_MeshIDbyName;
         unsigned int m_NextMeshID = 0;
 
-        void AddCubemap() {
-
-        }
 
         // --- Template Helpers for Type-Safe Shader Registration ---
 

@@ -7,7 +7,8 @@ namespace Andromeda{
         std::array<unsigned char*, 6> pixelData = {
             nullptr
         };
-        std::array<const char*,6> faceTexturePath;
+        std::array<std::string,6> faceTexturePath;
+        u32 textureID = 0;
         i32 width;
         i32 height;
         i32 channels;
@@ -19,6 +20,7 @@ namespace Andromeda{
         CubemapData(CubemapData&& other) noexcept :
             pixelData(other.pixelData),
             faceTexturePath(other.faceTexturePath),
+            textureID(other.textureID),
             width(other.width), height(other.height), channels(other.channels) {
             other.pixelData.fill(nullptr);
         }
@@ -29,6 +31,7 @@ namespace Andromeda{
                 pixelData = other.pixelData;
                 faceTexturePath = other.faceTexturePath;
                 width = other.width;
+                textureID = other.textureID;
                 height = other.height;
                 channels = other.channels;
                 other.pixelData.fill(nullptr);
