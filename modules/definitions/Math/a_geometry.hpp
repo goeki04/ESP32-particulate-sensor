@@ -11,14 +11,10 @@ namespace Andromeda {
      * @brief Represents a single point in 3D space with associated data.
      */
     struct Vertex {
-    public:
-        vec3 pos;    ///< 3D position of the vertex
-        vec3 normal; ///< Normal vector for lighting calculations
-        vec2 uv;     ///< Texture coordinates (u, v)
-        vec3 color;  ///< Diffuse color of the vertex (not per-vertex-lighting color)
-
-        /// Default constructor: Initializes all vectors to zero, color to white.
-        Vertex() : pos(0.0f), normal(0.0f), uv(0.0f), color(1.0f) {};
+        vec3 pos    = vec3(0.0f); ///< 3D position of the vertex
+        vec3 normal = vec3(0.0f); ///< Normal vector for lighting calculations
+        vec2 uv     = vec2(0.0f); ///< Texture coordinates (u, v)
+        vec3 color  = vec3(1.0f); ///< Diffuse color of the vertex (default: white)
     };
 
     /**
@@ -34,16 +30,16 @@ namespace Andromeda {
      * Manages vertex and index data and provides utility for bounds calculation.
      */
     struct Mesh {
-        std::vector<Vertex> m_Vertexbuffer; ///< Storage for all vertices in the mesh
-        std::vector<u32> m_Indexbuffer;     ///< Storage for the rendering order (indices)
+        std::vector<Vertex> vertexbuffer; ///< Storage for all vertices in the mesh
+        std::vector<u32> indexBuffer;     ///< Storage for the rendering order (indices)
 
         /**
          * @brief Move constructor for efficient data transfer.
          * Prevents deep copying of large vertex/index arrays.
          */
         Mesh(std::vector<Vertex>&& vertexPositions, std::vector<u32>&& vertexIndices)
-            : m_Vertexbuffer(std::move(vertexPositions)),
-            m_Indexbuffer(std::move(vertexIndices)) {
+            : vertexbuffer(std::move(vertexPositions)),
+            indexBuffer(std::move(vertexIndices)) {
         }
 
         Mesh() = default;
@@ -56,10 +52,10 @@ namespace Andromeda {
          */
         [[nodiscard]] ECS::Component::AABB getAABB() const
         {
-            if (m_Vertexbuffer.empty())
+            if (vertexbuffer.empty())
                 throw std::runtime_error("Mesh has no vertices");
 
-            const auto& vb = m_Vertexbuffer;
+            const auto& vb = vertexbuffer;
             vec3 min = vb[0].pos;
             vec3 max = min;
 
