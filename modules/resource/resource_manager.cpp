@@ -248,7 +248,7 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
     }
 
     u32 ResourceManager::getMeshIndexSizeByID(const u32 meshID) const {
-        return m_DeviceRecords.at(meshID).mesh.m_Indexbuffer.size();
+        return m_DeviceRecords.at(meshID).mesh.indexBuffer.size();
     }
 
     MaterialShader* ResourceManager::getMaterialShaderByID(MaterialShaderType t) const
@@ -360,8 +360,8 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
                 vertices.push_back(vertex);
             }
 
-            auto& vb = newMesh.m_Vertexbuffer;
-            auto& ib = newMesh.m_Indexbuffer;
+            auto& vb = newMesh.vertexbuffer;
+            auto& ib = newMesh.indexBuffer;
 
             const uint32_t baseVertex = static_cast<uint32_t>(vb.size());
 
