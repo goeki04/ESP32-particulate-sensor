@@ -7,6 +7,8 @@
 #include <assimp/Importer.hpp>
 #include "a_opengl_upload.hpp"
 #include <assimp/postprocess.h>
+
+#include "a_GLcubemap.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void ResourceManager::start()
@@ -26,7 +28,7 @@ namespace Andromeda {
             std::printf("  - ID: %u\n", data.textureID);
             std::printf("  - Resolution: %dx%d\n", data.width, data.height);
 
-            for (const auto& path : data.faceTexturePath) {
+            for (const auto& path : data.texturePath) {
                 std::printf("    Path: %s\n", path.c_str());
             }
         }
@@ -44,21 +46,156 @@ namespace Andromeda {
         }
     }
 
-    void ResourceManager::loadAllCubeMaps()
+    /**
+ * @brief Scans and loads all cubemaps and environment maps from designated directories.
+ * * This function handles two distinct loading paths:
+ * 1. LDR Cubemaps: Scans the "/LDR" subdirectory for folders containing sets of 6 textures.
+ * 2. HDR Panoramas: Scans the "/HDR" subdirectory for single-file .hdr or .hdri images.
+ * *
+ */
+void ResourceManager::loadAllCubeMaps()
+{
+    std::vector<Filesystem::Directory> cubeMapLDR = Filesystem::getAllDirectories(CUBEMAP_PATH "/LDR");
+    const std::vector<std::string> filter = {".hdr", ".hdri"};
+    std::vector<std::string> cubeMapHDR = Filesystem::getAllFilesInDirectoryRecursive(CUBEMAP_PATH "/HDR", filter);
+
+    if (!cubeMapLDR.empty())
     {
-        std::vector<Filesystem::Directory> directories = Filesystem::getAllDirectories(CUBEMAP_PATH);
-        if (!directories.empty())
+        for (auto& directory : cubeMapLDR)
         {
-            for (auto& directory : directories)
-            {
-                loadAndStoreCubemap(directory.name,directory.files);
-            }
-        }
-        else
-        {
-            std::printf("[WARNING]: No cubemaps found in %s!\n", CUBEMAP_PATH);
+            loadAndStoreCubemap(directory.name, directory.files);
         }
     }
+
+    if (!cubeMapHDR.empty())
+    {
+        for (std::string file : cubeMapHDR)
+        {
+            loadAndStoreCubemap(file);
+        }
+    }
+}
+
+/**
+ * @brief Decodes image data from disk into CPU memory.
+ * * Iterates through all registered paths in the CubemapData and uses stb_image
+ * to load pixel data. It automatically switches between floating-point loading
+ * for HDR and byte loading for standard LDR images.
+ * * @param data Reference to the CubemapData structure to be populated with dimensions and pixels.
+ * @note Pixel memory is allocated via stb_image and must be freed using CubemapData::freePixelData().
+ */
+void ResourceManager::loadCubemapTexture(CubemapData& data){
+        for (u32 i = 0; i < data.texturePath.size(); i++) {
+            const char* path = data.texturePath[i].c_str();
+            if (data.isHDR)
+            {
+                stbi_set_flip_vertically_on_load(true);
+                float* pixels = stbi_loadf(path, &data.width, &data.height, &data.channels, 0);
+                data.pixelData[i] = pixels;
+            }
+            else
+            {
+                stbi_set_flip_vertically_on_load(false);
+                unsigned char* pixels = stbi_load(path, &data.width, &data.height, &data.channels, 0);
+                data.pixelData[i] = static_cast<void*>(pixels);
+            }
+
+            if (!data.pixelData[i])
+            {
+                std::printf("[ERROR]: Failed to load cubemap face: %s\n", path);
+            }
+        }
+}
+
+/**
+ * @brief Maps a file path to its corresponding cube face index based on naming conventions.
+ * * Standard OpenGL Cubemap indexing:
+ * - 0: Positive X (Right)
+ * - 1: Negative X (Left)
+ * - 2: Positive Y (Top)
+ * - 3: Negative Y (Bottom)
+ * - 4: Positive Z (Back)
+ * - 5: Negative Z (Front)
+ * *
+ * * @param data The CubemapData structure where the path will be assigned.
+ * @param path The file path to analyze.
+ */
+void ResourceManager::MapCubemapFacesLDR(CubemapData& data, const std::string& path)
+{
+    std::string fileName = Filesystem::getFileName(path);
+
+    std::string lowerName = fileName;
+    std::ranges::transform(lowerName, lowerName.begin(),
+                           [](const unsigned char c){ return std::tolower(c); });
+
+    if (lowerName.find("right") != std::string::npos)       data.texturePath[0] = path;
+    else if (lowerName.find("left") != std::string::npos)   data.texturePath[1] = path;
+    else if (lowerName.find("top") != std::string::npos)    data.texturePath[2] = path;
+    else if (lowerName.find("bottom") != std::string::npos) data.texturePath[3] = path;
+    else if (lowerName.find("back") != std::string::npos)   data.texturePath[4] = path;
+    else if (lowerName.find("front") != std::string::npos)  data.texturePath[5] = path;
+    else {
+        std::printf("[WARNING]: Could not map cubemap face for file: %s\n", path.c_str());
+    }
+}
+    /**
+ * @brief Loads a cubemap from a set of 6 individual image files (LDR).
+ * * This function is used for traditional sky boxes where each face of the cube
+ * (+X, -X, +Y, -Y, +Z, -Z) is stored in a separate file. The files are
+ * automatically mapped to their respective cube faces based on their filenames.
+ * * @param name The unique identifier (key) to store the cubemap in the ResourceManager.
+ * @param paths A vector containing exactly 6 file paths to the texture images.
+ * * @note If the vector does not contain exactly 6 paths, the loading process
+ * will be aborted and a warning will be logged to the console.
+ * @warning Ensure that CubemapGL::CubemapTextureUploadGL(data) is called before
+ * moving the data into the map to finalize the GPU upload.
+ */
+void ResourceManager::loadAndStoreCubemap(const std::string& name, const std::vector<std::string>& paths) {
+    constexpr i32 cubemapSizeLDR = 6;
+    if (paths.size() == cubemapSizeLDR)
+    {
+        CubemapData data;
+        data.texturePath.resize(6);
+        for (u32 i = 0; i < cubemapSizeLDR; i++)
+        {
+            MapCubemapFacesLDR(data, paths[i]);
+        }
+
+        loadCubemapTexture(data);
+        CubemapGL::CubemapTextureUploadGL(data);
+        m_CubemapData[name] = std::move(data);
+    }
+    else
+    {
+        std::printf("[WARNING]: Cubemap directory '%s' contains %zu files! Skipping...\n",
+                name.c_str(), paths.size());
+    }
+}
+
+/**
+ * @brief Loads an environment map from a single HDR panorama file.
+ * * This function automatically detects if the file is in a high dynamic range format.
+ * The image is treated as an equirectangular panorama, commonly used for
+ * Image Based Lighting (IBL) or high-quality sky boxes.
+ * * @param file The full system path to the HDR/HDRI file.
+ * * @note This sets the isHDR flag within CubemapData, which switches the
+ * OpenGL upload process to use GL_RGB16F and GL_FLOAT for high precision.
+ * @warning Ensure that CubemapGL::CubemapTextureUploadGL(data) is called before
+ * moving the data into the map to finalize the GPU upload.
+ */
+void ResourceManager::loadAndStoreCubemap(const std::string& file) {
+        if (stbi_is_hdr(file.c_str()))
+        {
+            CubemapData data;
+            data.isHDR = true;
+            data.texturePath.push_back(file);
+
+            loadCubemapTexture(data);
+            CubemapGL::CubemapTextureUploadGL(data);
+            std::string name = Filesystem::getFileName(file);
+            m_CubemapData[name] = std::move(data);
+        }
+}
 
     void ResourceManager::loadDeviceIcons()
     {
@@ -154,54 +291,6 @@ namespace Andromeda {
 
     u32 ResourceManager::getDeviceIconID(const deviceType type) const {
         return m_DeviceIcons.at(type).id;
-    }
-    
-    void ResourceManager::loadCubemapTexture(CubemapData& data){
-        i32 width, height, channels;
-        for (u32 i = 0; i < data.faceTexturePath.size(); i++) {
-            unsigned char* pixels = stbi_load(data.faceTexturePath[i].c_str(), &width, &height, &channels, 0);
-            data.pixelData[i] = pixels;
-        }
-    }
-
-    void ResourceManager::MapCubemapFaces(CubemapData& data, const std::string& path)
-    {
-        std::string fileName = Filesystem::getFileName(path);
-
-        std::string lowerName = fileName;
-        std::ranges::transform(lowerName, lowerName.begin(),
-                               [](const unsigned char c){ return std::tolower(c); });
-
-        if (lowerName.find("right") != std::string::npos)       data.faceTexturePath[0] = path;
-        else if (lowerName.find("left") != std::string::npos)   data.faceTexturePath[1] = path;
-        else if (lowerName.find("top") != std::string::npos)    data.faceTexturePath[2] = path;
-        else if (lowerName.find("bottom") != std::string::npos) data.faceTexturePath[3] = path;
-        else if (lowerName.find("back") != std::string::npos)   data.faceTexturePath[4] = path;
-        else if (lowerName.find("front") != std::string::npos)  data.faceTexturePath[5] = path;
-        else {
-            std::printf("[WARNING]: Could not map cubemap face for file: %s\n", path.c_str());
-        }
-    }
-
-    void ResourceManager::loadAndStoreCubemap(const std::string& name, const std::vector<std::string>& paths) {
-        constexpr i32 cubemapSize = 6;
-        if (paths.size() == cubemapSize)
-        {
-            CubemapData data;
-            for (u32 i = 0; i < cubemapSize; i++)
-            {
-                MapCubemapFaces(data, paths[i]);
-            }
-
-            loadCubemapTexture(data);
-
-            m_CubemapData[name] = std::move(data);
-        }
-        else
-        {
-            std::printf("[WARNING]: Cubemap directory '%s' contains %zu files! Skipping...\n",
-                    name.c_str(), paths.size());
-        }
     }
 
     GLtexture ResourceManager::CreateOpenGLTexture(const char* path)
