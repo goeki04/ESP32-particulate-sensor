@@ -73,6 +73,7 @@ namespace Andromeda {
         static GLtexture CreateOpenGLTexture(const char* path);
 
         void loadAndStoreCubemap(const std::string& name, const std::vector<std::string>& paths);
+        void loadAndStoreCubemap(const std::string& file);
         [[nodiscard]] u32 getDeviceCount() const override;
         [[nodiscard]] const Device& getDeviceData(u32 index) const override;
 
@@ -80,7 +81,7 @@ namespace Andromeda {
 
     private:
         static void loadCubemapTexture(CubemapData& data);
-        static void MapCubemapFaces(CubemapData& data, const std::string& path);
+        static void MapCubemapFacesLDR(CubemapData& data, const std::string& path);
         /// Internal storage for device metadata
         std::unordered_map<uint32_t, Device> m_DeviceRecords;
 

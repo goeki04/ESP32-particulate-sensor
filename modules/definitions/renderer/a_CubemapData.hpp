@@ -1,17 +1,19 @@
 #pragma once
 #include "a_primitives.hpp"
-#include <array>
+#include <vector>
 #include <stb_image.h>
 namespace Andromeda{
     struct CubemapData{
-        std::array<unsigned char*, 6> pixelData = {
+        std::array<void*, 6> pixelData = {
             nullptr
         };
-        std::array<std::string,6> faceTexturePath;
+        std::vector<std::string> texturePath;
         u32 textureID = 0;
         i32 width;
         i32 height;
         i32 channels;
+
+        bool isHDR = false;
 
         CubemapData() = default;
         CubemapData(const CubemapData&) = delete;
@@ -19,7 +21,7 @@ namespace Andromeda{
 
         CubemapData(CubemapData&& other) noexcept :
             pixelData(other.pixelData),
-            faceTexturePath(other.faceTexturePath),
+            texturePath(other.texturePath),
             textureID(other.textureID),
             width(other.width), height(other.height), channels(other.channels) {
             other.pixelData.fill(nullptr);
@@ -29,7 +31,7 @@ namespace Andromeda{
             if (this != &other) {
                 freePixelData();
                 pixelData = other.pixelData;
-                faceTexturePath = other.faceTexturePath;
+                texturePath = other.texturePath;
                 width = other.width;
                 textureID = other.textureID;
                 height = other.height;
