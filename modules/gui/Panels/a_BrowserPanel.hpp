@@ -1,7 +1,7 @@
 #pragma once
 #include "a_EditorPanel.hpp"
 #include "a_primitives.hpp"
-#include "a_Device.hpp"
+#include "a_model_record.hpp"
 #include "imgui.h"
 
 namespace Andromeda::Gui {
@@ -36,7 +36,7 @@ namespace Andromeda::Gui {
          * specific device tile during a single frame.
          */
         struct Tile {
-            const Device& device;   ///< Reference to the underlying device data.
+            const ModelRecord& blueprint;   ///< Reference to the underlying device data.
             uint32_t texID;         ///< GPU texture handle for the device icon.
             i32 index;              ///< Unique index of the device in the provider list.
 
@@ -80,7 +80,7 @@ namespace Andromeda::Gui {
          * @param idx The index of the device.
          * @return True if the tile was clicked, false otherwise.
          */
-        bool handleTile(EditorContext& ctx, const Device& device, int idx);
+        bool handleTile(EditorContext& ctx, const ModelRecord& device, int idx);
 
         /**
          * @brief Handles 3D world interaction for dragging devices into the scene.

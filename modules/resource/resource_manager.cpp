@@ -1,5 +1,6 @@
 #include "resource_manager.h"
 #include "a_filesystem.hpp"
+#include "a_geometry.hpp"
 #include <string>
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -7,9 +8,8 @@
 #include <assimp/Importer.hpp>
 #include "a_opengl_upload.hpp"
 #include <assimp/postprocess.h>
-
+#include "a_primitiveGenerator.hpp"
 #include "a_GLcubemap.hpp"
-using namespace Andromeda::ECS;
 namespace Andromeda {
     void ResourceManager::start()
     {
@@ -248,7 +248,7 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
     }
 
     u32 ResourceManager::getMeshIndexSizeByID(const u32 meshID) const {
-        return m_DeviceRecords.at(meshID).mesh.indexBuffer.size();
+        return m_Meshes.at(meshID).indexBuffer.size();
     }
 
     MaterialShader* ResourceManager::getMaterialShaderByID(MaterialShaderType t) const
@@ -266,27 +266,27 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
         return m_PostProcessShaders[static_cast<int>(t)].get();
     }
 
-    const Mesh& ResourceManager::getMeshByID(const uint32_t meshID) const
+    const Mesh& ResourceManager::getMeshByID(const u32 meshID) const
     {
-        return m_DeviceRecords.at(meshID).mesh;
+        return m_Meshes.at(meshID);
     }
 
-    u32 ResourceManager::getDeviceRecordsSize() const
+    u32 ResourceManager::getModelRecordsSize() const
     {
-        return m_DeviceRecords.size();
+        return m_ModelRecords.size();
     }
 
-    const std::unordered_map<uint32_t, Device>& ResourceManager::getDeviceRecords() const
+    const std::unordered_map<uint32_t, ModelRecord>& ResourceManager::getModelRecords() const
     {
-        return m_DeviceRecords;
+        return m_ModelRecords;
     }
 
-    u32 ResourceManager::getDeviceCount() const {
-        return static_cast<u32>(m_DeviceIndexList.size());
+    u32 ResourceManager::getModelCount() const {
+        return static_cast<u32>(m_ModelRecords.size());
     }
-    const Device& ResourceManager::getDeviceData(u32 index) const {
-        u32 deviceID = m_DeviceIndexList.at(index);
-        return m_DeviceRecords.at(deviceID);
+    const ModelRecord& ResourceManager::getModelData(u32 index) const {
+        u32 modelID = m_ModelIndexList.at(index);
+        return m_ModelRecords.at(modelID);
     }
 
     u32 ResourceManager::getDeviceIconID(const deviceType type) const {
@@ -319,17 +319,18 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
         return texture;
     }
 
+
     void ResourceManager::setupMeshes()
     {
-        for (auto& [id, device] : m_DeviceRecords)
+        for (auto& [id, mesh] : m_Meshes)
         {
             MeshGPUHandle& gpuHandle = m_GPUMeshes[id];
-            createMesh(gpuHandle, device.mesh);
+            createMesh(gpuHandle, mesh);
         }
     }
     void ResourceManager::processNode(const uint32_t meshId, const aiScene* scene, aiNode* node)
     {
-        auto& newMesh = m_DeviceRecords.at(meshId).mesh;
+        auto& newMesh = m_Meshes.at(meshId);
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
             aiColor3D color(1.0f, 1.0f, 1.0f);
@@ -402,16 +403,11 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
         const uint32_t id = m_NextMeshID++;
         const deviceType dt = Filesystem::findDeviceTypeByPath(path);
 
-        auto [it, inserted] = m_DeviceRecords.try_emplace(
-            id,
-            Device{ id, meshName, Mesh{}, dt }
-        );
+        m_Meshes[id] = Andromeda::Mesh{};
 
-        if (!inserted) {
-            throw std::runtime_error("Failed to insert MeshRecord");
-        }
+        m_ModelRecords[id] = ModelRecord{id,meshName,dt};
+        m_ModelIndexList.push_back(id);
 
-        m_DeviceIndexList.push_back(id);
         m_MeshIDbyName.emplace(meshName, id);
 
         aiNode* rootNode = scene->mRootNode;

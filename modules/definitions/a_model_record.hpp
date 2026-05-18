@@ -1,7 +1,9 @@
 #pragma once
-#include "a_geometry.hpp"
 #include "a_primitives.hpp"
+#include <string>
 namespace Andromeda {
+	struct Mesh;
+
 	enum class deviceType {
 		DEFAULT = -1,
 		SENSOR,
@@ -10,18 +12,17 @@ namespace Andromeda {
 		BREADBOARD,
 	};
 
-	struct Device {
-		u32 id;
+	struct ModelRecord {
+		u32 meshID;
 		std::string name;
-		Mesh mesh;
 		deviceType type;
 	};
 
-	class IDeviceProvider {
+	class IModelProvider {
 	public:
-		virtual ~IDeviceProvider() = default;
-		virtual u32 getDeviceCount() const = 0;
-		virtual const Device& getDeviceData(u32 index) const = 0;
+		virtual ~IModelProvider() = default;
+		virtual u32 getModelCount() const = 0;
+		virtual const ModelRecord& getModelData(u32 index) const = 0;
 		virtual u32 getDeviceIconID(deviceType type) const = 0;
 	};
 }

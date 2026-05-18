@@ -50,7 +50,7 @@ namespace Andromeda {
         postprocessingPass();
     }
 
-    void Renderer::drawMesh(const Component::Mesh& mesh, const Component::Transform& transform) const {
+    void Renderer::drawMesh(const Component::MeshRenderer& mesh, const Component::Transform& transform) const {
         auto* sh = m_ResourceManager->getMaterialShaderByID(MaterialShaderType::white);
         sh->use();
         const mat4 localMatrix = transform.modelMatrix();
@@ -60,7 +60,7 @@ namespace Andromeda {
         glBindVertexArray(0);
     }
 
-    void Renderer::drawMesh(const Component::Mesh& mesh, const Component::Transform& transform, MaterialShaderType type) const {
+    void Renderer::drawMesh(const Component::MeshRenderer& mesh, const Component::Transform& transform, MaterialShaderType type) const {
         auto* sh = m_ResourceManager->getMaterialShaderByID(type);
         sh->use();
         const mat4 localMatrix = transform.modelMatrix();
@@ -93,7 +93,7 @@ namespace Andromeda {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glEnable(GL_CULL_FACE);
         }
-        auto& meshPool = m_SceneManager->m_Registry.getPool<Component::Mesh>();
+        auto& meshPool = m_SceneManager->m_Registry.getPool<Component::MeshRenderer>();
         auto& transformPool = m_SceneManager->m_Registry.getPool<Component::Transform>();
         const auto& entitiesWithMesh = meshPool.getEntities();
         const auto& meshData = meshPool.data();
@@ -101,7 +101,7 @@ namespace Andromeda {
         for (size_t i = 0; i < entitiesWithMesh.size(); ++i) {
             Entity e = entitiesWithMesh[i];
             if (transformPool.has(e)) {
-                drawMesh(meshData[i], transformPool.get(e), MaterialShaderType::unlit);
+                drawMesh(meshData[i], transformPool.get(e), meshData[i].shaderType);
             }
         }
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -151,8 +151,8 @@ namespace Andromeda {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         if (selectedEntity == ECS::INVALID_ENTITY_ID) { return; }
         EntityHandle handle = { selectedEntity, &m_SceneManager->m_Registry };
-        if (handle.has<Component::Mesh>() && handle.has<Component::Transform>()) {
-            drawMesh(handle.get<Component::Mesh>(), handle.get<Component::Transform>(),
+        if (handle.has<Component::MeshRenderer>() && handle.has<Component::Transform>()) {
+            drawMesh(handle.get<Component::MeshRenderer>(), handle.get<Component::Transform>(),
                 MaterialShaderType::white);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

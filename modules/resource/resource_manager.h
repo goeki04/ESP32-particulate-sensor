@@ -7,7 +7,8 @@
 #include "shader.hpp"
 #include "a_components.hpp"
 #include "a_texture.hpp"
-#include "a_device.hpp"
+#include "a_geometry.hpp"
+#include "a_model_record.hpp"
 #include "a_opengl_handles.hpp"
 #include "a_primitives.hpp"
 #include "a_ISubsystem.hpp"
@@ -19,14 +20,14 @@ namespace Andromeda {
      * * Implements ISubsystem for lifecycle management and IDeviceProvider to supply
      * hardware-related data and icons to the GUI/Editor.
      */
-    class ResourceManager : public ISubsystem, public IDeviceProvider {
+    class ResourceManager : public ISubsystem, public IModelProvider {
     public:
 
         // --- Shader Storage ---
         std::vector<std::unique_ptr<MaterialShader>> m_MaterialShaders;
         std::vector<std::unique_ptr<ProceduralShader>> m_ProceduralShaders;
         std::vector<std::unique_ptr<PostProcessShader>> m_PostProcessShaders;
-
+        std::unordered_map<u32, Andromeda::Mesh> m_Meshes;
         /// Maps device types to their respective UI icons (OpenGL texture handles)
         std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
         std::unordered_map<std::string, GLtexture> m_EditorIcons;
@@ -55,17 +56,17 @@ namespace Andromeda {
         static deviceType findDeviceIcon(const std::string &iconName);
 
         // --- Resource Accessors (Mesh & Shaders) ---
-        [[nodiscard]] u32 getMeshVaoByID(uint32_t meshID) const;
-        [[nodiscard]] u32 getMeshIndexSizeByID(uint32_t meshID) const;
-        [[nodiscard]] const Mesh& getMeshByID(uint32_t meshID) const;
+        [[nodiscard]] u32 getMeshVaoByID(u32 meshID) const;
+        [[nodiscard]] u32 getMeshIndexSizeByID(u32 meshID) const;
+        [[nodiscard]] const Mesh& getMeshByID(u32 meshID) const;
 
         [[nodiscard]] MaterialShader* getMaterialShaderByID(MaterialShaderType t) const;
         [[nodiscard]] ProceduralShader* getProceduralShaderByID(ProceduralShaderType t) const;
         [[nodiscard]] PostProcessShader* getPostprocessShaderByID(PostProcessShaderType t) const;
 
         // Wrapper function for getting the amount of recorded devices
-        [[nodiscard]] u32 getDeviceRecordsSize() const;
-        [[nodiscard]] const std::unordered_map<uint32_t, Device>& getDeviceRecords() const;
+        [[nodiscard]] u32 getModelRecordsSize() const;
+        [[nodiscard]] const std::unordered_map<uint32_t, ModelRecord>& getModelRecords() const;
 
         /**
          * @brief Utility to create an OpenGL texture from a file path.
@@ -74,8 +75,8 @@ namespace Andromeda {
 
         void loadAndStoreCubemap(const std::string& name, const std::vector<std::string>& paths);
         void loadAndStoreCubemap(const std::string& file);
-        [[nodiscard]] u32 getDeviceCount() const override;
-        [[nodiscard]] const Device& getDeviceData(u32 index) const override;
+        [[nodiscard]] u32 getModelCount() const override;
+        [[nodiscard]] const ModelRecord& getModelData(u32 index) const override;
 
         [[nodiscard]] u32 getDeviceIconID(deviceType type) const override;
 
@@ -83,17 +84,17 @@ namespace Andromeda {
         static void loadCubemapTexture(CubemapData& data);
         static void MapCubemapFacesLDR(CubemapData& data, const std::string& path);
         /// Internal storage for device metadata
-        std::unordered_map<uint32_t, Device> m_DeviceRecords;
+        std::unordered_map<u32, ModelRecord> m_ModelRecords;
 
         /// Links Mesh IDs to their OpenGL VAO/VBO handles
         std::unordered_map<i32, MeshGPUHandle> m_GPUMeshes;
 
         /// Maintainer of the display order for the Device Browser UI
-        std::vector<u32> m_DeviceIndexList;
+        std::vector<u32> m_ModelIndexList;
 
         /// Helper map to find internal IDs by their mesh filenames/names
-        std::unordered_map<std::string, uint32_t> m_MeshIDbyName;
-        unsigned int m_NextMeshID = 0;
+        std::unordered_map<std::string, u32> m_MeshIDbyName;
+        u32 m_NextMeshID = 0;
 
 
         // --- Template Helpers for Type-Safe Shader Registration ---
@@ -117,7 +118,6 @@ namespace Andromeda {
         }
 
         // --- Internal Model Loading (Assimp Integration) ---
-
         void setupMeshes();
         void processNode(uint32_t meshId, const aiScene* scene, aiNode* node);
         void loadScene(const std::string& path);
