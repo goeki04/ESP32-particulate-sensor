@@ -1,48 +1,44 @@
 #pragma once
-#include "a_glm_json_parser.hpp"
-/**
- * @file a_component_parser.hpp
- * @brief Provides JSON serialization logic for Andromeda ECS components.
- */
-#include "a_components.hpp"
 #include <nlohmann/json.hpp>
+#include "a_glm_json_parser.hpp"
+#include "a_components.hpp"
 #include "a_material.hpp"
-
+#include "a_model_record.hpp"
  /**
   * @namespace Andromeda::ECS::Component
   * @brief Contains all ECS component structures and their associated serialization logic.
   */
-    namespace Andromeda::ECS::Component {
+namespace Andromeda::ECS::Component {
 
-    /** @brief Serializes the Transform component (Position, Rotation, Scale). */
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Transform, position, rotation, scale)
 
-        /** @brief Serializes the Axis-Aligned Bounding Box (AABB) component. */
-        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AABB, min, max, center)
-
-        /** @brief Serializes the Tag component used for entity identification. */
-        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Tag, name)
-
-    /**
-     * @brief Converts MaterialShaderType enum to a JSON integer.
-     * @param json The target JSON object.
-     * @param e The enum value to serialize.
-     */
     inline void to_json(nlohmann::json& json, const MaterialShaderType& e) {
-        json = static_cast<u32>(e);
+        json = e;
     }
 
-    /**
-     * @brief Converts a JSON integer back into a MaterialShaderType enum.
-     * @param json The source JSON object.
-     * @param e The enum reference to populate.
-     */
     inline void from_json(const nlohmann::json& json, MaterialShaderType& e) {
         e = static_cast<MaterialShaderType>(json.get<u32>());
     }
 
-    /** * @brief Serializes the Mesh component.
-     * @details Depends on the MaterialShaderType serialization defined above.
-     */
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Mesh, meshID, shaderType)
+    inline void to_json(nlohmann::json& json, const deviceType& e) {
+        json = e;
+    }
+
+    inline void from_json(const nlohmann::json& json, deviceType& e) {
+        e = static_cast<deviceType>(json.get<int>());
+    }
+
+    /** @brief Serializes the Transform component (Position, Rotation, Scale). */
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Transform, position, rotation, scale)
+
+    /** @brief Serializes the Axis-Aligned Bounding Box (AABB) component. */
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AABB, min, max, center)
+
+    /** @brief Serializes the Tag component used for entity identification. */
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Tag, name)
+
+    /** @brief Serializes the Device component. */
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Device, type)
+
+    /** @brief Serializes the MeshFilter component. */
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MeshRenderer, meshID, shaderType)
 }

@@ -2,5 +2,5 @@
 namespace Andromeda {
 	struct MeshGPUHandle;
 	struct Mesh;
-	void createMesh(MeshGPUHandle& gpuMesh, const Mesh& mesh);
+	void createMesh(MeshGPUHandle& glMesh, const Mesh& mesh);
 } 

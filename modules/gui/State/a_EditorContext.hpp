@@ -8,7 +8,7 @@ namespace Andromeda {
     namespace ECS { class ComponentRegistry; }
     namespace amath { struct CameraData; }
     class ResourceManager;
-    class IDeviceProvider;
+    class IModelProvider;
     class SceneManager;
 }
 
@@ -34,7 +34,7 @@ namespace Andromeda::Gui
         ResourceManager* resourceManager;    /**< Access to textures, models, and fonts. */
         SelectionContext* selection;         /**< Current selection state across all panels. */
         SceneManager* sceneManager;          /**< Management of the active scene hierarchy. */
-        IDeviceProvider* deviceProvider;     /**< Interface for hardware-specific data. */
+        IModelProvider* modelProvider;       /**< Interface for hardware-specific data. */
         amath::CameraData* cameraData;       /**< Viewport camera parameters and controls. */
         ViewportDrawInfo* viewportDrawInfo; /**< Information for rendering the viewport. */
         Andromeda::Editor::Undo::UndoBuffer* undoBuffer;       /**< Undo buffer for managing editor actions. */
@@ -86,7 +86,7 @@ namespace Andromeda::Gui
             resourceManager(nullptr),
             selection(nullptr),
             sceneManager(nullptr),
-            deviceProvider(nullptr),
+            modelProvider(nullptr),
             cameraData(nullptr),
             viewportDrawInfo(nullptr),
             undoBuffer(nullptr)

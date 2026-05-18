@@ -73,11 +73,8 @@ namespace Andromeda {
             return aabb;
         }
 
-        // Disable copying to avoid accidental performance hits with large meshes
         Mesh(const Mesh&) = delete;
         Mesh& operator=(const Mesh&) = delete;
-
-        // Enable moving for efficient resource management
         Mesh(Mesh&& other) noexcept = default;
         Mesh& operator=(Mesh&& other) noexcept = default;
 

@@ -41,8 +41,8 @@ namespace Andromeda {
 		}
 		void start() override;
 		void update() override;
-		void drawMesh(const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform) const;
-		void drawMesh(const ECS::Component::Mesh& mesh, const ECS::Component::Transform& transform, MaterialShaderType type) const;
+		void drawMesh(const ECS::Component::MeshRenderer& mesh, const ECS::Component::Transform& transform) const;
+		void drawMesh(const ECS::Component::MeshRenderer& mesh, const ECS::Component::Transform& transform, MaterialShaderType type) const;
 		void destroy() override;
 		void setActiveCamera(amath::CameraData* camData);
 		void geometryPass() const;

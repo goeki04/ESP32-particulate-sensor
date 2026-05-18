@@ -4,13 +4,15 @@
 
 namespace Andromeda::ECS::Component {
     struct AABB;
-    struct Mesh;
+    struct Device;
+    struct MeshRenderer;
     struct Tag;
     struct Transform;
 
     using ComponentDirectory = std::tuple<
         AABB,
-        Mesh,
+        Device,
+        MeshRenderer,
         Tag,
         Transform
     >;

@@ -1,7 +1,7 @@
 #pragma once
-#include <glm/gtc/matrix_transform.hpp>
 #include "a_material.hpp"
 #include "a_math.hpp"
+#include "a_model_record.hpp"
 #include <string>
 
 namespace Andromeda::ECS::Component {
@@ -45,6 +45,17 @@ namespace Andromeda::ECS::Component {
         }
     };
 
+    struct Device
+    {
+        deviceType type;
+    };
+
+    struct MeshRenderer
+    {
+        u32 meshID;
+        MaterialShaderType shaderType;
+    };
+
     struct AABB {
         vec3 min = { 0.0f,0.0f,0.0f };
         vec3 max = { 0.0f,0.0f,0.0f };
@@ -53,10 +64,5 @@ namespace Andromeda::ECS::Component {
 
     struct [[Andromeda::Undo]] Tag{
         std::string name = "Unnamed";
-    };
-
-    struct Mesh {
-        u32 meshID;
-        MaterialShaderType shaderType;
     };
 }

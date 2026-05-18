@@ -26,12 +26,12 @@ namespace Andromeda::Gui {
         int perRow = static_cast<int>(std::floor((availX + spacingX) / (iconSize.x + spacingX)));
         if (perRow < 1) perRow = 1;
 
-        const uint32_t itemCount = ctx.deviceProvider->getDeviceCount();
+        const uint32_t itemCount = ctx.modelProvider->getModelCount();
         bool anyTileClicked = false;
         int visibleCount = 0;
 
         for (int i = 0; i < (int)itemCount; ++i) {
-            const auto& device = ctx.deviceProvider->getDeviceData(i);
+            const auto& device = ctx.modelProvider->getModelData(i);
 
             if (m_SearchQuery[0] != '\0' && device.name.find(m_SearchQuery) == std::string::npos)
                 continue;
@@ -50,11 +50,11 @@ namespace Andromeda::Gui {
         }
     }
 
-    bool BrowserPanel::handleTile(EditorContext& ctx, const Device& device, int idx) {
+    bool BrowserPanel::handleTile(EditorContext& ctx, const ModelRecord& device, int idx) {
         ImGui::PushID(idx);
         ImGui::BeginGroup();
 
-        Tile tile{ device, ctx.deviceProvider->getDeviceIconID(device.type), idx };
+        Tile tile{ device, ctx.modelProvider->getDeviceIconID(device.type), idx };
         ImVec2 labelSize = ImGui::CalcTextSize(device.name.c_str());
         tile.pMin = ImGui::GetCursorScreenPos();
         tile.totalSize = { Tile::getIconSize().x, Tile::getIconSize().y + ImGui::GetStyle().ItemSpacing.y + labelSize.y };
@@ -81,7 +81,7 @@ namespace Andromeda::Gui {
     }
 
     void BrowserPanel::drawTileVisuals(ImDrawList* dl, const Tile& tile) {
-        if (tile.device.type == deviceType::DEFAULT) {
+        if (tile.blueprint.type == deviceType::DEFAULT) {
             dl->AddRectFilled(tile.pMin, tile.pMax, IM_COL32(45, 50, 70, 255), 4.0f);
         }
         else {
@@ -96,8 +96,8 @@ namespace Andromeda::Gui {
             dl->AddRect(tile.pMin, tile.pMax, IM_COL32(255, 255, 255, 100), 4.0f);
         }
 
-        float textX = tile.pMin.x + (tile.totalSize.x - ImGui::CalcTextSize(tile.device.name.c_str()).x) * 0.5f;
-        dl->AddText({ textX, tile.pMax.y + ImGui::GetStyle().ItemSpacing.y }, IM_COL32_WHITE, tile.device.name.c_str());
+        float textX = tile.pMin.x + (tile.totalSize.x - ImGui::CalcTextSize(tile.blueprint.name.c_str()).x) * 0.5f;
+        dl->AddText({ textX, tile.pMax.y + ImGui::GetStyle().ItemSpacing.y }, IM_COL32_WHITE, tile.blueprint.name.c_str());
     }
 
     void BrowserPanel::handleDragAndDrop(EditorContext& ctx, const Tile& tile) {
@@ -119,7 +119,7 @@ namespace Andromeda::Gui {
         if (tile.dragEnded && ctx.cameraData->hasValidPickRay && ctx.state.hasLastHitpoint) {
             ECS::Component::Transform t;
             t.position = ctx.state.lastHitPoint;
-            ctx.sceneManager->addEntity(tile.device.id, tile.device.name, t);
+            ctx.sceneManager->addEntity(tile.blueprint.meshID, tile.blueprint.name, t);
         }
     }
 }

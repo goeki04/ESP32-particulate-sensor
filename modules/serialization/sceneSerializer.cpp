@@ -39,9 +39,9 @@ namespace Andromeda {
             pool.deserializePool(root[tagName]);
             for (const auto id : pool.getEntities()) if (id > maxID) maxID = id;
         }
-        const std::string meshName = typeid(ECS::Component::Mesh).name();
+        const std::string meshName = typeid(ECS::Component::MeshRenderer).name();
         if (root.contains(meshName)) {
-            auto& pool = registry.getPool<ECS::Component::Mesh>();
+            auto& pool = registry.getPool<ECS::Component::MeshRenderer>();
             pool.deserializePool(root[meshName]);
             for (auto id : pool.getEntities()) if (id > maxID) maxID = id;
         }

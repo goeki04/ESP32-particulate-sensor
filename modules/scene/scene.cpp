@@ -1,4 +1,5 @@
 #include "scene.hpp"
+#include "a_geometry.hpp"
 #include "a_components.hpp"
 #include "a_subsystem_manager.hpp"
 namespace Andromeda{
@@ -7,13 +8,13 @@ namespace Andromeda{
     {
         auto handle = m_Registry.createHandle();
         handle.add<ECS::Component::Transform>(transform);
-        handle.add<ECS::Component::Mesh>({ meshID, MaterialShaderType::unlit });
+        handle.add<ECS::Component::MeshRenderer>({ meshID , MaterialShaderType::unlit});
         handle.add<ECS::Component::Tag>({ name });
         auto aabb = m_ResourceManager->getMeshByID(meshID).getAABB();
         handle.add<ECS::Component::AABB>(aabb);
     }
 
-    void SceneManager::deleteEntity(Entity id)
+    void SceneManager::deleteEntity(const Entity id)
     {
         m_Registry.destroyEntity(id);
     }
