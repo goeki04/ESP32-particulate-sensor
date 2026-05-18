@@ -79,7 +79,7 @@ namespace Andromeda {
         [[nodiscard]] const ModelRecord& getModelData(u32 index) const override;
 
         [[nodiscard]] u32 getDeviceIconID(deviceType type) const override;
-
+        u32 registerCustomMesh(Mesh&& mesh, const std::string& name);
     private:
         static void loadCubemapTexture(CubemapData& data);
         static void MapCubemapFacesLDR(CubemapData& data, const std::string& path);

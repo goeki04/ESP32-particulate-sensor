@@ -47,8 +47,8 @@ namespace Andromeda {
      */
     struct MouseMoved : IEvent {
         float x, y; ///< The new absolute window coordinates of the mouse.
-
-        MouseMoved(const float _x, const float _y) : x(_x), y(_y) {}
+        float xrel, yrel; ///< Relative movement since the last frame 
+        MouseMoved(const float _x, const float _y, const float _xrel, const float _yrel) : x(_x), y(_y), xrel(_xrel), yrel(_yrel) {}
         static constexpr EventType GetStaticType() { return EventType::OnMouseMoved; }
     };
 

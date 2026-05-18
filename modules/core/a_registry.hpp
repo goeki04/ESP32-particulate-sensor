@@ -148,6 +148,9 @@ namespace Andromeda::ECS {
      */
     class ComponentRegistry {
     public:
+        /** @brief List of currently active entities. */
+        std::vector<Entity> m_ActiveEntities;
+
         /** @brief Map of type indices to specific component pools. */
         std::unordered_map<std::type_index, std::unique_ptr<IComponentPool>> m_Pools;
 
@@ -155,7 +158,11 @@ namespace Andromeda::ECS {
         Entity m_NextID = 0;
 
         /** @brief Generates a new unique Entity ID. */
-        Entity createEntity() { return m_NextID++; }
+        Entity createEntity() { 
+            Entity newEntity = m_NextID++;
+            m_ActiveEntities.push_back(newEntity);
+            return newEntity;
+        }
 
         /**
          * @brief Retrieves (or creates) the component pool for a specific type.
@@ -197,6 +204,16 @@ namespace Andromeda::ECS {
             for (const auto& pool : m_Pools | std::views::values) {
                 pool->removeEntity(entity);
             }
+
+            auto it = std::find(m_ActiveEntities.begin(), m_ActiveEntities.end(), entity);
+            if (it != m_ActiveEntities.end()) {
+                *it = m_ActiveEntities.back();
+                m_ActiveEntities.pop_back();
+            }
+        }
+        /** @brief Returns a reference to the list of all active entities. */
+        [[nodiscard]] const std::vector<Entity>& getAllEntities() const {
+            return m_ActiveEntities;
         }
 
         /** @brief Creates a convenient handle for an entity. */

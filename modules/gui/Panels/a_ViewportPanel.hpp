@@ -33,7 +33,7 @@ namespace Andromeda::Gui {
         TransformIcons::Type m_ActiveTool = TransformIcons::Select;
         explicit ViewportPanel(const char* name) : EditorPanel(name), m_SelectedEntity({ECS::INVALID_ENTITY_ID,nullptr}) {}
 
-        void initPanel(EditorContext& ctx) override;
+        void initPanel(EditorContext& ctx);
 
         void onGuiRender(EditorContext& ctx) override;
 

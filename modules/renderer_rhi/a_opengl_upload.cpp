@@ -11,12 +11,12 @@ namespace Andromeda {
         glBindVertexArray(glMesh.vao);
         glBindBuffer(GL_ARRAY_BUFFER, glMesh.vbo);
         glBufferData(GL_ARRAY_BUFFER,
-            mesh.vertexbuffer.size() * sizeof(Vertex), // NOLINT(*-narrowing-conversions)
+            mesh.vertexbuffer.size() * sizeof(Vertex),
             mesh.vertexbuffer.empty() ? nullptr : mesh.vertexbuffer.data(),
             GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glMesh.ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-            mesh.indexBuffer.size() * sizeof(u32), // NOLINT(*-narrowing-conversions)
+            mesh.indexBuffer.size() * sizeof(u32),
             mesh.indexBuffer.empty() ? nullptr : mesh.indexBuffer.data(),
             GL_STATIC_DRAW);
         //positions

@@ -220,6 +220,22 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
         throw std::runtime_error("Icon not found: " + name + "!");
     }
 
+    u32 ResourceManager::registerCustomMesh(Mesh&& mesh, const std::string& name)
+    {
+        const uint32_t id = m_NextMeshID++;
+
+        m_Meshes[id] = std::move(mesh);
+
+        MeshGPUHandle& gpuHandle = m_GPUMeshes[id];
+        createMesh(gpuHandle, m_Meshes[id]);
+
+        m_ModelRecords[id] = ModelRecord{ id, name, deviceType::DEFAULT };
+        m_ModelIndexList.push_back(id);
+        m_MeshIDbyName.emplace(name, id);
+
+        return id;
+    }
+
     void ResourceManager::loadEditorIcons()
     {
         std::array<std::string,2> filter;

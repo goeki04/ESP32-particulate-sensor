@@ -26,6 +26,13 @@ namespace Andromeda {
 				EventManager::getInstance().Dispatch(EventType::OnMouseBtnUp, MouseBtnUp(sdlMouseBtnToAndromeda(*event)));
 				break;
 			}
+			case SDL_EVENT_MOUSE_MOTION: {
+				EventManager::getInstance().Dispatch(
+					EventType::OnMouseMoved,
+					MouseMoved(event->motion.x, event->motion.y, event->motion.xrel, event->motion.yrel)
+				);
+				break;
+			}
 			default: ;
 		}
 	}

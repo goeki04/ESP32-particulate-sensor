@@ -51,7 +51,7 @@
         vec3 forward = vec3(0.0f);                        /**< Forward direction vector derived from rotation. */
         vec3 right = vec3(0.0f);                          /**< Right direction vector derived from rotation. */
 
-        float speed = 25.0f;                              /**< Movement speed. */
+        float speed = 15.0f;                              /**< Movement speed. */
         mat4 viewMatrix = { 1.0f };                       /**< Calculated view transformation matrix. */
 
         bool hasValidPickRay = false;                     /**< True if the cursor-to-world ray is valid. */

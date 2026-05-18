@@ -35,6 +35,19 @@ namespace Andromeda::Editor {
     {
         initEditorContext();
         m_GuiRenderer.init(m_EditorContext);
+        m_MouseMotionListenerId = EventManager::getInstance().AddEventListener<MouseMoved>(
+            [this](const MouseMoved& event) {
+                if (m_SceneManager->m_EditorCamData.canRotate) {
+                    float relX = event.xrel;
+                    float relY = event.yrel;
+
+                    auto& cam = m_SceneManager->m_EditorCamData;
+                    cam.yaw += relX * cam.sensitivity;
+                    cam.pitch -= relY * cam.sensitivity;
+                    cam.pitch = std::clamp(cam.pitch, -89.0f, 89.0f);
+                }
+            }
+        );
         m_PushUndoListenerId = EventManager::getInstance().AddEventListener<PushUndoTransformEvent>(
             [this](const PushUndoTransformEvent& event) {
                 Undo::UndoTransformData undoData;
@@ -170,42 +183,25 @@ namespace Andromeda::Editor {
 
     void Editor::cameraMovement(amath::CameraData& cam)
     {
-        SDL_Window* currentWindow = SDL_GL_GetCurrentWindow();
         if (cam.canRotate == false) {
             return;
         }
-        if (!m_EditorContext.state.viewportFocused) {
-            SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), false);
-            return;
-        }
 
+        SDL_Window* currentWindow = SDL_GL_GetCurrentWindow();
         const Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
         const bool rightMouseDown = mouseState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT);
-        static bool wasRightMouseDown = false;
-        if (rightMouseDown && !wasRightMouseDown) {
-            ImGuiIO& io = ImGui::GetIO(); (void)io;
-            io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
-            SDL_GetMouseState(&cam.lastMouseX, &cam.lastMouseY);
-            SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), true);
 
-            SDL_GetRelativeMouseState(nullptr, nullptr);
+        static bool wasRightMouseDown = false;
+
+        if (rightMouseDown && !wasRightMouseDown) {
+            SDL_GetMouseState(&cam.lastMouseX, &cam.lastMouseY);
+            SDL_SetWindowRelativeMouseMode(currentWindow, true);
         }
         else if (!rightMouseDown && wasRightMouseDown) {
-            ImGuiIO& io = ImGui::GetIO(); (void)io;
-            io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
             SDL_WarpMouseInWindow(currentWindow, cam.lastMouseX, cam.lastMouseY);
-            SDL_SetWindowRelativeMouseMode(SDL_GL_GetCurrentWindow(), false);
+            SDL_SetWindowRelativeMouseMode(currentWindow, false);
         }
         wasRightMouseDown = rightMouseDown;
-
-        if (rightMouseDown) {
-            float relX, relY;
-            SDL_GetRelativeMouseState(&relX, &relY);
-
-            cam.yaw += relX * cam.sensitivity;
-            cam.pitch -= relY * cam.sensitivity;
-            cam.pitch = std::clamp(cam.pitch, -89.0f, 89.0f);
-        }
 
         float radYaw = glm::radians(cam.yaw);
         float radPitch = glm::radians(cam.pitch);
