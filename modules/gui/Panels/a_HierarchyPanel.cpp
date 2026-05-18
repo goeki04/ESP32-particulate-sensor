@@ -8,7 +8,7 @@
 #include "a_primitiveGenerator.hpp"
 #include "resource_manager.h"
 #include "scene.hpp"
-
+#include <cstdio>
 namespace Andromeda::Gui
 {
     namespace
@@ -88,11 +88,50 @@ namespace Andromeda::Gui
 
     void HierarchyPanel::drawEntityNode(EditorContext& ctx, const ECS::Entity e)
     {
-        const bool isSelected = (ctx.selection->getSelectedEntity() == e);
         ECS::EntityHandle handle = { e, ctx.registry };
+        const bool isSelected = (ctx.selection->getSelectedEntity() == e);
+        const bool isRenaming = (m_RenamingEntity == e);
 
         ImGui::PushID(static_cast<i32>(e));
 
+        if (isRenaming) {
+            drawRenamingInput(handle);
+        }
+        else {
+            drawNormalSelectable(ctx, e, handle, isSelected);
+            drawEntityContextMenu(ctx, e, handle, isSelected);
+        }
+
+        ImGui::PopID();
+    }
+
+    void HierarchyPanel::drawRenamingInput(ECS::EntityHandle handle)
+    {
+        ImGui::PushItemWidth(-1.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+
+        if (m_FocusRenameInput) {
+            ImGui::SetKeyboardFocusHere();
+            m_FocusRenameInput = false;
+        }
+
+        ImGui::InputText("##Rename", m_RenameBuffer, IM_ARRAYSIZE(m_RenameBuffer), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
+
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar();
+
+        if (ImGui::IsItemDeactivated()) {
+            if (handle.has<ECS::Component::Tag>() && strlen(m_RenameBuffer) > 0) {
+                handle.get<ECS::Component::Tag>().name = m_RenameBuffer;
+            }
+            m_RenamingEntity = ECS::INVALID_ENTITY_ID;
+        }
+        ImGui::PopItemWidth();
+    }
+
+    void HierarchyPanel::drawNormalSelectable(EditorContext& ctx, ECS::Entity e, ECS::EntityHandle handle, bool isSelected)
+    {
         if (isSelected) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.0f, 1.0f));
 
         if (ImGui::Selectable(getEntityName(handle).c_str(), isSelected)) {
@@ -101,6 +140,13 @@ namespace Andromeda::Gui
 
         if (isSelected) ImGui::PopStyleColor();
 
+        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+            beginRename(handle);
+        }
+    }
+
+    void HierarchyPanel::drawEntityContextMenu(EditorContext& ctx, ECS::Entity e, ECS::EntityHandle handle, bool isSelected)
+    {
         if (ImGui::BeginPopupContextItem())
         {
             selectEntity(ctx, e);
@@ -115,11 +161,12 @@ namespace Andromeda::Gui
                     EventManager::getInstance().Dispatch(EventType::OnSceneObjectSelected, SceneObjectSelected(static_cast<u32>(ECS::INVALID_ENTITY_ID)));
                 }
             }
+            if (ImGui::MenuItem("Rename")) {
+                beginRename(handle);
+            }
             ImGui::EndPopup();
         }
-        ImGui::PopID();
     }
-
     void HierarchyPanel::drawContextMenu(EditorContext& ctx)
     {
         if (!ImGui::BeginPopup("HierarchyContext")) return;
@@ -140,6 +187,15 @@ namespace Andromeda::Gui
         }
 
         ImGui::EndPopup();
+    }
+
+    void HierarchyPanel::beginRename(ECS::EntityHandle handle)
+    {
+        m_RenamingEntity = handle.id;
+        m_FocusRenameInput = true;
+
+        const std::string& currentName = getEntityName(handle);
+        snprintf(m_RenameBuffer, sizeof(m_RenameBuffer), "%s", currentName.c_str());
     }
 
     void HierarchyPanel::onGuiRender(EditorContext& ctx)
@@ -177,18 +233,15 @@ namespace Andromeda::Gui
                 }
 
                 if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
-                    triggerPopup = true; 
+                    triggerPopup = true;
                 }
+                if (triggerPopup) {
+                    ImGui::OpenPopup("HierarchyContext");
+                }
+                drawContextMenu(ctx);
 
                 ImGui::EndChild();
             }
-
-
-            if (triggerPopup) {
-                ImGui::OpenPopup("HierarchyContext");
-            }
-
-            drawContextMenu(ctx);
         }
         ImGui::End();
         ImGui::PopStyleVar();
