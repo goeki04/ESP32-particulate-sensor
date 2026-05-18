@@ -15,9 +15,14 @@ namespace Andromeda::Gui{
             : EditorPanel(name)
         { }
 
-        static std::string getEntityName(ECS::EntityHandle& handle);
+        static const std::string& getEntityName(ECS::EntityHandle& handle);
         static void selectEntity(EditorContext& ctx, ECS::Entity entity);
         static void drawEntityNode(EditorContext& ctx, ECS::Entity e);
         void onGuiRender(EditorContext& ctx) override;
+        void initPanel(EditorContext& ctx) override;
+    private:
+        void* m_SearchTextureHandle = nullptr;
+        char m_SearchQuery[128] = "";
+        void drawContextMenu(EditorContext& ctx);
     };
 }

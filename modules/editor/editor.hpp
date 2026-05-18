@@ -22,7 +22,7 @@ namespace Andromeda::Editor {
 		Undo::UndoBuffer m_UndoBuffer;
 		EventListenerID m_UndoListenerId;
 		EventListenerID m_PushUndoListenerId;
-
+		EventListenerID m_MouseMotionListenerId;
 	public:
 		Editor()
 			: m_Renderer(nullptr),
