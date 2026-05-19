@@ -1,14 +1,21 @@
 #pragma once
 #include "a_primitives.hpp"
 namespace Andromeda {
+	struct GLFramebuffer {
+		u32 id = 0;
+		u32 texture = 0;
+		u32 depth = 0;
+
+		void destroy();
+	};
 	class framebufferManager {
 	public:
-		u32 m_SelectionDepth = 0;
-		u32 m_Framebuffer = 0, m_MsaaFramebuffer = 0;
-		u32 m_FramebufferTexture = 0, m_MsaaFramebufferTexture = 0;
-		u32 m_SelectionFramebuffer = 0, m_SelectionTexture = 0;
-		u32 m_PostprocessFramebuffer = 0, m_PostprocessTexture = 0;
-		u32 m_Rendererbuffer = 0;
+		GLFramebuffer m_Scene;
+		GLFramebuffer m_Msaa;
+		GLFramebuffer m_Selection;
+		GLFramebuffer m_Postprocess;
+		GLFramebuffer m_Baking;
+		void createCubemapBakingFBO(u32 size);
 		void createSceneFbo(ivec2 framebufferSize);
 		void createMSAAFbo(ivec2 framebufferSize, u32 samples);
 		void createSelectionFBO(ivec2 framebufferSize);

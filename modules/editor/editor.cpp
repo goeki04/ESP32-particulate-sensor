@@ -84,7 +84,7 @@ namespace Andromeda::Editor {
 
         m_VpDrawInfo.camData = &m_SceneManager->m_EditorCamData;
         m_VpDrawInfo.framebufferSize = viewportSize;
-        m_VpDrawInfo.postProcessingFboTexture = m_Renderer->fboManager.m_PostprocessTexture;
+        m_VpDrawInfo.postProcessingFboTexture = m_Renderer->fboManager.m_Postprocess.texture;
         m_EditorContext.viewportDrawInfo = &m_VpDrawInfo;
         m_GuiRenderer.update(m_EditorContext);
     }

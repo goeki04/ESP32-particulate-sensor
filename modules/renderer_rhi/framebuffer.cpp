@@ -1,76 +1,94 @@
 #include "framebuffer.hpp"
 #include <GL/glew.h>
 #include <stdexcept>
+
 namespace Andromeda {
-    void framebufferManager::createSceneFbo(const ivec2 framebufferSize)
+
+    void framebufferManager::createCubemapBakingFBO(u32 size)
     {
-        //Color attachment & main fbo
-        glGenFramebuffers(1, &m_Framebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer);
-        glGenTextures(1, &m_FramebufferTexture);
-        glBindTexture(GL_TEXTURE_2D, m_FramebufferTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, framebufferSize.x, framebufferSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glGenFramebuffers(1, &m_Baking.id);
+        glGenRenderbuffers(1, &m_Baking.depth);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, m_Baking.id);
+        glBindRenderbuffer(GL_RENDERBUFFER, m_Baking.depth);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size, size);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_Baking.depth);
+    }
+
+    void framebufferManager::createSceneFbo(const ivec2 size)
+    {
+        glGenFramebuffers(1, &m_Scene.id);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_Scene.id);
+
+        glGenTextures(1, &m_Scene.texture);
+        glBindTexture(GL_TEXTURE_2D, m_Scene.texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FramebufferTexture, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Scene.texture, 0);
 
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            throw std::runtime_error("Framebuffer is not complete");
-        }
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            throw std::runtime_error("Scene FBO incomplete!");
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-    void framebufferManager::createMSAAFbo(const ivec2 framebufferSize, const u32 samples)
-    {
-        glGenFramebuffers(1, &m_MsaaFramebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, m_MsaaFramebuffer);
-        glGenTextures(1, &m_MsaaFramebufferTexture);
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_MsaaFramebufferTexture);
-        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, static_cast<GLsizei>(samples), GL_RGB, framebufferSize.x, framebufferSize.y, GL_TRUE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_MsaaFramebufferTexture, 0);
 
-        glGenRenderbuffers(1, &m_Rendererbuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, m_Rendererbuffer);
-        glRenderbufferStorageMultisample(GL_RENDERBUFFER, static_cast<GLsizei>(samples), GL_DEPTH24_STENCIL8, framebufferSize.x, framebufferSize.y);
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Rendererbuffer);
+    void framebufferManager::createMSAAFbo(const ivec2 size, const u32 samples)
+    {
+        glGenFramebuffers(1, &m_Msaa.id);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_Msaa.id);
+
+        glGenTextures(1, &m_Msaa.texture);
+        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_Msaa.texture);
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, static_cast<GLsizei>(samples), GL_RGB, size.x, size.y, GL_TRUE);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_Msaa.texture, 0);
+
+        glGenRenderbuffers(1, &m_Msaa.depth);
+        glBindRenderbuffer(GL_RENDERBUFFER, m_Msaa.depth);
+        glRenderbufferStorageMultisample(GL_RENDERBUFFER, static_cast<GLsizei>(samples), GL_DEPTH24_STENCIL8, size.x, size.y);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Msaa.depth);
+
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             throw std::runtime_error("MSAA FBO incomplete!");
-    }
-    void framebufferManager::createSelectionFBO(const ivec2 framebufferSize)
-    {
-        //create selection framebuffer
-        glGenFramebuffers(1, &m_SelectionFramebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, m_SelectionFramebuffer);
 
-        glGenTextures(1, &m_SelectionTexture);
-        glBindTexture(GL_TEXTURE_2D, m_SelectionTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, framebufferSize.x, framebufferSize.y, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    void framebufferManager::createSelectionFBO(const ivec2 size)
+    {
+        glGenFramebuffers(1, &m_Selection.id);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_Selection.id);
+
+        glGenTextures(1, &m_Selection.texture);
+        glBindTexture(GL_TEXTURE_2D, m_Selection.texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, size.x, size.y, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_SelectionTexture, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Selection.texture, 0);
 
-        glGenRenderbuffers(1, &m_SelectionDepth);
-        glBindRenderbuffer(GL_RENDERBUFFER, m_SelectionDepth);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, framebufferSize.x, framebufferSize.y);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_SelectionDepth);
+        glGenRenderbuffers(1, &m_Selection.depth);
+        glBindRenderbuffer(GL_RENDERBUFFER, m_Selection.depth);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size.x, size.y);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_Selection.depth);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             throw std::runtime_error("Selection Framebuffer incomplete!");
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-    void framebufferManager::createPostprocessFBO(const ivec2 framebufferSize) {
-        glGenFramebuffers(1, &m_PostprocessFramebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, m_PostprocessFramebuffer);
 
-        glGenTextures(1, &m_PostprocessTexture);
-        glBindTexture(GL_TEXTURE_2D, m_PostprocessTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, framebufferSize.x, framebufferSize.y,
-            0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    void framebufferManager::createPostprocessFBO(const ivec2 size)
+    {
+        glGenFramebuffers(1, &m_Postprocess.id);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_Postprocess.id);
+
+        glGenTextures(1, &m_Postprocess.texture);
+        glBindTexture(GL_TEXTURE_2D, m_Postprocess.texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_PostprocessTexture, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Postprocess.texture, 0);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             throw std::runtime_error("Postprocess FBO incomplete!");
@@ -78,43 +96,35 @@ namespace Andromeda {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void framebufferManager::createFramebuffers(const ivec2 framebufferSize, u32 samples)
+    void framebufferManager::createFramebuffers(const ivec2 size, u32 samples)
     {
-        createMSAAFbo(framebufferSize,samples);
-        createSceneFbo(framebufferSize);
-        createSelectionFBO(framebufferSize);
-        createPostprocessFBO(framebufferSize);
+        createMSAAFbo(size, samples);
+        createSceneFbo(size);
+        createSelectionFBO(size);
+        createPostprocessFBO(size);
     }
 
-    void framebufferManager::destroyFramebuffers() {
-        if (m_FramebufferTexture)
-            glDeleteTextures(1, &m_FramebufferTexture);
-        if (m_PostprocessTexture) {
-            glDeleteTextures(1, &m_PostprocessTexture);
+    void framebufferManager::destroyFramebuffers()
+    {
+        m_Scene.destroy();
+        m_Msaa.destroy();
+        m_Selection.destroy();
+        m_Postprocess.destroy();
+        m_Baking.destroy();
+    }
+    void GLFramebuffer::destroy()
+    {
+        if (id) {
+            glDeleteFramebuffers(1, &id);
+            id = 0;
         }
-        if (m_MsaaFramebufferTexture)
-            glDeleteTextures(1, &m_MsaaFramebufferTexture);
-        if (m_SelectionTexture) {
-            glDeleteTextures(1, &m_SelectionTexture);
+        if (texture) {
+            glDeleteTextures(1, &texture);
+            texture = 0;
         }
-        if (m_Rendererbuffer)
-            glDeleteRenderbuffers(1, &m_Rendererbuffer);
-        if (m_SelectionDepth) {
-            glDeleteRenderbuffers(1, &m_SelectionDepth);
+        if (depth) {
+            glDeleteRenderbuffers(1, &depth);
+            depth = 0;
         }
-        if (m_Framebuffer)
-            glDeleteFramebuffers(1, &m_Framebuffer);
-        if (m_MsaaFramebuffer)
-            glDeleteFramebuffers(1, &m_MsaaFramebuffer);
-        if (m_PostprocessFramebuffer) {
-            glDeleteFramebuffers(1, &m_PostprocessFramebuffer);
-        }
-        if (m_SelectionFramebuffer) {
-            glDeleteFramebuffers(1, &m_SelectionFramebuffer);
-        }
-        m_Framebuffer = 0;
-        m_MsaaFramebuffer = 0;
-        m_PostprocessFramebuffer = 0;
-        m_SelectionFramebuffer = 0;
     }
 }

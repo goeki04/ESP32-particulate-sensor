@@ -116,7 +116,7 @@ namespace Andromeda {
 
     u32 Renderer::getFinalSceneViewportTexture() const
     {
-        return fboManager.m_PostprocessTexture;
+        return fboManager.m_Postprocess.texture;
     }
 
     void Renderer::onViewportResize(ivec2 newSize)
@@ -146,7 +146,7 @@ namespace Andromeda {
         }
     }
     void Renderer::selectionPass(Entity selectedEntity) const {
-        glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_SelectionFramebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_Selection.id);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         if (selectedEntity == ECS::INVALID_ENTITY_ID) { return; }
@@ -158,7 +158,7 @@ namespace Andromeda {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     void Renderer::postprocessingPass() const {
-        glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_PostprocessFramebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_Postprocess.id);
         glViewport(0, 0, m_FramebufferSize.x, m_FramebufferSize.y);
 
         glDisable(GL_DEPTH_TEST);
@@ -167,8 +167,8 @@ namespace Andromeda {
 
         auto* outlineShader = m_ResourceManager->getPostprocessShaderByID(PostProcessShaderType::outline);
         outlineShader->use();
-        outlineShader->setTexture("fboSampler", fboManager.m_FramebufferTexture, 0);
-        outlineShader->setTexture("maskSampler", fboManager.m_SelectionTexture, 1);
+        outlineShader->setTexture("fboSampler", fboManager.m_Scene.texture, 0);
+        outlineShader->setTexture("maskSampler", fboManager.m_Selection.texture, 1);
         outlineShader->setVec2("texelSize", m_TexelSize);
         outlineShader->setVec2("fboSize", m_FramebufferSize);
 
@@ -181,7 +181,7 @@ namespace Andromeda {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     void Renderer::scenePassBegin() const {
-        glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_MsaaFramebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboManager.m_Msaa.id);
         glViewport(0, 0, m_FramebufferSize.x, m_FramebufferSize.y);
         glClearColor(0.2f, 0.2f, 0.35f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -202,8 +202,8 @@ namespace Andromeda {
     }
 
     void Renderer::scenePassEndResolve() const {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, fboManager.m_MsaaFramebuffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboManager.m_Framebuffer);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fboManager.m_Msaa.id);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboManager.m_Scene.id);
 
         glBlitFramebuffer(
             0, 0, m_FramebufferSize.x, m_FramebufferSize.y,
