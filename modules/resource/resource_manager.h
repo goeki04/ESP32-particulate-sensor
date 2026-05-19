@@ -32,6 +32,7 @@ namespace Andromeda {
 
         /** @brief Cached instances of procedural shaders (e.g., Grid). */
         std::vector<std::unique_ptr<ProceduralShader>> m_ProceduralShaders;
+        std::vector<std::unique_ptr<BakingShader>> m_BakingShaders;
 
         /** @brief Cached instances of post-processing shaders (e.g., Outline, Mask). */
         std::vector<std::unique_ptr<PostProcessShader>> m_PostProcessShaders;
@@ -257,6 +258,12 @@ namespace Andromeda {
         void addPostProcessShader(const char* vertexShader, const char* fragmentShader) {
             m_PostProcessShaders.emplace_back(std::make_unique<T>(vertexShader, fragmentShader));
             m_PostProcessShaders.back()->compileShader();
+        }
+
+        template<typename T> requires std::derived_from<T, BakingShader>
+        void addBakingShader(const char* vertexShader, const char* fragmentShader) {
+            m_BakingShaders.emplace_back(std::make_unique<T>(vertexShader, fragmentShader));
+            m_BakingShaders.back()->compileShader();
         }
 
         /**

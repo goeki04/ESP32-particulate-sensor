@@ -7,6 +7,8 @@
 #include "a_event_manager.hpp"
 #include <a_CubemapData.hpp>
 #include "a_GLcubemap.hpp"
+#include "a_PrimitiveGenerator.hpp"
+#include "a_opengl_upload.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void Renderer::start()
@@ -25,6 +27,26 @@ namespace Andromeda {
         m_TexelSize = 1.0f / vec2(m_FramebufferSize.x, m_FramebufferSize.y);
 
         fboManager.createFramebuffers(m_FramebufferSize,static_cast<int>(m_MSAAsamples));
+        fboManager.createCubemapBakingFBO(512);
+
+        m_EnvironmentCubemapID = CubemapGL::AllocateEnvironmentMapTexture();
+        auto& bakeShader = m_ResourceManager->m_BakingShaders[0];
+        
+        u32 hdrMapID = m_ResourceManager->m_CubemapData["citrus_orchard_road_puresky_4k"].textureID;
+        Mesh cubeMesh;
+        PrimitiveGenerator::generateCube(cubeMesh);
+
+        createMesh(cubemapgpuHandle,cubeMesh);
+        CubemapGL::ConvertEquiretangularToCubemap(
+            *bakeShader,
+            hdrMapID,
+            fboManager.m_Baking.id,
+            m_EnvironmentCubemapID,
+            [&]() { 
+                glBindVertexArray(cubemapgpuHandle.vao);
+                glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr); 
+            }
+        );
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         glCullFace(GL_BACK);
@@ -191,12 +213,34 @@ namespace Andromeda {
         glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        for (auto& pSh : m_ResourceManager->m_ProceduralShaders) {
-            pSh->use();
-            glBindVertexArray(m_Vao);
-            pSh->setUniforms(m_Cam);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-        }
+
+        // 1. Draw the Skybox
+        glDepthFunc(GL_LEQUAL);
+
+        // FIX 1: Fetch from m_ProceduralShaders, NOT m_PostProcessShaders.
+        // Index 1 is the SkyboxShader.
+        auto& skyboxShader = m_ResourceManager->m_ProceduralShaders[1];
+        skyboxShader->use();
+
+        // We can use your custom override here instead of manual matrix math!
+        skyboxShader->setUniforms(m_Cam);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_EnvironmentCubemapID);
+
+        glBindVertexArray(cubemapgpuHandle.vao);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+        glDepthFunc(GL_LESS);
+
+        // 2. Draw the remaining Procedural Shaders (e.g., the Grid)
+        // FIX 2: Manually trigger the GridShader (Index 0) instead of using a loop.
+        // This prevents the loop from accidentally re-running the SkyboxShader with a 2D quad.
+        auto& gridShader = m_ResourceManager->m_ProceduralShaders[0];
+        gridShader->use();
+        glBindVertexArray(m_Vao);
+        gridShader->setUniforms(m_Cam);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
         glDisable(GL_BLEND);
         glEnable(GL_CULL_FACE);
     }
