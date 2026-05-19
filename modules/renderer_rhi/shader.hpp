@@ -142,6 +142,18 @@ namespace Andromeda {
 		ColorShader(const char* vertexPath, const char* fragmentPath) : MaterialShader(vertexPath, fragmentPath) {}
 		void setUniforms(const amath::CameraData* cam, const mat4& modelMatrix) override;
 	};
+
+	class CubemapTestShader : public MaterialShader {
+	public:
+		CubemapTestShader(const char* vertexPath, const char* fragmentPath) : MaterialShader(vertexPath, fragmentPath) {
+		}
+
+		void setUniforms(const amath::CameraData* cam, const mat4& modelMatrix) override {
+			setCameraUniforms(cam);
+			setMat4x4("model", modelMatrix);
+		}
+	};
+
 	/**
 	 * @brief Post-process effect shader used for highlighting selected entities.
 	 */
