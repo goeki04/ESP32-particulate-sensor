@@ -37,7 +37,7 @@ namespace Andromeda::Gui {
          */
         struct Tile {
             const ModelRecord& blueprint;   ///< Reference to the underlying device data.
-            uint32_t texID;         ///< GPU texture handle for the device icon.
+            u32 texID;         ///< GPU texture handle for the device icon.
             i32 index;              ///< Unique index of the device in the provider list.
 
             bool hovered = false;   ///< Is the mouse currently over this tile?
@@ -80,21 +80,21 @@ namespace Andromeda::Gui {
          * @param idx The index of the device.
          * @return True if the tile was clicked, false otherwise.
          */
-        bool handleTile(EditorContext& ctx, const ModelRecord& device, int idx);
+        static bool handleTile(EditorContext& ctx, const ModelRecord& device, int idx);
 
         /**
          * @brief Handles 3D world interaction for dragging devices into the scene.
          * @param ctx Reference to the editor context.
          * @param tile The tile being dragged.
          */
-        void handleDragAndDrop(EditorContext& ctx, const Tile& tile);
+        static void handleDragAndDrop(EditorContext& ctx, const Tile& tile);
 
         /**
          * @brief Performs low-level ImGui drawing for the tile's icon, text, and highlights.
          * @param dl The draw list of the current window.
          * @param tile The pre-calculated tile data to render.
          */
-        void drawTileVisuals(ImDrawList* dl, const Tile& tile);
+        static void drawTileVisuals(ImDrawList* dl, const Tile& tile);
 
         char m_SearchQuery[128] = ""; ///< Buffer for the search input text.
     };

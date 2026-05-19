@@ -30,7 +30,7 @@ namespace Andromeda::Gui {
         bool anyTileClicked = false;
         int visibleCount = 0;
 
-        for (int i = 0; i < (int)itemCount; ++i) {
+        for (int i = 0; i < static_cast<int>(itemCount); ++i) {
             const auto& device = ctx.modelProvider->getModelData(i);
 
             if (m_SearchQuery[0] != '\0' && device.name.find(m_SearchQuery) == std::string::npos)
@@ -85,7 +85,7 @@ namespace Andromeda::Gui {
             dl->AddRectFilled(tile.pMin, tile.pMax, IM_COL32(45, 50, 70, 255), 4.0f);
         }
         else {
-            dl->AddImage((ImTextureID)(intptr_t)tile.texID, tile.pMin, tile.pMax);
+            dl->AddImage(static_cast<ImTextureID>(static_cast<intptr_t>(tile.texID)), tile.pMin, tile.pMax);
         }
 
         if (tile.selected) {
@@ -110,7 +110,7 @@ namespace Andromeda::Gui {
             }
 
             ImVec2 previewSize = Tile::getIconSize() * 0.8f;
-            ImGui::GetForegroundDrawList()->AddImage((ImTextureID)(intptr_t)tile.texID,
+            ImGui::GetForegroundDrawList()->AddImage(static_cast<ImTextureID>(static_cast<intptr_t>(tile.texID)),
                 ImGui::GetMousePos() - (previewSize * 0.5f),
                 ImGui::GetMousePos() + (previewSize * 0.5f),
                 { 0,0 }, { 1,1 }, IM_COL32(255, 255, 255, 150));
