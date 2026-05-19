@@ -2,9 +2,9 @@
 #include "a_graphics_base.hpp"
 #include "a_ISubsystem.hpp"
 #include "a_components.hpp"
-#include "framebuffer.hpp"
+#include "OpenGL/framebuffer.hpp"
 #include "a_primitives.hpp"
-#include "a_opengl_handles.hpp"
+#include "OpenGL/a_opengl_handles.hpp"
 namespace Andromeda {
 	namespace amath {
 		struct CameraData;

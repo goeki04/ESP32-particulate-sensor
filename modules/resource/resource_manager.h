@@ -7,10 +7,10 @@
 #include <assimp/scene.h>
 #include "shader.hpp"
 #include "a_components.hpp"
-#include "a_texture.hpp"
+#include "OpenGL/a_texture.hpp"
 #include "a_geometry.hpp"
 #include "a_model_record.hpp"
-#include "a_opengl_handles.hpp"
+#include "OpenGL/a_opengl_handles.hpp"
 #include "a_primitives.hpp"
 #include "a_ISubsystem.hpp"
 #include "a_cubemapData.hpp"

@@ -4,8 +4,11 @@ find_package(glm REQUIRED)
 find_package(SDL3 REQUIRED)
 add_library(renderer_rhi STATIC
     shader.cpp
-    framebuffer.cpp
-    a_opengl_upload.cpp
+    a_shader.cpp
+    OpenGl/a_OpenGLContext.cpp
+    a_IGraphicsContext.cpp
+    OpenGL/framebuffer.cpp
+    OpenGL/a_opengl_upload.cpp
     )
 
 target_include_directories(renderer_rhi PUBLIC .)
