@@ -6,10 +6,10 @@
 
 #include "stb_image.h"
 #include <assimp/Importer.hpp>
-#include "a_opengl_upload.hpp"
+#include "OpenGL/a_opengl_upload.hpp"
 #include <assimp/postprocess.h>
 #include "a_primitiveGenerator.hpp"
-#include "a_GLcubemap.hpp"
+#include "OpenGL/a_GLcubemap.hpp"
 namespace Andromeda {
     void ResourceManager::start()
     {

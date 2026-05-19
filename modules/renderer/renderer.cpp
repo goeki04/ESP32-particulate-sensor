@@ -6,9 +6,9 @@
 #include "scene.hpp"
 #include "a_event_manager.hpp"
 #include <a_CubemapData.hpp>
-#include "a_GLcubemap.hpp"
+#include "OpenGL/a_GLcubemap.hpp"
 #include "a_PrimitiveGenerator.hpp"
-#include "a_opengl_upload.hpp"
+#include "OpenGL/a_opengl_upload.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
     void Renderer::start()
