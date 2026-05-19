@@ -73,6 +73,32 @@ namespace Andromeda {
 			return loc;
 		}
 	};
+
+	class BakingShader : public Shader {
+	public:
+		BakingShader(const char* vertexPath, const char* fragmentPath) 
+			: Shader(vertexPath, fragmentPath) {
+		};
+
+		~BakingShader() override = default;
+
+		virtual void setUniforms() = 0;
+
+	};
+
+	class EquirectangularShader : public BakingShader {
+	public:
+		mat4 proj = mat4(1);
+		mat4 view = mat4(1);
+
+		EquirectangularShader(const char* vertexPath, const char* fragmentPath) : BakingShader(vertexPath, fragmentPath) {};
+
+		void setUniforms() override {
+			setMat4x4("proj", proj);
+			setMat4x4("view", view);
+		}
+	};
+
 	/**
 	 * @brief Specialized shader type for full-screen post-processing effects.
 	 */
@@ -119,6 +145,20 @@ namespace Andromeda {
 		GridShader(const char* vertexPath, const char* fragmentPath) : ProceduralShader(vertexPath, fragmentPath) {}
 		void setUniforms(const amath::CameraData* cam) override;
 	};
+
+	class SkyboxShader : public ProceduralShader {
+	public:
+		SkyboxShader(const char* vertexPath, const char* fragmentPath)
+			: ProceduralShader(vertexPath, fragmentPath) {
+		}
+
+		// Implementierung des ProceduralShader Interfaces
+		void setUniforms(const amath::CameraData* cam) override {
+			setMat4x4("view", mat4(mat3(cam->viewMatrix)));
+			setMat4x4("proj", cam->projection);
+			setInt("environmentMap", 0);
+		}
+	};
 	/**
 	 * @brief Standard lighting shader supporting directional and ambient light.
 	 */
@@ -141,17 +181,6 @@ namespace Andromeda {
 		vec3 color = vec3(1.0f, 1.0f, 1.0f);
 		ColorShader(const char* vertexPath, const char* fragmentPath) : MaterialShader(vertexPath, fragmentPath) {}
 		void setUniforms(const amath::CameraData* cam, const mat4& modelMatrix) override;
-	};
-
-	class CubemapTestShader : public MaterialShader {
-	public:
-		CubemapTestShader(const char* vertexPath, const char* fragmentPath) : MaterialShader(vertexPath, fragmentPath) {
-		}
-
-		void setUniforms(const amath::CameraData* cam, const mat4& modelMatrix) override {
-			setCameraUniforms(cam);
-			setMat4x4("model", modelMatrix);
-		}
 	};
 
 	/**

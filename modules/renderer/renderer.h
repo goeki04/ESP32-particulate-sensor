@@ -4,6 +4,7 @@
 #include "a_components.hpp"
 #include "framebuffer.hpp"
 #include "a_primitives.hpp"
+#include "a_opengl_handles.hpp"
 namespace Andromeda {
 	namespace amath {
 		struct CameraData;
@@ -69,8 +70,10 @@ namespace Andromeda {
 		MsaaSamples m_MSAAsamples = MsaaSamples::x4;
 		vec2 m_TexelSize = vec2(0.0, 0.0);
 		u32 m_Vao = 0;
+		u32 m_EnvironmentCubemapID = 0;
 		amath::CameraData* m_Cam = nullptr;
 		bool m_WireframeActive = false;
+		MeshGPUHandle cubemapgpuHandle;
 		float m_ResizeTimer = 0.0f;
 		bool m_ResizePending = false;
 		ivec2 m_TargetSize = ivec2(0.0f);

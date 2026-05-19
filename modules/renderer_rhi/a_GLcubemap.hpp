@@ -58,10 +58,10 @@ namespace Andromeda {
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		}
 
-		static void AllocateEnvironmentMapTexture() {
-			u32 envCubemap = 0;
-			glGenTextures(1, &envCubemap);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+		static u32 AllocateEnvironmentMapTexture() {
+			u32 textureID = 0;
+			glGenTextures(1, &textureID);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 			for (unsigned int i = 0; i < 6; ++i)
 			{
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F,
@@ -72,6 +72,7 @@ namespace Andromeda {
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			return textureID;
 		}
 
 		static void ConvertEquiretangularToCubemap(Shader& conversionShader, GLuint& hdrTexture, GLuint& cubeViewFBO, u32 envCubemap, std::function<void()> renderCube) {
@@ -87,7 +88,7 @@ namespace Andromeda {
 			};
 			glDepthFunc(GL_LEQUAL);
 			conversionShader.use();
-			conversionShader.setInt("equiretangularMap",0);
+			conversionShader.setInt("equirectangularMap",0);
 			conversionShader.setMat4x4("proj", cubeProjection);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, hdrTexture);
@@ -98,8 +99,9 @@ namespace Andromeda {
 				conversionShader.setMat4x4("view", cubeViews[i]);
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				renderCube();
 			}
-			renderCube();
+
 			glBindFramebuffer(GL_FRAMEBUFFER,0);
 			glDepthFunc(GL_LESS);
 		}
