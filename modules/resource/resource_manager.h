@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 #include <unordered_map>
 #include <string>
@@ -13,113 +14,268 @@
 #include "a_primitives.hpp"
 #include "a_ISubsystem.hpp"
 #include "a_cubemapData.hpp"
+
 namespace Andromeda {
 
     /**
-     * @brief Central hub for managing engine assets like Shaders, Meshes, and Textures.
-     * * Implements ISubsystem for lifecycle management and IDeviceProvider to supply
-     * hardware-related data and icons to the GUI/Editor.
+     * @class ResourceManager
+     * @brief asset management subsystem for the Andromeda Engine.
+     * * The ResourceManager handles the asynchronous or synchronous loading, caching,
+     * and distribution of all heavy assets. This includes 3D models (via Assimp),
+     * textures, HDR/LDR cubemaps, UI icons, and the compilation of OpenGL shader programs.
+     * It implements the IModelProvider interface to supply model data to the Editor.
      */
     class ResourceManager : public ISubsystem, public IModelProvider {
     public:
-
-        // --- Shader Storage ---
+        /** @brief Cached instances of standard material shaders (e.g., Lit, Color). */
         std::vector<std::unique_ptr<MaterialShader>> m_MaterialShaders;
+
+        /** @brief Cached instances of procedural shaders (e.g., Grid). */
         std::vector<std::unique_ptr<ProceduralShader>> m_ProceduralShaders;
+
+        /** @brief Cached instances of post-processing shaders (e.g., Outline, Mask). */
         std::vector<std::unique_ptr<PostProcessShader>> m_PostProcessShaders;
+
+        /** @brief CPU-side storage of loaded mesh geometry, mapped by unique ID. */
         std::unordered_map<u32, Andromeda::Mesh> m_Meshes;
-        /// Maps device types to their respective UI icons (OpenGL texture handles)
+
+        /** @brief OpenGL texture handles for device-specific icons (e.g., ESP32, Sensors). */
         std::unordered_map<deviceType, GLtexture> m_DeviceIcons;
+
+        /** @brief OpenGL texture handles for UI/Editor icons, mapped by filename. */
         std::unordered_map<std::string, GLtexture> m_EditorIcons;
+
+        /** @brief Loaded cubemap environment data (LDR skies or HDR panoramas), mapped by name. */
         std::unordered_map<std::string, CubemapData> m_CubemapData;
-        // --- Subsystem Interface ---
+
+        /**
+         * @brief Gets the static compile-time string identifier of the subsystem.
+         * @return A string_view containing "ResourceManager".
+         */
         static constexpr std::string_view GetStaticName() { return "ResourceManager"; }
+
+        /**
+         * @brief Gets the runtime string identifier of the subsystem.
+         * @return A C-string containing the subsystem's name.
+         */
         [[nodiscard]] const char* getSubsystemName() const override { return GetStaticName().data(); }
 
+        /**
+         * @brief Initializes the subsystem, pre-compiles core shaders, and initiates the asset loading pipeline.
+         */
         void start() override;
 
         /**
-         * @brief Loads 3D models and initializes their GPU handles.
+         * @brief Recursively scans the "models" directory and loads all .fbx and .obj files via Assimp.
          */
         void loadModels();
+
+        /**
+         * @brief Scans and loads all cubemaps and environment maps.
+         * Handles both LDR sets (6 individual textures) and HDR equirectangular panoramas.
+         */
         void loadAllCubeMaps();
 
         /**
-         * @brief Loads UI icons from disk and creates OpenGL textures.
+         * @brief Loads PNG/JPG device icons from the designated asset folder and registers them.
          */
         void loadDeviceIcons();
-        void loadEditorIcons();
-        u32 getEditorIconID(const std::string& name);
-        /**
-         * @brief Resolves a device type based on its icon's string name.
-         */
-        static deviceType findDeviceIcon(const std::string &iconName);
 
-        // --- Resource Accessors (Mesh & Shaders) ---
+        /**
+         * @brief Loads PNG/JPG editor UI icons from the designated asset folder and registers them.
+         */
+        void loadEditorIcons();
+
+        /**
+         * @brief Retrieves the OpenGL texture ID for a specific editor icon.
+         * @param name The filename of the icon (without path).
+         * @return The OpenGL texture ID. Throws an exception if the icon is not found.
+         */
+        u32 getEditorIconID(const std::string& name);
+
+        /**
+         * @brief Matches an icon filename to a specific hardware device type enum.
+         * @param iconName The filename of the icon to check.
+         * @return The corresponding deviceType, or deviceType::DEFAULT if no match is found.
+         */
+        static deviceType findDeviceIcon(const std::string& iconName);
+
+        /**
+         * @brief Retrieves the OpenGL Vertex Array Object (VAO) ID for a given mesh.
+         * @param meshID The unique identifier of the mesh.
+         * @return The OpenGL VAO ID.
+         */
         [[nodiscard]] u32 getMeshVaoByID(u32 meshID) const;
+
+        /**
+         * @brief Retrieves the number of indices for a given mesh, required for glDrawElements.
+         * @param meshID The unique identifier of the mesh.
+         * @return The size of the index buffer.
+         */
         [[nodiscard]] u32 getMeshIndexSizeByID(u32 meshID) const;
+
+        /**
+         * @brief Retrieves the CPU-side mesh data structure.
+         * @param meshID The unique identifier of the mesh.
+         * @return A constant reference to the Mesh data.
+         */
         [[nodiscard]] const Mesh& getMeshByID(u32 meshID) const;
 
+        /**
+         * @brief Retrieves a pre-compiled material shader.
+         * @param t The specific MaterialShaderType required.
+         * @return A pointer to the requested MaterialShader.
+         */
         [[nodiscard]] MaterialShader* getMaterialShaderByID(MaterialShaderType t) const;
+
+        /**
+         * @brief Retrieves a pre-compiled procedural shader.
+         * @param t The specific ProceduralShaderType required.
+         * @return A pointer to the requested ProceduralShader.
+         */
         [[nodiscard]] ProceduralShader* getProceduralShaderByID(ProceduralShaderType t) const;
+
+        /**
+         * @brief Retrieves a pre-compiled post-processing shader.
+         * @param t The specific PostProcessShaderType required.
+         * @return A pointer to the requested PostProcessShader.
+         */
         [[nodiscard]] PostProcessShader* getPostprocessShaderByID(PostProcessShaderType t) const;
 
-        // Wrapper function for getting the amount of recorded devices
+        /**
+         * @brief Gets the total amount of unique 3D models currently loaded in memory.
+         * @return The count of ModelRecords.
+         */
         [[nodiscard]] u32 getModelRecordsSize() const;
+
+        /**
+         * @brief Retrieves the complete map of model records.
+         * @return A constant reference to the unordered_map of ModelRecords.
+         */
         [[nodiscard]] const std::unordered_map<uint32_t, ModelRecord>& getModelRecords() const;
 
         /**
-         * @brief Utility to create an OpenGL texture from a file path.
+         * @brief Utility to load a 2D image from disk directly into an OpenGL texture.
+         * @param path The filepath to the image.
+         * @return A GLtexture struct containing the OpenGL ID and dimensions.
          */
         static GLtexture CreateOpenGLTexture(const char* path);
 
+        /**
+         * @brief Loads a traditional 6-face LDR cubemap.
+         * @param name The unique identifier for this cubemap.
+         * @param paths A vector containing exactly 6 file paths mapped to cube faces.
+         */
         void loadAndStoreCubemap(const std::string& name, const std::vector<std::string>& paths);
+
+        /**
+         * @brief Loads a single-file HDR/HDRI equirectangular panorama.
+         * @param file The full system path to the HDR file.
+         */
         void loadAndStoreCubemap(const std::string& file);
+
+        /**
+         * @brief Returns the total number of loaded models (Implementation of IModelProvider).
+         * @return The model count.
+         */
         [[nodiscard]] u32 getModelCount() const override;
+
+        /**
+         * @brief Retrieves metadata for a specific model (Implementation of IModelProvider).
+         * @param index The sequential index of the model.
+         * @return A constant reference to the ModelRecord.
+         */
         [[nodiscard]] const ModelRecord& getModelData(u32 index) const override;
 
+        /**
+         * @brief Retrieves the OpenGL texture ID for a specific device type (Implementation of IModelProvider).
+         * @param type The deviceType enum.
+         * @return The OpenGL texture ID.
+         */
         [[nodiscard]] u32 getDeviceIconID(deviceType type) const override;
+
+        /**
+         * @brief Dynamically registers a custom, procedurally generated mesh into the resource manager.
+         * @param mesh The generated Mesh data (passed via r-value reference for move semantics).
+         * @param name The display name of the mesh (e.g., "Cube", "Sphere").
+         * @return The newly assigned unique mesh ID.
+         */
         u32 registerCustomMesh(Mesh&& mesh, const std::string& name);
+
     private:
+        /**
+         * @brief Decodes image data from disk into CPU memory using stb_image.
+         * @param data Reference to the CubemapData structure to populate.
+         */
         static void loadCubemapTexture(CubemapData& data);
+
+        /**
+         * @brief Maps a file path to its corresponding cube face index based on naming conventions.
+         * @param data The CubemapData structure where the path will be assigned.
+         * @param path The file path to analyze.
+         */
         static void MapCubemapFacesLDR(CubemapData& data, const std::string& path);
-        /// Internal storage for device metadata
-        std::unordered_map<u32, ModelRecord> m_ModelRecords;
 
-        /// Links Mesh IDs to their OpenGL VAO/VBO handles
-        std::unordered_map<i32, MeshGPUHandle> m_GPUMeshes;
+        std::unordered_map<u32, ModelRecord> m_ModelRecords;     /**< Stores metadata for all loaded models. */
+        std::unordered_map<i32, MeshGPUHandle> m_GPUMeshes;      /**< Stores OpenGL VAO/VBO/EBO handles for loaded meshes. */
+        std::vector<u32> m_ModelIndexList;                       /**< Sequential list of model IDs for UI iteration. */
+        std::unordered_map<std::string, u32> m_MeshIDbyName;     /**< Maps string names to internal Mesh IDs to prevent duplicates. */
 
-        /// Maintainer of the display order for the Device Browser UI
-        std::vector<u32> m_ModelIndexList;
+        u32 m_NextMeshID = 0; /**< Autoincrementing counter for assigning unique Mesh IDs. */
 
-        /// Helper map to find internal IDs by their mesh filenames/names
-        std::unordered_map<std::string, u32> m_MeshIDbyName;
-        u32 m_NextMeshID = 0;
-
-
-        // --- Template Helpers for Type-Safe Shader Registration ---
-
+        /**
+         * @brief Compiles and registers a new Material Shader.
+         * @tparam T The specific MaterialShader derived class type.
+         * @param vertexShader Path to the vertex shader source file.
+         * @param fragmentShader Path to the fragment shader source file.
+         */
         template<typename T> requires std::derived_from<T, MaterialShader>
         void addMaterialShader(const char* vertexShader, const char* fragmentShader) {
             m_MaterialShaders.emplace_back(std::make_unique<T>(vertexShader, fragmentShader));
             m_MaterialShaders.back()->compileShader();
         }
 
+        /**
+         * @brief Compiles and registers a new Procedural Shader.
+         * @tparam T The specific ProceduralShader derived class type.
+         * @param vertexShader Path to the vertex shader source file.
+         * @param fragmentShader Path to the fragment shader source file.
+         */
         template<typename T> requires std::derived_from<T, ProceduralShader>
         void addProceduralShader(const char* vertexShader, const char* fragmentShader) {
             m_ProceduralShaders.emplace_back(std::make_unique<T>(vertexShader, fragmentShader));
             m_ProceduralShaders.back()->compileShader();
         }
 
+        /**
+         * @brief Compiles and registers a new Post-Processing Shader.
+         * @tparam T The specific PostProcessShader derived class type.
+         * @param vertexShader Path to the vertex shader source file.
+         * @param fragmentShader Path to the fragment shader source file.
+         */
         template<typename T> requires std::derived_from<T, PostProcessShader>
         void addPostProcessShader(const char* vertexShader, const char* fragmentShader) {
             m_PostProcessShaders.emplace_back(std::make_unique<T>(vertexShader, fragmentShader));
             m_PostProcessShaders.back()->compileShader();
         }
 
-        // --- Internal Model Loading (Assimp Integration) ---
+        /**
+         * @brief Iterates over CPU meshes and generates their corresponding OpenGL buffers (VAO/VBO/EBO).
+         */
         void setupMeshes();
+
+        /**
+         * @brief Recursively processes Assimp nodes, extracting vertex and index data into Andromeda format.
+         * @param meshId The internal Andromeda ID being assigned to this scene.
+         * @param scene The parent Assimp scene.
+         * @param node The current Assimp node being processed.
+         */
         void processNode(uint32_t meshId, const aiScene* scene, aiNode* node);
+
+        /**
+         * @brief Initiates the Assimp importer for a specific file and sets up the internal Mesh structure.
+         * @param path The full system path to the 3D model file.
+         */
         void loadScene(const std::string& path);
     };
 }
