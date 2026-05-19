@@ -3,22 +3,25 @@
 #include "imgui.h"
 #include "ImGuizmo.h"
 #include "a_registry.hpp"
+#include <array>
 namespace Andromeda::Gui {
     struct EditorContext;
     struct TransformIcons {
         enum Type { Translate, Scale, Rotate, Select, Count };
 
-        u32 handles[Count];
+        std::array<ImTextureID,Count> handles;
 
         static constexpr const char* toolNames[Count] = {
             "translate", "scale", "rotate", "select"
         };
 
-        static constexpr ImGuizmo::OPERATION getImGuizmoTool(Type tool) {
+        static constexpr std::optional<ImGuizmo::OPERATION> getImGuizmoTool(const Type tool) {
             switch(tool) {
-                case Translate: return ImGuizmo::TRANSLATE;
-                case Scale: return ImGuizmo::SCALE;
-                case Rotate: return ImGuizmo::ROTATE;
+            case Translate: return ImGuizmo::TRANSLATE;
+            case Scale:     return ImGuizmo::SCALE;
+            case Rotate:    return ImGuizmo::ROTATE;
+            default:
+                return std::nullopt;
             }
         }
     };
@@ -33,42 +36,44 @@ namespace Andromeda::Gui {
         TransformIcons::Type m_ActiveTool = TransformIcons::Select;
         explicit ViewportPanel(const char* name) : EditorPanel(name), m_SelectedEntity({ECS::INVALID_ENTITY_ID,nullptr}) {}
 
-        void initPanel(EditorContext& ctx);
+        void initPanel(EditorContext& ctx) override;
 
         void onGuiRender(EditorContext& ctx) override;
 
         void updateGizmos(EditorContext& ctx);
 
-        void prepareImGuizmo(EditorContext& ctx);
+        static void prepareImGuizmo(EditorContext& ctx);
 
         void handleGizmoInteraction(ECS::Component::Transform& transform, mat4& deltaMatrix);
 
-        void applyGizmoTransform(ECS::Component::Transform& transform,mat4& matrix);
+        static void applyGizmoTransform(ECS::Component::Transform& transform,mat4& matrix);
 
         void finalizeGizmoInteraction(ECS::Component::Transform& currentTransform);
 
-        void setOverlayStyle();
+        static void setOverlayStyle();
 
-        ImGuiWindowFlags setOverlayFlags();
+        static ImGuiWindowFlags setOverlayFlags();
 
-        void resetOverlayStyle();
+        static void resetOverlayStyle();
 
-        void drawTransformButtons(const TransformIcons& textureHandles, const ImGuiWindowFlags flags);
+        void drawTransformButtons(const TransformIcons& textureHandles, ImGuiWindowFlags flags);
 
-        void drawWireframeControl(const u32& textureID, const ImGuiWindowFlags flags);
+        void drawWireframeControl(const u32& textureID, ImGuiWindowFlags flags);
 
         void drawViewportOverlay(ImVec2 rectMax, ImVec2 rectMin, const u32& textureID, const TransformIcons& textureHandles);
 
-        void updateImGuiMousePos(const ViewportDimension& vpDimension, EditorContext& ctx, const Gui::ViewportDrawInfo& drawInfo);
+        static void updateImGuiMousePos(const ViewportDimension& vpDimension, EditorContext& ctx, const ViewportDrawInfo& drawInfo);
 
-        void drawViewportImage(EditorContext& ctx, const Gui::ViewportDrawInfo& drawInfo);
+        void drawViewportImage(EditorContext& ctx, const ViewportDrawInfo& drawInfo);
 
-        void handleViewportInput(const Gui::ViewportDrawInfo& drawInfo);
+        void handleViewportInput(const ViewportDrawInfo& drawInfo);
 
     private:
         ECS::EntityHandle m_SelectedEntity;
+        TransformIcons m_TextureHandles = {};
         bool m_WireframeEnabled = false;
         bool m_IsDraggingGizmo = false;
         std::any m_ActiveUndoState;
+
     };
 }

@@ -7,11 +7,29 @@
 #include "a_EventTypes.hpp"
 #include "ImGuizmo.h"
 namespace Andromeda::Gui {
-    void ViewportPanel::initPanel(EditorContext& ctx) {
+    void ViewportPanel::initPanel(EditorContext& ctx)
+    {
         m_SelectedEntity.registry = ctx.registry;
         EventManager::getInstance().AddEventListener<SceneObjectSelected>([this](const SceneObjectSelected& event) {
             m_SelectedEntity.id = event.entity;
             });
+
+        std::array textureIDs = {
+            ctx.resourceManager->getEditorIconID("translate"),
+            ctx.resourceManager->getEditorIconID("scale"),
+            ctx.resourceManager->getEditorIconID("rotate"),
+            ctx.resourceManager->getEditorIconID("select")
+        };
+
+        for(i32 i = 0; i < textureIDs.size(); i++)
+        {
+            if (textureIDs[i] == 0)
+            {
+                std::printf("Viewport icon not found");
+                return;
+            }
+            m_TextureHandles.handles[i] = static_cast<ImTextureID>(static_cast<intptr_t>(textureIDs[i]));
+        }
     }
     
     void ViewportPanel::onGuiRender(EditorContext& ctx)
@@ -42,13 +60,16 @@ namespace Andromeda::Gui {
         mat4 modelMatrix = objectTransform.modelMatrix();
 
         prepareImGuizmo(ctx);
-        ImGuizmo::Manipulate(
-            glm::value_ptr(ctx.cameraData->viewMatrix),
-            glm::value_ptr(ctx.cameraData->projection),
-            TransformIcons::getImGuizmoTool(m_ActiveTool),
-            ImGuizmo::WORLD,
-            amath::glmValuePtr(modelMatrix)
-        );
+        std::optional<ImGuizmo::OPERATION> operation = TransformIcons::getImGuizmoTool(m_ActiveTool);
+        if (operation.has_value()) {
+            ImGuizmo::Manipulate(
+                glm::value_ptr(ctx.cameraData->viewMatrix),
+                glm::value_ptr(ctx.cameraData->projection),
+                operation.value(),
+                ImGuizmo::WORLD,
+                amath::glmValuePtr(modelMatrix)
+            );
+        }
 
         handleGizmoInteraction(objectTransform, modelMatrix);
     }
@@ -146,8 +167,8 @@ namespace Andromeda::Gui {
         constexpr float pillPaddingX = 8.0f;
         constexpr float btnSizeX = 28.0f;
 
-        const float contentWidth = (btnSizeX * static_cast<float>(textureHandles.Count))
-            + (buttonSpacing * static_cast<float>(textureHandles.Count - 1));
+        const float contentWidth = btnSizeX * static_cast<float>(textureHandles.Count)
+            + buttonSpacing * static_cast<float>(textureHandles.Count - 1);
 
         const float totalPillWidth = contentWidth + (2.0f * pillPaddingX);
         constexpr float totalPillHeight = 42.0f;
@@ -168,7 +189,7 @@ namespace Andromeda::Gui {
         ImGui::SetCursorScreenPos(ImVec2(startScreenPos.x + pillPaddingX, startScreenPos.y + 7.0f));
         for (u32 i = 0; i < textureHandles.Count; i++)
         {
-            const ImTextureID texID = static_cast<ImTextureID>(static_cast<intptr_t>(textureHandles.handles[i]));
+            const ImTextureID texID = m_TextureHandles.handles[i];
             const ImVec2 currentBtnScreenPos = ImGui::GetCursorScreenPos();
 
             ImGui::PushID(i);
@@ -313,14 +334,7 @@ namespace Andromeda::Gui {
         updateImGuiMousePos(vpDimension, ctx, drawInfo);
         const u32 id = ctx.resourceManager->getEditorIconID("box");
 
-        const TransformIcons icons{
-            ctx.resourceManager->getEditorIconID("translate"),
-            ctx.resourceManager->getEditorIconID("scale"),
-            ctx.resourceManager->getEditorIconID("rotate"),
-            ctx.resourceManager->getEditorIconID("select")
-        };
-
-        drawViewportOverlay(rectMax, rectMin, id,icons);
+        drawViewportOverlay(rectMax, rectMin, id, m_TextureHandles);
     }
     void ViewportPanel::handleViewportInput(const Gui::ViewportDrawInfo& drawInfo)
     {
