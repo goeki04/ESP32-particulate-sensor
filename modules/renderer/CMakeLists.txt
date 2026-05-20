@@ -7,7 +7,7 @@ add_library(renderer STATIC
 )
 
 target_include_directories(renderer PUBLIC .)
-
+target_compile_definitions(renderer PRIVATE SHADER_PATH="${CMAKE_SOURCE_DIR}/modules/shader/")
 target_link_libraries(renderer PUBLIC 
     glm::glm
     imgui::imgui

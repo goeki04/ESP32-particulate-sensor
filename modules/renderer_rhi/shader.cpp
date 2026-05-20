@@ -1,20 +1,23 @@
+#include "shader.hpp"
 #include <filesystem>
 #include <fstream>
-#include "shader.hpp"
-#include <glm/glm.hpp>          
-#include <glm/gtc/matrix_transform.hpp>
+#include <sstream>
+#include <stdexcept>
+#include <cassert>
 #include <glm/gtc/type_ptr.hpp>
+
 namespace Andromeda {
+
     std::string Shader::readShaderSource(const char* shaderPath)
     {
         std::ifstream fileStream(shaderPath);
         std::stringstream buffer;
         buffer << fileStream.rdbuf();
-        std::string shaderSource = buffer.str();
-        return shaderSource;
+        return buffer.str();
     }
+
     void Shader::setCameraUniforms(const amath::CameraData* cam) {
-        assert(cam && "CameraData is nullptr in Shader:setCameraUniforms");
+        assert(cam && "CameraData is nullptr in Shader::setCameraUniforms");
         setMat4x4(c_viewMatrix, cam->viewMatrix);
         setMat4x4(c_projMatrix, cam->projection);
         setVec3(c_camPos, cam->cameraPos);
@@ -55,16 +58,6 @@ namespace Andromeda {
         setInt(uniformName, slot);
     }
 
-    void LitShader::setUniforms(const amath::CameraData* cam, const mat4& modelMatrix)
-    {
-        use();
-        setMat4x4("model", modelMatrix);
-        setCameraUniforms(cam);
-        setVec3("sunLight.color", m_DirLight.color);
-        setVec3("sunLight.direction", m_DirLight.direction);
-        setVec3("ambientLight", m_AmbientLight);
-    }
-
     void Shader::compileShader()
     {
         auto throwShaderLog = [](u32 sh, const char* stage) {
@@ -76,8 +69,9 @@ namespace Andromeda {
             GLsizei outLen = 0;
             glGetShaderInfoLog(sh, (GLsizei)log.size(), &outLen, log.data());
             log.resize(outLen);
-                throw std::runtime_error(std::string(stage) + " compile error:\n" + log);
+            throw std::runtime_error(std::string(stage) + " compile error:\n" + log);
             };
+
         i32 success;
         std::string vertexShaderStr = readShaderSource(m_VertexShaderPath.c_str());
         const char* vertexShaderSource = vertexShaderStr.c_str();
@@ -89,37 +83,29 @@ namespace Andromeda {
         if (!success) {
             throwShaderLog(vertexShader, "Vertex shader");
         }
+
         std::string fragmentShaderStr = readShaderSource(m_FragmentShaderPath.c_str());
         const char* fragmentShaderSource = fragmentShaderStr.c_str();
         unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
         glCompileShader(fragmentShader);
+
         glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
         if (!success) {
             throwShaderLog(fragmentShader, "Fragment shader");
         }
+
         m_Program = glCreateProgram();
         glAttachShader(m_Program, vertexShader);
         glAttachShader(m_Program, fragmentShader);
         glLinkProgram(m_Program);
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
+
         glGetProgramiv(m_Program, GL_LINK_STATUS, &success);
         if (!success) {
             throw std::runtime_error("failed to create a shader program!");
         }
         m_UniformCache.clear();
-    }
-
-    void GridShader::setUniforms(const amath::CameraData* cam)
-    {
-        setCameraUniforms(cam);
-    }
-
-    void ColorShader::setUniforms(const amath::CameraData* cam, const mat4& modelMatrix)
-    {
-        setCameraUniforms(cam);
-        setVec3("aColor", color);
-        setMat4x4("model", modelMatrix);
     }
 }

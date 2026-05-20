@@ -1,0 +1,283 @@
+#include "a_OpenGLContext.hpp"
+#include "a_Primitives.hpp"
+#include "GL/Glew.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include "OpenGL/a_opengl_framebuffer.hpp"
+namespace Andromeda {
+
+    namespace {
+        template<Andromeda::ShaderDataType T>
+        inline void uploadUniform(GLint loc, const void* ptr) {
+            using namespace Andromeda;
+            if constexpr (T == ShaderDataType::Float) {
+                glUniform1f(loc, *static_cast<const float*>(ptr));
+            }
+            else if constexpr (T == ShaderDataType::Int) {
+                glUniform1i(loc, *static_cast<const int32_t*>(ptr));
+            }
+            else if constexpr (T == ShaderDataType::Vec2) {
+                glUniform2fv(loc, 1, static_cast<const float*>(ptr));
+            }
+            else if constexpr (T == ShaderDataType::Vec3) {
+                glUniform3fv(loc, 1, static_cast<const float*>(ptr));
+            }
+            else if constexpr (T == ShaderDataType::Vec4) {
+                glUniform4fv(loc, 1, static_cast<const float*>(ptr));
+            }
+            else if constexpr (T == ShaderDataType::Mat4) {
+                glUniformMatrix4fv(loc, 1, GL_FALSE, static_cast<const float*>(ptr));
+            }
+        }
+
+        void throwShaderLog(GLuint objectID, const char* stage, GLenum statusType) {
+            GLint success = 0;
+            if (statusType == GL_COMPILE_STATUS) {
+                glGetShaderiv(objectID, GL_COMPILE_STATUS, &success);
+            }
+            else {
+                glGetProgramiv(objectID, GL_LINK_STATUS, &success);
+            }
+
+            if (success) [[likely]] return;
+
+            GLint len = 0;
+            if (statusType == GL_COMPILE_STATUS) {
+                glGetShaderiv(objectID, GL_INFO_LOG_LENGTH, &len);
+            }
+            else {
+                glGetProgramiv(objectID, GL_INFO_LOG_LENGTH, &len);
+            }
+
+            std::string log;
+            log.resize((len > 1) ? len : 1);
+
+            GLsizei outLen = 0;
+            if (statusType == GL_COMPILE_STATUS) {
+                glGetShaderInfoLog(objectID, (GLsizei)log.size(), &outLen, log.data());
+            }
+            else {
+                glGetProgramInfoLog(objectID, (GLsizei)log.size(), &outLen, log.data());
+            }
+            log.resize(outLen);
+
+            throw std::runtime_error(std::string(stage) + " error:\n" + log);
+        }
+
+        GLuint compileStage(GLenum stageType, const std::string& source, const char* stageName) {
+            GLuint shader = glCreateShader(stageType);
+            const char* srcPtr = source.c_str();
+            glShaderSource(shader, 1, &srcPtr, nullptr);
+            glCompileShader(shader);
+
+            throwShaderLog(shader, stageName, GL_COMPILE_STATUS);
+            return shader;
+        }
+    }
+
+    ShaderProgramHandle OpenGLContext::createShaderProgram(const std::string& vertSrc, const std::string& fragSrc) {
+        ShaderProgramHandle newHandle = {};
+        newHandle.apiID = compileOpenGLShader(vertSrc, fragSrc);
+        return newHandle;
+    }
+    void OpenGLContext::destroyShaderProgram(ShaderProgramHandle handle) {
+        if (handle.apiID != 0) {
+            glDeleteProgram(handle.apiID);
+        }
+    }
+
+    void OpenGLContext::bindShaderProgram(ShaderProgramHandle handle) {
+        glUseProgram(handle.apiID);
+    }
+
+    std::string OpenGLContext::readShaderSource(const char* shaderPath)
+    {
+        std::ifstream fileStream(shaderPath);
+        std::stringstream buffer;
+        buffer << fileStream.rdbuf();
+        std::string shaderSource = buffer.str();
+        return shaderSource;
+    }
+
+    u32 OpenGLContext::compileOpenGLShader(const std::string& vertSrc, const std::string& fragSrc)
+    {
+        std::string vertexSource = readShaderSource(vertSrc.c_str());
+        std::string fragmentSource = readShaderSource(fragSrc.c_str());
+
+        GLuint vertexShader = compileStage(GL_VERTEX_SHADER, vertexSource, "Vertex Shader");
+        GLuint fragmentShader = compileStage(GL_FRAGMENT_SHADER, fragmentSource, "Fragment Shader");
+
+        GLuint program = glCreateProgram();
+        glAttachShader(program, vertexShader);
+        glAttachShader(program, fragmentShader);
+        glLinkProgram(program);
+
+        throwShaderLog(program, "Shader Program Linking", GL_LINK_STATUS);
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+
+        return program;
+    }
+    void OpenGLContext::submitUniforms(std::span<const UniformData> uniforms)
+    {
+        for (const auto& uniform : uniforms) {
+            if (uniform.location == -1) [[unlikely]] continue;
+
+            switch (uniform.type) {
+            case ShaderDataType::Float: uploadUniform<ShaderDataType::Float>(uniform.location, uniform.dataPtr); break;
+            case ShaderDataType::Int:   uploadUniform<ShaderDataType::Int>(uniform.location, uniform.dataPtr);   break;
+            case ShaderDataType::Vec2:  uploadUniform<ShaderDataType::Vec2>(uniform.location, uniform.dataPtr);  break;
+            case ShaderDataType::Vec3:  uploadUniform<ShaderDataType::Vec3>(uniform.location, uniform.dataPtr);  break;
+            case ShaderDataType::Vec4:  uploadUniform<ShaderDataType::Vec4>(uniform.location, uniform.dataPtr);  break;
+            case ShaderDataType::Mat4:  uploadUniform<ShaderDataType::Mat4>(uniform.location, uniform.dataPtr);  break;
+            }
+        }
+    }
+
+    void OpenGLContext::bindTextures(std::span<const TextureBinding> textures)
+    {
+        for (i32 i = 0; i < textures.size(); ++i) {
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_2D, textures[i].apiID);
+        }
+    }
+
+    std::vector<ReflectedUniform> OpenGLContext::getProgramUniforms(ShaderProgramHandle handle)
+    {
+        std::vector<ReflectedUniform> result;
+
+        GLint numUniforms = 0;
+        glGetProgramiv(handle.apiID, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+        GLint maxNameLength = 0;
+        glGetProgramiv(handle.apiID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
+        std::vector<GLchar> nameBuffer(maxNameLength);
+
+        for (GLint i = 0; i < numUniforms; ++i) {
+            GLsizei length = 0;
+            GLint size = 0;
+            GLenum type = 0;
+
+            glGetActiveUniform(handle.apiID, i, maxNameLength, &length, &size, &type, nameBuffer.data());
+            std::string name(nameBuffer.data(), length);
+
+            GLint location = glGetUniformLocation(handle.apiID, name.c_str());
+            if (location == -1) continue;
+
+            ShaderDataType sType;
+            switch (type) {
+            case GL_FLOAT:        sType = ShaderDataType::Float; break;
+            case GL_INT:          sType = ShaderDataType::Int; break;
+            case GL_FLOAT_VEC2:   sType = ShaderDataType::Vec2; break;
+            case GL_FLOAT_VEC3:   sType = ShaderDataType::Vec3; break;
+            case GL_FLOAT_VEC4:   sType = ShaderDataType::Vec4; break;
+            case GL_FLOAT_MAT4:   sType = ShaderDataType::Mat4; break;
+            case GL_SAMPLER_2D:   sType = ShaderDataType::Int; break;
+            default: continue;
+            }
+
+            result.push_back({ name, static_cast<u32>(location), sType });
+        }
+
+        return result;
+    }
+    void OpenGLContext::setRenderPassSpecs(const RenderPassSpecs& specs)
+    {
+        if (specs.rasterizerMode == RasterizerMode::Wireframe) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+        else {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+
+        if (specs.cullMode == CullMode::None) {
+            glDisable(GL_CULL_FACE);
+        }
+        else {
+            glEnable(GL_CULL_FACE);
+            glCullFace(specs.cullMode == CullMode::Back ? GL_BACK : GL_FRONT);
+        }
+
+        if (specs.depthTest) {
+            glEnable(GL_DEPTH_TEST);
+        }
+        else {
+            glDisable(GL_DEPTH_TEST);
+        }
+    }
+    void OpenGLContext::drawIndexed(u32 vao, u32 indexCount)
+    {
+        glBindVertexArray(vao);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indexCount), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
+    }
+
+    void OpenGLContext::bindFramebuffer(std::shared_ptr<IFramebuffer> framebuffer)
+    {
+        if (!framebuffer) {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            return;
+        }
+
+        auto glFbo = std::static_pointer_cast<GLFramebuffer>(framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, glFbo->getFramebufferID());
+
+        const auto& specs = framebuffer->getSpecification();
+        glViewport(0, 0, static_cast<GLsizei>(specs.width), static_cast<GLsizei>(specs.height));
+    }
+
+    void OpenGLContext::unbindFramebuffer()
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    std::shared_ptr<IFramebuffer> OpenGLContext::createFramebuffer(const FramebufferSpecification& specs)
+    {
+        return std::make_shared<GLFramebuffer>(specs);
+    }
+
+    void OpenGLContext::clear(const vec4& color)
+    {
+        glClearColor(color.r, color.g, color.b, color.a);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    }
+
+    void OpenGLContext::blitFramebuffer(std::shared_ptr<IFramebuffer> source, std::shared_ptr<IFramebuffer> target, bool copyDepth)
+    {
+        assert(source && "RHI Error: Source Framebuffer for blit is null!");
+
+        auto glSource = std::static_pointer_cast<GLFramebuffer>(source);
+        const auto& srcSpecs = source->getSpecification();
+
+        u32 targetID = 0;
+        u32 targetWidth = srcSpecs.width;
+        u32 targetHeight = srcSpecs.height;
+
+        if (target) {
+            auto glTarget = std::static_pointer_cast<GLFramebuffer>(target);
+            targetID = glTarget->getFramebufferID();
+            const auto& dstSpecs = target->getSpecification();
+            targetWidth = dstSpecs.width;
+            targetHeight = dstSpecs.height;
+        }
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, glSource->getFramebufferID());
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetID);
+
+        GLbitfield mask = GL_COLOR_BUFFER_BIT;
+        GLenum filter = GL_LINEAR;
+
+        if (copyDepth) {
+            mask |= GL_DEPTH_BUFFER_BIT;
+            filter = GL_NEAREST;
+        }
+
+        glBlitFramebuffer(
+            0, 0, srcSpecs.width, srcSpecs.height,
+            0, 0, targetWidth, targetHeight,
+            mask, filter
+        );
+        glBindFramebuffer(GL_FRAMEBUFFER, targetID);
+    }
+}
