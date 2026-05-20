@@ -2,9 +2,11 @@
 #include "a_graphics_base.hpp"
 #include "a_ISubsystem.hpp"
 #include "a_components.hpp"
-#include "OpenGL/framebuffer.hpp"
+#include "OpenGL/a_opengl_framebuffer.hpp"
 #include "a_primitives.hpp"
 #include "OpenGL/a_opengl_handles.hpp"
+#include "a_IGraphicsContext.hpp"
+#include "OpenGL/a_OpenGLContext.hpp"
 namespace Andromeda {
 	namespace amath {
 		struct CameraData;
@@ -15,9 +17,6 @@ namespace Andromeda {
 	namespace Window { class WindowManager; }
 	class ResourceManager;
 	class Mesh;
-	enum class MsaaSamples {
-		x2 = 2, x4 = 4, x8 = 8
-	};
 
 	/// <summary>
 	/// TODO: abstract OpenGL specific code from the renderer into the rhi. Also if theres enough time, implement
@@ -32,7 +31,6 @@ namespace Andromeda {
 
 	class Renderer : public ISubsystem {
 	public:
-		framebufferManager fboManager;
 		ivec2 m_FramebufferSize = glm::ivec2(0, 0);
 		static constexpr const char* glsl_version = "#version 460";
 
@@ -42,8 +40,6 @@ namespace Andromeda {
 		}
 		void start() override;
 		void update() override;
-		void drawMesh(const ECS::Component::MeshRenderer& mesh, const ECS::Component::Transform& transform) const;
-		void drawMesh(const ECS::Component::MeshRenderer& mesh, const ECS::Component::Transform& transform, MaterialShaderType type) const;
 		void destroy() override;
 		void setActiveCamera(amath::CameraData* camData);
 		void geometryPass() const;
@@ -67,7 +63,6 @@ namespace Andromeda {
 		ECS::Entity m_SelectedForHighlighting = ECS::INVALID_ENTITY_ID;
 		ResourceManager* m_ResourceManager = nullptr;
 		SceneManager* m_SceneManager = nullptr;
-		MsaaSamples m_MSAAsamples = MsaaSamples::x4;
 		vec2 m_TexelSize = vec2(0.0, 0.0);
 		u32 m_Vao = 0;
 		u32 m_EnvironmentCubemapID = 0;
@@ -77,5 +72,14 @@ namespace Andromeda {
 		float m_ResizeTimer = 0.0f;
 		bool m_ResizePending = false;
 		ivec2 m_TargetSize = ivec2(0.0f);
+		std::unique_ptr<OpenGLContext> m_GLContext = nullptr;
+		IGraphicsContext* m_RenderContext = nullptr;
+
+
+		std::shared_ptr<IFramebuffer> m_MsaaBuffer;
+		std::shared_ptr<IFramebuffer> m_SceneBuffer;
+		std::shared_ptr<IFramebuffer> m_SelectionBuffer;
+		std::shared_ptr<IFramebuffer> m_PostprocessBuffer;
+		std::shared_ptr<IFramebuffer> m_BakingBuffer;
 	};
 }

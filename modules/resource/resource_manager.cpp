@@ -13,12 +13,15 @@
 namespace Andromeda {
     void ResourceManager::start()
     {
+        /*
         addMaterialShader<LitShader>(SHADER_PATH "unlitVertex.glsl", SHADER_PATH "unlitFragment.glsl");
         addMaterialShader<ColorShader>(SHADER_PATH "colorVertex.glsl", SHADER_PATH "colorFragment.glsl");
         addProceduralShader<GridShader>(SHADER_PATH "gridVertex.glsl", SHADER_PATH "gridFragment.glsl");
         addProceduralShader<SkyboxShader>(SHADER_PATH "skyboxVertex.glsl", SHADER_PATH "skyboxFragment.glsl");
         addPostProcessShader<PostProcessShader>(SHADER_PATH "outlineVertex.glsl", SHADER_PATH "outlineFragment.glsl");
+        
         addPostProcessShader<PostProcessShader>(SHADER_PATH "maskVertex.glsl", SHADER_PATH "maskFrag.glsl");
+        */
         addBakingShader<EquirectangularShader>(SHADER_PATH "equirectVertex.glsl", SHADER_PATH "equirectFragment.glsl");
         loadModels();
         loadDeviceIcons();
@@ -269,21 +272,6 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
         return m_Meshes.at(meshID).indexBuffer.size();
     }
 
-    MaterialShader* ResourceManager::getMaterialShaderByID(MaterialShaderType t) const
-    {
-        return m_MaterialShaders[static_cast<int>(t)].get();
-    }
-
-    ProceduralShader* ResourceManager::getProceduralShaderByID(ProceduralShaderType t) const
-    {
-        return m_ProceduralShaders[static_cast<int>(t)].get();
-    }
-
-    PostProcessShader* ResourceManager::getPostprocessShaderByID(PostProcessShaderType t) const
-    {
-        return m_PostProcessShaders[static_cast<int>(t)].get();
-    }
-
     const Mesh& ResourceManager::getMeshByID(const u32 meshID) const
     {
         return m_Meshes.at(meshID);
@@ -430,5 +418,53 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
 
         aiNode* rootNode = scene->mRootNode;
         processNode(id, scene, rootNode);
+    }
+
+
+    ShaderProgramHandle ResourceManager::loadShaderRHI(IGraphicsContext* ctx, const std::string& name, const std::string& vertPath, const std::string& fragPath) {
+        auto it = m_RhiShaders.find(name);
+        if (it != m_RhiShaders.end()) {
+            return it->second;
+        }
+
+        ShaderProgramHandle handle = ctx->createShaderProgram(vertPath, fragPath);
+        m_RhiShaders[name] = handle;
+        return handle;
+    }
+
+    ShaderProgramHandle ResourceManager::getShaderRHI(const std::string& name) const {
+        auto it = m_RhiShaders.find(name);
+        if (it != m_RhiShaders.end()) [[likely]] {
+            return it->second;
+        }
+        return ShaderProgramHandle{ 0 };
+    }
+
+    std::shared_ptr<Material> ResourceManager::createMaterial(const std::string& materialName, ShaderProgramHandle shaderHandle, IGraphicsContext* ctx) {
+        auto it = m_Materials.find(materialName);
+        if (it != m_Materials.end()) {
+            return it->second;
+        }
+
+        auto newMaterial = std::make_shared<Material>(shaderHandle, ctx);
+        m_Materials[materialName] = newMaterial;
+
+        return newMaterial;
+    }
+
+    std::shared_ptr<Material> ResourceManager::getMaterial(const std::string& materialName) const {
+        auto it = m_Materials.find(materialName);
+        if (it != m_Materials.end()) [[likely]] {
+            return it->second;
+        }
+        return nullptr;
+    }
+
+    void ResourceManager::destroyRHIResources(IGraphicsContext* ctx) {
+        for (auto& [name, handle] : m_RhiShaders) {
+            ctx->destroyShaderProgram(handle);
+        }
+        m_RhiShaders.clear();
+        m_Materials.clear();
     }
 }

@@ -1,5 +1,4 @@
 #pragma once
-#include "a_material.hpp"
 #include "a_math.hpp"
 #include "a_model_record.hpp"
 #include <string>
@@ -53,7 +52,7 @@ namespace Andromeda::ECS::Component {
     struct MeshRenderer
     {
         u32 meshID;
-        MaterialShaderType shaderType;
+        std::string materialName = "Standard";
     };
 
     struct AABB {

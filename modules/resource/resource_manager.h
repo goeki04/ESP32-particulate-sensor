@@ -14,7 +14,8 @@
 #include "a_primitives.hpp"
 #include "a_ISubsystem.hpp"
 #include "a_cubemapData.hpp"
-
+#include "a_IGraphicsContext.hpp"
+#include "a_Material.hpp"
 namespace Andromeda {
 
     /**
@@ -27,15 +28,7 @@ namespace Andromeda {
      */
     class ResourceManager : public ISubsystem, public IModelProvider {
     public:
-        /** @brief Cached instances of standard material shaders (e.g., Lit, Color). */
-        std::vector<std::unique_ptr<MaterialShader>> m_MaterialShaders;
-
-        /** @brief Cached instances of procedural shaders (e.g., Grid). */
-        std::vector<std::unique_ptr<ProceduralShader>> m_ProceduralShaders;
         std::vector<std::unique_ptr<BakingShader>> m_BakingShaders;
-
-        /** @brief Cached instances of post-processing shaders (e.g., Outline, Mask). */
-        std::vector<std::unique_ptr<PostProcessShader>> m_PostProcessShaders;
 
         /** @brief CPU-side storage of loaded mesh geometry, mapped by unique ID. */
         std::unordered_map<u32, Andromeda::Mesh> m_Meshes;
@@ -123,27 +116,6 @@ namespace Andromeda {
         [[nodiscard]] const Mesh& getMeshByID(u32 meshID) const;
 
         /**
-         * @brief Retrieves a pre-compiled material shader.
-         * @param t The specific MaterialShaderType required.
-         * @return A pointer to the requested MaterialShader.
-         */
-        [[nodiscard]] MaterialShader* getMaterialShaderByID(MaterialShaderType t) const;
-
-        /**
-         * @brief Retrieves a pre-compiled procedural shader.
-         * @param t The specific ProceduralShaderType required.
-         * @return A pointer to the requested ProceduralShader.
-         */
-        [[nodiscard]] ProceduralShader* getProceduralShaderByID(ProceduralShaderType t) const;
-
-        /**
-         * @brief Retrieves a pre-compiled post-processing shader.
-         * @param t The specific PostProcessShaderType required.
-         * @return A pointer to the requested PostProcessShader.
-         */
-        [[nodiscard]] PostProcessShader* getPostprocessShaderByID(PostProcessShaderType t) const;
-
-        /**
          * @brief Gets the total amount of unique 3D models currently loaded in memory.
          * @return The count of ModelRecords.
          */
@@ -203,6 +175,17 @@ namespace Andromeda {
          */
         u32 registerCustomMesh(Mesh&& mesh, const std::string& name);
 
+
+        ShaderProgramHandle loadShaderRHI(IGraphicsContext* ctx, const std::string& name, const std::string& vertPath, const std::string& fragPath);
+
+        ShaderProgramHandle getShaderRHI(const std::string& name) const;
+
+        std::shared_ptr<Material> createMaterial(const std::string& materialName, ShaderProgramHandle shaderHandle, IGraphicsContext* ctx);
+
+        std::shared_ptr<Material> getMaterial(const std::string& materialName) const;
+
+        void destroyRHIResources(IGraphicsContext* ctx);
+
     private:
         /**
          * @brief Decodes image data from disk into CPU memory using stb_image.
@@ -222,43 +205,14 @@ namespace Andromeda {
         std::vector<u32> m_ModelIndexList;                       /**< Sequential list of model IDs for UI iteration. */
         std::unordered_map<std::string, u32> m_MeshIDbyName;     /**< Maps string names to internal Mesh IDs to prevent duplicates. */
 
+
+        /// <summary>
+        /// RHI Material
+        /// </summary>
+        std::unordered_map<std::string, ShaderProgramHandle> m_RhiShaders;
+        std::unordered_map<std::string, std::shared_ptr<Material>> m_Materials;
+
         u32 m_NextMeshID = 0; /**< Autoincrementing counter for assigning unique Mesh IDs. */
-
-        /**
-         * @brief Compiles and registers a new Material Shader.
-         * @tparam T The specific MaterialShader derived class type.
-         * @param vertexShader Path to the vertex shader source file.
-         * @param fragmentShader Path to the fragment shader source file.
-         */
-        template<typename T> requires std::derived_from<T, MaterialShader>
-        void addMaterialShader(const char* vertexShader, const char* fragmentShader) {
-            m_MaterialShaders.emplace_back(std::make_unique<T>(vertexShader, fragmentShader));
-            m_MaterialShaders.back()->compileShader();
-        }
-
-        /**
-         * @brief Compiles and registers a new Procedural Shader.
-         * @tparam T The specific ProceduralShader derived class type.
-         * @param vertexShader Path to the vertex shader source file.
-         * @param fragmentShader Path to the fragment shader source file.
-         */
-        template<typename T> requires std::derived_from<T, ProceduralShader>
-        void addProceduralShader(const char* vertexShader, const char* fragmentShader) {
-            m_ProceduralShaders.emplace_back(std::make_unique<T>(vertexShader, fragmentShader));
-            m_ProceduralShaders.back()->compileShader();
-        }
-
-        /**
-         * @brief Compiles and registers a new Post-Processing Shader.
-         * @tparam T The specific PostProcessShader derived class type.
-         * @param vertexShader Path to the vertex shader source file.
-         * @param fragmentShader Path to the fragment shader source file.
-         */
-        template<typename T> requires std::derived_from<T, PostProcessShader>
-        void addPostProcessShader(const char* vertexShader, const char* fragmentShader) {
-            m_PostProcessShaders.emplace_back(std::make_unique<T>(vertexShader, fragmentShader));
-            m_PostProcessShaders.back()->compileShader();
-        }
 
         template<typename T> requires std::derived_from<T, BakingShader>
         void addBakingShader(const char* vertexShader, const char* fragmentShader) {
