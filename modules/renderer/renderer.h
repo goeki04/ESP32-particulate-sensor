@@ -48,13 +48,12 @@ namespace Andromeda {
 		void processResizeTimer();
 		void selectionPass(ECS::Entity selectedEntity) const;
 		void postprocessingPass() const;
-
 		void scenePassBegin() const;
 
 		void proceduralPass() const;
 		void scenePassEndResolve() const;
 
-		static void windowClearPass();
+		void windowClearPass();
 
 		//--- Resource Management ---
 		void createCubemapTexture(CubemapData& data);
@@ -64,7 +63,7 @@ namespace Andromeda {
 		ResourceManager* m_ResourceManager = nullptr;
 		SceneManager* m_SceneManager = nullptr;
 		vec2 m_TexelSize = vec2(0.0, 0.0);
-		u32 m_Vao = 0;
+		u32 m_PostProcessScreenTriangle = 0;
 		u32 m_EnvironmentCubemapID = 0;
 		amath::CameraData* m_Cam = nullptr;
 		bool m_WireframeActive = false;
@@ -81,5 +80,10 @@ namespace Andromeda {
 		std::shared_ptr<IFramebuffer> m_SelectionBuffer;
 		std::shared_ptr<IFramebuffer> m_PostprocessBuffer;
 		std::shared_ptr<IFramebuffer> m_BakingBuffer;
+
+		void initRenderer();
+		void registerEvents();
+		void createFramebuffers();
+		void createMaterials();
 	};
 }

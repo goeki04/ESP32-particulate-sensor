@@ -1,6 +1,5 @@
 #include "OpenGL/a_opengl_framebuffer.hpp"
 #include <stdexcept>
-#include <cassert>
 
 namespace Andromeda {
 

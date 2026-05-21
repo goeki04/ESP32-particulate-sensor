@@ -184,27 +184,53 @@ namespace Andromeda {
     }
     void OpenGLContext::setRenderPassSpecs(const RenderPassSpecs& specs)
     {
-        if (specs.rasterizerMode == RasterizerMode::Wireframe) {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        }
-        else {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        if (m_IsFirstContextInit || specs.rasterizerMode != m_CurrentSpecs.rasterizerMode) {
+            glPolygonMode(GL_FRONT_AND_BACK, specs.rasterizerMode == RasterizerMode::Wireframe ? GL_LINE : GL_FILL);
+            m_CurrentSpecs.rasterizerMode = specs.rasterizerMode;
         }
 
-        if (specs.cullMode == CullMode::None) {
-            glDisable(GL_CULL_FACE);
-        }
-        else {
-            glEnable(GL_CULL_FACE);
-            glCullFace(specs.cullMode == CullMode::Back ? GL_BACK : GL_FRONT);
+        if (m_IsFirstContextInit || specs.cullMode != m_CurrentSpecs.cullMode) {
+            if (specs.cullMode == CullMode::None) {
+                glDisable(GL_CULL_FACE);
+            }
+            else {
+                glEnable(GL_CULL_FACE);
+                glCullFace(specs.cullMode == CullMode::Back ? GL_BACK : GL_FRONT);
+            }
+            m_CurrentSpecs.cullMode = specs.cullMode;
         }
 
-        if (specs.depthTest) {
-            glEnable(GL_DEPTH_TEST);
+        if (m_IsFirstContextInit || specs.depthTest != m_CurrentSpecs.depthTest) {
+            if (specs.depthTest) {
+                glEnable(GL_DEPTH_TEST);
+            }
+            else {
+                glDisable(GL_DEPTH_TEST);
+            }
+            m_CurrentSpecs.depthTest = specs.depthTest;
         }
-        else {
-            glDisable(GL_DEPTH_TEST);
+
+        if (specs.depthTest && (m_IsFirstContextInit || specs.depthFunction != m_CurrentSpecs.depthFunction)) {
+            switch (specs.depthFunction) {
+            case DepthFunc::Less:   glDepthFunc(GL_LESS);   break;
+            case DepthFunc::Equal:  glDepthFunc(GL_EQUAL);  break;
+            case DepthFunc::LEqual: glDepthFunc(GL_LEQUAL); break;
+            }
+            m_CurrentSpecs.depthFunction = specs.depthFunction;
         }
+
+        if (m_IsFirstContextInit || specs.blendMode != m_CurrentSpecs.blendMode) {
+            if (specs.blendMode == BlendMode::AlphaBlend) {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            }
+            else {
+                glDisable(GL_BLEND);
+            }
+            m_CurrentSpecs.blendMode = specs.blendMode;
+        }
+
+        m_IsFirstContextInit = false;
     }
     void OpenGLContext::drawIndexed(u32 vao, u32 indexCount)
     {
@@ -237,10 +263,11 @@ namespace Andromeda {
         return std::make_shared<GLFramebuffer>(specs);
     }
 
-    void OpenGLContext::clear(const vec4& color)
+    void OpenGLContext::deleteVertexArrays(u32 vao)
     {
-        glClearColor(color.r, color.g, color.b, color.a);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        if (vao != 0) {
+            glDeleteVertexArrays(1, &vao);
+        }
     }
 
     void OpenGLContext::blitFramebuffer(std::shared_ptr<IFramebuffer> source, std::shared_ptr<IFramebuffer> target, bool copyDepth)
@@ -266,7 +293,7 @@ namespace Andromeda {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetID);
 
         GLbitfield mask = GL_COLOR_BUFFER_BIT;
-        GLenum filter = GL_LINEAR;
+        GLenum filter = GL_NEAREST;
 
         if (copyDepth) {
             mask |= GL_DEPTH_BUFFER_BIT;
@@ -279,5 +306,31 @@ namespace Andromeda {
             mask, filter
         );
         glBindFramebuffer(GL_FRAMEBUFFER, targetID);
+    }
+
+    u32 OpenGLContext::createEmptyVAO()
+    {
+        u32 vao = 0;
+        glGenVertexArrays(1, &vao);
+        return vao;
+    }
+
+    void OpenGLContext::clear(const vec4& color)
+    {
+        glClearColor(color.r, color.g, color.b, color.a);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    }
+
+    void OpenGLContext::setViewport(i32 vpPosX, i32 vpPosY, u32 vpWidth, u32 vpHeight)
+    {
+        glViewport(static_cast<GLint>(vpPosX), static_cast<GLint>(vpPosY), 
+                   static_cast<GLsizei>(vpWidth), static_cast<GLsizei>(vpHeight));
+    }
+
+    void OpenGLContext::drawArrays(u32 vao, u32 vertexCount)
+    {
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+        glBindVertexArray(0);
     }
 }

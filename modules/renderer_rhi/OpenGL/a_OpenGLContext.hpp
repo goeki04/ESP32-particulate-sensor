@@ -13,12 +13,17 @@ namespace Andromeda {
         std::vector<ReflectedUniform> getProgramUniforms(ShaderProgramHandle handle) override;
         void setRenderPassSpecs(const RenderPassSpecs& specs) override;
         void drawIndexed(u32 vao, u32 indexCount) override;
-
-        virtual void bindFramebuffer(std::shared_ptr<IFramebuffer> framebuffer) override;
-        virtual void unbindFramebuffer() override;
-        virtual void clear(const vec4& color = vec4(0.1f, 0.1f, 0.1f, 1.0f)) override;
-        virtual void blitFramebuffer(std::shared_ptr<IFramebuffer> source, std::shared_ptr<IFramebuffer> target, bool copyDepth = false) override;
-
-        virtual std::shared_ptr<IFramebuffer> createFramebuffer(const FramebufferSpecification& specs) override;
+        void drawArrays(u32 vao, u32 vertexCount) override;
+        void bindFramebuffer(std::shared_ptr<IFramebuffer> framebuffer) override;
+        void unbindFramebuffer() override;
+        void blitFramebuffer(std::shared_ptr<IFramebuffer> source, std::shared_ptr<IFramebuffer> target, bool copyDepth = false) override;
+        u32 createEmptyVAO() override;
+        void clear(const vec4& color) override;
+        void setViewport(i32 vpPosX, i32 vpPosY, u32 vpWidth, u32 vpHeight) override;
+        std::shared_ptr<IFramebuffer> createFramebuffer(const FramebufferSpecification& specs) override;
+        void deleteVertexArrays(u32 vao) override;
+    private:
+        RenderPassSpecs m_CurrentSpecs;
+        bool m_IsFirstContextInit = true;
     };
 }
