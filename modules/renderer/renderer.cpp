@@ -11,7 +11,8 @@
 #include "OpenGL/a_opengl_upload.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
-    void Renderer::start()
+
+    void Renderer::initRenderer()
     {
         m_GLContext = std::make_unique<OpenGLContext>();
         m_RenderContext = m_GLContext.get();
@@ -20,6 +21,11 @@ namespace Andromeda {
         assert(m_ResourceManager && "ResourceManager is nullptr in Renderer::Start()");
         assert(m_SceneManager && "SceneManager is nullptr in Renderer::Start()");
         m_Cam = &m_SceneManager->m_EditorCamData;
+    }
+
+    void Renderer::start()
+    {
+        initRenderer();
         m_FramebufferSize = ivec2(Window::g_WindowWidth, Window::g_WindowHeight);
 
         if (m_FramebufferSize.x == 0 || m_FramebufferSize.y == 0) {
@@ -28,10 +34,41 @@ namespace Andromeda {
         m_Cam->framebufferSize = m_FramebufferSize;
         m_TexelSize = 1.0f / vec2(m_FramebufferSize.x, m_FramebufferSize.y);
 
+        createFramebuffers();
+
+        m_EnvironmentCubemapID = CubemapGL::AllocateEnvironmentMapTexture();
+        auto& bakeShader = m_ResourceManager->m_BakingShaders[0];
+        
+        u32 hdrMapID = m_ResourceManager->m_CubemapData["citrus_orchard_road_puresky_4k"].textureID;
+        Mesh cubeMesh;
+        PrimitiveGenerator::generateCube(cubeMesh);
+
+        createMesh(cubemapgpuHandle,cubeMesh);
+        auto glBakingFBO = std::static_pointer_cast<GLFramebuffer>(m_BakingBuffer);
+        u32 id = glBakingFBO->getFramebufferID();
+        CubemapGL::ConvertEquiretangularToCubemap(
+            *bakeShader,
+            hdrMapID,
+            id,
+            m_EnvironmentCubemapID,
+            [&]() { 
+                m_RenderContext->drawIndexed(cubemapgpuHandle.vao,36);
+            }
+        );
+        m_PostProcessScreenTriangle = m_RenderContext->createEmptyVAO();
+
+        createMaterials();
+        RenderPassSpecs initSpecs;
+        m_RenderContext->setRenderPassSpecs(initSpecs);
+        registerEvents();
+    }
+
+    void Renderer::createFramebuffers()
+    {
         FramebufferSpecification msaaSpecs;
         msaaSpecs.width = m_FramebufferSize.x;
         msaaSpecs.height = m_FramebufferSize.y;
-        msaaSpecs.samples = 4; 
+        msaaSpecs.samples = 4;
         msaaSpecs.attachments = {
             { FramebufferTextureFormat::RGBA8 },
             { FramebufferTextureFormat::DEPTH24Stencil8 }
@@ -71,35 +108,14 @@ namespace Andromeda {
         bakingSpecs.height = 512;
         bakingSpecs.samples = 1;
         bakingSpecs.attachments = {
-            { FramebufferTextureFormat::DEPTH32F }
+            { FramebufferTextureFormat::DEPTH32F },
+            { FramebufferTextureFormat::RGBA16F}
         };
         m_BakingBuffer = m_RenderContext->createFramebuffer(bakingSpecs);
+    }
 
-        m_EnvironmentCubemapID = CubemapGL::AllocateEnvironmentMapTexture();
-        auto& bakeShader = m_ResourceManager->m_BakingShaders[0];
-        
-        u32 hdrMapID = m_ResourceManager->m_CubemapData["citrus_orchard_road_puresky_4k"].textureID;
-        Mesh cubeMesh;
-        PrimitiveGenerator::generateCube(cubeMesh);
-
-        createMesh(cubemapgpuHandle,cubeMesh);
-        auto glBakingFBO = std::static_pointer_cast<GLFramebuffer>(m_BakingBuffer);
-        u32 id = glBakingFBO->getFramebufferID();
-        CubemapGL::ConvertEquiretangularToCubemap(
-            *bakeShader,
-            hdrMapID,
-            id,
-            m_EnvironmentCubemapID,
-            [&]() { 
-                glBindVertexArray(cubemapgpuHandle.vao);
-                glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr); 
-            }
-        );
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_DEPTH_TEST);
-        glCullFace(GL_BACK);
-        glGenVertexArrays(1, &m_Vao);
-
+    void Renderer::createMaterials()
+    {
         ShaderProgramHandle testShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Test_Shader", SHADER_PATH "unlitVertex.glsl", SHADER_PATH "unlitFragment.glsl");
         auto testMaterial = m_ResourceManager->createMaterial("Standard", testShaderHandle, m_RenderContext);
         if (testMaterial) {
@@ -126,6 +142,10 @@ namespace Andromeda {
         if (skyboxMaterial) {
             skyboxMaterial->setParameter("environmentMap", 0, ShaderDataType::Int);
         }
+    }
+
+    void Renderer::registerEvents()
+    {
         EventManager::getInstance().AddEventListener<SceneObjectSelected>([this](const SceneObjectSelected& event) {
             this->m_SelectedForHighlighting = event.entity;
             });
@@ -133,7 +153,6 @@ namespace Andromeda {
         EventManager::getInstance().AddEventListener<OnEnableWireFrame>([this](const OnEnableWireFrame& event) {
             this->m_WireframeActive = event.state;
             });
-
     }
 
     void Renderer::update()
@@ -149,10 +168,7 @@ namespace Andromeda {
     }
      
     void Renderer::destroy() {
-        if (m_Vao) {
-            glDeleteVertexArrays(1, &m_Vao);
-        }
-        m_Vao = 0;
+        m_RenderContext->deleteVertexArrays(m_PostProcessScreenTriangle);
     }
 
     void Renderer::setActiveCamera(amath::CameraData* camData) {
@@ -269,9 +285,8 @@ namespace Andromeda {
                 specs.rasterizerMode = RasterizerMode::Fill;
                 specs.cullMode = CullMode::None;
                 specs.depthTest = true;
+                specs.depthFunction = DepthFunc::LEqual;
                 m_RenderContext->setRenderPassSpecs(specs);
-
-                glDepthFunc(GL_LEQUAL);
 
                 material->setParameter("viewMatrix", m_Cam->viewMatrix, ShaderDataType::Mat4);
                 material->setParameter("projMatrix", m_Cam->projection, ShaderDataType::Mat4);
@@ -280,7 +295,6 @@ namespace Andromeda {
                 material->bind(m_RenderContext);
                 m_RenderContext->drawIndexed(vao, indexCount);
 
-                glDepthFunc(GL_LESS);
                 RenderPassSpecs resetSpecs;
                 m_RenderContext->setRenderPassSpecs(resetSpecs);
             }
@@ -290,9 +304,11 @@ namespace Andromeda {
     void Renderer::postprocessingPass() const {
         m_RenderContext->bindFramebuffer(m_PostprocessBuffer);
 
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        RenderPassSpecs specs;
+        specs.depthTest = false;
+        specs.blendMode = BlendMode::AlphaBlend;
+        specs.cullMode = CullMode::None;
+        m_RenderContext->setRenderPassSpecs(specs);
 
         auto outlineMat = m_ResourceManager->getMaterial("OutlineMaterial");
 
@@ -308,13 +324,11 @@ namespace Andromeda {
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, m_SelectionBuffer->getColorAttachmentRendererID(0));
 
-            glBindVertexArray(m_Vao);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-            glBindVertexArray(0);
+            m_RenderContext->drawArrays(m_PostProcessScreenTriangle, 3);
         }
 
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
+        RenderPassSpecs resetSpecs;
+        m_RenderContext->setRenderPassSpecs(resetSpecs);
         m_RenderContext->unbindFramebuffer();
     }
     void Renderer::scenePassBegin() const {
@@ -323,30 +337,26 @@ namespace Andromeda {
 
     }
     void Renderer::proceduralPass() const {
-        glDisable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glDepthFunc(GL_LEQUAL);
+        RenderPassSpecs specs;
+        specs.cullMode = CullMode::None;
+        specs.depthTest = true;
+        specs.depthFunction = DepthFunc::LEqual;
+        specs.blendMode = BlendMode::AlphaBlend;
+        m_RenderContext->setRenderPassSpecs(specs);
 
         auto skyboxMat = m_ResourceManager->getMaterial("SkyboxMaterial");
-
         if (skyboxMat) [[likely]] {
             skyboxMat->setParameter("view", m_Cam->viewMatrix, ShaderDataType::Mat4);
             skyboxMat->setParameter("proj", m_Cam->projection, ShaderDataType::Mat4);
 
             skyboxMat->bind(m_RenderContext);
-
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_CUBE_MAP, m_EnvironmentCubemapID);
 
-            glBindVertexArray(cubemapgpuHandle.vao);
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+            m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
         }
-
-        glDepthFunc(GL_LESS);
-        glDisable(GL_BLEND);
-        glEnable(GL_CULL_FACE);
+        RenderPassSpecs resetSpecs;
+        m_RenderContext->setRenderPassSpecs(resetSpecs);
     }
 
     void Renderer::scenePassEndResolve() const {
@@ -356,8 +366,7 @@ namespace Andromeda {
 
     void Renderer::windowClearPass()
     {
-        glViewport(0, 0, Window::g_WindowWidth, Window::g_WindowHeight);
-        glClearColor(0.10f, 0.10f, 0.10f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        m_RenderContext->setViewport(0,0,Window::g_WindowWidth, Window::g_WindowHeight);
+        m_RenderContext->clear(vec4(0.10f, 0.10f, 0.10f, 1.0f));
     }
 }

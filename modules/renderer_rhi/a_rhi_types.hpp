@@ -10,12 +10,18 @@ namespace Andromeda {
 		None, Back, Front
 	};
 
+	enum class DepthFunc { Less, Equal, LEqual};
+
+	enum class BlendMode { None, AlphaBlend };
+
 	enum class RasterizerMode { Fill, Wireframe };
 
 	struct RenderPassSpecs {
 		RasterizerMode rasterizerMode = RasterizerMode::Fill;
 		CullMode cullMode = CullMode::Back;
 		bool depthTest = true;
+		DepthFunc depthFunction = DepthFunc::Less;
+		BlendMode blendMode = BlendMode::None;
 	};
 
 	struct ShaderProgramHandle {
