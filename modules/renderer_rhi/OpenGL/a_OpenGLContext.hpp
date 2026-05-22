@@ -22,6 +22,13 @@ namespace Andromeda {
         void setViewport(i32 vpPosX, i32 vpPosY, u32 vpWidth, u32 vpHeight) override;
         std::shared_ptr<IFramebuffer> createFramebuffer(const FramebufferSpecification& specs) override;
         void deleteVertexArrays(u32 vao) override;
+        i32 getUniformLocation(ShaderProgramHandle shader, const std::string& name);
+        void bindTexture(u32 slot, u32 textureID);
+        void attachCubemapFace(u32 faceIndex, u32 cubemapTexID);
+        void setParameter(ShaderProgramHandle shader, const std::string& name, const mat4& matrix) override;
+        void setParameter(ShaderProgramHandle shader, const std::string& name, const vec3& vector) override;
+        void setParameter(ShaderProgramHandle shader, const std::string& name, i32 value) override;
+        void bindTextureCube(u32 slot, u32 textureID) override;
     private:
         RenderPassSpecs m_CurrentSpecs;
         bool m_IsFirstContextInit = true;

@@ -5,7 +5,6 @@
 #include <string>
 #include <memory>
 #include <assimp/scene.h>
-#include "shader.hpp"
 #include "a_components.hpp"
 #include "OpenGL/a_texture.hpp"
 #include "a_geometry.hpp"
@@ -28,7 +27,6 @@ namespace Andromeda {
      */
     class ResourceManager : public ISubsystem, public IModelProvider {
     public:
-        std::vector<std::unique_ptr<BakingShader>> m_BakingShaders;
 
         /** @brief CPU-side storage of loaded mesh geometry, mapped by unique ID. */
         std::unordered_map<u32, Andromeda::Mesh> m_Meshes;
@@ -214,11 +212,6 @@ namespace Andromeda {
 
         u32 m_NextMeshID = 0; /**< Autoincrementing counter for assigning unique Mesh IDs. */
 
-        template<typename T> requires std::derived_from<T, BakingShader>
-        void addBakingShader(const char* vertexShader, const char* fragmentShader) {
-            m_BakingShaders.emplace_back(std::make_unique<T>(vertexShader, fragmentShader));
-            m_BakingShaders.back()->compileShader();
-        }
 
         /**
          * @brief Iterates over CPU meshes and generates their corresponding OpenGL buffers (VAO/VBO/EBO).

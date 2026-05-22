@@ -8,21 +8,10 @@
 #include <assimp/Importer.hpp>
 #include "OpenGL/a_opengl_upload.hpp"
 #include <assimp/postprocess.h>
-#include "a_primitiveGenerator.hpp"
 #include "OpenGL/a_GLcubemap.hpp"
 namespace Andromeda {
     void ResourceManager::start()
     {
-        /*
-        addMaterialShader<LitShader>(SHADER_PATH "unlitVertex.glsl", SHADER_PATH "unlitFragment.glsl");
-        addMaterialShader<ColorShader>(SHADER_PATH "colorVertex.glsl", SHADER_PATH "colorFragment.glsl");
-        addProceduralShader<GridShader>(SHADER_PATH "gridVertex.glsl", SHADER_PATH "gridFragment.glsl");
-        addProceduralShader<SkyboxShader>(SHADER_PATH "skyboxVertex.glsl", SHADER_PATH "skyboxFragment.glsl");
-        addPostProcessShader<PostProcessShader>(SHADER_PATH "outlineVertex.glsl", SHADER_PATH "outlineFragment.glsl");
-        
-        addPostProcessShader<PostProcessShader>(SHADER_PATH "maskVertex.glsl", SHADER_PATH "maskFrag.glsl");
-        */
-        addBakingShader<EquirectangularShader>(SHADER_PATH "equirectVertex.glsl", SHADER_PATH "equirectFragment.glsl");
         loadModels();
         loadDeviceIcons();
         loadEditorIcons();

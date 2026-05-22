@@ -12,6 +12,8 @@ class CmakeTest(ConanFile):
         self.requires("nlohmann_json/3.12.0")
         self.requires("asio/1.36.0")
         self.requires("assimp/6.0.2")
+        self.requires("spirv-reflect/1.4.350.0")
+        self.requires("glslang/1.4.350.0")
         self.requires("stb/cci.20230920")
         self.requires("protobuf/3.21.12")
         self.requires("imguizmo/cci.20231114")

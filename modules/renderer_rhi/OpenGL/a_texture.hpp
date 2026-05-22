@@ -1,5 +1,6 @@
 #pragma once
 #include "a_primitives.hpp"
+#include "GL/Glew.h"
 #include <SDL3/SDL.h>
 namespace Andromeda {
 	struct GLtexture

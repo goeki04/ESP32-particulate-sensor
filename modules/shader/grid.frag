@@ -1,25 +1,22 @@
 #version 460 core
-out vec4 FragColor;
-in vec3 worldPos;
 
-uniform float gGridMinPixelsBetweenCells = 2.0;
-uniform float gGridCellSize = 0.025;
-uniform vec4 gGridColorThin  = vec4(0.5,0.5,0.5,1.0);
-uniform vec4 gGridColorThick = vec4(0.0,0.0,0.0,1.0);
-uniform vec3 camPos;
-uniform float gGridSize = 100.0;
+layout (location = 0) out vec4 FragColor;
+layout (location = 0) in vec3 worldPos;
 
-vec3 xAxisColor = vec3(1.0,0.0,0.0);
-vec3 zAxisColor = vec3(0.0,0.0,1.0);
+layout (binding = 1) uniform GridParamsBuffer {
+    float gGridMinPixelsBetweenCells;
+    float gGridCellSize;
+    vec4 gGridColorThin;
+    vec4 gGridColorThick;
+    vec3 camPos;
+    float gGridSize;
+};
 
-float satf(float x) 
-{ 
-    return clamp(x, 0.0, 1.0); 
-}
-float log10f(float x) 
-{ 
-    return log(max(x, 1e-6)) / log(10.0);
-}
+vec3 xAxisColor = vec3(1.0, 0.0, 0.0);
+vec3 zAxisColor = vec3(0.0, 0.0, 1.0);
+
+float satf(float x) { return clamp(x, 0.0, 1.0); }
+float log10f(float x) { return log(max(x, 1e-6)) / log(10.0); }
 
 void main(){
     vec2 dvx = vec2(dFdx(worldPos.x), dFdy(worldPos.x));
@@ -30,13 +27,12 @@ void main(){
 
     vec2 dudv = vec2(lx, ly);
     float l = length(dudv);
-    float LOD = max(0.0,log10f(l * gGridMinPixelsBetweenCells / gGridCellSize) + 1.0);
-    float gridCellSizeLOD0 = gGridCellSize * pow(10.0,floor(LOD));
+    float LOD = max(0.0, log10f(l * gGridMinPixelsBetweenCells / gGridCellSize) + 1.0);
+    float gridCellSizeLOD0 = gGridCellSize * pow(10.0, floor(LOD));
     float gridCellSizeLOD1 = gridCellSizeLOD0 * 10.0;
     float gridCellSizeLOD2 = gridCellSizeLOD1 * 10.0;
 
     dudv = max(dudv * 4.0, vec2(1e-6));
-
     vec2 mod_div_dudv = mod(worldPos.xz, gridCellSizeLOD0) / dudv;
     vec2 a = vec2(1.0) - abs(clamp(mod_div_dudv, vec2(0.0), vec2(1.0)) * 2.0 - vec2(1.0));
     float Lod0a = max(a.x, a.y);
