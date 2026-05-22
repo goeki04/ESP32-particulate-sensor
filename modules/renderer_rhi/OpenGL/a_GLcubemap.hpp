@@ -75,7 +75,7 @@ namespace Andromeda {
 			return textureID;
 		}
 
-		static void ConvertEquiretangularToCubemap(Shader& conversionShader, GLuint& hdrTexture, GLuint& cubeViewFBO, u32 envCubemap, std::function<void()> renderCube) {
+		static void ConvertEquiretangularToCubemap(IGraphicsContext* context,ShaderProgramHandle shaderHandle, GLuint& hdrTexture,std::shared_ptr<IFramebuffer> bakingFBO ,u32 envCubemap, std::function<void()> renderCube) {
 			mat4 cubeProjection = amath::perspective(amath::radians(90.0f), 1.0f, 0.1f, 10.0f);
 			mat4 cubeViews[] =
 			{
@@ -86,24 +86,30 @@ namespace Andromeda {
 			   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f,  0.0f,  1.0f), vec3(0.0f, -1.0f,  0.0f)),
 			   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f,  0.0f, -1.0f), vec3(0.0f, -1.0f,  0.0f))
 			};
-			glDepthFunc(GL_LEQUAL);
-			conversionShader.use();
-			conversionShader.setInt("equirectangularMap",0);
-			conversionShader.setMat4x4("proj", cubeProjection);
+			RenderPassSpecs specs;
+			specs.rasterizerMode = RasterizerMode::Fill;
+			specs.depthTest = true;
+			specs.depthFunction = DepthFunc::LEqual;
+			specs.cullMode = CullMode::None;
+			context->setRenderPassSpecs(specs);
+			context->bindShaderProgram(shaderHandle);
+			context->setParameter(shaderHandle, "equirectangularMap", 0);
+			context->setParameter(shaderHandle, "proj", cubeProjection);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, hdrTexture);
 
-			glViewport(0,0,512,512);
-			glBindFramebuffer(GL_FRAMEBUFFER, cubeViewFBO);
+			context->setViewport(0,0,512,512);
+			context->bindFramebuffer(bakingFBO);
 			for (u32 i = 0; i < 6; ++i) {
-				conversionShader.setMat4x4("view", cubeViews[i]);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
+				context->setParameter(shaderHandle, "view", cubeViews[i]);
+				context->attachCubemapFace(i, envCubemap);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				renderCube();
 			}
 
-			glBindFramebuffer(GL_FRAMEBUFFER,0);
-			glDepthFunc(GL_LESS);
+			context->unbindFramebuffer();
+			RenderPassSpecs resetSpecs;
+			context->setRenderPassSpecs(resetSpecs);
 		}
 	};
 }

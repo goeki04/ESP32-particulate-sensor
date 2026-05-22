@@ -1,11 +1,10 @@
 #version 460 core
 
 layout (location = 0) in vec3 aPos;
+layout (location = 0) out vec3 localPos;
 
-out vec3 localPos;
-
-uniform mat4 proj;
-uniform mat4 view;
+layout(location = 0) uniform mat4 proj;
+layout(location = 4) uniform mat4 view;
 
 void main() {
     localPos = aPos;

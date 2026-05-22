@@ -21,9 +21,12 @@ endif()
 find_package(SDL3 REQUIRED)
 find_package(protobuf REQUIRED)
 find_package(glew REQUIRED)
+find_package(glslang REQUIRED)
 find_package(GTest REQUIRED)
 file(GLOB SOURCES "modules/*.cpp")
 file(GLOB HEADERS "modules/*.h")
+
+
 
 get_filename_component(PROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/proto" ABSOLUTE)
 set(PROTO_FILES 
@@ -67,7 +70,7 @@ target_link_libraries(Andromeda PRIVATE
     sdl::sdl
     GLEW::GLEW
     protobuf::libprotobuf
-    
+    glslang::_glslang-do-not-use
     #Engine modules
     network
     core

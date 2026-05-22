@@ -1,13 +1,19 @@
 #version 460 core
-out vec4 FragColor;
+
+layout(location = 0) out vec4 FragColor;
+
 in vec3 normal;
+in vec2 texCoords;
 in vec3 color;
-struct DirLight{
+
+struct DirLight {
     vec3 color;
     vec3 direction;
 };
 uniform DirLight sunLight;
 uniform vec3 ambientLight;
+layout(binding = 0) uniform sampler2D textureSampler;
+
 void main() {
     vec3 norm = normalize(normal);
     vec3 lightDir = normalize(-sunLight.direction);
@@ -16,9 +22,10 @@ void main() {
     vec3 diffcolor = diff * sunLight.color;
     vec3 light = ambientLight + diffcolor;
     
-    vec3 linearColor = light * color;
+    vec4 texColor = texture(textureSampler, texCoords);
+    vec3 finalColor = light * color * texColor.rgb;
 
-    vec3 gammaCorrected = pow(linearColor, vec3(1.0 / 2.2));
+    vec3 gammaCorrected = pow(finalColor, vec3(1.0 / 2.2));
     
-    FragColor = vec4(gammaCorrected, 1.0);
+    FragColor = vec4(gammaCorrected, texColor.a);
 }

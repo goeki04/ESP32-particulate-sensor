@@ -1,5 +1,6 @@
 #version 460 core
-out vec2 TexCoords;
+
+layout(location = 0) out vec2 TexCoords;
 
 void main()
 {
@@ -8,7 +9,6 @@ void main()
         vec2( 3.0, -1.0),
         vec2(-1.0,  3.0)
     );
-
     vec2 pos = positions[gl_VertexID];
 
     TexCoords = pos * 0.5 + 0.5;

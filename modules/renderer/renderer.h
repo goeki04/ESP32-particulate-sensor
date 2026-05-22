@@ -7,6 +7,8 @@
 #include "OpenGL/a_opengl_handles.hpp"
 #include "a_IGraphicsContext.hpp"
 #include "OpenGL/a_OpenGLContext.hpp"
+#include "a_shader_cpu.hpp"
+#include "OpenGL/a_opengl_constant_buffer.hpp"
 namespace Andromeda {
 	namespace amath {
 		struct CameraData;
@@ -54,8 +56,6 @@ namespace Andromeda {
 		void scenePassEndResolve() const;
 
 		void windowClearPass();
-
-		//--- Resource Management ---
 		void createCubemapTexture(CubemapData& data);
 	private:
 		AndromedaGXAPI m_GXAPI = AndromedaGXAPI::OpenGL;
@@ -63,7 +63,7 @@ namespace Andromeda {
 		ResourceManager* m_ResourceManager = nullptr;
 		SceneManager* m_SceneManager = nullptr;
 		vec2 m_TexelSize = vec2(0.0, 0.0);
-		u32 m_PostProcessScreenTriangle = 0;
+		u32 m_CubeVao = 0;
 		u32 m_EnvironmentCubemapID = 0;
 		amath::CameraData* m_Cam = nullptr;
 		bool m_WireframeActive = false;
@@ -80,6 +80,13 @@ namespace Andromeda {
 		std::shared_ptr<IFramebuffer> m_SelectionBuffer;
 		std::shared_ptr<IFramebuffer> m_PostprocessBuffer;
 		std::shared_ptr<IFramebuffer> m_BakingBuffer;
+
+		GLConstantBuffer m_CameraUBO;
+		GLConstantBuffer m_ObjectUBO;
+		GLConstantBuffer m_ColorUBO;
+		GLConstantBuffer m_GridUBO;
+		GLConstantBuffer m_GridParamsUBO;
+		GLConstantBuffer m_OutlineUBO;
 
 		void initRenderer();
 		void registerEvents();

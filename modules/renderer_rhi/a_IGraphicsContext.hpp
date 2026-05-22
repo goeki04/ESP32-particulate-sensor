@@ -29,5 +29,16 @@ namespace Andromeda {
 		virtual void clear(const vec4& color) = 0;
 		virtual void setViewport(i32 vpPosX, i32 vpPosY, u32 vpWidth, u32 vpHeight) = 0;
 		virtual void deleteVertexArrays(u32 vao) = 0;
+		virtual i32 getUniformLocation(ShaderProgramHandle shader, const std::string& name) = 0;
+		virtual void bindTexture(u32 slot, u32 textureID) = 0;
+		virtual void attachCubemapFace(u32 faceIndex, u32 cubemapTexID) = 0;
+		virtual void bindTextureCube(u32 slot, u32 textureID) = 0;
+			
+		/// <summary>
+		/// This should be optimized in future and is DEFINITELY not the way to go. Instead of storing uniform locations we should use SPIRV-Reflect.
+		/// </summary>
+		virtual void setParameter(ShaderProgramHandle shader, const std::string& name, const mat4& matrix) = 0;
+		virtual void setParameter(ShaderProgramHandle shader, const std::string& name, const vec3& vector) = 0;
+		virtual void setParameter(ShaderProgramHandle shader, const std::string& name, i32 value) = 0;
 	};
 }

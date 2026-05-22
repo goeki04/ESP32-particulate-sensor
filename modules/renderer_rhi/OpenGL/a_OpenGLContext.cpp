@@ -70,7 +70,7 @@ namespace Andromeda {
             const char* srcPtr = source.c_str();
             glShaderSource(shader, 1, &srcPtr, nullptr);
             glCompileShader(shader);
-
+            std::cout << "source: " <<  source << std::endl;
             throwShaderLog(shader, stageName, GL_COMPILE_STATUS);
             return shader;
         }
@@ -94,6 +94,12 @@ namespace Andromeda {
     std::string OpenGLContext::readShaderSource(const char* shaderPath)
     {
         std::ifstream fileStream(shaderPath);
+        if (!fileStream.is_open()) {
+            std::cerr << "Andromeda Critical Error: Could not open shader file at path: "
+                << shaderPath << std::endl;
+            // Wir werfen eine Exception, damit das Programm direkt stoppt und den Pfad zeigt!
+            throw std::runtime_error("Failed to open shader file: " + std::string(shaderPath));
+        }
         std::stringstream buffer;
         buffer << fileStream.rdbuf();
         std::string shaderSource = buffer.str();
@@ -270,6 +276,19 @@ namespace Andromeda {
         }
     }
 
+    i32 OpenGLContext::getUniformLocation(ShaderProgramHandle shader, const std::string& name) {
+        return glGetUniformLocation(shader.apiID, name.c_str());
+    }
+
+    void OpenGLContext::bindTexture(u32 slot, u32 textureID) {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D, textureID);
+    }
+
+    void OpenGLContext::attachCubemapFace(u32 faceIndex, u32 cubemapTexID) {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, cubemapTexID, 0);
+    }
+
     void OpenGLContext::blitFramebuffer(std::shared_ptr<IFramebuffer> source, std::shared_ptr<IFramebuffer> target, bool copyDepth)
     {
         assert(source && "RHI Error: Source Framebuffer for blit is null!");
@@ -332,5 +351,32 @@ namespace Andromeda {
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
         glBindVertexArray(0);
+    }
+
+    void OpenGLContext::setParameter(ShaderProgramHandle shader, const std::string& name, const mat4& matrix) {
+        i32 location = glGetUniformLocation(shader.apiID, name.c_str());
+        if (location != -1) {
+            glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]);
+        }
+    }
+
+    void OpenGLContext::setParameter(ShaderProgramHandle shader, const std::string& name, const vec3& vector) {
+        i32 location = glGetUniformLocation(shader.apiID, name.c_str());
+        if (location != -1) {
+            glUniform3fv(location, 1, &vector[0]);
+        }
+    }
+
+    void OpenGLContext::setParameter(ShaderProgramHandle shader, const std::string& name, i32 value) {
+        i32 location = glGetUniformLocation(shader.apiID, name.c_str());
+        if (location != -1) {
+            glUniform1i(location, value);
+        }
+    }
+
+    void OpenGLContext::bindTextureCube(u32 slot, u32 textureID) {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
     }
 }

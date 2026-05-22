@@ -1,11 +1,14 @@
 #version 460 core
-out vec4 FragColor;
 
-in vec2 TexCoords;
+layout(location = 0) out vec4 FragColor;
+layout(location = 0) in vec2 TexCoords;
 
-uniform sampler2D fboSampler; 
-uniform sampler2D maskSampler;
-uniform vec2 texelSize;
+layout(binding = 10) uniform sampler2D fboSampler;
+layout(binding = 11) uniform sampler2D maskSampler;
+
+layout(binding = 0) uniform OutlineParamsBuffer {
+    vec2 texelSize;
+};
 
 void main() {
     vec4 sceneColor = texture(fboSampler, TexCoords);
@@ -14,14 +17,9 @@ void main() {
         FragColor = sceneColor;
         return;
     }
+    
     float neighborMask = 0.0;
     int radius = 2;
-    // . . . . .
-    // . . . . .
-    // . . x . .
-    // . . . . .
-    // . . . . .
-    //-2   0   2
     for(int x = -radius; x <= radius; x++) {
         for(int y = -radius; y <= radius; y++) {
             neighborMask += texture(maskSampler, TexCoords + vec2(x, y) * texelSize).r;
