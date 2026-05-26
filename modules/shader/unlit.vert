@@ -14,9 +14,9 @@ layout(binding = 1) uniform UnlitObjectBuffer {
     mat4 model;
 };
 
-out vec3 normal;
-out vec2 texCoords;
-out vec3 color;
+layout(location = 0) out vec3 normal;
+layout(location = 1) out vec2 texCoords;
+layout(location = 2) out vec3 color;
 
 void main()
 {

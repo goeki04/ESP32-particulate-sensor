@@ -125,8 +125,6 @@ namespace Andromeda {
 
     void Renderer::createMaterials()
     {
-        // Parameter, die außerhalb von globalen Matrizen liegen (wie Lichtfarben),
-        // verbleiben in der dynamischen Material-Map deiner Engine.
         ShaderProgramHandle testShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Test_Shader", SHADER_PATH "unlit.vert", SHADER_PATH "unlit.frag");
         auto testMaterial = m_ResourceManager->createMaterial("Standard", testShaderHandle, m_RenderContext);
         if (testMaterial) {
@@ -183,12 +181,10 @@ namespace Andromeda {
         m_RenderContext->bindFramebuffer(m_MsaaBuffer);
         m_RenderContext->clear(vec4(0.2f, 0.2f, 0.35f, 1.0f));
 
-        // === UBO UPDATE: GLOBAL CAMERA DATA (Binding 0) ===
         CameraBuffer camData;
         camData.viewMatrix = m_Cam->viewMatrix;
         camData.projMatrix = m_Cam->projection;
 
-        // Umgehung der const-Restriktion über einen const_cast auf die RHI-Kompnenten
         auto& mutableCamUBO = const_cast<GLConstantBuffer&>(m_CameraUBO);
         mutableCamUBO.setData(&camData, sizeof(CameraBuffer));
         mutableCamUBO.bind(0);
@@ -228,10 +224,10 @@ namespace Andromeda {
                 if (material && vao != 0) [[likely]] {
                     ObjectBuffer objData;
                     objData.model = transform.modelMatrix();
-
+                    
                     mutableObjectUBO.setData(&objData, sizeof(ObjectBuffer));
                     mutableObjectUBO.bind(1);
-
+                    
                     material->bind(m_RenderContext);
                     m_RenderContext->drawIndexed(vao, indexCount);
                 }
