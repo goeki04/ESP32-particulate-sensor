@@ -22,17 +22,43 @@ namespace Andromeda {
         assert(m_ResourceManager && "ResourceManager is nullptr in Renderer::Start()");
         assert(m_SceneManager && "SceneManager is nullptr in Renderer::Start()");
         m_Cam = &m_SceneManager->m_EditorCamData;
-    }
 
-    void Renderer::start()
-    {
-        initRenderer();
         m_CameraUBO.initialize(sizeof(Generated::CameraBuffer));
         m_ObjectUBO.initialize(sizeof(Generated::ObjectBuffer));
         m_ColorUBO.initialize(sizeof(Generated::ColorBuffer));
         m_GridUBO.initialize(sizeof(Generated::GridBuffer));
         m_GridParamsUBO.initialize(sizeof(Generated::GridParamsBuffer));
         m_OutlineUBO.initialize(sizeof(Generated::OutlineParamsBuffer));
+    }
+    void Renderer::irradianceCubemapBaking()
+    {
+        m_BakingBuffer->resize(ivec2(32, 32));
+        CubemapData irradianceData;
+        irradianceData.height = 32;
+        irradianceData.width = 32;
+        irradianceData.textureID = CubemapGL::AllocateCubemapTexture(32,32);
+        m_IrradianceCubemapID = irradianceData.textureID;
+
+        auto bakingFBO = std::static_pointer_cast<GLFramebuffer>(m_BakingBuffer);
+
+        ShaderProgramHandle irradianceShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Irradiance_Shader", SHADER_PATH "equirect.vert", SHADER_PATH "irradiance.frag");
+        m_RenderContext->bindShaderProgram(irradianceShaderHandle);
+        m_RenderContext->bindTextureCube(0,m_EnvironmentCubemapID);
+
+        m_RenderContext->setParameter(irradianceShaderHandle, "proj", CubemapGL::cubeProjection);
+        m_RenderContext->bindFramebuffer(m_BakingBuffer);
+        for (u32 i = 0; i < 6; ++i) {
+            m_RenderContext->setParameter(irradianceShaderHandle, "view", CubemapGL::cubeViews[i]);
+            m_RenderContext->attachCubemapFace(i, m_IrradianceCubemapID);
+            m_RenderContext->clear(vec4(0.0f, 0.0f, 0.0f, 1.0f));
+            m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
+        }
+        m_RenderContext->unbindFramebuffer();
+        m_BakingBuffer->resize(ivec2(512, 512));
+    }
+    void Renderer::start()
+    {
+        initRenderer();
         m_FramebufferSize = ivec2(Window::g_WindowWidth, Window::g_WindowHeight);
 
         if (m_FramebufferSize.x == 0 || m_FramebufferSize.y == 0) {
@@ -43,7 +69,7 @@ namespace Andromeda {
 
         createFramebuffers();
 
-        m_EnvironmentCubemapID = CubemapGL::AllocateEnvironmentMapTexture();
+        m_EnvironmentCubemapID = CubemapGL::AllocateCubemapTexture(512,512);
 
         u32 hdrMapID = m_ResourceManager->m_CubemapData["citrus_orchard_road_puresky_4k"].textureID;
         Mesh cubeMesh;
@@ -64,6 +90,7 @@ namespace Andromeda {
                 m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
             }
         );
+        irradianceCubemapBaking();
         m_CubeVao = m_RenderContext->createEmptyVAO();
 
         createMaterials();
@@ -72,55 +99,19 @@ namespace Andromeda {
         registerEvents();
     }
 
+    std::shared_ptr<IFramebuffer> Renderer::helperCreateFBO(ivec2 size, std::vector<FramebufferTextureFormat> formats, u32 samples) {
+        FramebufferSpecification specs{ .width = size.x, .height = size.y, .samples = samples };
+        for (auto f : formats) specs.attachments.push_back({ f });
+        return m_RenderContext->createFramebuffer(specs);
+    }
+
     void Renderer::createFramebuffers()
     {
-        FramebufferSpecification msaaSpecs;
-        msaaSpecs.width = m_FramebufferSize.x;
-        msaaSpecs.height = m_FramebufferSize.y;
-        msaaSpecs.samples = 1;
-        msaaSpecs.attachments = {
-            { FramebufferTextureFormat::RGBA8 },
-            { FramebufferTextureFormat::DEPTH24Stencil8 }
-        };
-        m_MsaaBuffer = m_RenderContext->createFramebuffer(msaaSpecs);
-
-        FramebufferSpecification sceneSpecs;
-        sceneSpecs.width = m_FramebufferSize.x;
-        sceneSpecs.height = m_FramebufferSize.y;
-        sceneSpecs.samples = 1;
-        sceneSpecs.attachments = {
-            { FramebufferTextureFormat::RGBA8 }
-        };
-        m_SceneBuffer = m_RenderContext->createFramebuffer(sceneSpecs);
-
-        FramebufferSpecification selectionSpecs;
-        selectionSpecs.width = m_FramebufferSize.x;
-        selectionSpecs.height = m_FramebufferSize.y;
-        selectionSpecs.samples = 1;
-        selectionSpecs.attachments = {
-            { FramebufferTextureFormat::None },
-            { FramebufferTextureFormat::DEPTH24Stencil8 }
-        };
-        m_SelectionBuffer = m_RenderContext->createFramebuffer(selectionSpecs);
-
-        FramebufferSpecification postSpecs;
-        postSpecs.width = m_FramebufferSize.x;
-        postSpecs.height = m_FramebufferSize.y;
-        postSpecs.samples = 1;
-        postSpecs.attachments = {
-            { FramebufferTextureFormat::RGBA8 }
-        };
-        m_PostprocessBuffer = m_RenderContext->createFramebuffer(postSpecs);
-
-        FramebufferSpecification bakingSpecs;
-        bakingSpecs.width = 512;
-        bakingSpecs.height = 512;
-        bakingSpecs.samples = 1;
-        bakingSpecs.attachments = {
-            { FramebufferTextureFormat::DEPTH32F },
-            { FramebufferTextureFormat::RGBA16F }
-        };
-        m_BakingBuffer = m_RenderContext->createFramebuffer(bakingSpecs);
+        m_MsaaBuffer = helperCreateFBO(m_FramebufferSize, { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::DEPTH24Stencil8 }, 1);
+        m_SceneBuffer = helperCreateFBO(m_FramebufferSize, { FramebufferTextureFormat::RGBA8 }, 1);
+        m_SelectionBuffer = helperCreateFBO(m_FramebufferSize, { FramebufferTextureFormat::None, FramebufferTextureFormat::DEPTH24Stencil8 }, 1);
+        m_PostprocessBuffer = helperCreateFBO(m_FramebufferSize, { FramebufferTextureFormat::RGBA8 }, 1);
+        m_BakingBuffer = helperCreateFBO(ivec2(512, 512), { FramebufferTextureFormat::DEPTH32F, FramebufferTextureFormat::RGBA16F }, 1);
     }
 
     void Renderer::createMaterials()
@@ -141,6 +132,8 @@ namespace Andromeda {
 
         ShaderProgramHandle skyboxShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Skybox_Shader", SHADER_PATH "skybox.vert", SHADER_PATH "skybox.frag");
         auto skyboxMaterial = m_ResourceManager->createMaterial("SkyboxMaterial", skyboxShaderHandle, m_RenderContext);
+
+
     }
 
     void Renderer::registerEvents()

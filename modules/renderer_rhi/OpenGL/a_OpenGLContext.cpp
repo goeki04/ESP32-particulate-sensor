@@ -376,6 +376,5 @@ namespace Andromeda {
     void OpenGLContext::bindTextureCube(u32 slot, u32 textureID) {
         glActiveTexture(GL_TEXTURE0 + slot);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
     }
 }
