@@ -13,8 +13,6 @@ namespace Andromeda {
 
 	struct FramebufferTextureSpecification {
 		FramebufferTextureFormat textureFormat = FramebufferTextureFormat::None;
-
-		//TODO: add sample filter etc.
 	};
 
 	struct FramebufferSpecification {

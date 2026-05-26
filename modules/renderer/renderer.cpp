@@ -100,11 +100,17 @@ namespace Andromeda {
     }
 
     std::shared_ptr<IFramebuffer> Renderer::helperCreateFBO(ivec2 size, std::vector<FramebufferTextureFormat> formats, u32 samples) {
-        FramebufferSpecification specs{ .width = size.x, .height = size.y, .samples = samples };
-        for (auto f : formats) specs.attachments.push_back({ f });
+        FramebufferSpecification specs;
+        specs.width = size.x;
+        specs.height = size.y;
+        specs.samples = samples;
+
+        for (auto f : formats) {
+            FramebufferTextureSpecification texSpec{ .textureFormat = f };
+            specs.attachments.push_back(texSpec);
+        }
         return m_RenderContext->createFramebuffer(specs);
     }
-
     void Renderer::createFramebuffers()
     {
         m_MsaaBuffer = helperCreateFBO(m_FramebufferSize, { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::DEPTH24Stencil8 }, 1);
