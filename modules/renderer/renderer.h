@@ -41,6 +41,8 @@ namespace Andromeda {
 		}
 		void start() override;
 		void update() override;
+		void irradianceCubemapBaking();
+		std::shared_ptr<IFramebuffer> helperCreateFBO(ivec2 size, std::vector<FramebufferTextureFormat> formats, u32 samples);
 		void destroy() override;
 		void setActiveCamera(amath::CameraData* camData);
 		void geometryPass() const;
@@ -64,6 +66,7 @@ namespace Andromeda {
 		vec2 m_TexelSize = vec2(0.0, 0.0);
 		u32 m_CubeVao = 0;
 		u32 m_EnvironmentCubemapID = 0;
+		u32 m_IrradianceCubemapID = 0;
 		amath::CameraData* m_Cam = nullptr;
 		bool m_WireframeActive = false;
 		MeshGPUHandle cubemapgpuHandle;

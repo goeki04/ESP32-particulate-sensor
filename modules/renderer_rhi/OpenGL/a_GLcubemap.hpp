@@ -58,14 +58,14 @@ namespace Andromeda {
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		}
 
-		static u32 AllocateEnvironmentMapTexture() {
+		static u32 AllocateCubemapTexture(GLuint width, GLuint height) {
 			u32 textureID = 0;
 			glGenTextures(1, &textureID);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 			for (unsigned int i = 0; i < 6; ++i)
 			{
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F,
-					512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+					width, height, 0, GL_RGB, GL_FLOAT, nullptr);
 			}
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -75,17 +75,19 @@ namespace Andromeda {
 			return textureID;
 		}
 
+		static inline const mat4 cubeProjection = amath::perspective(amath::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		static inline const mat4 cubeViews[] =
+		{
+		   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f,  0.0f,  0.0f), vec3(0.0f, -1.0f,  0.0f)),
+		   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(-1.0f,  0.0f,  0.0f), vec3(0.0f, -1.0f,  0.0f)),
+		   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f,  1.0f,  0.0f), vec3(0.0f,  0.0f,  1.0f)),
+		   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f,  0.0f), vec3(0.0f,  0.0f, -1.0f)),
+		   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f,  0.0f,  1.0f), vec3(0.0f, -1.0f,  0.0f)),
+		   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f,  0.0f, -1.0f), vec3(0.0f, -1.0f,  0.0f))
+		};
+
 		static void ConvertEquiretangularToCubemap(IGraphicsContext* context,ShaderProgramHandle shaderHandle, GLuint& hdrTexture,std::shared_ptr<IFramebuffer> bakingFBO ,u32 envCubemap, std::function<void()> renderCube) {
-			mat4 cubeProjection = amath::perspective(amath::radians(90.0f), 1.0f, 0.1f, 10.0f);
-			mat4 cubeViews[] =
-			{
-			   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f,  0.0f,  0.0f), vec3(0.0f, -1.0f,  0.0f)),
-			   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(-1.0f,  0.0f,  0.0f), vec3(0.0f, -1.0f,  0.0f)),
-			   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f,  1.0f,  0.0f), vec3(0.0f,  0.0f,  1.0f)),
-			   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f,  0.0f), vec3(0.0f,  0.0f, -1.0f)),
-			   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f,  0.0f,  1.0f), vec3(0.0f, -1.0f,  0.0f)),
-			   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f,  0.0f, -1.0f), vec3(0.0f, -1.0f,  0.0f))
-			};
+
 			RenderPassSpecs specs;
 			specs.rasterizerMode = RasterizerMode::Fill;
 			specs.depthTest = true;
