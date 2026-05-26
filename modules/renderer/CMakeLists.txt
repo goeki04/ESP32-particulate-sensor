@@ -6,7 +6,10 @@ add_library(renderer STATIC
     renderer.cpp
 )
 
-target_include_directories(renderer PUBLIC .)
+target_include_directories(renderer PUBLIC 
+    .
+    ${CMAKE_BINARY_DIR}/generated/
+)
 target_compile_definitions(renderer PRIVATE SHADER_PATH="${CMAKE_SOURCE_DIR}/modules/shader/")
 target_link_libraries(renderer PUBLIC 
     glm::glm

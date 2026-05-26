@@ -9,7 +9,7 @@
 #include "OpenGL/a_GLcubemap.hpp"
 #include "a_PrimitiveGenerator.hpp"
 #include "OpenGL/a_opengl_upload.hpp"
-
+#include "a_shader_generated.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
 
@@ -27,12 +27,12 @@ namespace Andromeda {
     void Renderer::start()
     {
         initRenderer();
-        m_CameraUBO.initialize(sizeof(CameraBuffer));
-        m_ObjectUBO.initialize(sizeof(ObjectBuffer));
-        m_ColorUBO.initialize(sizeof(ColorBuffer));
-        m_GridUBO.initialize(sizeof(GridBuffer));
-        m_GridParamsUBO.initialize(sizeof(GridParamsBuffer));
-        m_OutlineUBO.initialize(sizeof(OutlineParamsBuffer));
+        m_CameraUBO.initialize(sizeof(Generated::CameraBuffer));
+        m_ObjectUBO.initialize(sizeof(Generated::ObjectBuffer));
+        m_ColorUBO.initialize(sizeof(Generated::ColorBuffer));
+        m_GridUBO.initialize(sizeof(Generated::GridBuffer));
+        m_GridParamsUBO.initialize(sizeof(Generated::GridParamsBuffer));
+        m_OutlineUBO.initialize(sizeof(Generated::OutlineParamsBuffer));
         m_FramebufferSize = ivec2(Window::g_WindowWidth, Window::g_WindowHeight);
 
         if (m_FramebufferSize.x == 0 || m_FramebufferSize.y == 0) {
@@ -77,7 +77,7 @@ namespace Andromeda {
         FramebufferSpecification msaaSpecs;
         msaaSpecs.width = m_FramebufferSize.x;
         msaaSpecs.height = m_FramebufferSize.y;
-        msaaSpecs.samples = 4;
+        msaaSpecs.samples = 1;
         msaaSpecs.attachments = {
             { FramebufferTextureFormat::RGBA8 },
             { FramebufferTextureFormat::DEPTH24Stencil8 }
@@ -181,12 +181,12 @@ namespace Andromeda {
         m_RenderContext->bindFramebuffer(m_MsaaBuffer);
         m_RenderContext->clear(vec4(0.2f, 0.2f, 0.35f, 1.0f));
 
-        CameraBuffer camData;
+        Generated::CameraBuffer camData;
         camData.viewMatrix = m_Cam->viewMatrix;
         camData.projMatrix = m_Cam->projection;
 
         auto& mutableCamUBO = const_cast<GLConstantBuffer&>(m_CameraUBO);
-        mutableCamUBO.setData(&camData, sizeof(CameraBuffer));
+        mutableCamUBO.setData(&camData, sizeof(Generated::CameraBuffer));
         mutableCamUBO.bind(0);
     }
 
@@ -222,10 +222,10 @@ namespace Andromeda {
                 u32 indexCount = m_ResourceManager->getMeshIndexSizeByID(meshComp.meshID);
 
                 if (material && vao != 0) [[likely]] {
-                    ObjectBuffer objData;
+                    Generated::ObjectBuffer objData;
                     objData.model = transform.modelMatrix();
                     
-                    mutableObjectUBO.setData(&objData, sizeof(ObjectBuffer));
+                    mutableObjectUBO.setData(&objData, sizeof(Generated::ObjectBuffer));
                     mutableObjectUBO.bind(1);
                     
                     material->bind(m_RenderContext);
@@ -283,10 +283,10 @@ namespace Andromeda {
                 specs.depthFunction = DepthFunc::LEqual;
                 m_RenderContext->setRenderPassSpecs(specs);
 
-                ObjectBuffer objData;
+                Generated::ObjectBuffer objData;
                 objData.model = transform.modelMatrix();
                 auto& mutableObjectUBO = const_cast<GLConstantBuffer&>(m_ObjectUBO);
-                mutableObjectUBO.setData(&objData, sizeof(ObjectBuffer));
+                mutableObjectUBO.setData(&objData, sizeof(Generated::ObjectBuffer));
                 mutableObjectUBO.bind(1);
 
                 material->bind(m_RenderContext);
@@ -311,13 +311,11 @@ namespace Andromeda {
         auto outlineMat = m_ResourceManager->getMaterial("OutlineMaterial");
 
         if (outlineMat) [[likely]] {
-            OutlineParamsBuffer outlineData;
+            Generated::OutlineParamsBuffer outlineData;
             outlineData.texelSize = m_TexelSize;
-            outlineData.padding[0] = 0.0f;
-            outlineData.padding[1] = 0.0f;
 
             auto& mutableOutlineUBO = const_cast<GLConstantBuffer&>(m_OutlineUBO);
-            mutableOutlineUBO.setData(&outlineData, sizeof(OutlineParamsBuffer));
+            mutableOutlineUBO.setData(&outlineData, sizeof(Generated::OutlineParamsBuffer));
             mutableOutlineUBO.bind(0);
 
             outlineMat->bind(m_RenderContext);

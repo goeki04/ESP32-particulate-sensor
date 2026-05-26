@@ -70,7 +70,6 @@ namespace Andromeda {
             const char* srcPtr = source.c_str();
             glShaderSource(shader, 1, &srcPtr, nullptr);
             glCompileShader(shader);
-            std::cout << "source: " <<  source << std::endl;
             throwShaderLog(shader, stageName, GL_COMPILE_STATUS);
             return shader;
         }
