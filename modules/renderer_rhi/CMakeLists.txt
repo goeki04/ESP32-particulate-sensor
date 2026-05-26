@@ -2,7 +2,6 @@ find_package(glew REQUIRED)
 find_package(imgui REQUIRED)
 find_package(glm REQUIRED)
 find_package(SDL3 REQUIRED)
-find_package(spirv-reflect-static REQUIRED)
 add_library(renderer_rhi STATIC
     
     OpenGL/a_opengl_framebuffer.cpp
