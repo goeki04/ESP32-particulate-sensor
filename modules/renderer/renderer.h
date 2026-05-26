@@ -7,7 +7,6 @@
 #include "OpenGL/a_opengl_handles.hpp"
 #include "a_IGraphicsContext.hpp"
 #include "OpenGL/a_OpenGLContext.hpp"
-#include "a_shader_cpu.hpp"
 #include "OpenGL/a_opengl_constant_buffer.hpp"
 namespace Andromeda {
 	namespace amath {

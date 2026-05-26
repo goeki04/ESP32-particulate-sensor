@@ -25,8 +25,10 @@ compile_shaders(
     OUT_DIR  "${CMAKE_BINARY_DIR}/shaders/spirv"
 )
 
-target_include_directories(renderer_rhi PUBLIC .)
-target_include_directories(renderer_rhi PUBLIC ${CMAKE_SOURCE_DIR}/bindings/)
+target_include_directories(renderer_rhi PUBLIC 
+    .
+    ${CMAKE_SOURCE_DIR}/bindings/
+)
 target_link_libraries(renderer_rhi PUBLIC 
     sdl::sdl
     GLEW::GLEW

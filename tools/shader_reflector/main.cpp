@@ -2,12 +2,13 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <cstring>
 #include "spirv_reflect.h"
 
 std::vector<char> ReadSpvFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
     if (!file.is_open()) throw std::runtime_error("Failed to open " + filename);
-    
+
     size_t fileSize = (size_t)file.tellg();
     std::vector<char> buffer(fileSize);
     file.seekg(0);
@@ -18,17 +19,17 @@ std::vector<char> ReadSpvFile(const std::string& filename) {
 
 std::string GetCppType(const SpvReflectTypeDescription* type) {
     if (type->type_flags & SPV_REFLECT_TYPE_FLAG_MATRIX) {
-        if (type->traits.numeric.matrix.column_count == 4 && type->traits.numeric.matrix.row_count == 4) return "mat4";
-        if (type->traits.numeric.matrix.column_count == 3 && type->traits.numeric.matrix.row_count == 3) return "mat3";
+        if (type->traits.numeric.matrix.column_count == 4 && type->traits.numeric.matrix.row_count == 4) return "glm::mat4";
+        if (type->traits.numeric.matrix.column_count == 3 && type->traits.numeric.matrix.row_count == 3) return "glm::mat3";
     }
     if (type->type_flags & SPV_REFLECT_TYPE_FLAG_VECTOR) {
-        if (type->traits.numeric.vector.component_count == 4) return "vec4";
-        if (type->traits.numeric.vector.component_count == 3) return "vec3";
-        if (type->traits.numeric.vector.component_count == 2) return "vec2";
+        if (type->traits.numeric.vector.component_count == 4) return "glm::vec4";
+        if (type->traits.numeric.vector.component_count == 3) return "glm::vec3";
+        if (type->traits.numeric.vector.component_count == 2) return "glm::vec2";
     }
     if (type->type_flags & SPV_REFLECT_TYPE_FLAG_FLOAT) return "float";
-    if (type->type_flags & SPV_REFLECT_TYPE_FLAG_INT) return "i32";
-    
+    if (type->type_flags & SPV_REFLECT_TYPE_FLAG_INT) return "int";
+
     return "UNKNOWN_TYPE";
 }
 
@@ -39,22 +40,27 @@ int main(int argc, char** argv) {
     }
 
     std::string outputPath = argv[1];
-    
-    std::ofstream outFile(outputPath, std::ios::app);
+
+    std::ofstream outFile(outputPath, std::ios::out);
     if (!outFile.is_open()) {
         std::cerr << "Failed to open output file.\n";
         return 1;
     }
 
+    outFile << "#pragma once\n";
+    outFile << "#include \"a_primitives.hpp\"\n\n";
+    outFile << "namespace Andromeda::Generated {\n\n";
+
     for (int i = 2; i < argc; ++i) {
         std::string inputPath = argv[i];
-        
+
         std::vector<char> spvCode;
         try {
             spvCode = ReadSpvFile(inputPath);
-        } catch (const std::exception& e) {
+        }
+        catch (const std::exception& e) {
             std::cerr << "Warning: Could not read " << inputPath << ". Skipping.\n";
-            continue; // Bei Fehler einfach mit dem nächsten Shader weitermachen
+            continue;
         }
 
         SpvReflectShaderModule module;
@@ -84,11 +90,12 @@ int main(int argc, char** argv) {
                 for (uint32_t m = 0; m < binding->block.member_count; m++) {
                     SpvReflectBlockVariable& member = binding->block.members[m];
                     std::string cppType = GetCppType(member.type_description);
-                    
+
                     outFile << "    // Offset: " << member.offset << "\n";
                     if (cppType.find("vec") != std::string::npos || cppType.find("mat") != std::string::npos) {
                         outFile << "    alignas(16) " << cppType << " " << member.name << ";\n";
-                    } else {
+                    }
+                    else {
                         outFile << "    " << cppType << " " << member.name << ";\n";
                     }
                 }
@@ -97,8 +104,9 @@ int main(int argc, char** argv) {
             }
         }
         spvReflectDestroyShaderModule(&module);
-    } // Ende der Datei-Schleife
+    }
 
+    outFile << "} // namespace Andromeda::Generated\n";
     outFile.close();
     return 0;
 }

@@ -52,28 +52,10 @@ add_subdirectory(modules/renderer_rhi)
 
 add_executable(AndromedaReflector tools/shader_reflector/main.cpp)
 target_link_libraries(AndromedaReflector PRIVATE spirv-reflect-static)
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated)
-file(GLOB_RECURSE ALL_SPV_FILES "${CMAKE_BINARY_DIR}/shaders/spirv/*.spv")
-set(GENERATED_HEADER ${CMAKE_BINARY_DIR}/generated/a_shader_generated.hpp)
-file(WRITE ${GENERATED_HEADER} "#pragma once\n#include \"a_primitives.hpp\"\nnamespace Andromeda::Generated {\n\n")
+target_link_libraries(AndromedaReflector PRIVATE definitions)
 
-if(ALL_SPV_FILES)
-    add_custom_command(
-        OUTPUT ${GENERATED_HEADER}_trigger
-        COMMAND AndromedaReflector ${GENERATED_HEADER} ${ALL_SPV_FILES}
-        COMMAND ${CMAKE_COMMAND} -E echo "} // namespace Andromeda::Generated" >> ${GENERATED_HEADER}
-        DEPENDS AndromedaReflector ${ALL_SPV_FILES}
-        COMMENT "Andromeda Engine: Generating Reflected Shader Structs for all shaders..."
-    )
-else()
-    add_custom_command(
-        OUTPUT ${GENERATED_HEADER}_trigger
-        COMMAND ${CMAKE_COMMAND} -E echo "} // namespace Andromeda::Generated" >> ${GENERATED_HEADER}
-        COMMENT "Andromeda Engine: No SPIR-V files found, creating empty header."
-    )
-endif()
 
-add_custom_target(GenerateShaderHeaders ALL DEPENDS ${GENERATED_HEADER}_trigger)
+
 add_executable(Andromeda 
     ${SOURCES} 
     ${HEADERS}
@@ -88,7 +70,27 @@ add_executable(Andromeda
 add_dependencies(Andromeda GenerateShaderHeaders)
 target_include_directories(Andromeda PUBLIC ${CMAKE_BINARY_DIR}/generated)
 
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated)
+file(GLOB_RECURSE ALL_SPV_FILES "${CMAKE_BINARY_DIR}/shaders/spirv/*.spv")
+set(GENERATED_HEADER ${CMAKE_BINARY_DIR}/generated/a_shader_generated.hpp)
 
+if(ALL_SPV_FILES)
+    add_custom_command(
+        OUTPUT ${GENERATED_HEADER}
+        COMMAND AndromedaReflector ${GENERATED_HEADER} ${ALL_SPV_FILES}
+        DEPENDS AndromedaReflector ${ALL_SPV_FILES}
+        COMMENT "Andromeda Engine: Generating Reflected Shader Structs for all shaders..."
+    )
+else()
+    add_custom_command(
+        OUTPUT ${GENERATED_HEADER}
+        COMMAND ${CMAKE_COMMAND} -E echo "#pragma once" > ${GENERATED_HEADER}
+        COMMAND ${CMAKE_COMMAND} -E echo "namespace Andromeda::Generated {}" >> ${GENERATED_HEADER}
+        COMMENT "Andromeda Engine: No SPIR-V files found, creating empty fallback header."
+    )
+endif()
+
+add_custom_target(GenerateShaderHeaders ALL DEPENDS ${GENERATED_HEADER})
 
 target_include_directories(Andromeda PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${PROTOBUF_INCLUDE_DIRS})
 target_include_directories(Andromeda PRIVATE 
