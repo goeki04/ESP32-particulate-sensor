@@ -58,21 +58,39 @@ namespace Andromeda {
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		}
 
-		static u32 AllocateCubemapTexture(GLuint width, GLuint height) {
+		static void AllocateCubemapTexture(CubemapData* data) {
 			u32 textureID = 0;
 			glGenTextures(1, &textureID);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 			for (unsigned int i = 0; i < 6; ++i)
 			{
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F,
-					width, height, 0, GL_RGB, GL_FLOAT, nullptr);
+					data->width, data->height, 0, GL_RGB, GL_FLOAT, nullptr);
 			}
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			return textureID;
+			data->textureID = textureID;
+		}
+
+		static u32 AllocateCubemapTextureWithMipmap(CubemapData* data) {
+			u32 prefilterMap;
+			glGenTextures(1, &prefilterMap);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
+			for (u32 i = 0; i < 6; ++i)
+			{
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, data->width, data->height, 0, GL_RGB, GL_FLOAT, nullptr);
+			}
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+			data->textureID = prefilterMap;
 		}
 
 		static inline const mat4 cubeProjection = amath::perspective(amath::radians(90.0f), 1.0f, 0.1f, 10.0f);

@@ -2,7 +2,7 @@ import os
 
 def count_lines_in_modules(directory):
     total_lines = 0
-    extensions = ('.cpp', '.hpp', '.h', '.txt', '.glsl')
+    extensions = ('.cpp', '.hpp', '.h', '.txt', '.glsl', '.vert', '.frag', '.py')
     
     if not os.path.exists(directory):
         print(f"Error: The folder '{directory}' couldn't be found.")

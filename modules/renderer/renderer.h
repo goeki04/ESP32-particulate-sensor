@@ -7,6 +7,7 @@
 #include "OpenGL/a_opengl_handles.hpp"
 #include "a_IGraphicsContext.hpp"
 #include "OpenGL/a_OpenGLContext.hpp"
+#include <a_CubemapData.hpp>
 #include "OpenGL/a_opengl_constant_buffer.hpp"
 namespace Andromeda {
 	namespace amath {
@@ -60,23 +61,26 @@ namespace Andromeda {
 		void createCubemapTexture(CubemapData& data);
 	private:
 		AndromedaGXAPI m_GXAPI = AndromedaGXAPI::OpenGL;
-		ECS::Entity m_SelectedForHighlighting = ECS::INVALID_ENTITY_ID;
 		ResourceManager* m_ResourceManager = nullptr;
 		SceneManager* m_SceneManager = nullptr;
+		std::unique_ptr<OpenGLContext> m_GLContext = nullptr;
+		IGraphicsContext* m_RenderContext = nullptr;
+		amath::CameraData* m_Cam = nullptr;
+
+		ECS::Entity m_SelectedForHighlighting = ECS::INVALID_ENTITY_ID;
 		vec2 m_TexelSize = vec2(0.0, 0.0);
 		u32 m_CubeVao = 0;
-		u32 m_EnvironmentCubemapID = 0;
-		u32 m_IrradianceCubemapID = 0;
-		amath::CameraData* m_Cam = nullptr;
+
 		bool m_WireframeActive = false;
 		MeshGPUHandle cubemapgpuHandle;
 		float m_ResizeTimer = 0.0f;
 		bool m_ResizePending = false;
 		ivec2 m_TargetSize = ivec2(0.0f);
-		std::unique_ptr<OpenGLContext> m_GLContext = nullptr;
-		IGraphicsContext* m_RenderContext = nullptr;
 
 
+		CubemapData m_EnvironmentCubemap;
+		CubemapData m_IrradianceCubemap;
+		CubemapData m_PrefilterMap;
 		std::shared_ptr<IFramebuffer> m_MsaaBuffer;
 		std::shared_ptr<IFramebuffer> m_SceneBuffer;
 		std::shared_ptr<IFramebuffer> m_SelectionBuffer;
