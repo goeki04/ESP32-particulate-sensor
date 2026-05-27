@@ -5,7 +5,6 @@
 #include "a_math.hpp"
 #include "scene.hpp"
 #include "a_event_manager.hpp"
-#include <a_CubemapData.hpp>
 #include "OpenGL/a_GLcubemap.hpp"
 #include "a_PrimitiveGenerator.hpp"
 #include "OpenGL/a_opengl_upload.hpp"
@@ -33,27 +32,31 @@ namespace Andromeda {
     void Renderer::irradianceCubemapBaking()
     {
         m_BakingBuffer->resize(ivec2(32, 32));
-        CubemapData irradianceData;
-        irradianceData.height = 32;
-        irradianceData.width = 32;
-        irradianceData.textureID = CubemapGL::AllocateCubemapTexture(32,32);
-        m_IrradianceCubemapID = irradianceData.textureID;
+        m_IrradianceCubemap.height = 32;
+        m_IrradianceCubemap.width = 32;
+        CubemapGL::AllocateCubemapTexture(&m_IrradianceCubemap);
+
+        m_PrefilterMap.height = 128;
+        m_PrefilterMap.width = 128;
+        CubemapGL::AllocateCubemapTexture(&m_PrefilterMap);
 
         auto bakingFBO = std::static_pointer_cast<GLFramebuffer>(m_BakingBuffer);
 
         ShaderProgramHandle irradianceShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Irradiance_Shader", SHADER_PATH "equirect.vert", SHADER_PATH "irradiance.frag");
         m_RenderContext->bindShaderProgram(irradianceShaderHandle);
-        m_RenderContext->bindTextureCube(0,m_EnvironmentCubemapID);
+        m_RenderContext->bindTextureCube(0,m_EnvironmentCubemap.textureID);
 
         m_RenderContext->setParameter(irradianceShaderHandle, "proj", CubemapGL::cubeProjection);
+        m_RenderContext->setViewport(0,0,32,32);
         m_RenderContext->bindFramebuffer(m_BakingBuffer);
         for (u32 i = 0; i < 6; ++i) {
             m_RenderContext->setParameter(irradianceShaderHandle, "view", CubemapGL::cubeViews[i]);
-            m_RenderContext->attachCubemapFace(i, m_IrradianceCubemapID);
+            m_RenderContext->attachCubemapFace(i, m_IrradianceCubemap.textureID);
             m_RenderContext->clear(vec4(0.0f, 0.0f, 0.0f, 1.0f));
             m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
         }
         m_RenderContext->unbindFramebuffer();
+        m_RenderContext->setViewport(0,0,512,512);
         m_BakingBuffer->resize(ivec2(512, 512));
     }
     void Renderer::start()
@@ -69,7 +72,9 @@ namespace Andromeda {
 
         createFramebuffers();
 
-        m_EnvironmentCubemapID = CubemapGL::AllocateCubemapTexture(512,512);
+        m_EnvironmentCubemap.width = 512;
+        m_EnvironmentCubemap.height = 512;
+        CubemapGL::AllocateCubemapTexture(&m_EnvironmentCubemap);
 
         u32 hdrMapID = m_ResourceManager->m_CubemapData["citrus_orchard_road_puresky_4k"].textureID;
         Mesh cubeMesh;
@@ -85,7 +90,7 @@ namespace Andromeda {
             m_RenderContext, equirectangularHandle,
             hdrMapID,
             glBakingFBO,
-            m_EnvironmentCubemapID,
+            m_EnvironmentCubemap.textureID,
             [&]() {
                 m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
             }
@@ -139,7 +144,7 @@ namespace Andromeda {
         ShaderProgramHandle skyboxShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Skybox_Shader", SHADER_PATH "skybox.vert", SHADER_PATH "skybox.frag");
         auto skyboxMaterial = m_ResourceManager->createMaterial("SkyboxMaterial", skyboxShaderHandle, m_RenderContext);
 
-
+        ShaderProgramHandle pbrShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "PBR_Shader", SHADER_PATH "PBR/pbr.vert", SHADER_PATH "PBR/pbr.frag");
     }
 
     void Renderer::registerEvents()
@@ -247,7 +252,7 @@ namespace Andromeda {
         auto skyboxMat = m_ResourceManager->getMaterial("SkyboxMaterial");
         if (skyboxMat) [[likely]] {
             skyboxMat->bind(m_RenderContext);
-            m_RenderContext->bindTextureCube(0, m_EnvironmentCubemapID);
+            m_RenderContext->bindTextureCube(0, m_EnvironmentCubemap.textureID);
 
             m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
         }
@@ -320,7 +325,6 @@ namespace Andromeda {
             outlineMat->bind(m_RenderContext);
             m_RenderContext->bindTexture(10, m_SceneBuffer->getColorAttachmentRendererID(0));
             m_RenderContext->bindTexture(11, m_SelectionBuffer->getColorAttachmentRendererID(0));
-
             m_RenderContext->drawArrays(m_CubeVao, 3);
         }
 

@@ -61,7 +61,7 @@ namespace Andromeda {
                 glGetProgramInfoLog(objectID, (GLsizei)log.size(), &outLen, log.data());
             }
             log.resize(outLen);
-
+            std::cout << log << std::endl;
             throw std::runtime_error(std::string(stage) + " error:\n" + log);
         }
 
