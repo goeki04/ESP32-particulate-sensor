@@ -30,6 +30,7 @@ namespace Andromeda {
 
 	struct TextureBinding {
 		u32 apiID = 0;
+		u32 slot = 0;
 	};
 
 	struct ReflectedUniform {

@@ -52,7 +52,7 @@ namespace Andromeda::ECS::Component {
     struct MeshRenderer
     {
         u32 meshID;
-        std::string materialName = "Standard";
+        std::string materialName = "PBRMaterial";
     };
 
     struct AABB {

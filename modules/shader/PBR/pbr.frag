@@ -46,30 +46,29 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-
-
 layout (location = 0) out vec4 FragColor;
 layout (location = 0) in vec2 TexCoords;
 layout (location = 1) in vec3 WorldPos;
 layout (location = 2) in vec3 Normal;
 layout (binding = 0) uniform samplerCube irradianceMap;
-
-layout (std140, binding = 1) uniform pbrMaterial{
-
+layout (binding = 1) uniform samplerCube prefilterMap;
+layout (std140, binding = 2) uniform pbrMaterial {
     vec3  albedo;
     float metallic;
     float roughness;
     float ao;
 };
-layout (std140, binding = 2) uniform lights{
-    vec3 lightPositions[4];
-    vec3 lightColors[4];
-};
-layout (std140, binding = 3) uniform cameraBuffer{
-    vec3 camPos;
+
+layout (std140, binding = 3) uniform lights {
+    vec4 lightPositions[4];
+    vec4 lightColors[4];
 };
 
-
+layout (std140, binding = 0) uniform CameraBuffer {
+    mat4 viewMatrix;
+    mat4 projMatrix;
+    vec3 camPos; 
+};
 void main()
 {		
     vec3 N = normalize(Normal);
@@ -81,11 +80,11 @@ void main()
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < 4; ++i) 
     {
-        vec3 L = normalize(lightPositions[i] - WorldPos);
+        vec3 L = normalize(lightPositions[i].xyz - WorldPos);
         vec3 H = normalize(V + L);
-        float distance    = length(lightPositions[i] - WorldPos);
+        float distance    = length(lightPositions[i].xyz - WorldPos);
         float attenuation = 1.0 / (distance * distance);
-        vec3 radiance     = lightColors[i] * attenuation;        
+        vec3 radiance     = lightColors[i].rgb * attenuation;        
         
         float NDF = DistributionGGX(N, H, roughness);        
         float G   = GeometrySmith(N, V, L, roughness);      
@@ -114,6 +113,5 @@ void main()
 	
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));  
-   
     FragColor = vec4(color, 1.0);
 } 

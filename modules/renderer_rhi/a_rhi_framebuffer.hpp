@@ -13,6 +13,7 @@ namespace Andromeda {
 
 	struct FramebufferTextureSpecification {
 		FramebufferTextureFormat textureFormat = FramebufferTextureFormat::None;
+		bool generateMipmaps = false;
 	};
 
 	struct FramebufferSpecification {

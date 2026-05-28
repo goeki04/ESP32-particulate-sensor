@@ -4,6 +4,8 @@
 #include <string>
 #include <cstring>
 #include "spirv_reflect.h"
+#include <unordered_map>
+#include <sstream>
 
 std::vector<char> ReadSpvFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -19,16 +21,16 @@ std::vector<char> ReadSpvFile(const std::string& filename) {
 
 std::string GetCppType(const SpvReflectTypeDescription* type) {
     if (type->type_flags & SPV_REFLECT_TYPE_FLAG_MATRIX) {
-        if (type->traits.numeric.matrix.column_count == 4 && type->traits.numeric.matrix.row_count == 4) return "glm::mat4";
-        if (type->traits.numeric.matrix.column_count == 3 && type->traits.numeric.matrix.row_count == 3) return "glm::mat3";
+        if (type->traits.numeric.matrix.column_count == 4 && type->traits.numeric.matrix.row_count == 4) return "mat4";
+        if (type->traits.numeric.matrix.column_count == 3 && type->traits.numeric.matrix.row_count == 3) return "mat3";
     }
     if (type->type_flags & SPV_REFLECT_TYPE_FLAG_VECTOR) {
-        if (type->traits.numeric.vector.component_count == 4) return "glm::vec4";
-        if (type->traits.numeric.vector.component_count == 3) return "glm::vec3";
-        if (type->traits.numeric.vector.component_count == 2) return "glm::vec2";
+        if (type->traits.numeric.vector.component_count == 4) return "vec4";
+        if (type->traits.numeric.vector.component_count == 3) return "vec3";
+        if (type->traits.numeric.vector.component_count == 2) return "vec2";
     }
     if (type->type_flags & SPV_REFLECT_TYPE_FLAG_FLOAT) return "float";
-    if (type->type_flags & SPV_REFLECT_TYPE_FLAG_INT) return "int";
+    if (type->type_flags & SPV_REFLECT_TYPE_FLAG_INT) return "i32";
 
     return "UNKNOWN_TYPE";
 }
@@ -50,6 +52,14 @@ int main(int argc, char** argv) {
     outFile << "#pragma once\n";
     outFile << "#include \"a_primitives.hpp\"\n\n";
     outFile << "namespace Andromeda::Generated {\n\n";
+
+    // Structure to hold the size and generated code for comparison
+    struct StructDefinition {
+        uint32_t size;
+        std::string code;
+    };
+
+    std::unordered_map<std::string, StructDefinition> generatedStructs;
 
     for (int i = 2; i < argc; ++i) {
         std::string inputPath = argv[i];
@@ -74,8 +84,6 @@ int main(int argc, char** argv) {
         std::vector<SpvReflectDescriptorBinding*> bindings(bindingCount);
         spvReflectEnumerateDescriptorBindings(&module, &bindingCount, bindings.data());
 
-        outFile << "// Generated from: " << inputPath << "\n";
-
         for (uint32_t b = 0; b < bindingCount; b++) {
             SpvReflectDescriptorBinding* binding = bindings[b];
 
@@ -85,25 +93,55 @@ int main(int argc, char** argv) {
                 else if (binding->type_description && binding->type_description->type_name) structName = binding->type_description->type_name;
                 else structName = "UnknownBuffer_Binding" + std::to_string(binding->binding);
 
-                outFile << "struct " << structName << " {\n";
+                uint32_t currentSize = binding->block.size;
 
-                for (uint32_t m = 0; m < binding->block.member_count; m++) {
-                    SpvReflectBlockVariable& member = binding->block.members[m];
-                    std::string cppType = GetCppType(member.type_description);
+                if (generatedStructs.find(structName) == generatedStructs.end() || generatedStructs[structName].size < currentSize) {
 
-                    outFile << "    // Offset: " << member.offset << "\n";
-                    if (cppType.find("vec") != std::string::npos || cppType.find("mat") != std::string::npos) {
-                        outFile << "    alignas(16) " << cppType << " " << member.name << ";\n";
+                    std::ostringstream structCode;
+                    structCode << "// Generated from: " << inputPath << "\n";
+                    structCode << "struct alignas(16) " << structName << " {\n";
+
+                    for (uint32_t m = 0; m < binding->block.member_count; m++) {
+                        SpvReflectBlockVariable& member = binding->block.members[m];
+                        std::string cppType = GetCppType(member.type_description);
+                        bool isArray = false;
+                        uint32_t arraySize = 0;
+
+                        if (member.type_description->traits.array.dims_count > 0) {
+                            isArray = true;
+                            arraySize = member.type_description->traits.array.dims[0];
+                        }
+
+                        structCode << "    // Offset: " << member.offset << "\n";
+
+                        bool needsAlignment = (cppType.find("vec") != std::string::npos ||
+                            cppType.find("mat") != std::string::npos ||
+                            isArray);
+
+                        if (needsAlignment) {
+                            structCode << "    alignas(16) ";
+                        }
+                        else {
+                            structCode << "    ";
+                        }
+
+                        if (isArray) {
+                            structCode << cppType << " " << member.name << "[" << arraySize << "];\n";
+                        }
+                        else {
+                            structCode << cppType << " " << member.name << ";\n";
+                        }
                     }
-                    else {
-                        outFile << "    " << cppType << " " << member.name << ";\n";
-                    }
+                    structCode << "}; // Total Size: " << currentSize << " Bytes\n";
+                    structCode << "static_assert(sizeof(" << structName << ") % 16 == 0, \"Alignment Error!\");\n\n";
+                    generatedStructs[structName] = { currentSize, structCode.str() };
                 }
-                outFile << "}; // Total Size: " << binding->block.size << " Bytes\n";
-                outFile << "static_assert(sizeof(" << structName << ") % 16 == 0, \"Alignment Error!\");\n\n";
             }
         }
         spvReflectDestroyShaderModule(&module);
+    }
+    for (const auto& pair : generatedStructs) {
+        outFile << pair.second.code;
     }
 
     outFile << "} // namespace Andromeda::Generated\n";
