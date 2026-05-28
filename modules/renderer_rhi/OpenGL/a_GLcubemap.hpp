@@ -75,7 +75,7 @@ namespace Andromeda {
 			data->textureID = textureID;
 		}
 
-		static u32 AllocateCubemapTextureWithMipmap(CubemapData* data) {
+		static void AllocateCubemapTextureWithMipmap(CubemapData* data) {
 			u32 prefilterMap;
 			glGenTextures(1, &prefilterMap);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);

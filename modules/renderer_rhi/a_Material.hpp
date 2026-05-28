@@ -5,7 +5,7 @@
 #include <vector>
 #include <cstring>
 #include <string>
-
+#include "a_rhi_constant_buffer.hpp"
 namespace Andromeda {
 
     /**
@@ -34,7 +34,8 @@ namespace Andromeda {
 
         /** @brief The API-agnostic handle of the assigned shader program. */
         ShaderProgramHandle m_ShaderHandle{};
-
+        std::shared_ptr<IConstantBuffer> m_MaterialUBO;
+        u32 m_UboBindingSlot = 0;
         /**
          * @brief Constructs a new Material and reflects the active shader uniforms from the GPU.
          * * During initialization, the constructor queries the GPU via the graphics context for
@@ -50,6 +51,17 @@ namespace Andromeda {
             for (const auto& uniform : reflected) {
                 m_UniformTable[uniform.name] = { uniform.location, uniform.type };
             }
+        }
+
+        template<typename T>
+        void setUBOData(const T& data, u32 bindingSlot, IGraphicsContext* ctx) {
+            m_UboBindingSlot = bindingSlot;
+            if (!m_MaterialUBO) {
+                m_MaterialUBO = ctx->createConstantBuffer(sizeof(T));
+            }
+
+            m_MaterialUBO->setData(&data, sizeof(T));
+            m_MaterialUBO->bind(bindingSlot);
         }
 
         /**
@@ -106,6 +118,10 @@ namespace Andromeda {
          */
         void bind(IGraphicsContext* ctx) const {
             ctx->bindShaderProgram(m_ShaderHandle);
+
+            if (m_MaterialUBO) {
+                m_MaterialUBO->bind(m_UboBindingSlot);
+            }
 
             // Stack allocation for the submission queue (Avoids heap allocation overhead in the render loop)
             std::vector<UniformData> submitQueue;

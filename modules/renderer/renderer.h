@@ -93,10 +93,12 @@ namespace Andromeda {
 		GLConstantBuffer m_GridUBO;
 		GLConstantBuffer m_GridParamsUBO;
 		GLConstantBuffer m_OutlineUBO;
-
+		GLConstantBuffer m_LightUBO;
+		GLConstantBuffer m_pbrMaterialUBO;
 		void initRenderer();
-		void registerEvents();
-		void createFramebuffers();
+        void prefilterCubemapBaking();
+        void registerEvents();
+        void createFramebuffers();
 		void createMaterials();
 	};
 }

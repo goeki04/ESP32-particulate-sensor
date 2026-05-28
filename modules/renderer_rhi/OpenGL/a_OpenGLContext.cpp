@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "a_opengl_constant_buffer.hpp"
 #include "OpenGL/a_opengl_framebuffer.hpp"
 namespace Andromeda {
 
@@ -96,7 +97,6 @@ namespace Andromeda {
         if (!fileStream.is_open()) {
             std::cerr << "Andromeda Critical Error: Could not open shader file at path: "
                 << shaderPath << std::endl;
-            // Wir werfen eine Exception, damit das Programm direkt stoppt und den Pfad zeigt!
             throw std::runtime_error("Failed to open shader file: " + std::string(shaderPath));
         }
         std::stringstream buffer;
@@ -142,9 +142,8 @@ namespace Andromeda {
 
     void OpenGLContext::bindTextures(std::span<const TextureBinding> textures)
     {
-        for (i32 i = 0; i < textures.size(); ++i) {
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, textures[i].apiID);
+        for (const auto& tex : textures) {
+            glBindTextureUnit(tex.slot, tex.apiID);
         }
     }
 
@@ -333,10 +332,50 @@ namespace Andromeda {
         return vao;
     }
 
-    void OpenGLContext::clear(const vec4& color)
+    void OpenGLContext::clear(ClearFlags flags, const vec4& color)
     {
-        glClearColor(color.r, color.g, color.b, color.a);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        if ((static_cast<uint8_t>(flags) & static_cast<uint8_t>(ClearFlags::Color))) {
+            glClearColor(color.r, color.g, color.b, color.a);
+        }
+
+        GLbitfield glFlags = 0;
+        if ((static_cast<uint8_t>(flags) & static_cast<uint8_t>(ClearFlags::Color)))   glFlags |= GL_COLOR_BUFFER_BIT;
+        if ((static_cast<uint8_t>(flags) & static_cast<uint8_t>(ClearFlags::Depth)))   glFlags |= GL_DEPTH_BUFFER_BIT;
+        if ((static_cast<uint8_t>(flags) & static_cast<uint8_t>(ClearFlags::Stencil))) glFlags |= GL_STENCIL_BUFFER_BIT;
+
+        if (glFlags != 0) {
+            glClear(glFlags);
+        }
+    }
+
+    void OpenGLContext::clear(ClearFlags flags)
+    {
+        GLbitfield glFlags = 0;
+        if ((flags & ClearFlags::Color) != ClearFlags::None)   glFlags |= GL_COLOR_BUFFER_BIT;
+        if ((flags & ClearFlags::Depth) != ClearFlags::None)   glFlags |= GL_DEPTH_BUFFER_BIT;
+        if ((flags & ClearFlags::Stencil) != ClearFlags::None) glFlags |= GL_STENCIL_BUFFER_BIT;
+
+        if (glFlags != 0) {
+            glClear(glFlags);
+        }
+    }
+
+    void OpenGLContext::initRenderContext()
+    {
+        glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    }
+
+    std::shared_ptr<IConstantBuffer> OpenGLContext::createConstantBuffer(u32 size)
+    {
+        auto buffer = std::make_shared<GLConstantBuffer>();
+
+        // 2. Initialisiere es direkt mit der geforderten Größe
+        buffer->initialize(size);
+
+        // 3. Gib es zurück. 
+        // Da GLConstantBuffer von IConstantBuffer erbt, castet C++ den 
+        // shared_ptr hier automatisch und sicher in das Interface um.
+        return buffer;
     }
 
     void OpenGLContext::setViewport(i32 vpPosX, i32 vpPosY, u32 vpWidth, u32 vpHeight)
@@ -376,5 +415,10 @@ namespace Andromeda {
     void OpenGLContext::bindTextureCube(u32 slot, u32 textureID) {
         glActiveTexture(GL_TEXTURE0 + slot);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+    }
+
+    void OpenGLContext::framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip)
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, textureID,mip);
     }
 }

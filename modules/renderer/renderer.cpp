@@ -9,6 +9,7 @@
 #include "a_PrimitiveGenerator.hpp"
 #include "OpenGL/a_opengl_upload.hpp"
 #include "a_shader_generated.hpp"
+#include "a_clearFlags.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
 
@@ -16,6 +17,7 @@ namespace Andromeda {
     {
         m_GLContext = std::make_unique<OpenGLContext>();
         m_RenderContext = m_GLContext.get();
+        m_RenderContext->initRenderContext();
         m_ResourceManager = SystemManager::getInstance().getSubsystem<ResourceManager>();
         m_SceneManager = SystemManager::getInstance().getSubsystem<SceneManager>();
         assert(m_ResourceManager && "ResourceManager is nullptr in Renderer::Start()");
@@ -28,9 +30,43 @@ namespace Andromeda {
         m_GridUBO.initialize(sizeof(Generated::GridBuffer));
         m_GridParamsUBO.initialize(sizeof(Generated::GridParamsBuffer));
         m_OutlineUBO.initialize(sizeof(Generated::OutlineParamsBuffer));
+        m_LightUBO.initialize(sizeof(Generated::lights));
+        m_pbrMaterialUBO.initialize(sizeof(Generated::pbrMaterial));
     }
+
+    void Renderer::prefilterCubemapBaking(){
+        ShaderProgramHandle prefilterMapHandle = m_ResourceManager->loadShaderRHI(m_RenderContext,"Prefilter_Shader", SHADER_PATH "equirect.vert", SHADER_PATH "PBR/prefilter.frag");
+        m_RenderContext->bindShaderProgram(prefilterMapHandle);
+        m_RenderContext->setParameter(prefilterMapHandle, "environmentMap", 0);
+        m_RenderContext->setParameter(prefilterMapHandle, "projection", CubemapGL::cubeProjection);
+        m_RenderContext->bindTextureCube(0, m_EnvironmentCubemap.textureID);
+        m_RenderContext->bindFramebuffer(m_BakingBuffer);
+        u32 maxMipLevels = 5;
+
+        for (u32 mip = 0; mip < maxMipLevels; ++mip) {
+            u32 mipWidth = 128 * std::pow(0.5, mip);
+            u32 mipHeight = 128 * std::pow(0.5, mip);
+            
+            m_RenderContext->setViewport(0,0, mipWidth, mipHeight);
+            float roughness = static_cast<float>(mip) / static_cast<float>(maxMipLevels - 1);
+            m_RenderContext->setParameter(prefilterMapHandle, "roughness", roughness);
+
+            for (u32 i = 0; i < 6; ++i) {
+                m_RenderContext->setParameter(prefilterMapHandle, "view", CubemapGL::cubeViews[i]);
+                m_RenderContext->framebufferTexture2D(i,m_PrefilterMap.textureID,mip);
+                m_RenderContext->clear(ClearFlags::Color | ClearFlags::Depth);
+                m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
+            }
+        }
+        m_RenderContext->bindFramebuffer(0);
+    }
+
     void Renderer::irradianceCubemapBaking()
     {
+        RenderPassSpecs specs;
+        specs.cullMode = CullMode::None;
+        specs.depthTest = false;
+        m_RenderContext->setRenderPassSpecs(specs);
         m_BakingBuffer->resize(ivec2(32, 32));
         m_IrradianceCubemap.height = 32;
         m_IrradianceCubemap.width = 32;
@@ -38,7 +74,7 @@ namespace Andromeda {
 
         m_PrefilterMap.height = 128;
         m_PrefilterMap.width = 128;
-        CubemapGL::AllocateCubemapTexture(&m_PrefilterMap);
+        CubemapGL::AllocateCubemapTextureWithMipmap(&m_PrefilterMap);
 
         auto bakingFBO = std::static_pointer_cast<GLFramebuffer>(m_BakingBuffer);
 
@@ -52,12 +88,14 @@ namespace Andromeda {
         for (u32 i = 0; i < 6; ++i) {
             m_RenderContext->setParameter(irradianceShaderHandle, "view", CubemapGL::cubeViews[i]);
             m_RenderContext->attachCubemapFace(i, m_IrradianceCubemap.textureID);
-            m_RenderContext->clear(vec4(0.0f, 0.0f, 0.0f, 1.0f));
+            m_RenderContext->clear(ClearFlags::Color | ClearFlags::Depth, vec4(0.0f, 0.0f, 0.0f, 1.0f));
             m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
         }
         m_RenderContext->unbindFramebuffer();
         m_RenderContext->setViewport(0,0,512,512);
         m_BakingBuffer->resize(ivec2(512, 512));
+        RenderPassSpecs resetSpecs;
+        m_RenderContext->setRenderPassSpecs(resetSpecs);
     }
     void Renderer::start()
     {
@@ -96,6 +134,7 @@ namespace Andromeda {
             }
         );
         irradianceCubemapBaking();
+        prefilterCubemapBaking();
         m_CubeVao = m_RenderContext->createEmptyVAO();
 
         createMaterials();
@@ -118,7 +157,7 @@ namespace Andromeda {
     }
     void Renderer::createFramebuffers()
     {
-        m_MsaaBuffer = helperCreateFBO(m_FramebufferSize, { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::DEPTH24Stencil8 }, 1);
+        m_MsaaBuffer = helperCreateFBO(m_FramebufferSize, { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::DEPTH24Stencil8 }, 4);
         m_SceneBuffer = helperCreateFBO(m_FramebufferSize, { FramebufferTextureFormat::RGBA8 }, 1);
         m_SelectionBuffer = helperCreateFBO(m_FramebufferSize, { FramebufferTextureFormat::None, FramebufferTextureFormat::DEPTH24Stencil8 }, 1);
         m_PostprocessBuffer = helperCreateFBO(m_FramebufferSize, { FramebufferTextureFormat::RGBA8 }, 1);
@@ -127,13 +166,8 @@ namespace Andromeda {
 
     void Renderer::createMaterials()
     {
-        ShaderProgramHandle testShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Test_Shader", SHADER_PATH "unlit.vert", SHADER_PATH "unlit.frag");
-        auto testMaterial = m_ResourceManager->createMaterial("Standard", testShaderHandle, m_RenderContext);
-        if (testMaterial) {
-            testMaterial->setParameter("sunLight.direction", vec3(0.5f, -1.0f, -0.5f), ShaderDataType::Vec3);
-            testMaterial->setParameter("sunLight.color", vec3(1.0f, 1.0f, 1.0f), ShaderDataType::Vec3);
-            testMaterial->setParameter("ambientLight", vec3(0.4f, 0.4f, 0.4f), ShaderDataType::Vec3);
-        }
+        //ShaderProgramHandle testShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Test_Shader", SHADER_PATH "unlit.vert", SHADER_PATH "unlit.frag");
+        //auto testMaterial = m_ResourceManager->createMaterial("Standard", testShaderHandle, m_RenderContext);
 
         ShaderProgramHandle outlineShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Outline_Shader", SHADER_PATH "outline.vert", SHADER_PATH "outline.frag");
         auto outlineMaterial = m_ResourceManager->createMaterial("OutlineMaterial", outlineShaderHandle, m_RenderContext);
@@ -145,6 +179,22 @@ namespace Andromeda {
         auto skyboxMaterial = m_ResourceManager->createMaterial("SkyboxMaterial", skyboxShaderHandle, m_RenderContext);
 
         ShaderProgramHandle pbrShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "PBR_Shader", SHADER_PATH "PBR/pbr.vert", SHADER_PATH "PBR/pbr.frag");
+        auto pbrMaterial = m_ResourceManager->createMaterial("PBRMaterial", pbrShaderHandle, m_RenderContext);
+        if (pbrMaterial) {
+            Generated::pbrMaterial plasticData;
+            plasticData.albedo = vec3(1.0f, 0.0f, 0.0f);
+            plasticData.metallic = 0.0f;
+            plasticData.roughness = 0.2f;
+            plasticData.ao = 1.0f;
+
+            TextureBinding irradianceBinding, prefilterBinding;;
+            irradianceBinding.apiID = m_IrradianceCubemap.textureID;
+
+            prefilterBinding.apiID = m_PrefilterMap.textureID;
+            pbrMaterial->setUBOData(plasticData, 2, m_RenderContext);
+            pbrMaterial->addTexture({ m_IrradianceCubemap.textureID, 0 });
+            pbrMaterial->addTexture({ m_PrefilterMap.textureID, 1 });
+        }
     }
 
     void Renderer::registerEvents()
@@ -183,15 +233,31 @@ namespace Andromeda {
         if (!m_Cam) return;
 
         m_RenderContext->bindFramebuffer(m_MsaaBuffer);
-        m_RenderContext->clear(vec4(0.2f, 0.2f, 0.35f, 1.0f));
+        m_RenderContext->clear(ClearFlags::Color | ClearFlags::Depth, vec4(0.2f, 0.2f, 0.35f, 1.0f));
 
         Generated::CameraBuffer camData;
         camData.viewMatrix = m_Cam->viewMatrix;
         camData.projMatrix = m_Cam->projection;
-
+        camData.camPos = m_Cam->cameraPos;
         auto& mutableCamUBO = const_cast<GLConstantBuffer&>(m_CameraUBO);
         mutableCamUBO.setData(&camData, sizeof(Generated::CameraBuffer));
         mutableCamUBO.bind(0);
+
+        Generated::lights lightData;
+
+        lightData.lightPositions[0] = vec4(5.0f, 5.0f, 5.0f, 1.0f);
+        lightData.lightPositions[1] = vec4(-5.0f, 5.0f, 5.0f, 1.0f);
+        lightData.lightPositions[2] = vec4(5.0f, -5.0f, 5.0f, 1.0f);
+        lightData.lightPositions[3] = vec4(-5.0f, -5.0f, 5.0f, 1.0f);
+
+        lightData.lightColors[0] = vec4(300.0f, 300.0f, 300.0f, 1.0f);
+        lightData.lightColors[1] = vec4(300.0f, 300.0f, 300.0f, 1.0f);
+        lightData.lightColors[2] = vec4(300.0f, 300.0f, 300.0f, 1.0f);
+        lightData.lightColors[3] = vec4(300.0f, 300.0f, 300.0f, 1.0f);
+
+        auto& mutableLightUBO = const_cast<GLConstantBuffer&>(m_LightUBO);
+        mutableLightUBO.setData(&lightData, sizeof(Generated::lights));
+        mutableLightUBO.bind(3);
     }
 
     void Renderer::geometryPass() const {
@@ -220,7 +286,7 @@ namespace Andromeda {
             if (transformPool.has(e)) [[likely]] {
                 const auto& meshComp = meshData[i];
                 const auto& transform = transformPool.get(e);
-
+                
                 auto material = m_ResourceManager->getMaterial(meshComp.materialName);
                 u32 vao = m_ResourceManager->getMeshVaoByID(meshComp.meshID);
                 u32 indexCount = m_ResourceManager->getMeshIndexSizeByID(meshComp.meshID);
@@ -228,12 +294,13 @@ namespace Andromeda {
                 if (material && vao != 0) [[likely]] {
                     Generated::ObjectBuffer objData;
                     objData.model = transform.modelMatrix();
-                    
                     mutableObjectUBO.setData(&objData, sizeof(Generated::ObjectBuffer));
                     mutableObjectUBO.bind(1);
-                    
                     material->bind(m_RenderContext);
                     m_RenderContext->drawIndexed(vao, indexCount);
+                }
+                else {
+                    printf("material or vao missing\n");
                 }
             }
         }
@@ -262,7 +329,7 @@ namespace Andromeda {
 
     void Renderer::selectionPass(Entity selectedEntity) const {
         m_RenderContext->bindFramebuffer(m_SelectionBuffer);
-        m_RenderContext->clear(vec4(0.0f, 0.0f, 0.0f, 0.0f));
+        m_RenderContext->clear(ClearFlags::Color | ClearFlags::Depth, vec4(0.0f, 0.0f, 0.0f, 0.0f));
 
         if (selectedEntity == ECS::INVALID_ENTITY_ID) {
             m_RenderContext->unbindFramebuffer();
@@ -341,7 +408,7 @@ namespace Andromeda {
     void Renderer::windowClearPass()
     {
         m_RenderContext->setViewport(0, 0, Window::g_WindowWidth, Window::g_WindowHeight);
-        m_RenderContext->clear(vec4(0.10f, 0.10f, 0.10f, 1.0f));
+        m_RenderContext->clear(ClearFlags::Color | ClearFlags::Depth, vec4(0.10f, 0.10f, 0.10f, 1.0f));
     }
 
     void Renderer::createCubemapTexture(CubemapData& data) {

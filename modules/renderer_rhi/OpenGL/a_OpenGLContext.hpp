@@ -1,5 +1,7 @@
 #include "a_IGraphicsContext.hpp"
 #include <string>
+#include "a_clearFlags.hpp"
+#include "a_rhi_constant_buffer.hpp"
 namespace Andromeda {
     class OpenGLContext : public IGraphicsContext {
     public:
@@ -18,7 +20,10 @@ namespace Andromeda {
         void unbindFramebuffer() override;
         void blitFramebuffer(std::shared_ptr<IFramebuffer> source, std::shared_ptr<IFramebuffer> target, bool copyDepth = false) override;
         u32 createEmptyVAO() override;
-        void clear(const vec4& color) override;
+        void clear(ClearFlags flags, const vec4& color) override;
+        void clear(ClearFlags flags) override;
+        void initRenderContext() override;
+        std::shared_ptr<IConstantBuffer> createConstantBuffer(u32 size) override;
         void setViewport(i32 vpPosX, i32 vpPosY, u32 vpWidth, u32 vpHeight) override;
         std::shared_ptr<IFramebuffer> createFramebuffer(const FramebufferSpecification& specs) override;
         void deleteVertexArrays(u32 vao) override;
@@ -29,6 +34,7 @@ namespace Andromeda {
         void setParameter(ShaderProgramHandle shader, const std::string& name, const vec3& vector) override;
         void setParameter(ShaderProgramHandle shader, const std::string& name, i32 value) override;
         void bindTextureCube(u32 slot, u32 textureID) override;
+        void framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip) override;
     private:
         RenderPassSpecs m_CurrentSpecs;
         bool m_IsFirstContextInit = true;
