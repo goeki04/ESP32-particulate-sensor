@@ -2,6 +2,7 @@
 #include <string>
 #include "a_clearFlags.hpp"
 #include "a_rhi_constant_buffer.hpp"
+#include "a_texture.hpp"
 namespace Andromeda {
     class SamplerState;
 
@@ -214,8 +215,51 @@ namespace Andromeda {
          * @brief Attaches a 2D texture level to the currently bound framebuffer.
          */
         void framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip) override;
-
+               
+         /**
+         * @brief Allocates the physical memory (VRAM) on the GPU for a texture.
+         *
+         * This function takes a prepared texture "blueprint", generates a unique
+         * hardware ID, binds the corresponding target, and allocates the memory
+         * based on the internal format.
+         *
+         * @warning Because this communicates directly with the graphics API, this
+         * function MUST be called on the main render thread.
+         *
+         * @param texture Reference to the pre-configured texture object. Upon
+         * successful execution, the object receives a valid API-assigned textureID.
+         */
+        void allocateTexture(Texture& texture) override;
+         /**
+         * @brief Creates the metadata for a new texture on the CPU (blueprint).
+         *
+         * This function does NOT communicate with the GPU and does not reserve
+         * any VRAM. It merely prepares the data object. Since it is thread-safe,
+         * it is perfectly suited for preparing textures asynchronously (in the background).
+         *
+         * @param width   The width of the texture in pixels.
+         * @param height  The height of the texture in pixels.
+         * @param sampler The desired sampler state (filtering, wrapping).
+         * @param format  The hardware-independent storage format. Default is RGBA8_UNORM
+         * (linear color space). For pure color textures, SRGB should
+         * be explicitly passed.
+         *
+         * @return A configured Texture object (ID = 0, ready for allocateTexture).
+         */
+        Texture generateTexture(u32 width, u32 height, SamplerState& sampler, TextureFormat format = TextureFormat::RGBA8_UNORM) override;
+         /**
+         * @brief Automatically generates the mipmap levels (LOD chains) for the active texture.
+         *
+         * Creates halved versions of the image data down to 1x1 pixel. This is
+         * essential for performance (texture cache) and to prevent edge flickering
+         * (aliasing) on distant objects. The corresponding texture must be bound
+         * before calling this function.
+         *
+         * @param type The architectural texture type (e.g., 2D, Cubemap) so the RHI
+         * knows which target (e.g., GL_TEXTURE_2D) to calculate the mipmaps for.
+         */
         void generateMipmap(TextureType type) override;
+        
     private:
         RenderPassSpecs m_CurrentSpecs;
         bool m_IsFirstContextInit = true;

@@ -7,6 +7,7 @@
 #include "a_opengl_constant_buffer.hpp"
 #include "OpenGL/a_opengl_framebuffer.hpp"
 #include "a_samplerState.hpp"
+#include "a_opengl_texture.hpp"
 #include "a_opengl_sampler.hpp"
 namespace Andromeda {
 
@@ -423,6 +424,33 @@ namespace Andromeda {
     {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, textureID,mip);
     }
+
+    void OpenGLContext::allocateTexture(Texture& texture)
+    {
+        glGenTextures(1, &texture.textureID);
+        SamplerState& sampler = texture.sampler;
+        GLenum target = GLSampler::textureTypeToGLTextureTarget(sampler.type);
+        glBindTexture(target, texture.textureID);
+
+        GLTextureFormat format = GLtexture::ConvertFormat(texture.internalFormat);
+        glTexImage2D(target, 0, format.internalFormat,
+            static_cast<GLsizei>(texture.width), static_cast<GLsizei>(texture.height),
+            0, format.dataFormat, format.dataType, nullptr);
+
+        glBindTexture(target, 0);
+    }
+
+    Texture OpenGLContext::generateTexture(u32 width, u32 height,SamplerState& sampler, TextureFormat format)
+    {
+        Texture texture;
+        texture.width = width;
+        texture.height = height;
+        texture.sampler = sampler;
+        texture.internalFormat = format;
+
+        return texture;
+    }
+
     void OpenGLContext::generateMipmap(TextureType type)
     {
         GLuint target = GLSampler::textureTypeToGLTextureTarget(type);

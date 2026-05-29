@@ -6,7 +6,7 @@
 #include <memory>
 #include <assimp/scene.h>
 #include "a_components.hpp"
-#include "OpenGL/a_texture.hpp"
+#include "OpenGL/a_opengl_texture.hpp"
 #include "a_geometry.hpp"
 #include "a_model_record.hpp"
 #include "OpenGL/a_opengl_handles.hpp"
