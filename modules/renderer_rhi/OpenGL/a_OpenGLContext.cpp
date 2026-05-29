@@ -6,6 +6,8 @@
 #include <sstream>
 #include "a_opengl_constant_buffer.hpp"
 #include "OpenGL/a_opengl_framebuffer.hpp"
+#include "a_samplerState.hpp"
+#include "a_opengl_sampler.hpp"
 namespace Andromeda {
 
     namespace {
@@ -368,13 +370,7 @@ namespace Andromeda {
     std::shared_ptr<IConstantBuffer> OpenGLContext::createConstantBuffer(u32 size)
     {
         auto buffer = std::make_shared<GLConstantBuffer>();
-
-        // 2. Initialisiere es direkt mit der geforderten Größe
         buffer->initialize(size);
-
-        // 3. Gib es zurück. 
-        // Da GLConstantBuffer von IConstantBuffer erbt, castet C++ den 
-        // shared_ptr hier automatisch und sicher in das Interface um.
         return buffer;
     }
 
@@ -410,6 +406,12 @@ namespace Andromeda {
         if (location != -1) {
             glUniform1i(location, value);
         }
+    }
+
+    void OpenGLContext::setSamplerState(const SamplerState& state)
+    {
+       GLSampler sampler(state);
+       sampler.Apply();
     }
 
     void OpenGLContext::bindTextureCube(u32 slot, u32 textureID) {
