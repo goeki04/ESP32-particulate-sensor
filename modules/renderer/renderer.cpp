@@ -130,8 +130,6 @@ namespace Andromeda {
         auto glBakingFBO = std::static_pointer_cast<GLFramebuffer>(m_BakingBuffer);
 
         ShaderProgramHandle equirectangularHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "equirectangular_Shader", SHADER_PATH "equirect.vert", SHADER_PATH "equirect.frag");
-
-
         CubemapGL::ConvertEquiretangularToCubemap(
             m_RenderContext, equirectangularHandle,
             hdrMapID,
@@ -178,9 +176,6 @@ namespace Andromeda {
 
     void Renderer::createMaterials()
     {
-        //ShaderProgramHandle testShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Test_Shader", SHADER_PATH "unlit.vert", SHADER_PATH "unlit.frag");
-        //auto testMaterial = m_ResourceManager->createMaterial("Standard", testShaderHandle, m_RenderContext);
-
         ShaderProgramHandle outlineShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Outline_Shader", SHADER_PATH "outline.vert", SHADER_PATH "outline.frag");
         auto outlineMaterial = m_ResourceManager->createMaterial("OutlineMaterial", outlineShaderHandle, m_RenderContext);
 
@@ -207,6 +202,7 @@ namespace Andromeda {
             pbrMaterial->addTexture({ m_IrradianceCubemap.textureID, 0 });
             pbrMaterial->addTexture({ m_PrefilterMap.textureID, 1 });
         }
+
     }
 
     void Renderer::registerEvents()

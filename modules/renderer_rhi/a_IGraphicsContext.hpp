@@ -9,6 +9,7 @@
 #include "a_clearFlags.hpp"
 #include "a_rhi_constant_buffer.hpp"
 #include "a_samplerState.hpp"
+#include "a_texture.hpp"
 namespace Andromeda {
 	class IGraphicsContext {
 	public:
@@ -41,6 +42,8 @@ namespace Andromeda {
 		virtual void framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip) = 0;
 		virtual void bindSamplerState(u32 textureID, const SamplerState& state) = 0;
 		virtual void initRenderContext() = 0;
+		virtual void allocateTexture(Texture& texture) = 0;
+		virtual Texture generateTexture(u32 width, u32 height, SamplerState& sampler, TextureFormat format = TextureFormat::RGBA8_UNORM) = 0;
 		virtual void generateMipmap(TextureType type) = 0;
 		/// <summary>
 		/// This should be optimized in future and is DEFINITELY not the way to go. Instead of storing uniform locations we should use SPIRV-Reflect.
