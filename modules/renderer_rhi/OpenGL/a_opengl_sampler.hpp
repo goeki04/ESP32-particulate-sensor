@@ -55,5 +55,13 @@ namespace Andromeda {
             glTexParameteri(target, GL_TEXTURE_WRAP_T, MapWrap(state.wrapT));
             glTexParameteri(target, GL_TEXTURE_WRAP_R, MapWrap(state.wrapR));
         }
+
+        static GLenum textureTypeToGLTextureTarget(TextureType type) {
+            switch (type) {
+            case TextureType::Texture2D: return GL_TEXTURE_2D;
+            case TextureType::Cubemap:   return GL_TEXTURE_CUBE_MAP;
+            default:                     return GL_TEXTURE_2D;
+            }
+        }
     };
 }

@@ -408,7 +408,7 @@ namespace Andromeda {
         }
     }
 
-    void OpenGLContext::setSamplerState(const SamplerState& state)
+    void OpenGLContext::bindSamplerState(u32 textureID, const SamplerState& state)
     {
        GLSampler sampler(state);
        sampler.Apply();
@@ -422,5 +422,10 @@ namespace Andromeda {
     void OpenGLContext::framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip)
     {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, textureID,mip);
+    }
+    void OpenGLContext::generateMipmap(TextureType type)
+    {
+        GLuint target = GLSampler::textureTypeToGLTextureTarget(type);
+        glGenerateMipmap(target);
     }
 }
