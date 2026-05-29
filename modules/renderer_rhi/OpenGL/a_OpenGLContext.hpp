@@ -203,7 +203,7 @@ namespace Andromeda {
          * @brief Applies sampler state parameters to the currently bound texture.
          * @param state The SamplerState configuration.
          */
-        void setSamplerState(const SamplerState& state) override;
+        void bindSamplerState(u32 textureID, const SamplerState& state) override;
 
         /**
          * @brief Binds a cubemap texture to a specific texture unit.
@@ -214,6 +214,8 @@ namespace Andromeda {
          * @brief Attaches a 2D texture level to the currently bound framebuffer.
          */
         void framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip) override;
+
+        void generateMipmap(TextureType type) override;
     private:
         RenderPassSpecs m_CurrentSpecs;
         bool m_IsFirstContextInit = true;

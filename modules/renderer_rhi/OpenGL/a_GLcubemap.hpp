@@ -2,6 +2,9 @@
 #include "a_GLcubemap.hpp"
 #include <GL/glew.h>
 #include "a_primitives.hpp"
+#include "a_samplerState.hpp"
+#include "a_IGraphicsContext.hpp"
+#include "a_CubemapData.hpp"
 namespace Andromeda {
 	class CubemapGL {
 	public:
@@ -58,7 +61,11 @@ namespace Andromeda {
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		}
 
-		static void AllocateCubemapTexture(CubemapData* data) {
+		static void AllocateCubemapTexture(IGraphicsContext* context,CubemapData* data,const SamplerState& state) {
+			if (state.type != TextureType::Cubemap) {
+				printf("Allocating cubemap texture failed: Invalid sampler state type\n");
+				return;
+			}
 			u32 textureID = 0;
 			glGenTextures(1, &textureID);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
@@ -67,12 +74,9 @@ namespace Andromeda {
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F,
 					data->width, data->height, 0, GL_RGB, GL_FLOAT, nullptr);
 			}
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			data->textureID = textureID;
+			context->bindSamplerState(data->textureID, state);
+			glBindTexture(GL_TEXTURE_CUBE_MAP,0);
 		}
 
 		static void AllocateCubemapTextureWithMipmap(CubemapData* data) {

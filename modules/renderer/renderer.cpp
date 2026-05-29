@@ -70,7 +70,11 @@ namespace Andromeda {
         m_BakingBuffer->resize(ivec2(32, 32));
         m_IrradianceCubemap.height = 32;
         m_IrradianceCubemap.width = 32;
-        CubemapGL::AllocateCubemapTexture(&m_IrradianceCubemap);
+        SamplerState irradianceSampler;
+        irradianceSampler.type = TextureType::Cubemap;
+        irradianceSampler.minFilter = FilterModeMin::Billinear;
+        irradianceSampler.magFilter = FilterModeMag::Billinear;
+        CubemapGL::AllocateCubemapTexture(m_RenderContext, &m_IrradianceCubemap, irradianceSampler);
 
         m_PrefilterMap.height = 128;
         m_PrefilterMap.width = 128;
@@ -112,7 +116,11 @@ namespace Andromeda {
 
         m_EnvironmentCubemap.width = 512;
         m_EnvironmentCubemap.height = 512;
-        CubemapGL::AllocateCubemapTexture(&m_EnvironmentCubemap);
+        SamplerState environtmentSampler;
+        environtmentSampler.type = TextureType::Cubemap;
+        environtmentSampler.minFilter = FilterModeMin::Trillinear;
+        environtmentSampler.magFilter = FilterModeMag::Billinear;
+        CubemapGL::AllocateCubemapTexture(m_RenderContext,&m_EnvironmentCubemap, environtmentSampler);
 
         u32 hdrMapID = m_ResourceManager->m_CubemapData["citrus_orchard_road_puresky_4k"].textureID;
         Mesh cubeMesh;
@@ -133,6 +141,10 @@ namespace Andromeda {
                 m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
             }
         );
+
+        m_RenderContext->bindTextureCube(0,m_EnvironmentCubemap.textureID);
+        m_RenderContext->generateMipmap(TextureType::Cubemap);
+
         irradianceCubemapBaking();
         prefilterCubemapBaking();
         m_CubeVao = m_RenderContext->createEmptyVAO();
@@ -184,7 +196,7 @@ namespace Andromeda {
             Generated::pbrMaterial plasticData;
             plasticData.albedo = vec3(1.0f, 0.0f, 0.0f);
             plasticData.metallic = 0.0f;
-            plasticData.roughness = 0.2f;
+            plasticData.roughness = 0.8f;
             plasticData.ao = 1.0f;
 
             TextureBinding irradianceBinding, prefilterBinding;;
