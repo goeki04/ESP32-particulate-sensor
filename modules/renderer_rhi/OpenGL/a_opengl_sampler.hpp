@@ -36,12 +36,15 @@ namespace Andromeda {
          */
         void Apply() const {
             GLint minF;
+
             switch (state.minFilter) {
-            case FilterModeMin::Nearest:    minF = GL_NEAREST_MIPMAP_NEAREST; break;
-            case FilterModeMin::Billinear:  minF = GL_LINEAR_MIPMAP_NEAREST;  break;
+            case FilterModeMin::Nearest:    minF = GL_NEAREST;                break;
+            case FilterModeMin::Linear:     minF = GL_LINEAR;                 break;
+            case FilterModeMin::Billinear:  minF = GL_LINEAR_MIPMAP_NEAREST;  break; 
             case FilterModeMin::Trillinear: minF = GL_LINEAR_MIPMAP_LINEAR;   break;
             default:                        minF = GL_LINEAR;                 break;
             }
+
             GLenum target = GetTarget(state.type);
             glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minF);
 

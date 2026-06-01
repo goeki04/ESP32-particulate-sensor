@@ -411,8 +411,11 @@ namespace Andromeda {
 
     void OpenGLContext::bindSamplerState(u32 textureID, const SamplerState& state)
     {
+       GLenum target = GLSampler::GetTarget(state.type);
+       glBindTexture(target, textureID);
        GLSampler sampler(state);
        sampler.Apply();
+       glBindTexture(target, 0);
     }
 
     void OpenGLContext::bindTextureCube(u32 slot, u32 textureID) {
@@ -423,6 +426,11 @@ namespace Andromeda {
     void OpenGLContext::framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip)
     {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, textureID,mip);
+    }
+
+    void OpenGLContext::framebufferTexture2D(u32 textureID, u32 mip)
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureID, mip);
     }
 
     void OpenGLContext::allocateTexture(Texture& texture)

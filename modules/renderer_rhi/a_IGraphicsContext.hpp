@@ -40,6 +40,7 @@ namespace Andromeda {
 		virtual void attachCubemapFace(u32 faceIndex, u32 cubemapTexID) = 0;
 		virtual void bindTextureCube(u32 slot, u32 textureID) = 0;
 		virtual void framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip) = 0;
+		virtual void framebufferTexture2D(u32 textureID, u32 mip) = 0;
 		virtual void bindSamplerState(u32 textureID, const SamplerState& state) = 0;
 		virtual void initRenderContext() = 0;
 		virtual void allocateTexture(Texture& texture) = 0;

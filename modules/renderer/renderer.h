@@ -24,6 +24,7 @@ namespace Andromeda {
 	/// TODO: abstract OpenGL specific code from the renderer into the rhi. Also if theres enough time, implement
 	/// a Vulkan renderer. MacOS should also be supported via MoltenVK
 	/// </summary>
+	
 	enum class AndromedaGXAPI {
 		OpenGL,
 		Directx12,
@@ -35,7 +36,6 @@ namespace Andromeda {
 	public:
 		ivec2 m_FramebufferSize = glm::ivec2(0, 0);
 		static constexpr const char* glsl_version = "#version 460";
-
 		static constexpr std::string_view GetStaticName() { return "Renderer"; }
 		const char* getSubsystemName() const override {
 			return GetStaticName().data();
@@ -43,6 +43,7 @@ namespace Andromeda {
 		void start() override;
 		void update() override;
 		void irradianceCubemapBaking();
+		void brdfLUTBaking();
 		std::shared_ptr<IFramebuffer> helperCreateFBO(ivec2 size, std::vector<FramebufferTextureFormat> formats, u32 samples);
 		void destroy() override;
 		void setActiveCamera(amath::CameraData* camData);
@@ -53,10 +54,8 @@ namespace Andromeda {
 		void selectionPass(ECS::Entity selectedEntity) const;
 		void postprocessingPass() const;
 		void scenePassBegin() const;
-
 		void proceduralPass() const;
 		void scenePassEndResolve() const;
-
 		void windowClearPass();
 		void createCubemapTexture(CubemapData& data);
 	private:
@@ -77,10 +76,10 @@ namespace Andromeda {
 		bool m_ResizePending = false;
 		ivec2 m_TargetSize = ivec2(0.0f);
 
-
 		CubemapData m_EnvironmentCubemap;
 		CubemapData m_IrradianceCubemap;
 		CubemapData m_PrefilterMap;
+		Texture m_BrdfLUTTexture;
 		std::shared_ptr<IFramebuffer> m_MsaaBuffer;
 		std::shared_ptr<IFramebuffer> m_SceneBuffer;
 		std::shared_ptr<IFramebuffer> m_SelectionBuffer;
