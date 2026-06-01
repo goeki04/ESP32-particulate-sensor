@@ -36,9 +36,14 @@ namespace Andromeda {
 
     void Renderer::prefilterCubemapBaking(){
         ShaderProgramHandle prefilterMapHandle = m_ResourceManager->loadShaderRHI(m_RenderContext,"Prefilter_Shader", SHADER_PATH "equirect.vert", SHADER_PATH "PBR/prefilter.frag");
+        RenderPassSpecs prefilterSpecs;
+        prefilterSpecs.depthTest = false;
+        prefilterSpecs.cullMode = CullMode::None;
+        m_RenderContext->setRenderPassSpecs(prefilterSpecs);
+        
         m_RenderContext->bindShaderProgram(prefilterMapHandle);
         m_RenderContext->setParameter(prefilterMapHandle, "environmentMap", 0);
-        m_RenderContext->setParameter(prefilterMapHandle, "projection", CubemapGL::cubeProjection);
+        m_RenderContext->setParameter(prefilterMapHandle, "proj", CubemapGL::cubeProjection);
         m_RenderContext->bindTextureCube(0, m_EnvironmentCubemap.textureID);
         m_RenderContext->bindFramebuffer(m_BakingBuffer);
         u32 maxMipLevels = 5;
@@ -54,13 +59,40 @@ namespace Andromeda {
             for (u32 i = 0; i < 6; ++i) {
                 m_RenderContext->setParameter(prefilterMapHandle, "view", CubemapGL::cubeViews[i]);
                 m_RenderContext->framebufferTexture2D(i,m_PrefilterMap.textureID,mip);
-                m_RenderContext->clear(ClearFlags::Color | ClearFlags::Depth);
+                m_RenderContext->clear(ClearFlags::Color);
                 m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
             }
         }
         m_RenderContext->bindFramebuffer(0);
     }
-
+    unsigned int quadVAO = 0;
+    unsigned int quadVBO;
+    void renderQuad()
+    {
+        if (quadVAO == 0)
+        {
+            float quadVertices[] = {
+                // positions        // texture Coords
+                -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+                 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+                 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+            };
+            // setup plane VAO
+            glGenVertexArrays(1, &quadVAO);
+            glGenBuffers(1, &quadVBO);
+            glBindVertexArray(quadVAO);
+            glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+        }
+        glBindVertexArray(quadVAO);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glBindVertexArray(0);
+    }
     void Renderer::irradianceCubemapBaking()
     {
         RenderPassSpecs specs;
@@ -72,13 +104,17 @@ namespace Andromeda {
         m_IrradianceCubemap.width = 32;
         SamplerState irradianceSampler;
         irradianceSampler.type = TextureType::Cubemap;
-        irradianceSampler.minFilter = FilterModeMin::Billinear;
-        irradianceSampler.magFilter = FilterModeMag::Billinear;
+        irradianceSampler.minFilter = FilterModeMin::Linear;
+        irradianceSampler.magFilter = FilterModeMag::Linear;
         CubemapGL::AllocateCubemapTexture(m_RenderContext, &m_IrradianceCubemap, irradianceSampler);
 
         m_PrefilterMap.height = 128;
         m_PrefilterMap.width = 128;
-        CubemapGL::AllocateCubemapTextureWithMipmap(&m_PrefilterMap);
+        SamplerState prefilterSampler;
+        prefilterSampler.type = TextureType::Cubemap;
+        prefilterSampler.minFilter = FilterModeMin::Trillinear;
+        prefilterSampler.magFilter = FilterModeMag::Linear;
+        CubemapGL::AllocateCubemapTextureWithMipmap(m_RenderContext, &m_PrefilterMap, prefilterSampler);
 
         auto bakingFBO = std::static_pointer_cast<GLFramebuffer>(m_BakingBuffer);
 
@@ -101,6 +137,36 @@ namespace Andromeda {
         RenderPassSpecs resetSpecs;
         m_RenderContext->setRenderPassSpecs(resetSpecs);
     }
+
+    void Renderer::brdfLUTBaking() {
+        RenderPassSpecs specs;
+        specs.cullMode = CullMode::None;
+        specs.depthTest = false;
+        m_RenderContext->setRenderPassSpecs(specs);
+        ShaderProgramHandle brdfShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "BRDF_Shader", SHADER_PATH "PBR/brdf.vert", SHADER_PATH "PBR/brdf.frag");
+        SamplerState brdfSampler;
+        brdfSampler.minFilter = FilterModeMin::Linear;
+        brdfSampler.magFilter = FilterModeMag::Linear;
+        Mesh quadMesh;
+        MeshGPUHandle handle;
+        PrimitiveGenerator::generateQuad(quadMesh);
+        m_BrdfLUTTexture = m_RenderContext->generateTexture(512, 512, brdfSampler, TextureFormat::RG16_FLOAT);
+        m_RenderContext->allocateTexture(m_BrdfLUTTexture);
+        m_RenderContext->bindSamplerState(m_BrdfLUTTexture.textureID, brdfSampler);
+        m_RenderContext->setViewport(0, 0, 512, 512);
+        m_RenderContext->bindFramebuffer(m_BakingBuffer);
+        m_BakingBuffer->resize(ivec2(512, 512));
+        m_RenderContext->framebufferTexture2D(m_BrdfLUTTexture.textureID, 0);
+        m_RenderContext->bindShaderProgram(brdfShaderHandle);
+        m_RenderContext->clear(ClearFlags::Color);
+        //createMesh(handle, quadMesh);
+        //m_RenderContext->drawArrays(handle.vao, 6);
+        renderQuad();
+        m_RenderContext->bindFramebuffer(0);
+        RenderPassSpecs resetSpecs;
+        m_RenderContext->setRenderPassSpecs(resetSpecs);
+    }
+
     void Renderer::start()
     {
         initRenderer();
@@ -119,7 +185,7 @@ namespace Andromeda {
         SamplerState environtmentSampler;
         environtmentSampler.type = TextureType::Cubemap;
         environtmentSampler.minFilter = FilterModeMin::Trillinear;
-        environtmentSampler.magFilter = FilterModeMag::Billinear;
+        environtmentSampler.magFilter = FilterModeMag::Linear;
         CubemapGL::AllocateCubemapTexture(m_RenderContext,&m_EnvironmentCubemap, environtmentSampler);
 
         u32 hdrMapID = m_ResourceManager->m_CubemapData["citrus_orchard_road_puresky_4k"].textureID;
@@ -146,7 +212,7 @@ namespace Andromeda {
         irradianceCubemapBaking();
         prefilterCubemapBaking();
         m_CubeVao = m_RenderContext->createEmptyVAO();
-
+        brdfLUTBaking();
         createMaterials();
         RenderPassSpecs initSpecs;
         m_RenderContext->setRenderPassSpecs(initSpecs);
@@ -201,6 +267,7 @@ namespace Andromeda {
             pbrMaterial->setUBOData(plasticData, 2, m_RenderContext);
             pbrMaterial->addTexture({ m_IrradianceCubemap.textureID, 0 });
             pbrMaterial->addTexture({ m_PrefilterMap.textureID, 1 });
+            pbrMaterial->addTexture({ m_BrdfLUTTexture.textureID, 2 });
         }
 
     }
@@ -226,6 +293,7 @@ namespace Andromeda {
         scenePassEndResolve();
         selectionPass(m_SelectedForHighlighting);
         postprocessingPass();
+        brdfLUTBaking();
     }
 
     void Renderer::destroy() {

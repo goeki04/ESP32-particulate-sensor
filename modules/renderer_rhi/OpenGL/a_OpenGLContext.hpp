@@ -215,6 +215,8 @@ namespace Andromeda {
          * @brief Attaches a 2D texture level to the currently bound framebuffer.
          */
         void framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip) override;
+
+        void framebufferTexture2D(u32 textureID, u32 mip);
                
          /**
          * @brief Allocates the physical memory (VRAM) on the GPU for a texture.

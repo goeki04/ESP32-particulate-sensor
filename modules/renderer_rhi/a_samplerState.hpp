@@ -4,13 +4,14 @@ namespace Andromeda {
 
 	enum class FilterModeMin {
 		Nearest,
+        Linear,
 		Billinear,
 		Trillinear
 	};
 
 	enum class FilterModeMag {
 		Nearest,
-		Billinear
+		Linear
 	};
 
 	enum class WrapMode {
@@ -35,13 +36,13 @@ namespace Andromeda {
          * * Default settings:
          * - type: Texture2D
          * - minFilter: Billinear
-         * - magFilter: Billinear
+         * - magFilter: Linear
          * - wrap modes: ClampToEdge
          */
         SamplerState() :
             type(TextureType::Texture2D),
             minFilter(FilterModeMin::Billinear),
-            magFilter(FilterModeMag::Billinear),
+            magFilter(FilterModeMag::Linear),
             wrapS(WrapMode::ClampToEdge),
             wrapT(WrapMode::ClampToEdge),
             wrapR(WrapMode::ClampToEdge) {

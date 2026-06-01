@@ -52,6 +52,7 @@ layout (location = 1) in vec3 WorldPos;
 layout (location = 2) in vec3 Normal;
 layout (binding = 0) uniform samplerCube irradianceMap;
 layout (binding = 1) uniform samplerCube prefilterMap;
+layout (binding = 2) uniform sampler2D brdfLUT;
 layout (std140, binding = 2) uniform pbrMaterial {
     vec3  albedo;
     float metallic;
@@ -73,6 +74,7 @@ void main()
 {		
     vec3 N = normalize(Normal);
     vec3 V = normalize(camPos - WorldPos);
+    vec3 R = reflect(-V, N);
 
     vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
@@ -101,13 +103,18 @@ void main()
         float NdotL = max(dot(N, L), 0.0);                
         Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
     }
-
-    vec3 kS = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+    vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;	  
     vec3 irradiance = texture(irradianceMap, N).rgb;
     vec3 diffuse      = irradiance * albedo;
-    vec3 ambient = (kD * diffuse) * ao;
+
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(prefilterMap, R,  roughness * MAX_REFLECTION_LOD).rgb;    
+    vec2 brdf  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    vec3 ambient = (kD * diffuse + specular) * ao;
 
     vec3 color = ambient + Lo;
 	
