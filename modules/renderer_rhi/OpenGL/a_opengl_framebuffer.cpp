@@ -1,5 +1,7 @@
 #include "OpenGL/a_opengl_framebuffer.hpp"
 #include <stdexcept>
+#include <cassert>
+#include "GL/glew.h"
 
 namespace Andromeda {
 
@@ -16,9 +18,18 @@ namespace Andromeda {
     void GLFramebuffer::destroy() {
         if (m_RendererID) {
             glDeleteFramebuffers(1, &m_RendererID);
+
             if (!m_ColorAttachments.empty()) {
-                glDeleteTextures(static_cast<GLsizei>(m_ColorAttachments.size()), m_ColorAttachments.data());
+                std::vector<u32> textureIDs;
+                textureIDs.reserve(m_ColorAttachments.size());
+
+                for (const auto& tex : m_ColorAttachments) {
+                    textureIDs.push_back(tex.textureID);
+                }
+
+                glDeleteTextures(static_cast<GLsizei>(textureIDs.size()), textureIDs.data());
             }
+
             if (m_DepthAttachment) {
                 glDeleteTextures(1, &m_DepthAttachment);
                 glDeleteRenderbuffers(1, &m_DepthAttachment);
@@ -28,6 +39,12 @@ namespace Andromeda {
             m_DepthAttachment = 0;
             m_RendererID = 0;
         }
+    }
+
+    const Texture& GLFramebuffer::getColorAttachmentTexture(i32 index) const
+    {
+        assert(index < m_ColorAttachments.size() && "Framebuffer attachment index out of bounds!");
+        return m_ColorAttachments[index];
     }
 
     void GLFramebuffer::invalidate() {
@@ -57,34 +74,47 @@ namespace Andromeda {
 
         if (!colorSpecs.empty()) {
             m_ColorAttachments.resize(colorSpecs.size());
-            glGenTextures(static_cast<GLsizei>(colorSpecs.size()), m_ColorAttachments.data());
 
             for (size_t i = 0; i < colorSpecs.size(); ++i) {
-                glBindTexture(textureTarget, m_ColorAttachments[i]);
+                SamplerState sampler;
+                sampler.type = isMultisampled ? TextureType::Cubemap : TextureType::Texture2D;
+                sampler.minFilter = (colorSpecs[i].textureFormat == FramebufferTextureFormat::None) ? FilterModeMin::Nearest : FilterModeMin::Linear;
+                sampler.magFilter = (colorSpecs[i].textureFormat == FramebufferTextureFormat::None) ? FilterModeMag::Nearest : FilterModeMag::Linear;
+                sampler.wrapS = WrapMode::ClampToEdge;
+                sampler.wrapT = WrapMode::ClampToEdge;
+
+                m_ColorAttachments[i].width = m_Specs.width;
+                m_ColorAttachments[i].height = m_Specs.height;
+                m_ColorAttachments[i].sampler = sampler;
+
+                glGenTextures(1, &m_ColorAttachments[i].textureID);
+                glBindTexture(textureTarget, m_ColorAttachments[i].textureID);
 
                 GLenum internalFormat = GL_RGBA8;
                 GLenum format = GL_RGBA;
-                GLenum filter = GL_LINEAR;
+                GLenum dataType = GL_UNSIGNED_BYTE;
 
                 if (colorSpecs[i].textureFormat == FramebufferTextureFormat::RGBA16F) {
                     internalFormat = GL_RGBA16F;
+                    dataType = GL_FLOAT;
                 }
                 else if (colorSpecs[i].textureFormat == FramebufferTextureFormat::None) {
                     internalFormat = GL_R8;
                     format = GL_RED;
-                    filter = GL_NEAREST;
                 }
 
                 if (isMultisampled) {
                     glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specs.samples, internalFormat, m_Specs.width, m_Specs.height, GL_TRUE);
                 }
                 else {
-                    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Specs.width, m_Specs.height, 0, format, GL_UNSIGNED_BYTE, nullptr);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+                    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Specs.width, m_Specs.height, 0, format, dataType, nullptr);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampler.minFilter == FilterModeMin::Nearest ? GL_NEAREST : GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler.magFilter == FilterModeMag::Nearest ? GL_NEAREST : GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 }
 
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + static_cast<GLenum>(i), textureTarget, m_ColorAttachments[i], 0);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + static_cast<GLenum>(i), textureTarget, m_ColorAttachments[i].textureID, 0);
             }
         }
 
@@ -123,6 +153,7 @@ namespace Andromeda {
             throw std::runtime_error("Andromeda RHI: Framebuffer is incomplete!");
         }
 
+        glBindTexture(textureTarget, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
@@ -131,5 +162,9 @@ namespace Andromeda {
         m_Specs.width = newSize.x;
         m_Specs.height = newSize.y;
         invalidate();
+    }
+
+    const FramebufferSpecification& GLFramebuffer::getSpecification() const {
+        return m_Specs;
     }
 }

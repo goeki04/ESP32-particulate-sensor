@@ -6,6 +6,7 @@
 #include <sstream>
 #include "a_opengl_constant_buffer.hpp"
 #include "OpenGL/a_opengl_framebuffer.hpp"
+#include "a_cubemapData.hpp"
 #include "a_samplerState.hpp"
 #include "a_opengl_texture.hpp"
 #include "a_opengl_sampler.hpp"
@@ -88,6 +89,11 @@ namespace Andromeda {
         if (handle.apiID != 0) {
             glDeleteProgram(handle.apiID);
         }
+    }
+
+    void OpenGLContext::unbindTexture()
+    {
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void OpenGLContext::bindShaderProgram(ShaderProgramHandle handle) {
@@ -281,9 +287,13 @@ namespace Andromeda {
         return glGetUniformLocation(shader.apiID, name.c_str());
     }
 
-    void OpenGLContext::bindTexture(u32 slot, u32 textureID) {
+    void OpenGLContext::bindShaderTexture(u32 slot,const Texture& tex) {
         glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(GL_TEXTURE_2D, textureID);
+        glBindTexture(GL_TEXTURE_2D, tex.textureID);
+    }
+
+    void OpenGLContext::bindToTarget(const Texture& tex) {
+        glBindTexture(GL_TEXTURE_2D, tex.textureID);
     }
 
     void OpenGLContext::attachCubemapFace(u32 faceIndex, u32 cubemapTexID) {
@@ -418,19 +428,19 @@ namespace Andromeda {
        glBindTexture(target, 0);
     }
 
-    void OpenGLContext::bindTextureCube(u32 slot, u32 textureID) {
+    void OpenGLContext::bindTextureCube(u32 slot,const CubemapData& tex) {
         glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, tex.textureID);
     }
 
-    void OpenGLContext::framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip)
+    void OpenGLContext::framebufferTexture2D(u32 faceIndex,const CubemapData& tex, u32 mip)
     {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, textureID,mip);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, tex.textureID, mip);
     }
 
-    void OpenGLContext::framebufferTexture2D(u32 textureID, u32 mip)
+    void OpenGLContext::framebufferTexture2D(const Texture& tex, u32 mip)
     {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureID, mip);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex.textureID, mip);
     }
 
     void OpenGLContext::allocateTexture(Texture& texture)

@@ -44,7 +44,7 @@ namespace Andromeda {
         m_RenderContext->bindShaderProgram(prefilterMapHandle);
         m_RenderContext->setParameter(prefilterMapHandle, "environmentMap", 0);
         m_RenderContext->setParameter(prefilterMapHandle, "proj", CubemapGL::cubeProjection);
-        m_RenderContext->bindTextureCube(0, m_EnvironmentCubemap.textureID);
+        m_RenderContext->bindTextureCube(0, m_EnvironmentCubemap);
         m_RenderContext->bindFramebuffer(m_BakingBuffer);
         u32 maxMipLevels = 5;
 
@@ -58,41 +58,14 @@ namespace Andromeda {
 
             for (u32 i = 0; i < 6; ++i) {
                 m_RenderContext->setParameter(prefilterMapHandle, "view", CubemapGL::cubeViews[i]);
-                m_RenderContext->framebufferTexture2D(i,m_PrefilterMap.textureID,mip);
+                m_RenderContext->framebufferTexture2D(i,m_PrefilterMap,mip);
                 m_RenderContext->clear(ClearFlags::Color);
                 m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
             }
         }
         m_RenderContext->bindFramebuffer(0);
     }
-    unsigned int quadVAO = 0;
-    unsigned int quadVBO;
-    void renderQuad()
-    {
-        if (quadVAO == 0)
-        {
-            float quadVertices[] = {
-                // positions        // texture Coords
-                -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-                 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-                 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-            };
-            // setup plane VAO
-            glGenVertexArrays(1, &quadVAO);
-            glGenBuffers(1, &quadVBO);
-            glBindVertexArray(quadVAO);
-            glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-            glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-        }
-        glBindVertexArray(quadVAO);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        glBindVertexArray(0);
-    }
+
     void Renderer::irradianceCubemapBaking()
     {
         RenderPassSpecs specs;
@@ -120,7 +93,7 @@ namespace Andromeda {
 
         ShaderProgramHandle irradianceShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Irradiance_Shader", SHADER_PATH "equirect.vert", SHADER_PATH "irradiance.frag");
         m_RenderContext->bindShaderProgram(irradianceShaderHandle);
-        m_RenderContext->bindTextureCube(0,m_EnvironmentCubemap.textureID);
+        m_RenderContext->bindTextureCube(0,m_EnvironmentCubemap);
 
         m_RenderContext->setParameter(irradianceShaderHandle, "proj", CubemapGL::cubeProjection);
         m_RenderContext->setViewport(0,0,32,32);
@@ -137,8 +110,37 @@ namespace Andromeda {
         RenderPassSpecs resetSpecs;
         m_RenderContext->setRenderPassSpecs(resetSpecs);
     }
-
+    /// <summary>
+    /// TODO: remove this api specific function and add uvs to the mesh class
+    /// </summary>
+    unsigned int quadVAO = 0;
+    unsigned int quadVBO;
+    void renderQuad()
+    {
+        if (quadVAO == 0)
+        {
+            float quadVertices[] = {
+                -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+                 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+                 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+            };
+            glGenVertexArrays(1, &quadVAO);
+            glGenBuffers(1, &quadVBO);
+            glBindVertexArray(quadVAO);
+            glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+        }
+        glBindVertexArray(quadVAO);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glBindVertexArray(0);
+    }
     void Renderer::brdfLUTBaking() {
+        
         RenderPassSpecs specs;
         specs.cullMode = CullMode::None;
         specs.depthTest = false;
@@ -147,24 +149,27 @@ namespace Andromeda {
         SamplerState brdfSampler;
         brdfSampler.minFilter = FilterModeMin::Linear;
         brdfSampler.magFilter = FilterModeMag::Linear;
-        Mesh quadMesh;
-        MeshGPUHandle handle;
-        PrimitiveGenerator::generateQuad(quadMesh);
+        brdfSampler.wrapS = WrapMode::ClampToEdge;
+        brdfSampler.wrapT = WrapMode::ClampToEdge;
         m_BrdfLUTTexture = m_RenderContext->generateTexture(512, 512, brdfSampler, TextureFormat::RG16_FLOAT);
         m_RenderContext->allocateTexture(m_BrdfLUTTexture);
+
         m_RenderContext->bindSamplerState(m_BrdfLUTTexture.textureID, brdfSampler);
+
         m_RenderContext->setViewport(0, 0, 512, 512);
         m_RenderContext->bindFramebuffer(m_BakingBuffer);
         m_BakingBuffer->resize(ivec2(512, 512));
-        m_RenderContext->framebufferTexture2D(m_BrdfLUTTexture.textureID, 0);
+
+        m_RenderContext->bindToTarget(m_BrdfLUTTexture);
+        m_RenderContext->framebufferTexture2D(m_BrdfLUTTexture, 0);
         m_RenderContext->bindShaderProgram(brdfShaderHandle);
         m_RenderContext->clear(ClearFlags::Color);
-        //createMesh(handle, quadMesh);
-        //m_RenderContext->drawArrays(handle.vao, 6);
         renderQuad();
         m_RenderContext->bindFramebuffer(0);
+        
         RenderPassSpecs resetSpecs;
         m_RenderContext->setRenderPassSpecs(resetSpecs);
+
     }
 
     void Renderer::start()
@@ -206,7 +211,7 @@ namespace Andromeda {
             }
         );
 
-        m_RenderContext->bindTextureCube(0,m_EnvironmentCubemap.textureID);
+        m_RenderContext->bindTextureCube(0,m_EnvironmentCubemap);
         m_RenderContext->generateMipmap(TextureType::Cubemap);
 
         irradianceCubemapBaking();
@@ -395,7 +400,7 @@ namespace Andromeda {
         auto skyboxMat = m_ResourceManager->getMaterial("SkyboxMaterial");
         if (skyboxMat) [[likely]] {
             skyboxMat->bind(m_RenderContext);
-            m_RenderContext->bindTextureCube(0, m_EnvironmentCubemap.textureID);
+            m_RenderContext->bindTextureCube(0, m_EnvironmentCubemap);
 
             m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
         }
@@ -466,8 +471,8 @@ namespace Andromeda {
             mutableOutlineUBO.bind(0);
 
             outlineMat->bind(m_RenderContext);
-            m_RenderContext->bindTexture(10, m_SceneBuffer->getColorAttachmentRendererID(0));
-            m_RenderContext->bindTexture(11, m_SelectionBuffer->getColorAttachmentRendererID(0));
+            m_RenderContext->bindShaderTexture(10, m_SceneBuffer->getColorAttachmentTexture(0));
+            m_RenderContext->bindShaderTexture(11, m_SelectionBuffer->getColorAttachmentTexture(0));
             m_RenderContext->drawArrays(m_CubeVao, 3);
         }
 
@@ -493,9 +498,9 @@ namespace Andromeda {
         }
     }
 
-    u32 Renderer::getFinalSceneViewportTexture() const
+    Texture Renderer::getFinalSceneViewportTexture() const
     {
-        return m_PostprocessBuffer->getColorAttachmentRendererID(0);
+        return m_PostprocessBuffer->getColorAttachmentTexture(0);
     }
 
     void Renderer::onViewportResize(ivec2 newSize)

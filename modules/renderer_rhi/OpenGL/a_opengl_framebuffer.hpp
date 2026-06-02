@@ -14,17 +14,16 @@ namespace Andromeda {
         void invalidate();
         void destroy();
 
+        const Texture& getColorAttachmentTexture(i32 index) const override;
+
         virtual void resize(const ivec2& newSize) override;
-        virtual u32 getColorAttachmentRendererID(i32 index = 0) const override { return m_ColorAttachments[index]; }
-        virtual const FramebufferSpecification& getSpecification() const override { return m_Specs; }
+        const FramebufferSpecification& getSpecification() const override;
 
         u32 getFramebufferID() const { return m_RendererID; }
 
     private:
         u32 m_RendererID = 0;
         FramebufferSpecification m_Specs;
-
-        std::vector<u32> m_ColorAttachments;
         u32 m_DepthAttachment = 0;
     };
 }

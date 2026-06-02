@@ -1,6 +1,6 @@
 #pragma once
 #include "a_primitives.hpp"
-
+#include "a_texture.hpp"
 namespace Andromeda::amath { struct CameraData; }
 
 namespace Andromeda::Gui {
@@ -18,7 +18,7 @@ namespace Andromeda::Gui {
         ViewportDrawInfo() : camData(nullptr), postProcessingFboTexture(0), framebufferSize(0.0f, 0.0f){}
 
         amath::CameraData* camData;      // Source camera for this viewport
-        u32 postProcessingFboTexture;         // OpenGL handle for the final scene texture (post-processing texture)
+        Texture postProcessingFboTexture;         // OpenGL handle for the final scene texture (post-processing texture)
         vec2 framebufferSize;           // Dimensions of the viewport in pixels
     };
 }

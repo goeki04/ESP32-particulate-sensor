@@ -9,6 +9,7 @@
 #include "OpenGL/a_OpenGLContext.hpp"
 #include <a_CubemapData.hpp>
 #include "OpenGL/a_opengl_constant_buffer.hpp"
+#include "a_texture.hpp"
 namespace Andromeda {
 	namespace amath {
 		struct CameraData;
@@ -48,7 +49,7 @@ namespace Andromeda {
 		void destroy() override;
 		void setActiveCamera(amath::CameraData* camData);
 		void geometryPass() const;
-		u32 getFinalSceneViewportTexture() const;
+		Texture getFinalSceneViewportTexture() const;
 		void onViewportResize(ivec2 newSize);
 		void processResizeTimer();
 		void selectionPass(ECS::Entity selectedEntity) const;

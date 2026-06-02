@@ -48,25 +48,6 @@ namespace Andromeda {
         }
 
 
-        static void generateQuad(Mesh& outMesh) {
-            outMesh.vertexbuffer.clear();
-            outMesh.indexBuffer.clear();
-
-            outMesh.vertexbuffer = {
-                // Pos                  Normal         UV        Color
-                { {-1.0f,  1.0f, 0.0f}, {0, 0, 1}, {0, 1}, {1,1,1} }, // Top-Left
-                { { 1.0f,  1.0f, 0.0f}, {0, 0, 1}, {1, 1}, {1,1,1} }, // Top-Right
-                { { 1.0f, -1.0f, 0.0f}, {0, 0, 1}, {1, 0}, {1,1,1} }, // Bottom-Right
-                { {-1.0f, -1.0f, 0.0f}, {0, 0, 1}, {0, 0}, {1,1,1} }  // Bottom-Left
-            };
-
-            outMesh.indexBuffer = {
-                0, 2, 1, //  (TL, BR, TR)
-                0, 3, 2  //  (TL, BL, BR)
-
-            };
-        }
-
         static void generateSphere(Mesh& outMesh) {
             outMesh.vertexbuffer.clear();
             outMesh.indexBuffer.clear();
