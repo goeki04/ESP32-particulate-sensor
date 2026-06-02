@@ -1,5 +1,6 @@
 #pragma once
 #include "a_Primitives.hpp"
+#include "a_texture.hpp"
 #include <vector>
 namespace Andromeda {
 	enum class FramebufferTextureFormat {
@@ -27,7 +28,8 @@ namespace Andromeda {
 	public:
 		virtual ~IFramebuffer() = default;
 		virtual void resize(const ivec2& newSize) = 0;
-		virtual u32 getColorAttachmentRendererID(i32 index = 0) const = 0;
 		virtual const FramebufferSpecification& getSpecification() const = 0;
+		virtual const Texture& getColorAttachmentTexture(i32 index = 0) const = 0;
+		std::vector<Texture> m_ColorAttachments;
 	};
 }

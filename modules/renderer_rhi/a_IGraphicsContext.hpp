@@ -11,6 +11,7 @@
 #include "a_samplerState.hpp"
 #include "a_texture.hpp"
 namespace Andromeda {
+	struct CubemapData;
 	class IGraphicsContext {
 	public:
 		virtual ~IGraphicsContext() = default;
@@ -36,11 +37,13 @@ namespace Andromeda {
 		virtual void deleteVertexArrays(u32 vao) = 0;
 		virtual i32 getUniformLocation(ShaderProgramHandle shader, const std::string& name) = 0;
 		virtual std::shared_ptr<IConstantBuffer> createConstantBuffer(u32 size) = 0;
-		virtual void bindTexture(u32 slot, u32 textureID) = 0;
+		virtual void bindShaderTexture(u32 slot, const Texture& tex) = 0;
+		virtual void bindToTarget(const Texture& tex) = 0;
+		virtual void unbindTexture() = 0;
 		virtual void attachCubemapFace(u32 faceIndex, u32 cubemapTexID) = 0;
-		virtual void bindTextureCube(u32 slot, u32 textureID) = 0;
-		virtual void framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip) = 0;
-		virtual void framebufferTexture2D(u32 textureID, u32 mip) = 0;
+		virtual void bindTextureCube(u32 slot,const CubemapData& tex) = 0;
+		virtual void framebufferTexture2D(u32 faceIndex,const CubemapData& tex, u32 mip) = 0;
+		virtual void framebufferTexture2D(const Texture& tex, u32 mip) = 0;
 		virtual void bindSamplerState(u32 textureID, const SamplerState& state) = 0;
 		virtual void initRenderContext() = 0;
 		virtual void allocateTexture(Texture& texture) = 0;

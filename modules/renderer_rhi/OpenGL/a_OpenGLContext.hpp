@@ -5,7 +5,7 @@
 #include "a_texture.hpp"
 namespace Andromeda {
     class SamplerState;
-
+    struct CubemapData;
     /**
      * @class OpenGLContext
      * @brief Handles low-level rendering operations and state management for the OpenGL backend.
@@ -38,6 +38,8 @@ namespace Andromeda {
          * @param handle The handle to the shader program to delete.
          */
         void destroyShaderProgram(ShaderProgramHandle handle) override;
+
+        void unbindTexture() override;
 
         /**
          * @brief Reads a shader source file from disk into a string.
@@ -176,14 +178,16 @@ namespace Andromeda {
          * @param slot The texture unit index.
          * @param textureID The OpenGL texture ID.
          */
-        void bindTexture(u32 slot, u32 textureID);
+        void bindShaderTexture(u32 slot, const Texture& tex) override;
+
+        void bindToTarget(const Texture& tex) override;
 
         /**
          * @brief Attaches a cubemap face to the currently bound framebuffer.
          * @param faceIndex The index of the cubemap face (0-5).
          * @param cubemapTexID The OpenGL texture ID of the cubemap.
          */
-        void attachCubemapFace(u32 faceIndex, u32 cubemapTexID);
+        void attachCubemapFace(u32 faceIndex, u32 cubemapTexID) override;
 
         /**
          * @brief Sets a matrix uniform parameter.
@@ -209,14 +213,14 @@ namespace Andromeda {
         /**
          * @brief Binds a cubemap texture to a specific texture unit.
          */
-        void bindTextureCube(u32 slot, u32 textureID) override;
+        void bindTextureCube(u32 slot,const CubemapData& tex) override;
 
         /**
          * @brief Attaches a 2D texture level to the currently bound framebuffer.
          */
-        void framebufferTexture2D(u32 faceIndex, u32 textureID, u32 mip) override;
+        void framebufferTexture2D(u32 faceIndex,const CubemapData& tex, u32 mip) override;
 
-        void framebufferTexture2D(u32 textureID, u32 mip);
+        void framebufferTexture2D(const Texture& tex, u32 mip);
                
          /**
          * @brief Allocates the physical memory (VRAM) on the GPU for a texture.

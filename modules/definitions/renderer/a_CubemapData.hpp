@@ -1,7 +1,10 @@
 #pragma once
 #include "a_primitives.hpp"
 #include <vector>
-#include <stb_image.h>
+#include <array>
+extern "C" {
+    void stbi_image_free(void* retval_from_stbi_load);
+}
 namespace Andromeda{
     struct CubemapData{
         std::array<void*, 6> pixelData = {

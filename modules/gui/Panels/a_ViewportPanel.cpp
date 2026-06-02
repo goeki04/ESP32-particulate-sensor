@@ -320,7 +320,7 @@ namespace Andromeda::Gui {
         const ImVec2 currentSize = ImGui::GetContentRegionAvail();
         ctx.layout.viewportSize = vec2(currentSize.x, currentSize.y);
 
-        ImGui::Image((void*)static_cast<intptr_t>(drawInfo.postProcessingFboTexture),
+        ImGui::Image((void*)static_cast<intptr_t>(drawInfo.postProcessingFboTexture.textureID),
             currentSize, ImVec2(0, 1), ImVec2(1, 0));
 
         const ImVec2 rectMin = ImGui::GetItemRectMin();
