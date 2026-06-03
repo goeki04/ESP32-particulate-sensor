@@ -1,7 +1,7 @@
 import os
-
+total_lines = 0;
 def count_lines_in_modules(directory):
-    total_lines = 0
+    global total_lines
     extensions = ('.cpp', '.hpp', '.h', '.txt', '.glsl', '.vert', '.frag', '.py')
     
     if not os.path.exists(directory):
@@ -24,6 +24,10 @@ def count_lines_in_modules(directory):
                     print(f"Error while reading from {path}: {e}")
                     
     print("-" * 30)
-    print(f"Line count (excluding bindings): {total_lines}")
+
 
 count_lines_in_modules('modules')
+count_lines_in_modules("tools")
+count_lines_in_modules("metaData")
+count_lines_in_modules("conan/build/Release/generated")
+print(f"Line count (excluding bindings): {total_lines}")

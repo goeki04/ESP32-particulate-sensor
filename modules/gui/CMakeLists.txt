@@ -26,6 +26,7 @@ target_include_directories(gui PUBLIC
     State
     Widgets
     ${CMAKE_SOURCE_DIR}/bindings/
+    ${CMAKE_BINARY_DIR}/generated/
 )
 target_compile_definitions(gui PRIVATE IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
 target_link_libraries(gui PUBLIC

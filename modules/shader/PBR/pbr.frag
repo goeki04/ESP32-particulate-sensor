@@ -54,8 +54,11 @@ layout (binding = 0) uniform samplerCube irradianceMap;
 layout (binding = 1) uniform samplerCube prefilterMap;
 layout (binding = 2) uniform sampler2D brdfLUT;
 layout (std140, binding = 2) uniform pbrMaterial {
+    // @Editor: Drag
     vec3  albedo;
+    // @Editor: Slider(0.0, 1.0)
     float metallic;
+    // @Editor: Slider(0.0, 1.0)
     float roughness;
     float ao;
 };

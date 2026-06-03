@@ -21,6 +21,7 @@ namespace Andromeda {
      */
     class Material {
     public:
+        std::any m_UboStructure;
         /**
          * @struct PropertyLayout
          * @brief Describes the memory metadata of a single shader variable inside the byte buffer.
@@ -56,12 +57,21 @@ namespace Andromeda {
         template<typename T>
         void setUBOData(const T& data, u32 bindingSlot, IGraphicsContext* ctx) {
             m_UboBindingSlot = bindingSlot;
+            m_UboStructure = data;
             if (!m_MaterialUBO) {
                 m_MaterialUBO = ctx->createConstantBuffer(sizeof(T));
             }
 
             m_MaterialUBO->setData(&data, sizeof(T));
             m_MaterialUBO->bind(bindingSlot);
+        }
+
+        template<typename T>
+        void updateUBOData(const T& data) {
+            m_UboStructure = data;
+            if (m_MaterialUBO) {
+                m_MaterialUBO->setData(&data, sizeof(T));
+            }
         }
 
         /**
@@ -140,6 +150,18 @@ namespace Andromeda {
             // A single virtual function call for the entire object uniform block payload
             ctx->submitUniforms(submitQueue);
             ctx->bindTextures(m_Textures);
+        }
+
+        const std::vector<PropertyLayout>& getProperties() const { return m_Properties; }
+        const std::string getUniformNameByLocation(u32 location) const {
+            for (const auto& [name, meta] : m_UniformTable) {
+                if (meta.location == location) return name;
+            }
+            return "";
+        }
+
+        void* getPropertyPointer(const PropertyLayout& prop) {
+            return m_CpuStorage.data() + prop.offset;
         }
 
     private:
