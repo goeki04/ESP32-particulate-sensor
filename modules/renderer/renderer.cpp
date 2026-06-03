@@ -145,28 +145,31 @@ namespace Andromeda {
         specs.cullMode = CullMode::None;
         specs.depthTest = false;
         m_RenderContext->setRenderPassSpecs(specs);
+
         ShaderProgramHandle brdfShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "BRDF_Shader", SHADER_PATH "PBR/brdf.vert", SHADER_PATH "PBR/brdf.frag");
+        
         SamplerState brdfSampler;
+        brdfSampler.type = TextureType::Texture2D;
         brdfSampler.minFilter = FilterModeMin::Linear;
         brdfSampler.magFilter = FilterModeMag::Linear;
         brdfSampler.wrapS = WrapMode::ClampToEdge;
         brdfSampler.wrapT = WrapMode::ClampToEdge;
+
         m_BrdfLUTTexture = m_RenderContext->generateTexture(512, 512, brdfSampler, TextureFormat::RG16_FLOAT);
         m_RenderContext->allocateTexture(m_BrdfLUTTexture);
-
         m_RenderContext->bindSamplerState(m_BrdfLUTTexture.textureID, brdfSampler);
 
         m_RenderContext->setViewport(0, 0, 512, 512);
         m_RenderContext->bindFramebuffer(m_BakingBuffer);
-        m_BakingBuffer->resize(ivec2(512, 512));
 
         m_RenderContext->bindToTarget(m_BrdfLUTTexture);
         m_RenderContext->framebufferTexture2D(m_BrdfLUTTexture, 0);
         m_RenderContext->bindShaderProgram(brdfShaderHandle);
         m_RenderContext->clear(ClearFlags::Color);
         renderQuad();
+        m_RenderContext->unbindTexture();
         m_RenderContext->bindFramebuffer(0);
-        
+
         RenderPassSpecs resetSpecs;
         m_RenderContext->setRenderPassSpecs(resetSpecs);
 
@@ -298,7 +301,6 @@ namespace Andromeda {
         scenePassEndResolve();
         selectionPass(m_SelectedForHighlighting);
         postprocessingPass();
-        brdfLUTBaking();
     }
 
     void Renderer::destroy() {
@@ -356,6 +358,7 @@ namespace Andromeda {
 
         auto& meshPool = m_SceneManager->m_Registry.getPool<Component::MeshRenderer>();
         auto& transformPool = m_SceneManager->m_Registry.getPool<Component::Transform>();
+        auto& materialPool = m_SceneManager->m_Registry.getPool<Component::Material>();
         const auto& entitiesWithMesh = meshPool.getEntities();
         const auto& meshData = meshPool.data();
 
@@ -366,9 +369,10 @@ namespace Andromeda {
 
             if (transformPool.has(e)) [[likely]] {
                 const auto& meshComp = meshData[i];
+                const auto& materialComp = materialPool.get(e);
                 const auto& transform = transformPool.get(e);
                 
-                auto material = m_ResourceManager->getMaterial(meshComp.materialName);
+                auto material = m_ResourceManager->getMaterial(materialComp.materialName);
                 u32 vao = m_ResourceManager->getMeshVaoByID(meshComp.meshID);
                 u32 indexCount = m_ResourceManager->getMeshIndexSizeByID(meshComp.meshID);
 

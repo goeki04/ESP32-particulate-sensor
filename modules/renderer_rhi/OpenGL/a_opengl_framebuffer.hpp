@@ -3,6 +3,7 @@
 #include "a_rhi_framebuffer.hpp"
 #include <GL/glew.h>
 #include <vector>
+#include "a_texture.hpp"
 
 namespace Andromeda {
 
@@ -22,8 +23,13 @@ namespace Andromeda {
         u32 getFramebufferID() const { return m_RendererID; }
 
     private:
+        void attachColorAttachments(GLenum textureTarget, const std::vector<FramebufferTextureSpecification>& colorSpecs);
+        void attachDepthAttachment(bool isMultisampled, const FramebufferTextureSpecification& depthSpec, bool hasDepth);
+        void configureDrawBuffers();
+
         u32 m_RendererID = 0;
         FramebufferSpecification m_Specs;
+        std::vector<Texture> m_ColorAttachments;
         u32 m_DepthAttachment = 0;
     };
 }

@@ -20,15 +20,16 @@ namespace Andromeda::ECS::Component {
     /** @brief Serializes the Transform component (Position, Rotation, Scale). */
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Transform, position, rotation, scale)
 
-    /** @brief Serializes the Axis-Aligned Bounding Box (AABB) component. */
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AABB, min, max, center)
+        /** @brief Serializes the Axis-Aligned Bounding Box (AABB) component. */
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AABB, min, max, center)
 
-    /** @brief Serializes the Tag component used for entity identification. */
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Tag, name)
+        /** @brief Serializes the Tag component used for entity identification. */
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Tag, name)
 
-    /** @brief Serializes the Device component. */
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Device, type)
+        /** @brief Serializes the Device component. */
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Device, type)
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MeshRenderer, meshID);
 
-    /** @brief Serializes the MeshFilter component. */
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MeshRenderer, meshID, materialName)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Material, materialName)
+
 }

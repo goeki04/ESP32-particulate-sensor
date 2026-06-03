@@ -8,7 +8,7 @@ add_library(renderer_rhi STATIC
     OpenGL/a_opengl_upload.cpp
     OpenGL/a_OpenGLContext.cpp
     OpenGL/a_opengl_constant_buffer.cpp
-    a_shader_reflection.cpp
+    
     )
 
 include(${CMAKE_SOURCE_DIR}/cmake/CompileShaders.cmake)

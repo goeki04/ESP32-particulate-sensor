@@ -5,6 +5,7 @@
 namespace Andromeda::ECS::Component {
     struct AABB;
     struct Device;
+    struct Material;
     struct MeshRenderer;
     struct Tag;
     struct Transform;
@@ -12,6 +13,7 @@ namespace Andromeda::ECS::Component {
     using ComponentDirectory = std::tuple<
         AABB,
         Device,
+        Material,
         MeshRenderer,
         Tag,
         Transform

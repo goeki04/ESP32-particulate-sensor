@@ -6,6 +6,7 @@
 #include "spirv_reflect.h"
 #include <unordered_map>
 #include <sstream>
+#include "shader_comment_parser.hpp"
 
 std::vector<char> ReadSpvFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -30,9 +31,20 @@ std::string GetCppType(const SpvReflectTypeDescription* type) {
         if (type->traits.numeric.vector.component_count == 2) return "vec2";
     }
     if (type->type_flags & SPV_REFLECT_TYPE_FLAG_FLOAT) return "float";
-    if (type->type_flags & SPV_REFLECT_TYPE_FLAG_INT) return "i32";
+    if (type->type_flags & SPV_REFLECT_TYPE_FLAG_INT) return "i32"; 
 
     return "UNKNOWN_TYPE";
+}
+
+std::string GetShaderDataTypeEnum(const std::string& cppType) {
+    if (cppType == "mat4")  return "ShaderDataType::Mat4";
+    if (cppType == "mat3")  return "ShaderDataType::Mat3";
+    if (cppType == "vec4")  return "ShaderDataType::Vec4";
+    if (cppType == "vec3")  return "ShaderDataType::Vec3";
+    if (cppType == "vec2")  return "ShaderDataType::Vec2";
+    if (cppType == "float") return "ShaderDataType::Float";
+    if (cppType == "int")   return "ShaderDataType::Int";
+    return "ShaderDataType::Unknown";
 }
 
 int main(int argc, char** argv) {
@@ -50,20 +62,25 @@ int main(int argc, char** argv) {
     }
 
     outFile << "#pragma once\n";
-    outFile << "#include \"a_primitives.hpp\"\n\n";
+    outFile << "#include \"a_primitives.hpp\"\n";
+    outFile << "#include \"a_IGraphicsContext.hpp\" // Benötigt für ShaderDataType\n\n";
     outFile << "namespace Andromeda::Generated {\n\n";
 
-    // Structure to hold the size and generated code for comparison
     struct StructDefinition {
-        uint32_t size;
-        std::string code;
+        uint32_t size = 0;
+        std::string code = "";
     };
 
     std::unordered_map<std::string, StructDefinition> generatedStructs;
 
     for (int i = 2; i < argc; ++i) {
         std::string inputPath = argv[i];
-
+        std::string glslPath = inputPath;
+        size_t spvExtPos = glslPath.rfind(".spv");
+        if (spvExtPos != std::string::npos) {
+            glslPath = glslPath.substr(0, spvExtPos);
+        }
+        std::unordered_map<std::string, PropertyUiMetadata> uiMetadata = ParseGlslAnnotations(glslPath);
         std::vector<char> spvCode;
         try {
             spvCode = ReadSpvFile(inputPath);
@@ -98,8 +115,14 @@ int main(int argc, char** argv) {
                 if (generatedStructs.find(structName) == generatedStructs.end() || generatedStructs[structName].size < currentSize) {
 
                     std::ostringstream structCode;
+                    std::ostringstream visitorCode;
+
                     structCode << "// Generated from: " << inputPath << "\n";
                     structCode << "struct alignas(16) " << structName << " {\n";
+
+                    visitorCode << "    // Automatically generated reflection visitor for ImGui and Serialization\n";
+                    visitorCode << "    template<typename F>\n";
+                    visitorCode << "    void reflect(F&& visitor) {\n";
 
                     for (uint32_t m = 0; m < binding->block.member_count; m++) {
                         SpvReflectBlockVariable& member = binding->block.members[m];
@@ -130,10 +153,37 @@ int main(int argc, char** argv) {
                         }
                         else {
                             structCode << cppType << " " << member.name << ";\n";
+
+                            std::string enumType = GetShaderDataTypeEnum(cppType);
+
+                            float minVal = 0.0f;
+                            float maxVal = 0.0f;
+
+                            // Nutze die Daten aus deiner shader_comment_parser.hpp
+                            if (uiMetadata.find(member.name) != uiMetadata.end()) {
+                                const auto& meta = uiMetadata[member.name];
+                                if (meta.widgetType == "Slider") {
+                                    minVal = meta.minBound;
+                                    maxVal = meta.maxBound;
+                                }
+                            }
+
+                            // Übergere die gemessenen Grenzen an die generierte reflect()-Methode
+                            if (minVal != maxVal) {
+                                visitorCode << "        visitor(\"" << member.name << "\", " << member.name << ", " << enumType << ", " << minVal << "f, " << maxVal << "f);\n";
+                            }
+                            else {
+                                visitorCode << "        visitor(\"" << member.name << "\", " << member.name << ", " << enumType << ");\n";
+                            }
                         }
                     }
+
+                    visitorCode << "    }\n";
+
+                    structCode << "\n" << visitorCode.str();
                     structCode << "}; // Total Size: " << currentSize << " Bytes\n";
                     structCode << "static_assert(sizeof(" << structName << ") % 16 == 0, \"Alignment Error!\");\n\n";
+
                     generatedStructs[structName] = { currentSize, structCode.str() };
                 }
             }

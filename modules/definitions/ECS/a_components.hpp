@@ -44,6 +44,10 @@ namespace Andromeda::ECS::Component {
         }
     };
 
+    struct Material {
+        std::string materialName = "PBRMaterial";
+    };
+
     struct Device
     {
         deviceType type;
@@ -52,7 +56,6 @@ namespace Andromeda::ECS::Component {
     struct MeshRenderer
     {
         u32 meshID;
-        std::string materialName = "PBRMaterial";
     };
 
     struct AABB {

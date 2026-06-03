@@ -9,6 +9,7 @@ namespace Andromeda{
         auto handle = m_Registry.createHandle();
         handle.add<ECS::Component::Transform>(transform);
         handle.add<ECS::Component::MeshRenderer>({ meshID});
+        handle.add<ECS::Component::Material>({ "PBRMaterial" });
         handle.add<ECS::Component::Tag>({ name });
         auto aabb = m_ResourceManager->getMeshByID(meshID).getAABB();
         handle.add<ECS::Component::AABB>(aabb);
