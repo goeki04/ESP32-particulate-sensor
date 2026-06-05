@@ -53,7 +53,7 @@ add_subdirectory(modules/renderer_rhi)
 add_executable(AndromedaReflector tools/shader_reflector/main.cpp)
 target_link_libraries(AndromedaReflector PRIVATE spirv-reflect-static)
 target_link_libraries(AndromedaReflector PRIVATE definitions)
-
+target_compile_definitions(AndromedaReflector PRIVATE SHADER_PATH="${CMAKE_SOURCE_DIR}/modules/shader/")
 
 
 add_executable(Andromeda 

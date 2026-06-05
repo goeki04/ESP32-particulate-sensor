@@ -3,10 +3,17 @@
 #include <vector>
 #include <string>
 #include <cstring>
-#include "spirv_reflect.h"
 #include <unordered_map>
 #include <sstream>
+#include <filesystem>
+#include "spirv_reflect.h"
 #include "shader_comment_parser.hpp"
+#include <iomanip>
+// Macro Stringification Helpers
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
+namespace fs = std::filesystem;
 
 std::vector<char> ReadSpvFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -31,7 +38,7 @@ std::string GetCppType(const SpvReflectTypeDescription* type) {
         if (type->traits.numeric.vector.component_count == 2) return "vec2";
     }
     if (type->type_flags & SPV_REFLECT_TYPE_FLAG_FLOAT) return "float";
-    if (type->type_flags & SPV_REFLECT_TYPE_FLAG_INT) return "i32"; 
+    if (type->type_flags & SPV_REFLECT_TYPE_FLAG_INT) return "i32";
 
     return "UNKNOWN_TYPE";
 }
@@ -47,6 +54,17 @@ std::string GetShaderDataTypeEnum(const std::string& cppType) {
     return "ShaderDataType::Unknown";
 }
 
+std::string FindShaderFile(const std::string& baseDir, const std::string& targetFilename) {
+    if (!fs::exists(baseDir)) return "";
+
+    for (const auto& entry : fs::recursive_directory_iterator(baseDir)) {
+        if (entry.is_regular_file() && entry.path().filename().string() == targetFilename) {
+            return entry.path().string();
+        }
+    }
+    return ""; // Not found
+}
+
 int main(int argc, char** argv) {
     if (argc < 3) {
         std::cerr << "Usage: AndromedaReflector <output.hpp> <input1.spv> [input2.spv...]\n";
@@ -54,6 +72,16 @@ int main(int argc, char** argv) {
     }
 
     std::string outputPath = argv[1];
+
+#ifndef SHADER_PATH
+#error "SHADER_PATH macro is missing! Check your CMake target_compile_definitions."
+#endif
+
+    std::string baseSourceDir = TOSTRING(SHADER_PATH);
+
+    // Cleanup in case CMake sent double quotes
+    if (!baseSourceDir.empty() && baseSourceDir.front() == '"') baseSourceDir.erase(0, 1);
+    if (!baseSourceDir.empty() && baseSourceDir.back() == '"') baseSourceDir.pop_back();
 
     std::ofstream outFile(outputPath, std::ios::out);
     if (!outFile.is_open()) {
@@ -63,7 +91,7 @@ int main(int argc, char** argv) {
 
     outFile << "#pragma once\n";
     outFile << "#include \"a_primitives.hpp\"\n";
-    outFile << "#include \"a_IGraphicsContext.hpp\" // Benötigt für ShaderDataType\n\n";
+    outFile << "#include \"a_IGraphicsContext.hpp\" // Requires ShaderDataType\n\n";
     outFile << "namespace Andromeda::Generated {\n\n";
 
     struct StructDefinition {
@@ -72,15 +100,50 @@ int main(int argc, char** argv) {
     };
 
     std::unordered_map<std::string, StructDefinition> generatedStructs;
-
+    std::ofstream initLog("reflector_debug.log", std::ios::trunc);
+    if (initLog.is_open()) {
+        initLog << "--- Starting new Reflector run ---\n";
+        initLog.close();
+    }
     for (int i = 2; i < argc; ++i) {
         std::string inputPath = argv[i];
-        std::string glslPath = inputPath;
-        size_t spvExtPos = glslPath.rfind(".spv");
+
+        std::string filename = fs::path(inputPath).filename().string();
+
+        size_t spvExtPos = filename.rfind(".spv");
         if (spvExtPos != std::string::npos) {
-            glslPath = glslPath.substr(0, spvExtPos);
+            filename = filename.substr(0, spvExtPos);
         }
+
+        std::string glslPath = FindShaderFile(baseSourceDir, filename);
+
+        if (glslPath.empty()) {
+            std::ofstream logFile("reflector_debug.log", std::ios::app);
+            if (logFile.is_open()) {
+                logFile << "[ERROR] File '" << filename << "' not found anywhere in: " << baseSourceDir << "\n";
+                logFile.close();
+            }
+            continue;
+        }
+
         std::unordered_map<std::string, PropertyUiMetadata> uiMetadata = ParseGlslAnnotations(glslPath);
+
+        std::ofstream logFile("reflector_debug.log", std::ios::app);
+        if (logFile.is_open()) {
+            logFile << "[DEBUG] trying to parse glsl files: " << glslPath << "\n";
+            logFile << "[DEBUG] found Annotations: " << uiMetadata.size() << "\n";
+            for (const auto& pair : uiMetadata) {
+                logFile << "  -> Variable: '" << pair.first << "' | Widget: "
+                    << pair.second.widgetType << " | Min: " << pair.second.minBound
+                    << " | Max: " << pair.second.maxBound << "\n";
+            }
+            logFile << "--------------------------------------------------\n";
+            logFile.close();
+        }
+        else {
+            std::cerr << "[ERROR] Could not open reflector_debug.log!\n";
+        }
+
         std::vector<char> spvCode;
         try {
             spvCode = ReadSpvFile(inputPath);
@@ -100,6 +163,7 @@ int main(int argc, char** argv) {
         spvReflectEnumerateDescriptorBindings(&module, &bindingCount, nullptr);
         std::vector<SpvReflectDescriptorBinding*> bindings(bindingCount);
         spvReflectEnumerateDescriptorBindings(&module, &bindingCount, bindings.data());
+
 
         for (uint32_t b = 0; b < bindingCount; b++) {
             SpvReflectDescriptorBinding* binding = bindings[b];
@@ -158,22 +222,31 @@ int main(int argc, char** argv) {
 
                             float minVal = 0.0f;
                             float maxVal = 0.0f;
-
-                            // Nutze die Daten aus deiner shader_comment_parser.hpp
+                            std::string widgetHint = "Default";
                             if (uiMetadata.find(member.name) != uiMetadata.end()) {
                                 const auto& meta = uiMetadata[member.name];
                                 if (meta.widgetType == "Slider") {
                                     minVal = meta.minBound;
                                     maxVal = meta.maxBound;
+                                    widgetHint = "Slider";
+                                }
+                                else if (meta.widgetType == "Color") {
+                                    widgetHint = "Color";
                                 }
                             }
 
-                            // Übergere die gemessenen Grenzen an die generierte reflect()-Methode
-                            if (minVal != maxVal) {
-                                visitorCode << "        visitor(\"" << member.name << "\", " << member.name << ", " << enumType << ", " << minVal << "f, " << maxVal << "f);\n";
+                            if (widgetHint == "Color") {
+                                visitorCode << "        visitor(\"" << member.name << "\", " << member.name << ", " << enumType
+                                    << ", 0.0f, 0.0f, \"Color\");\n";
+                            }
+                            else if (widgetHint == "Slider" && minVal != maxVal) {
+                                visitorCode << "        visitor(\"" << member.name << "\", " << member.name << ", " << enumType << ", "
+                                    << std::fixed << std::setprecision(2) << minVal << "f, "
+                                    << std::fixed << std::setprecision(2) << maxVal << "f, \"Slider\");\n";
                             }
                             else {
-                                visitorCode << "        visitor(\"" << member.name << "\", " << member.name << ", " << enumType << ");\n";
+                                visitorCode << "        visitor(\"" << member.name << "\", " << member.name << ", " << enumType
+                                    << ", 0.0f, 0.0f, \"Default\");\n";
                             }
                         }
                     }
