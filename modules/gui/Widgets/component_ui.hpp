@@ -1,7 +1,7 @@
 #pragma once
 #include "a_registry.hpp"
 #include "imgui.h"
-#include "generated_components.hpp"
+#include <string_view>
 #include <any>
 #include "resource_manager.h"
 #include "a_event_manager.hpp"
@@ -92,7 +92,7 @@ namespace Andromeda::Gui::Component
 
         bool valueChanged = false;
 
-        auto imGuiVisitor = [&](const char* name, auto& value, ShaderDataType type, float min = 0.0f, float max = 0.0f) {
+        auto imGuiVisitor = [&](const char* name, auto& value, ShaderDataType type, float min = 0.0f, float max = 0.0f, const char* widget = "Default") {
             std::string labelId = std::string("##ubo_") + name;
 
             if (type == ShaderDataType::Mat3 || type == ShaderDataType::Mat4) return;
@@ -103,7 +103,7 @@ namespace Andromeda::Gui::Component
             using T = std::decay_t<decltype(value)>;
 
             bool useSlider = (min != max);
-
+            bool isColor = (std::string_view(widget) == "Color");
             if constexpr (std::is_same_v<T, float>) {
                 if (useSlider) {
                     if (ImGui::SliderFloat(labelId.c_str(), &value, min, max, "%.3f", ImGuiSliderFlags_AlwaysClamp)) valueChanged = true;
@@ -121,7 +121,10 @@ namespace Andromeda::Gui::Component
                 }
             }
             else if constexpr (std::is_same_v<T, vec3>) {
-                if (useSlider) {
+                if (isColor) {
+                    if (ImGui::ColorEdit3(labelId.c_str(), &value.x)) valueChanged = true;
+                }
+                else if (useSlider) {
                     if (ImGui::SliderFloat3(labelId.c_str(), &value.x, min, max, "%.3f", ImGuiSliderFlags_AlwaysClamp)) valueChanged = true;
                 }
                 else {

@@ -54,12 +54,13 @@ layout (binding = 0) uniform samplerCube irradianceMap;
 layout (binding = 1) uniform samplerCube prefilterMap;
 layout (binding = 2) uniform sampler2D brdfLUT;
 layout (std140, binding = 2) uniform pbrMaterial {
-    // @Editor: Drag
+    // @Editor: Color
     vec3  albedo;
     // @Editor: Slider(0.0, 1.0)
     float metallic;
     // @Editor: Slider(0.0, 1.0)
     float roughness;
+    // @Editor: Slider(0.0, 1.0)
     float ao;
 };
 
@@ -121,7 +122,5 @@ void main()
 
     vec3 color = ambient + Lo;
 	
-    color = color / (color + vec3(1.0));
-    color = pow(color, vec3(1.0/2.2));  
     FragColor = vec4(color, 1.0);
 } 
