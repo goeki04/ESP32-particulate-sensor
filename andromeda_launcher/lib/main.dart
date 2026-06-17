@@ -12,7 +12,7 @@ void main() async{
   await windowManager.ensureInitialized();
   const WindowOptions options = WindowOptions(size: Size(1200, 800), minimumSize: Size(600, 400), 
   center: true,  titleBarStyle: TitleBarStyle.hidden);
-  windowManager.waitUntilReadyToShow(options, () async {await windowManager.show(); await windowManager.focus(); },);
+  await windowManager.waitUntilReadyToShow(options, () async {await windowManager.show(); await windowManager.focus(); },);
 
   runApp(const AndromedaApp());
 }
