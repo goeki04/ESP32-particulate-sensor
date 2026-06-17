@@ -10,6 +10,7 @@
 #include "network/esphome_client.h"
 #include "editor/editor.hpp"
 #include "scene/scene.hpp"
+
 Andromeda::Window::WindowManager windowManager;
 Andromeda::InputSystem inputManager;
 Andromeda::Renderer renderer;
