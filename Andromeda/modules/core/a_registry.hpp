@@ -39,7 +39,7 @@ namespace Andromeda::ECS {
         /** @brief Returns the name of the stored component type. */
         [[nodiscard]] virtual std::string getTypeName() const = 0;
     };
-
+    static constexpr size_t INVALID_INDEX = std::numeric_limits<size_t>::max();
     /**
      * @class ComponentPool
      * @tparam T The component type managed by this pool.
@@ -47,9 +47,10 @@ namespace Andromeda::ECS {
      */
     template<typename T>
     class ComponentPool : public IComponentPool {
+
     private:
         std::vector<T> m_data;          /**< Dense array of component data. */
-        std::vector<Entity> m_Entitys;  /**< Dense array of entity IDs corresponding to m_data. */
+        std::vector<Entity> m_Entities;  /**< Dense array of entity IDs corresponding to m_data. */
         std::vector<size_t> m_sparse;   /**< Sparse array mapping Entity ID to index in dense arrays. */
 
     public:
@@ -65,38 +66,38 @@ namespace Andromeda::ECS {
          */
         void add(const Entity entity, T component) {
             if (entity >= m_sparse.size()) {
-                m_sparse.resize(static_cast<size_t>(entity) + 1, 0xFFFFFFFF);
+                m_sparse.resize(static_cast<size_t>(entity) + 1, INVALID_INDEX);
             }
             m_sparse[entity] = m_data.size();
-            m_Entitys.push_back(entity);
+            m_Entities.push_back(entity);
             m_data.push_back(component);
         }
 
         /** @brief Serializes the pool into JSON (Entities and Components). */
         nlohmann::json serializePool() override {
             nlohmann::json j;
-            j["entities"] = m_Entitys;
+            j["entities"] = m_Entities;
             j["components"] = m_data;
             return j;
         }
 
         /** @brief Deserializes data and reconstructs the sparse array at runtime. */
         void deserializePool(const nlohmann::json& data) override {
-            m_Entitys = data.at("entities").get<std::vector<Entity>>();
+            m_Entities = data.at("entities").get<std::vector<Entity>>();
             m_data = data.at("components").get<std::vector<T>>();
 
             m_sparse.clear();
-            if (m_Entitys.empty()) return;
+            if (m_Entities.empty()) return;
 
             Entity maxEntity = 0;
-            for (Entity e : m_Entitys) {
+            for (Entity e : m_Entities) {
                 if (e > maxEntity) maxEntity = e;
             }
 
-            m_sparse.resize(static_cast<size_t>(maxEntity) + 1, 0xFFFFFFFF);
+            m_sparse.resize(static_cast<size_t>(maxEntity) + 1, INVALID_INDEX);
 
-            for (size_t i = 0; i < m_Entitys.size(); ++i) {
-                m_sparse[m_Entitys[i]] = i;
+            for (size_t i = 0; i < m_Entities.size(); ++i) {
+                m_sparse[m_Entities[i]] = i;
             }
         }
 
@@ -105,19 +106,19 @@ namespace Andromeda::ECS {
          * @details Uses the "swap-and-pop" idiom to maintain a dense data array.
          */
         void removeEntity(const Entity entity) override {
-            if (entity >= m_sparse.size() || m_sparse[entity] == 0xFFFFFFFF) return;
+            if (entity >= m_sparse.size() || m_sparse[entity] == INVALID_INDEX) return;
 
             size_t indexToRemove = m_sparse[entity];
             size_t lastIndex = m_data.size() - 1;
-            Entity lastEntity = m_Entitys[lastIndex];
+            Entity lastEntity = m_Entities[lastIndex];
 
             m_data[indexToRemove] = std::move(m_data[lastIndex]);
-            m_Entitys[indexToRemove] = lastEntity;
+            m_Entities[indexToRemove] = lastEntity;
             m_sparse[lastEntity] = indexToRemove;
             m_sparse[entity] = 0xFFFFFFFF;
 
             m_data.pop_back();
-            m_Entitys.pop_back();
+            m_Entities.pop_back();
         }
 
         /** @brief Returns a reference to the component of the given entity. */
@@ -130,14 +131,14 @@ namespace Andromeda::ECS {
 
         /** @brief Checks if the entity has a component in this pool. */
         [[nodiscard]] bool has(const Entity entity) const {
-            return entity < m_sparse.size() && m_sparse[entity] != 0xFFFFFFFF;
+            return entity < m_sparse.size() && m_sparse[entity] != INVALID_INDEX;
         }
 
         /** @brief Returns the raw dense vector of components. */
         std::vector<T>& data() { return m_data; }
 
         /** @brief Returns the raw dense vector of entity IDs. */
-        [[nodiscard]] const std::vector<Entity>& getEntities() const { return m_Entitys; }
+        [[nodiscard]] const std::vector<Entity>& getEntities() const { return m_Entities; }
     };
 
     struct EntityHandle;
@@ -156,7 +157,7 @@ namespace Andromeda::ECS {
 
         /** @brief Counter for generating unique entity IDs. */
         Entity m_NextID = 0;
-
+  
         /** @brief Generates a new unique Entity ID. */
         Entity createEntity() { 
             Entity newEntity = m_NextID++;

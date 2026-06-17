@@ -28,7 +28,6 @@ file(GLOB SOURCES "modules/*.cpp")
 file(GLOB HEADERS "modules/*.h")
 
 
-
 get_filename_component(PROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/proto" ABSOLUTE)
 set(PROTO_FILES 
     proto/api_options.proto 
@@ -71,9 +70,21 @@ add_dependencies(Andromeda GenerateShaderHeaders)
 target_include_directories(Andromeda PUBLIC ${CMAKE_BINARY_DIR}/generated)
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated)
-file(GLOB_RECURSE ALL_SPV_FILES "${CMAKE_BINARY_DIR}/shaders/spirv/*.spv")
+file(GLOB_RECURSE ALL_GLSL_SHADERS
+    "${CMAKE_SOURCE_DIR}/modules/shader/*.vert"
+    "${CMAKE_SOURCE_DIR}/modules/shader/*.frag"
+)
+set(ALL_SPV_FILES "")
+foreach(SHADER ${ALL_GLSL_SHADERS})
+    get_filename_component(SHADER_NAME ${SHADER} NAME)
+    list(APPEND ALL_SPV_FILES "${CMAKE_BINARY_DIR}/shaders/spirv/${SHADER_NAME}.spv")
+endforeach()
 set(GENERATED_HEADER ${CMAKE_BINARY_DIR}/generated/a_shader_generated.hpp)
-
+message(STATUS "===== SHADER REFLECTOR DEBUG =====")
+message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+message(STATUS "Looking for SPV files in: ${CMAKE_BINARY_DIR}/shaders/spirv/*.spv")
+message(STATUS "ALL_SPV_FILES: ${ALL_SPV_FILES}")
+message(STATUS "Number of SPV files found: ${CMAKE_ARGC}")
 if(ALL_SPV_FILES)
     add_custom_command(
         OUTPUT ${GENERATED_HEADER}
@@ -91,7 +102,7 @@ else()
 endif()
 
 add_custom_target(GenerateShaderHeaders ALL DEPENDS ${GENERATED_HEADER})
-
+add_dependencies(GenerateShaderHeaders renderer_rhi_shaders)
 target_include_directories(Andromeda PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${PROTOBUF_INCLUDE_DIRS})
 target_include_directories(Andromeda PRIVATE 
     ${CMAKE_CURRENT_BINARY_DIR}/proto 
