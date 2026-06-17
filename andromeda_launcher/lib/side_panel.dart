@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'glass.dart';
+import 'services.dart';
 
 class SidePanel extends StatelessWidget {
   const SidePanel({super.key});
@@ -150,27 +151,28 @@ class _EngineCard extends StatelessWidget {
 class _StatsGrid extends StatelessWidget {
   const _StatsGrid();
 
-  static const _stats = [
-    ['5', 'Projekte'],
-    ['2h', 'Heute'],
-    ['38', 'Commits'],
-    ['v4.2', 'Engine'],
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Row(children: [
-          Expanded(child: _StatCell(_stats[0][0], _stats[0][1])),
+          const Expanded(child: _StatCell('5', 'Projekte')),
           const SizedBox(width: 8),
-          Expanded(child: _StatCell(_stats[1][0], _stats[1][1])),
+          const Expanded(child: _StatCell('2h', 'Heute')),
         ]),
         const SizedBox(height: 8),
         Row(children: [
-          Expanded(child: _StatCell(_stats[2][0], _stats[2][1])),
+          Expanded(
+            child: FutureBuilder<int>(
+              future: GithubService.instance.fetchCommitCount(),
+              builder: (context, snap) => _StatCell(
+                snap.hasData ? '${snap.data}' : '—',
+                'Commits',
+              ),
+            ),
+          ),
           const SizedBox(width: 8),
-          Expanded(child: _StatCell(_stats[3][0], _stats[3][1])),
+          const Expanded(child: _StatCell('1.0', 'Engine')),
         ]),
       ],
     );
@@ -213,26 +215,38 @@ class _StatCell extends StatelessWidget {
   }
 }
 
-class _NewsFeed extends StatelessWidget {
+class _NewsFeed extends StatefulWidget {
   const _NewsFeed();
+  @override
+  State<_NewsFeed> createState() => _NewsFeedState();
+}
 
-  static const _news = [
-    ['v0.5.0 Beta', 'Vulkan-Backend, neue Shader-Pipeline'],
-    ['Bugfix 0.4.2', 'Physics-Crash bei großen Szenen behoben'],
-    ['Docs update', 'Neue Tutorials für das Rendering-System'],
-  ];
+class _NewsFeedState extends State<_NewsFeed> {
+List _commits = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final commits = await GithubService.instance.fetchCommits();
+    setState(() => _commits = commits);
+  }
 
   @override
   Widget build(BuildContext context) {
+    if(_commits.isEmpty) return const SizedBox();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (var i = 0; i < _news.length; i++)
+        for(var i = 0; i < _commits.length; i++)
           _NewsItem(
-            title: _news[i][0],
-            body: _news[i][1],
-            showDivider: i > 0,
-          ),
+          title: (_commits[i]['sha'] as String).substring(0,7), 
+          body: (_commits[i]['commit']['message'] as String).split('\n').first,
+          showDivider: i > 0)
       ],
     );
   }
@@ -254,7 +268,7 @@ class _NewsItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (showDivider)
-          Container(height: 0.5, color: Colors.white.withOpacity(0.05)),
+          Container(height: 0.5, color: Colors.white.withValues(alpha: .05)),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 9),
           child: Row(
@@ -267,7 +281,7 @@ class _NewsItem extends StatelessWidget {
                   height: 4,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.40),
+                    color: Colors.white.withValues(alpha:0.40),
                   ),
                 ),
               ),
@@ -279,13 +293,13 @@ class _NewsItem extends StatelessWidget {
                       TextSpan(
                         text: '$title ',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.80),
+                          color: Colors.white.withValues(alpha:0.80),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       TextSpan(
                         text: '— $body',
-                        style: TextStyle(color: Colors.white.withOpacity(0.58)),
+                        style: TextStyle(color: Colors.white.withValues(alpha:0.58)),
                       ),
                     ],
                   ),
