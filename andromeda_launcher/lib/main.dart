@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:window_manager/window_manager.dart';
-import 'orb_background.dart';
 import 'top_bar.dart';
 import 'icon_bar.dart';
 import 'project_list.dart';
@@ -29,7 +28,7 @@ class AndromedaApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF070707),
+        scaffoldBackgroundColor: const Color(0xFF242424),
         textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
       ),
       home: const LauncherHome(),
@@ -45,44 +44,10 @@ class LauncherHome extends StatefulWidget {
 }
 
 class _LauncherHomeState extends State<LauncherHome> {
-  final ValueNotifier<Offset> _target =
-      ValueNotifier(const Offset(0.5, 0.4));
-
-  @override
-  void dispose() {
-    _target.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return MouseRegion(
-            onHover: (event) {
-              _target.value = Offset(
-                (event.localPosition.dx / constraints.maxWidth)
-                    .clamp(0.0, 1.0)
-                    .toDouble(),
-                (event.localPosition.dy / constraints.maxHeight)
-                    .clamp(0.0, 1.0)
-                    .toDouble(),
-              );
-            },
-            child: Stack(
-              children: [
-                // Animated orb background (only this repaints each frame)
-                Positioned.fill(
-                  child: AnimatedOrbBackground(target: _target),
-                ),
-                // Static UI on top — glass panels blur the background behind them
-                const Positioned.fill(child: _LauncherUI()),
-              ],
-            ),
-          );
-        },
-      ),
+    return const Scaffold(
+      body: _LauncherUI(),
     );
   }
 }

@@ -25,12 +25,12 @@ namespace Andromeda::Gui {
         if (ImGui::BeginMenu("File"))
         {
             if (ImGui::MenuItem("Save")) {
-                if (!SceneSerializer::save("save_1.json", *ctx.registry)) {
+                if (!SceneSerializer::save("<projectPath>/scene.json", *ctx.registry)) {
                     throw std::runtime_error("saving the scene has failed!");
                 }
             }
             if (ImGui::MenuItem("Load")) {
-                if (!SceneSerializer::load("save_1.json", *ctx.registry)) {
+                if (!SceneSerializer::load("<projectPath>/scene.json", *ctx.registry)) {
                     throw std::runtime_error("loading the scene has failed!");
                 }
             }
