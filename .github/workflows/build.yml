@@ -52,11 +52,17 @@ jobs:
 
       - name: Configure
         working-directory: andromeda
-        run: cmake --preset conan-release
+        shell: cmd
+        run: |
+          call conan\build\Release\generators\conanbuild.bat
+          cmake --preset conan-release
 
       - name: Build
         working-directory: andromeda
-        run: cmake --build --preset conan-release
+        shell: cmd
+        run: |
+          call conan\build\Release\generators\conanbuild.bat
+          cmake --build --preset conan-release
 
   launcher:
     name: Andromeda Launcher

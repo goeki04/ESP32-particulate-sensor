@@ -11,6 +11,7 @@
 #include "editor/editor.hpp"
 #include "scene/scene.hpp"
 #include "serialization/sceneSerializer.hpp"
+#include <iostream>
 #include <a_filesystem.hpp>
 #include <cstdlib>
 Andromeda::Window::WindowManager windowManager;
@@ -30,7 +31,7 @@ SDL_AppResult SDL_Init() {
     return SDL_APP_CONTINUE;
 }
 
-extern std::string g_ProjectPath = "";
+std::string g_ProjectPath = "";
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -59,6 +60,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     Andromeda::SystemManager::getInstance().startSubsystems();
     const std::string scenePath = g_ProjectPath + "\\scene.json";
+	std::cout << "Registry: " << & sceneManager.m_Registry << std::endl;
+
     if (std::filesystem::exists(scenePath)) {
         Andromeda::SceneSerializer::load(scenePath, sceneManager.m_Registry);
     }
