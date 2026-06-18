@@ -83,12 +83,13 @@ class _IconButtonState extends State<_IconButton> {
 
   @override
   Widget build(BuildContext context) {
+    const amber = Color(0xFFE8A230);
     final active = widget.item.active;
     final bg = active
-        ? Colors.white.withValues(alpha: .08)
+        ? amber.withValues(alpha: .12)
         : (_hover ? Colors.white.withValues(alpha:0.06) : Colors.transparent);
     final fg = active
-        ? Colors.white.withValues(alpha:0.85)
+        ? amber.withValues(alpha: 0.90)
         : Colors.white.withValues(alpha:_hover ? 0.85 : 0.50);
 
     return Padding(
@@ -122,7 +123,7 @@ class _IconButtonState extends State<_IconButton> {
                   width: 2,
                   height: 20,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha:0.70),
+                    color: const Color(0xFFE8A230).withValues(alpha: 0.85),
                     borderRadius: const BorderRadius.only(
                       topRight: Radius.circular(2),
                       bottomRight: Radius.circular(2),

@@ -132,7 +132,7 @@ class _EngineCard extends StatelessWidget {
                 FractionallySizedBox(
                   widthFactor: 0.72,
                   child: Container(
-                      height: 2, color: Colors.white.withValues(alpha: 0.42)),
+                      height: 2, color: const Color(0xFFE8A230).withValues(alpha: 0.70)),
                 ),
               ],
             ),
@@ -198,10 +198,10 @@ class _StatCell extends StatelessWidget {
         children: [
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w300,
-              color: Colors.white.withValues(alpha: 0.75),
+              color: Color(0xFFF5BE68),
             ),
           ),
           const SizedBox(height: 2),
@@ -279,9 +279,9 @@ class _NewsItem extends StatelessWidget {
                 child: Container(
                   width: 4,
                   height: 4,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha:0.40),
+                    color: Color(0xFFE8A230),
                   ),
                 ),
               ),
@@ -292,8 +292,8 @@ class _NewsItem extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: '$title ',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha:0.80),
+                        style: const TextStyle(
+                          color: Color(0xFFF5BE68),
                           fontWeight: FontWeight.w500,
                         ),
                       ),

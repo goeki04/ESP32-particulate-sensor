@@ -9,8 +9,7 @@
 #include <typeindex>
 #include <vector>
 #include <memory>
-#include <bitset>
-#include <array>
+#include <limits>
 #include <string>
 #include "a_component_parser.hpp"
  /**
@@ -115,7 +114,7 @@ namespace Andromeda::ECS {
             m_data[indexToRemove] = std::move(m_data[lastIndex]);
             m_Entities[indexToRemove] = lastEntity;
             m_sparse[lastEntity] = indexToRemove;
-            m_sparse[entity] = 0xFFFFFFFF;
+            m_sparse[entity] = INVALID_INDEX;
 
             m_data.pop_back();
             m_Entities.pop_back();

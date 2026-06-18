@@ -124,7 +124,7 @@ class _LogoPainter extends CustomPainter {
     canvas.drawCircle(
       c,
       1.5 * scale,
-      Paint()..color = Colors.white.withValues(alpha: 0.60),
+      Paint()..color = const Color(0xFFE8A230),
     );
 
     final path = Path()
