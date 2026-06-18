@@ -1,32 +1,9 @@
 import 'dart:io';
 import 'dart:ui' show ImageFilter;
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-
-class Project {
-  final IconData icon;
-  final String name;
-  final String meta;
-  final String? tag;
-  final String path;
-  const Project(this.icon, this.name, this.meta, {this.tag, this.path = ''});
-}
-
-const List<Project> _recent = [
-  Project(Icons.view_in_ar_outlined, 'SpaceShooter',
-      'v0.4.2 · vor 2 Stunden geändert',
-      tag: 'aktiv', path: r'C:\Projects\SpaceShooter'),
-  Project(Icons.forest_outlined, 'OpenWorld', 'v0.4.1 · gestern geändert',
-      path: r'C:\Projects\OpenWorld'),
-  Project(Icons.sports_martial_arts, 'DungeonRPG', 'v0.3.8 · vor 3 Wochen',
-      tag: 'archiv', path: r'C:\Projects\DungeonRPG'),
-];
-
-const List<Project> _all = [
-  Project(Icons.directions_car_filled_outlined, 'RacingPrototype',
-      'v0.2.0 · vor 2 Monaten'),
-  Project(Icons.extension_outlined, 'PuzzleEngine', 'v0.1.4 · vor 5 Monaten',
-      tag: 'archiv'),
-];
+import 'project_service.dart';
+import 'create_project_dialog.dart';
 
 class ProjectList extends StatefulWidget {
   const ProjectList({super.key});
@@ -44,46 +21,78 @@ class _ProjectListState extends State<ProjectList> {
     super.dispose();
   }
 
+  Future<void> _import() async {
+    final result = await FilePicker.platform.getDirectoryPath(
+      dialogTitle: 'Projektordner auswählen',
+    );
+    if (result != null) {
+      await ProjectService.instance.add(result);
+    }
+  }
+
+  Future<void> _create() async {
+    await showDialog(
+      context: context,
+      builder: (context) => const CreateProjectDialog(),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const _Hero(),
-        Container(
-          height: 0.5,
-          margin: const EdgeInsets.symmetric(horizontal: 22),
-          color: Colors.white.withValues(alpha: 0.05),
-        ),
-        Expanded(
-          child: RawScrollbar(
-            controller: _controller,
-            thumbColor: Colors.white.withValues(alpha: 0.10),
-            thickness: 3,
-            radius: const Radius.circular(99),
-            child: ListView(
-              controller: _controller,
-              padding: const EdgeInsets.fromLTRB(28, 14, 28, 20),
-              children: [
-                const _SectionLabel('Zuletzt geöffnet'),
-                ..._recent.map((p) => _ProjectRow(project: p)),
-                const SizedBox(height: 20),
-                const _SectionLabel('Alle Projekte'),
-                ..._all.map((p) => _ProjectRow(project: p)),
-              ],
+    return ListenableBuilder(
+      listenable: ProjectService.instance,
+      builder: (context, _) {
+        final recent = ProjectService.instance.recent;
+        final all = ProjectService.instance.projects;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _Hero(onImport: _import, onCreate: _create,),
+            Container(
+              height: 0.5,
+              margin: const EdgeInsets.symmetric(horizontal: 22),
+              color: Colors.white.withValues(alpha: 0.05),
             ),
-          ),
-        ),
-      ],
+            Expanded(
+              child: all.isEmpty
+                  ? _EmptyState(onImport: _import, onCreate: _create,)
+                  : RawScrollbar(
+                      controller: _controller,
+                      thumbColor: Colors.white.withValues(alpha: 0.10),
+                      thickness: 3,
+                      radius: const Radius.circular(99),
+                      child: ListView(
+                        controller: _controller,
+                        padding: const EdgeInsets.fromLTRB(28, 14, 28, 20),
+                        children: [
+                          if (recent.isNotEmpty) ...[
+                            const _SectionLabel('Zuletzt geöffnet'),
+                            ...recent.map((p) => _ProjectRow(project: p)),
+                            const SizedBox(height: 20),
+                          ],
+                          const _SectionLabel('Alle Projekte'),
+                          ...all.map((p) => _ProjectRow(project: p)),
+                        ],
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
 class _Hero extends StatelessWidget {
-  const _Hero();
+  final VoidCallback onImport;
+  final VoidCallback onCreate;
+  const _Hero({required this.onImport, required this.onCreate});
 
   @override
   Widget build(BuildContext context) {
+    final count = ProjectService.instance.projects.length;
     return Padding(
       padding: const EdgeInsets.fromLTRB(28, 28, 28, 20),
       child: Column(
@@ -100,18 +109,16 @@ class _Hero extends StatelessWidget {
           const SizedBox(height: 8),
           RichText(
             text: TextSpan(
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w200,
-                height: 1.2,
-              ),
+              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w200, height: 1.2),
               children: [
                 TextSpan(
                   text: 'Deine Projekte\n',
                   style: TextStyle(color: Colors.white.withValues(alpha: 0.82)),
                 ),
                 TextSpan(
-                  text: '3 aktiv · heute gearbeitet',
+                  text: count == 0
+                      ? 'Noch keine Projekte'
+                      : '$count ${count == 1 ? 'Projekt' : 'Projekte'}',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 14,
@@ -127,12 +134,49 @@ class _Hero extends StatelessWidget {
                 label: 'Neues Projekt',
                 icon: Icons.add,
                 filled: true,
-                onTap: () {},
+                onTap: onCreate,
               ),
               const SizedBox(width: 8),
-              _HeroButton(label: 'Importieren', filled: false, onTap: () {}),
+              _HeroButton(
+                label: 'Importieren',
+                filled: false,
+                onTap: onImport,
+              ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final VoidCallback onImport;
+  final VoidCallback onCreate;
+  const _EmptyState({required this.onImport, required this.onCreate});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.folder_open_outlined,
+              size: 40, color: Colors.white.withValues(alpha: 0.20)),
+          const SizedBox(height: 14),
+          Text(
+            'Noch keine Projekte',
+            style: TextStyle(
+                fontSize: 14, color: Colors.white.withValues(alpha: 0.40)),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Importiere einen vorhandenen Projektordner',
+            style: TextStyle(
+                fontSize: 11, color: Colors.white.withValues(alpha: 0.28)),
+          ),
+          const SizedBox(height: 20),
+          _HeroButton(label: 'Importieren', filled: true, onTap: onImport),
         ],
       ),
     );
@@ -144,12 +188,7 @@ class _HeroButton extends StatefulWidget {
   final IconData? icon;
   final bool filled;
   final VoidCallback onTap;
-  const _HeroButton({
-    required this.label,
-    required this.filled,
-    required this.onTap,
-    this.icon,
-  });
+  const _HeroButton({required this.label, required this.filled, required this.onTap, this.icon});
 
   @override
   State<_HeroButton> createState() => _HeroButtonState();
@@ -160,14 +199,17 @@ class _HeroButtonState extends State<_HeroButton> {
 
   @override
   Widget build(BuildContext context) {
+    const amber = Color(0xFFE8A230);
     final filled = widget.filled;
     final bg = filled
-        ? Colors.white.withValues(alpha: _hover ? 0.14 : 0.08)
+        ? amber.withValues(alpha: _hover ? 0.18 : 0.11)
         : Colors.transparent;
-    final fgOpacity =
-        filled ? (_hover ? 0.95 : 0.82) : (_hover ? 0.72 : 0.55);
-    final borderOpacity =
-        filled ? 0.20 : (_hover ? 0.14 : 0.08);
+    final borderColor = filled
+        ? amber.withValues(alpha: _hover ? 0.45 : 0.30)
+        : Colors.white.withValues(alpha: _hover ? 0.14 : 0.08);
+    final fgColor = filled
+        ? amber.withValues(alpha: _hover ? 1.0 : 0.88)
+        : Colors.white.withValues(alpha: _hover ? 0.72 : 0.55);
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -181,23 +223,18 @@ class _HeroButtonState extends State<_HeroButton> {
           decoration: BoxDecoration(
             color: bg,
             borderRadius: BorderRadius.circular(99),
-            border: Border.all(
-                color: Colors.white.withValues(alpha: borderOpacity), width: 0.5),
+            border: Border.all(color: borderColor, width: 0.5),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (widget.icon != null) ...[
-                Icon(widget.icon,
-                    size: 12, color: Colors.white.withValues(alpha: fgOpacity)),
+                Icon(widget.icon, size: 12, color: fgColor),
                 const SizedBox(width: 5),
               ],
               Text(
                 widget.label,
-                style: TextStyle(
-                  fontSize: 11.5,
-                  color: Colors.white.withValues(alpha: fgOpacity),
-                ),
+                style: TextStyle(fontSize: 11.5, color: fgColor),
               ),
             ],
           ),
@@ -238,18 +275,22 @@ class _ProjectRow extends StatefulWidget {
 class _ProjectRowState extends State<_ProjectRow> {
   bool _hover = false;
 
+  String get _meta {
+    final diff = DateTime.now().difference(widget.project.lastOpened);
+    if (diff.inMinutes < 60) return 'vor ${diff.inMinutes} Min.';
+    if (diff.inHours < 24) return 'vor ${diff.inHours} Std.';
+    if (diff.inDays == 1) return 'gestern';
+    return 'vor ${diff.inDays} Tagen';
+  }
+
   Future<void> _launch() async {
-    final p = widget.project;
-    if (p.path.isEmpty) return;
+    await ProjectService.instance.open(widget.project);
     try {
       await Process.start(
         r'..\Andromeda\conan\build\Release\Andromeda.exe',
-        ['-project', p.path],
+        ['-project', widget.project.path],
       );
-      // Optionally: exit(0);
-    } catch (_) {
-      // Engine binary not found — ignore so the launcher doesn't crash.
-    }
+    } catch (_) {}
   }
 
   @override
@@ -271,8 +312,7 @@ class _ProjectRowState extends State<_ProjectRow> {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: _hover ? 0.08 : 0.04),
                     borderRadius: BorderRadius.circular(10),
@@ -283,7 +323,6 @@ class _ProjectRowState extends State<_ProjectRow> {
                   ),
                   child: Row(
                     children: [
-                      // Icon box
                       Container(
                         width: 34,
                         height: 34,
@@ -291,40 +330,28 @@ class _ProjectRowState extends State<_ProjectRow> {
                           color: Colors.white.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.08),
-                              width: 0.5),
+                              color: Colors.white.withValues(alpha: 0.08), width: 0.5),
                         ),
                         child: Icon(p.icon,
                             size: 16, color: Colors.white.withValues(alpha: 0.62)),
                       ),
                       const SizedBox(width: 14),
-                      // Name + meta
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    p.name,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 12.5,
-                                      color: Colors.white.withValues(alpha: 0.88),
-                                    ),
-                                  ),
-                                ),
-                                if (p.tag != null) ...[
-                                  const SizedBox(width: 6),
-                                  _Tag(p.tag!),
-                                ],
-                              ],
+                            Text(
+                              p.name,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                color: Colors.white.withValues(alpha: 0.88),
+                              ),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              p.meta,
+                              _meta,
                               style: TextStyle(
                                 fontSize: 10.5,
                                 color: Colors.white.withValues(alpha: 0.48),
@@ -336,7 +363,8 @@ class _ProjectRowState extends State<_ProjectRow> {
                       Icon(
                         Icons.chevron_right,
                         size: 16,
-                        color: Colors.white.withValues(alpha: _hover ? 0.65 : 0.32),
+                        color: Colors.white
+                            .withValues(alpha: _hover ? 0.65 : 0.32),
                       ),
                     ],
                   ),
@@ -360,11 +388,11 @@ class _Tag extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(99),
-        border: Border.all(color: Colors.white.withOpacity(0.10), width: 0.5),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.5),
       ),
       child: Text(
         text,
-        style: TextStyle(fontSize: 9, color: Colors.white.withOpacity(0.52)),
+        style: TextStyle(fontSize: 9, color: Colors.white.withValues(alpha: 0.52)),
       ),
     );
   }

@@ -5,12 +5,14 @@ import 'orb_background.dart';
 import 'top_bar.dart';
 import 'icon_bar.dart';
 import 'project_list.dart';
+import 'project_service.dart';
 import 'side_panel.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
-  const WindowOptions options = WindowOptions(size: Size(1200, 800), minimumSize: Size(600, 400), 
+  await ProjectService.instance.load();
+  const WindowOptions options = WindowOptions(size: Size(1200, 800), minimumSize: Size(600, 400),
   center: true,  titleBarStyle: TitleBarStyle.hidden);
   await windowManager.waitUntilReadyToShow(options, () async {await windowManager.show(); await windowManager.focus(); },);
 
