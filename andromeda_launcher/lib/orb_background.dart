@@ -91,7 +91,7 @@ class _OrbPainter extends CustomPainter {
     // Dark base
     canvas.drawRect(
       Offset.zero & size,
-      Paint()..color = const Color(0xFF070707),
+      Paint()..color = const Color(0xFF242424),
     );
 
     for (final o in _orbs) {
