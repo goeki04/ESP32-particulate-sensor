@@ -3,6 +3,9 @@
 #include "gui_renderer.h"
 #include "sceneSerializer.hpp"
 #include "a_Docking.hpp"
+#include <iostream>
+extern std::string g_ProjectPath;
+
 namespace Andromeda::Gui {
     void MainMenuBar::drawMainMenuBar(EditorContext& ctx)
     {
@@ -25,12 +28,13 @@ namespace Andromeda::Gui {
         if (ImGui::BeginMenu("File"))
         {
             if (ImGui::MenuItem("Save")) {
-                if (!SceneSerializer::save("<projectPath>/scene.json", *ctx.registry)) {
+				std::cout << "project path:" <<  g_ProjectPath << std::endl;
+                if (!SceneSerializer::save(g_ProjectPath, *ctx.registry)) {
                     throw std::runtime_error("saving the scene has failed!");
                 }
             }
             if (ImGui::MenuItem("Load")) {
-                if (!SceneSerializer::load("<projectPath>/scene.json", *ctx.registry)) {
+                if (!SceneSerializer::load(g_ProjectPath, *ctx.registry)) {
                     throw std::runtime_error("loading the scene has failed!");
                 }
             }
@@ -43,7 +47,7 @@ namespace Andromeda::Gui {
         if (ImGui::BeginMenu("Debug")) {
             const float fps = ImGui::GetIO().Framerate;
             const float ms = 1000.0f / fps;
-
+            
             ImGui::Text("Performance: %.1f FPS (%.2f ms/frame)", fps, ms);
             ImGui::Separator();
 

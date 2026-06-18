@@ -12,5 +12,6 @@ target_link_libraries(serialization PUBLIC
 	nlohmann_json::nlohmann_json
 
 	core
+	
 	definitions
 )

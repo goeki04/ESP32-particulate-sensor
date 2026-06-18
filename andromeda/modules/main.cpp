@@ -30,7 +30,7 @@ SDL_AppResult SDL_Init() {
     return SDL_APP_CONTINUE;
 }
 
-static std::string g_ProjectPath = "";
+extern std::string g_ProjectPath = "";
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
