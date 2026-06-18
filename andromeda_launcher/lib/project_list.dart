@@ -31,10 +31,13 @@ class _ProjectListState extends State<ProjectList> {
   }
 
   Future<void> _create() async {
-    await showDialog(
+    final result = await showDialog<Map<String, String>>(
       context: context,
       builder: (context) => const CreateProjectDialog(),
     );
+    if (result != null) {
+      await ProjectService.instance.create(result['name']!, result['path']!);
+    }
   }
 
 
@@ -53,7 +56,7 @@ class _ProjectListState extends State<ProjectList> {
             Container(
               height: 0.5,
               margin: const EdgeInsets.symmetric(horizontal: 22),
-              color: Colors.white.withValues(alpha: 0.05),
+              color: Colors.white.withValues(alpha: 0.18),
             ),
             Expanded(
               child: all.isEmpty

@@ -76,6 +76,18 @@ class ProjectService extends ChangeNotifier {
     await _save();
   }
 
+  Future<void> create(String name, String parentPath) async {
+    final projectPath = '$parentPath${Platform.pathSeparator}$name';
+    final dir = Directory(projectPath);
+    if (!await dir.exists()) await dir.create(recursive: true);
+    final projectFile = File('$projectPath${Platform.pathSeparator}project.json');
+    await projectFile.writeAsString(jsonEncode({'name': name}));
+    if (_projects.any((p) => p.path == projectPath)) return;
+    _projects.add(Project(name: name, path: projectPath, lastOpened: DateTime.now()));
+    notifyListeners();
+    await _save();
+  }
+
   Future<void> open(Project project) async {
     final idx = _projects.indexWhere((p) => p.path == project.path);
     if (idx == -1) return;
