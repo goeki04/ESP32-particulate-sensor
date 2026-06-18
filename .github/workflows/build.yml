@@ -19,8 +19,21 @@ jobs:
         with:
           arch: x64
 
+      - name: Conan Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan2/p
+          key: ${{ runner.os }}-conan-${{ hashFiles('andromeda/conanfile.py') }}
+          restore-keys: |
+            ${{ runner.os }}-conan-
+
       - name: Install Conan
         run: pip install conan
+
+      - name: Configure Multicore Build
+        run: |
+          echo "CL=/MP" >> $GITHUB_ENV
+          echo "CONAN_CPU_COUNT=4" >> $GITHUB_ENV
 
       - name: Detect Conan profile
         run: conan profile detect --force
@@ -30,6 +43,7 @@ jobs:
         run: >
           conan install .
           -s compiler=msvc
+          -g VirtualBuildEnv
           -s compiler.cppstd=20
           -c tools.cmake.cmaketoolchain:generator=Ninja
           -s build_type=Release
@@ -56,17 +70,11 @@ jobs:
           flutter-version: '3.x'
           channel: stable
 
-      - name: Create Dummy Config Directory
-        working-directory: andromeda_launcher
-        shell: bash
-        run: |
-          mkdir -p lib
-          echo // Generated File > lib/config.dart
-
       - name: Inject Github Token
         working-directory: andromeda_launcher
         shell: bash
         run: |
+          mkdir -p lib
           echo "const String kGithubToken = '${{ secrets.GH_TOKEN }}';" > lib/config.dart
 
       - name: Get dependencies
