@@ -54,6 +54,18 @@ jobs:
           flutter-version: '3.x'
           channel: stable
 
+      - name: Create Dummy Config Directory
+        working-directory: andromeda_launcher
+        run |
+          mkdir -p lib
+          echo // Generated File > lib/config.dart
+
+      - name: Inject Github Token
+        working-directory: andromeda_launcher
+        shell: bash
+        run: |
+          echo "const String kGithubToken = '${{ secrets.GH_TOKEN}}';" >> lib/config.dart
+
       - name: Get dependencies
         working-directory: andromeda_launcher
         run: flutter pub get
