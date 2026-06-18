@@ -43,7 +43,7 @@ jobs:
         run: cmake --build build/Release --config Release
 
   launcher:
-    name: Androemda Launcher
+    name: Andromeda Launcher
     runs-on: windows-latest
 
     steps:
@@ -56,6 +56,7 @@ jobs:
 
       - name: Create Dummy Config Directory
         working-directory: andromeda_launcher
+        shell: bash
         run: |
           mkdir -p lib
           echo // Generated File > lib/config.dart
@@ -64,7 +65,7 @@ jobs:
         working-directory: andromeda_launcher
         shell: bash
         run: |
-          echo "const String kGithubToken = '${{ secrets.GH_TOKEN}}';" >> lib/config.dart
+          echo "const String kGithubToken = '${{ secrets.GH_TOKEN }}';" > lib/config.dart
 
       - name: Get dependencies
         working-directory: andromeda_launcher
