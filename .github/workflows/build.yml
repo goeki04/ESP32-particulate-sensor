@@ -56,7 +56,7 @@ jobs:
 
       - name: Create Dummy Config Directory
         working-directory: andromeda_launcher
-        run |
+        run: |
           mkdir -p lib
           echo // Generated File > lib/config.dart
 
