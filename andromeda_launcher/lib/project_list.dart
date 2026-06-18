@@ -377,23 +377,3 @@ class _ProjectRowState extends State<_ProjectRow> {
     );
   }
 }
-
-class _Tag extends StatelessWidget {
-  final String text;
-  const _Tag(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(99),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.5),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 9, color: Colors.white.withValues(alpha: 0.52)),
-      ),
-    );
-  }
-}
