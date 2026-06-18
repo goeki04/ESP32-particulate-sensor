@@ -8,3 +8,4 @@ build/
 *.exe
 .idea/
 .venv/
+.claude/
