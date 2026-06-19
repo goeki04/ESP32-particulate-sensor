@@ -1,0 +1,31 @@
+# Conan profile for building Andromeda with a RELEASED Visual Studio 2022 (MSVC 19.4x).
+#
+# Why: ConanCenter ships prebuilt binaries for msvc 193/194, so every dependency
+# (glslang, spirv-tools, ...) is downloaded instead of built from source. This avoids
+# the from-source recipe failures that occur with the VS 2026 preview (msvc 195).
+#
+# IMPORTANT: check your toolset version. Run `cl` in a "x64 Native Tools Command
+# Prompt for VS 2022" and look at the version:
+#   19.4x  -> compiler.version=194   (this file's default)
+#   19.3x  -> compiler.version=193   (change the line below)
+#
+# build_type is passed on the command line (-s build_type=Debug/Release); Conan
+# derives compiler.runtime_type from it automatically.
+
+[settings]
+os=Windows
+arch=x86_64
+compiler=msvc
+compiler.version=194
+compiler.cppstd=20
+compiler.runtime=dynamic
+
+[options]
+# Disable the glslang SPIR-V optimizer in BOTH host and build context.
+# The 1.4.350.0 recipe fails to build it from source (missing spirv-tools
+# include dirs). Because this profile is passed as -pr and -pr:b, the option
+# applies to the tool_requires (build context) glslang too.
+glslang/*:enable_optimizer=False
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
