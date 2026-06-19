@@ -254,11 +254,23 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
 
     u32 ResourceManager::getMeshVaoByID(const u32 meshID) const
     {
-        return m_GPUMeshes.at(meshID).vao;
+		auto it = m_GPUMeshes.find(meshID);
+		if (it != m_GPUMeshes.end())
+		{
+			return it->second.vao;
+		}
+        std::printf("[WARNING]: Mesh ID %u not found!\n", meshID);
+        return 0;
     }
 
     u32 ResourceManager::getMeshIndexSizeByID(const u32 meshID) const {
-        return m_Meshes.at(meshID).indexBuffer.size();
+		auto it = m_Meshes.find(meshID);
+        if (it != m_Meshes.end())
+        {
+			return it->second.indexBuffer.size();
+        }
+        std::printf("[WARNING]: Mesh ID %u not found!\n", meshID);
+        return 0;
     }
 
     const Mesh& ResourceManager::getMeshByID(const u32 meshID) const
