@@ -115,6 +115,27 @@ namespace Andromeda {
         [[nodiscard]] const Mesh& getMeshByID(u32 meshID) const;
 
         /**
+         * @brief Resolves a (volatile) mesh ID to its stable, persistable name.
+         * @param id The session-local mesh ID.
+         * @return The mesh name, or an empty string if the ID is unknown.
+         */
+        [[nodiscard]] std::string getMeshNameByID(u32 id) const;
+
+        /**
+         * @brief Resolves a stable mesh name to the current session's mesh ID.
+         * @param name The stable mesh name (e.g. "Default_Cube").
+         * @param out Receives the resolved mesh ID on success.
+         * @return true if the name is known, false otherwise.
+         */
+        [[nodiscard]] bool tryGetMeshIDByName(const std::string& name, u32& out) const;
+
+        /**
+         * @brief Registers the built-in primitive meshes (Cube, Plane, Sphere) under
+         *        stable names so that loaded scenes can always resolve them.
+         */
+        void registerDefaultPrimitives();
+
+        /**
          * @brief Gets the total amount of unique 3D models currently loaded in memory.
          * @return The count of ModelRecords.
          */

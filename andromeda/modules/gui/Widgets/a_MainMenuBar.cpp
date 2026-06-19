@@ -2,6 +2,7 @@
 #include "a_EditorContext.hpp"
 #include "gui_renderer.h"
 #include "sceneSerializer.hpp"
+#include "resource_manager.h"
 #include "a_Docking.hpp"
 #include <iostream>
 extern std::string g_ProjectPath;
@@ -29,12 +30,12 @@ namespace Andromeda::Gui {
         {
             if (ImGui::MenuItem("Save")) {
 				std::cout << "project path:" <<  g_ProjectPath << std::endl;
-                if (!SceneSerializer::save(g_ProjectPath + "\\scene.json", *ctx.registry)) {
+                if (!SceneSerializer::save(g_ProjectPath + "\\scene.json", *ctx.registry, *ctx.resourceManager)) {
                     throw std::runtime_error("saving the scene has failed!");
                 }
             }
             if (ImGui::MenuItem("Load")) {
-                if (!SceneSerializer::load(g_ProjectPath + "\\scene.json", *ctx.registry)) {
+                if (!SceneSerializer::load(g_ProjectPath + "\\scene.json", *ctx.registry, *ctx.resourceManager)) {
                     throw std::runtime_error("loading the scene has failed!");
                 }
             }
