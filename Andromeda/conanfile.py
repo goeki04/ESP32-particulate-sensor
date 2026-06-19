@@ -19,5 +19,7 @@ class CmakeTest(ConanFile):
         self.requires("imguizmo/cci.20231114")
         self.requires("implot/0.17")
         self.requires("gtest/1.17.0")
+    def build_requirements(self):
+        self.tool_requires("glslang/1.4.350.0")
     def layout(self):
         cmake_layout(self)
