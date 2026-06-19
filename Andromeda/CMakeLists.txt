@@ -103,6 +103,7 @@ endif()
 
 add_custom_target(GenerateShaderHeaders ALL DEPENDS ${GENERATED_HEADER})
 add_dependencies(GenerateShaderHeaders renderer_rhi_shaders)
+add_dependencies(renderer GenerateShaderHeaders)
 target_include_directories(Andromeda PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${PROTOBUF_INCLUDE_DIRS})
 target_include_directories(Andromeda PRIVATE 
     ${CMAKE_CURRENT_BINARY_DIR}/proto 
