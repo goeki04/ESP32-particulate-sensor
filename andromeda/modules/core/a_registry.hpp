@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <typeindex>
 #include <vector>
+#include <unordered_set>
 #include <memory>
 #include <limits>
 #include <string>
@@ -37,6 +38,9 @@ namespace Andromeda::ECS {
 
         /** @brief Returns the name of the stored component type. */
         [[nodiscard]] virtual std::string getTypeName() const = 0;
+
+        /** @brief Returns the list of entities that have this component. */
+        [[nodiscard]] virtual const std::vector<Entity>& getEntities() const = 0;
     };
     static constexpr size_t INVALID_INDEX = std::numeric_limits<size_t>::max();
     /**
@@ -163,6 +167,20 @@ namespace Andromeda::ECS {
             m_ActiveEntities.push_back(newEntity);
             return newEntity;
         }
+
+        void rebuildActiveEntities() {
+            std::unordered_set<Entity> unique;
+            for (const auto& pool : m_Pools | std::views::values) {
+                for (Entity e : pool->getEntities()) unique.insert(e);
+            }
+            m_ActiveEntities.assign(unique.begin(), unique.end());
+        }
+
+		void clearRegistry() {
+			m_ActiveEntities.clear();
+			m_Pools.clear();
+			m_NextID = 0;
+		}
 
         /**
          * @brief Retrieves (or creates) the component pool for a specific type.
