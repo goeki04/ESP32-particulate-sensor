@@ -11,8 +11,6 @@
 #include "editor/editor.hpp"
 #include "scene/scene.hpp"
 #include "serialization/sceneSerializer.hpp"
-#include <iostream>
-#include <a_filesystem.hpp>
 #include <cstdlib>
 Andromeda::Window::WindowManager windowManager;
 Andromeda::InputSystem inputManager;
@@ -62,7 +60,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     const std::string scenePath = g_ProjectPath + "\\scene.json";
 
     if (std::filesystem::exists(scenePath)) {
-       // Andromeda::SceneSerializer::load(scenePath, sceneManager.m_Registry);
+       Andromeda::SceneSerializer::load(scenePath, sceneManager.m_Registry, resourceManager);
     }
     g_EspClient.getDecoder().addOnMessageCallback([](uint32_t type, const std::vector<uint8_t>& payload) {
         SDL_Log("MESSAGE EMPFANGEN! Typ: %u, Bytes: %zu", type, payload.size());

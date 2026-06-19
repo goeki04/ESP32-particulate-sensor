@@ -6,13 +6,32 @@
 #include "a_Primitives.hpp"
 namespace Andromeda {
 
-	bool SceneSerializer::save(const std::string& filepath, ECS::ComponentRegistry& registry)
+	bool SceneSerializer::save(const std::string& filepath, ECS::ComponentRegistry& registry, ResourceManager& rm)
 	{
 		nlohmann::json root;
+		const std::string meshTypeName = typeid(ECS::Component::MeshRenderer).name();
+
 		for (const auto &poolPtr: registry.m_Pools | std::views::values) {
 			const std::string typeName = poolPtr->getTypeName();
+			// The MeshRenderer pool is handled specially below: its volatile, session-local
+			// meshID must be persisted as a stable mesh name instead of a raw number.
+			if (typeName == meshTypeName) continue;
 			root[typeName] = poolPtr->serializePool();
 		}
+
+		// MeshRenderer: store stable mesh names instead of volatile IDs.
+		if (registry.m_Pools.contains(std::type_index(typeid(ECS::Component::MeshRenderer)))) {
+			auto& meshPool = registry.getPool<ECS::Component::MeshRenderer>();
+			nlohmann::json mr;
+			mr["entities"] = meshPool.getEntities();
+			nlohmann::json names = nlohmann::json::array();
+			for (const auto& comp : meshPool.data()) {
+				names.push_back(rm.getMeshNameByID(comp.meshID));
+			}
+			mr["meshNames"] = names;
+			root[meshTypeName] = mr;
+		}
+
 		std::ofstream file(filepath);
 		if (file.is_open()) {
 			file << std::setw(4) << root << std::endl;
@@ -20,7 +39,7 @@ namespace Andromeda {
 		}
 		return false;
 	}
-    bool SceneSerializer::load(const std::string& filepath, ECS::ComponentRegistry& registry)
+    bool SceneSerializer::load(const std::string& filepath, ECS::ComponentRegistry& registry, ResourceManager& rm)
     {
 		registry.clearRegistry();
         std::ifstream file(filepath);
@@ -50,8 +69,28 @@ namespace Andromeda {
         }
         const std::string meshName = typeid(ECS::Component::MeshRenderer).name();
         if (root.contains(meshName)) {
+            const auto& mr = root[meshName];
+            const auto entities = mr.at("entities").get<std::vector<ECS::Entity>>();
+            const auto names = mr.at("meshNames").get<std::vector<std::string>>();
+
+            // Translate stable mesh names back into the current session's mesh IDs,
+            // then rebuild the pool from the resolved data.
+            nlohmann::json rebuilt;
+            rebuilt["entities"] = nlohmann::json::array();
+            rebuilt["components"] = nlohmann::json::array();
+            for (size_t i = 0; i < entities.size(); ++i) {
+                u32 id;
+                if (!rm.tryGetMeshIDByName(names[i], id)) {
+                    std::cout << "Warning: mesh '" << names[i]
+                              << "' not found; skipping entity " << entities[i] << std::endl;
+                    continue;
+                }
+                rebuilt["entities"].push_back(entities[i]);
+                rebuilt["components"].push_back(ECS::Component::MeshRenderer{ id });
+            }
+
             auto& pool = registry.getPool<ECS::Component::MeshRenderer>();
-            pool.deserializePool(root[meshName]);
+            pool.deserializePool(rebuilt);
             for (auto id : pool.getEntities()) {
                 if (id > maxID) maxID = id;
             }

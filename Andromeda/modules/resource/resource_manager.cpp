@@ -1,6 +1,7 @@
 #include "resource_manager.h"
 #include "a_filesystem.hpp"
 #include "a_geometry.hpp"
+#include "a_primitiveGenerator.hpp"
 #include <string>
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -16,6 +17,7 @@ namespace Andromeda {
         loadDeviceIcons();
         loadEditorIcons();
         setupMeshes();
+        registerDefaultPrimitives();
         loadAllCubeMaps();
         for (const auto& [name, data] : m_CubemapData) {
             std::printf("Cubemap Name: %s\n", name.c_str());
@@ -216,6 +218,12 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
 
     u32 ResourceManager::registerCustomMesh(Mesh&& mesh, const std::string& name)
     {
+        // Reuse an existing mesh registered under the same name to prevent duplicates
+        // and to keep the name -> ID mapping stable across the session.
+        if (const auto it = m_MeshIDbyName.find(name); it != m_MeshIDbyName.end()) {
+            return it->second;
+        }
+
         const uint32_t id = m_NextMeshID++;
 
         m_Meshes[id] = std::move(mesh);
@@ -276,6 +284,35 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
     const Mesh& ResourceManager::getMeshByID(const u32 meshID) const
     {
         return m_Meshes.at(meshID);
+    }
+
+    std::string ResourceManager::getMeshNameByID(const u32 id) const
+    {
+        const auto it = m_ModelRecords.find(id);
+        return it != m_ModelRecords.end() ? it->second.name : std::string{};
+    }
+
+    bool ResourceManager::tryGetMeshIDByName(const std::string& name, u32& out) const
+    {
+        const auto it = m_MeshIDbyName.find(name);
+        if (it == m_MeshIDbyName.end()) return false;
+        out = it->second;
+        return true;
+    }
+
+    void ResourceManager::registerDefaultPrimitives()
+    {
+        Mesh cube;
+        PrimitiveGenerator::generateCube(cube);
+        registerCustomMesh(std::move(cube), "Default_Cube");
+
+        Mesh plane;
+        PrimitiveGenerator::generatePlane(plane);
+        registerCustomMesh(std::move(plane), "Default_Plane");
+
+        Mesh sphere;
+        PrimitiveGenerator::generateSphere(sphere);
+        registerCustomMesh(std::move(sphere), "Default_Sphere");
     }
 
     u32 ResourceManager::getModelRecordsSize() const
