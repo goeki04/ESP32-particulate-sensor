@@ -2,6 +2,8 @@
 #include "a_components.hpp"
 #include <fstream>
 #include <iostream>
+#include <unordered_set>
+#include "a_Primitives.hpp"
 namespace Andromeda {
 
 	bool SceneSerializer::save(const std::string& filepath, ECS::ComponentRegistry& registry)
@@ -20,6 +22,7 @@ namespace Andromeda {
 	}
     bool SceneSerializer::load(const std::string& filepath, ECS::ComponentRegistry& registry)
     {
+		registry.clearRegistry();
         std::ifstream file(filepath);
         if (!file.is_open()) return false;
 
@@ -39,15 +42,35 @@ namespace Andromeda {
             pool.deserializePool(root[tagName]);
             for (const auto id : pool.getEntities()) if (id > maxID) maxID = id;
         }
+        const std::string meshMaterialName = typeid(ECS::Component::Material).name();
+        if (root.contains(meshMaterialName)) {
+            auto& pool = registry.getPool<ECS::Component::Material>();
+            pool.deserializePool(root[meshMaterialName]);
+            for (const auto id : pool.getEntities()) if (id > maxID) maxID = id;
+        }
         const std::string meshName = typeid(ECS::Component::MeshRenderer).name();
         if (root.contains(meshName)) {
             auto& pool = registry.getPool<ECS::Component::MeshRenderer>();
             pool.deserializePool(root[meshName]);
-            for (auto id : pool.getEntities()) if (id > maxID) maxID = id;
+            for (auto id : pool.getEntities()) {
+                if (id > maxID) maxID = id;
+            }
         }
+        const std::string aabb = typeid(ECS::Component::AABB).name();
+        if (root.contains(aabb)) {
+            auto& pool = registry.getPool<ECS::Component::AABB>();
+            pool.deserializePool(root[aabb]);
+            for (auto id : pool.getEntities()) {
+                if (id > maxID) maxID = id;
+            }
+        }
+
         if (maxID > 0 || !root.empty()) {
             registry.m_NextID = maxID + 1;
+			std::cout << "Scene loaded. Next entity ID set to: " << registry.m_NextID << std::endl;
+           
         }
+        registry.rebuildActiveEntities();
         return true;
     }
 }

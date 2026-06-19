@@ -1,0 +1,18 @@
+Wann crasht das Programm?
+
+- Wenn man startet und ein vorhandenes savefile lädt.
+
+Wann crasht es nicht:
+
+- Wenn man speichert.
+- Wenn man läd aber davor ein beliebiges primitive in der hierarchy erstellt
+  
+Welche bugs treten auf?
+- Wenn man einen Würfel speichert. Das Programm neustartet, ein Plane erstellt und dann den Spielstand läd,
+ dann bleibt der Plane und der würfel erscheint nicht. Der Tag des Plane ändert sich jedoch richtig zu dem,
+ was in dem Spielstand gespeichert wurde
+ 
+ [Fixed] -> rebuild hierarchy after loading
+- Wenn man einen z.b. Plane erstellt diesen Löscht in der hierarchy und dann den spielstand,
+ mit einem gespeicherten plane laden tut, dann erscheint der geladene plane aber hat keinen tag in der hierarchy
+ und ist auch nicht auswählbar mit der maus
