@@ -1,5 +1,6 @@
 find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(spdlog REQUIRED)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(GEN_SCRIPT "${CMAKE_SOURCE_DIR}/metaData/gen_components.py")
 set(GEN_OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/ECS/generated_components.hpp")
@@ -40,4 +41,5 @@ target_include_directories(definitions INTERFACE
 target_link_libraries(definitions INTERFACE
 	glm::glm
 	nlohmann_json::nlohmann_json
+	spdlog::spdlog
 )

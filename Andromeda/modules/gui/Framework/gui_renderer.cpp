@@ -113,11 +113,15 @@ namespace Andromeda::Gui {
 
     void GuiRenderer::OpenFolder()
     {
-#if defined(_WIN32)
         const auto targetDirectory = std::filesystem::current_path().parent_path() / "Licenses";
+#if defined(_WIN32)
         const std::string cmd = "explorer \"" + targetDirectory.string() + "\"";
-        system(cmd.c_str());
+#elif defined(__APPLE__)
+        const std::string cmd = "open \"" + targetDirectory.string() + "\"";
+#else
+        const std::string cmd = "xdg-open \"" + targetDirectory.string() + "\"";
 #endif
+        system(cmd.c_str());
     }
 
     void GuiRenderer::OpenURL(const std::string& url)

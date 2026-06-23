@@ -101,4 +101,20 @@ class ProjectService extends ChangeNotifier {
     notifyListeners();
     await _save();
   }
+
+  /// Deletes a project. Always removes it from the launcher list; when
+  /// [deleteFiles] is true the entire project folder is also removed from disk.
+  Future<void> delete(Project project, {bool deleteFiles = false}) async {
+    if (deleteFiles) {
+      try {
+        final dir = Directory(project.path);
+        if (await dir.exists()) {
+          await dir.delete(recursive: true);
+        }
+      } catch (_) {}
+    }
+    _projects.removeWhere((p) => p.path == project.path);
+    notifyListeners();
+    await _save();
+  }
 }

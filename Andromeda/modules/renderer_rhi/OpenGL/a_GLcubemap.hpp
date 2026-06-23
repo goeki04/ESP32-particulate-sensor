@@ -6,6 +6,7 @@
 #include "a_IGraphicsContext.hpp"
 #include "a_CubemapData.hpp"
 #include "a_math.hpp"
+#include "a_logger.hpp"
 namespace Andromeda {
 	class CubemapGL {
 	public:
@@ -64,7 +65,7 @@ namespace Andromeda {
 
 		static void AllocateCubemapTexture(IGraphicsContext* context,CubemapData* data,const SamplerState& state) {
 			if (state.type != TextureType::Cubemap) {
-				printf("Allocating cubemap texture failed: Invalid sampler state type\n");
+				A_ERROR("Allocating cubemap texture failed: Invalid sampler state type");
 				return;
 			}
 			u32 textureID = 0;
@@ -82,7 +83,7 @@ namespace Andromeda {
 
 		static void AllocateCubemapTextureWithMipmap(IGraphicsContext* context, CubemapData* data, const SamplerState& state) {
 			if (state.type != TextureType::Cubemap) {
-				printf("Allocating cubemap texture failed: Invalid sampler state type\n");
+				A_ERROR("Allocating cubemap texture failed: Invalid sampler state type");
 				return;
 			}
 

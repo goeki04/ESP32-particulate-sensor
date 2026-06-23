@@ -58,17 +58,17 @@ namespace Andromeda::Network {
         }
     }
 
-    bool ESPHomeDecoder::try_decode_varint(uint32_t& outValue)
+    bool ESPHomeDecoder::try_decode_varint(u32& outValue)
     {
-        uint32_t result = 0;
-        uint32_t shift = 0;
+        u32 result = 0;
+        u32 shift = 0;
         size_t consumed = 0;
 
         for (size_t i = 0; i < m_Buffer.size(); ++i) {
             uint8_t b = m_Buffer[i];
             consumed++;
 
-            result |= (static_cast<uint32_t>(b & 0x7F) << shift);
+            result |= (static_cast<u32>(b & 0x7F) << shift);
 
             if ((b & 0x80) == 0) {
                 outValue = result;

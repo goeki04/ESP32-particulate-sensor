@@ -1,6 +1,7 @@
 #include "a_OpenGLContext.hpp"
 #include "a_Primitives.hpp"
 #include "GL/Glew.h"
+#include "a_logger.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -66,7 +67,7 @@ namespace Andromeda {
                 glGetProgramInfoLog(objectID, (GLsizei)log.size(), &outLen, log.data());
             }
             log.resize(outLen);
-            std::cout << log << std::endl;
+            A_ERROR("{} error:\n{}", stage, log);
             throw std::runtime_error(std::string(stage) + " error:\n" + log);
         }
 
@@ -104,8 +105,7 @@ namespace Andromeda {
     {
         std::ifstream fileStream(shaderPath);
         if (!fileStream.is_open()) {
-            std::cerr << "Andromeda Critical Error: Could not open shader file at path: "
-                << shaderPath << std::endl;
+            A_CRITICAL("Could not open shader file at path: {}", shaderPath);
             throw std::runtime_error("Failed to open shader file: " + std::string(shaderPath));
         }
         std::stringstream buffer;
