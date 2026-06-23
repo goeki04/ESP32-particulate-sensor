@@ -1,0 +1,29 @@
+# Conan profile for building Andromeda on Linux with Clang.
+#
+# IMPORTANT: compiler.version must match your installed Clang major version.
+# Check it with:   clang --version
+#   Ubuntu 24.04 default -> 18   (this file's default)
+#   Ubuntu 22.04 default -> 14/15
+# Adjust the line below if yours differs, otherwise Conan may fail to find
+# matching prebuilt binaries.
+#
+# build_type is passed on the command line (-s build_type=Debug/Release).
+
+[settings]
+os=Linux
+arch=x86_64
+compiler=clang
+compiler.version=18
+compiler.cppstd=20
+compiler.libcxx=libstdc++11
+
+[options]
+# The glslang 1.4.350.0 recipe fails to build its SPIR-V optimizer from source
+# (missing spirv-tools include dirs). We don't need it, so disable everywhere
+# (this profile is passed as both -pr and -pr:b).
+glslang/*:enable_optimizer=False
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
+# Force the Clang executables even if CC/CXX point elsewhere.
+tools.build:compiler_executables={"c": "clang", "cpp": "clang++"}
