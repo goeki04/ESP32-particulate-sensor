@@ -1,0 +1,12 @@
+.git/
+conan/
+build/
+out/
+.vs/
+.idea/
+.venv/
+.claude/
+CMakeUserPresets.json
+*.pdb
+*.obj
+*.exe
