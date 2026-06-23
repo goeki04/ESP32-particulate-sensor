@@ -1,0 +1,2 @@
+COMMIT 4707b245fbcd69075b1a8a74fa8d2435561b3134
+implot v0.17 vendored on 2026-06-23 (commit 4707b245). Built from source against imgui 1.92.5 to avoid the stale ConanCenter prebuilt 0.17 binary, whose old GetForegroundDrawList(void) ABI fails to link in Release. Same API as before.
