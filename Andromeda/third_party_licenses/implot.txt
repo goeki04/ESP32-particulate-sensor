@@ -1,0 +1,11 @@
+ImPlot
+* version:  0.17 (commit 4707b245fbcd69075b1a8a74fa8d2435561b3134)
+* source:   https://github.com/epezent/implot
+* author:   Evan Pezent
+* license:  MIT (Copyright (c) 2020 Evan Pezent)
+* usage:    Bundled as source under bindings/implot/ and compiled into the
+            application. Full license text: bindings/implot/LICENSE
+
+The above copyright notice and the permission notice in bindings/implot/LICENSE
+are included with all distributions of this software, as required by the MIT
+License.
