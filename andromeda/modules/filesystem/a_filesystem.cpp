@@ -1,4 +1,5 @@
 #include "a_filesystem.hpp"
+#include "a_logger.hpp"
 #include <filesystem>
 namespace Andromeda {
     /// <summary>
@@ -15,7 +16,7 @@ namespace Andromeda {
                 return value;
             }
         }
-        std::printf("[WARNING]: Device type not found");
+        A_WARN("Device type not found for path: {}", path);
         return deviceType::DEFAULT;
     }
 

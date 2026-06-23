@@ -23,6 +23,7 @@ find_package(protobuf REQUIRED)
 find_package(glew REQUIRED)
 find_package(glslang REQUIRED)
 find_package(GTest REQUIRED)
+find_package(spdlog REQUIRED)
 find_package(spirv-reflect-static REQUIRED)
 file(GLOB SOURCES "modules/*.cpp")
 file(GLOB HEADERS "modules/*.h")
@@ -103,6 +104,12 @@ endif()
 
 add_custom_target(GenerateShaderHeaders ALL DEPENDS ${GENERATED_HEADER})
 add_dependencies(GenerateShaderHeaders renderer_rhi_shaders)
+
+# These static libs include the generated header (a_shader_generated.hpp), so
+# they must wait for GenerateShaderHeaders. Without this, a clean parallel build
+# can compile them before the header exists (fatal C1083) - see CI failure.
+add_dependencies(renderer GenerateShaderHeaders)
+add_dependencies(gui GenerateShaderHeaders)
 target_include_directories(Andromeda PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${PROTOBUF_INCLUDE_DIRS})
 target_include_directories(Andromeda PRIVATE 
     ${CMAKE_CURRENT_BINARY_DIR}/proto 
@@ -113,6 +120,7 @@ target_link_libraries(Andromeda PRIVATE
     GLEW::GLEW
     protobuf::libprotobuf
     glslang::_glslang-do-not-use
+    spdlog::spdlog
     #Engine modules
     network
     core

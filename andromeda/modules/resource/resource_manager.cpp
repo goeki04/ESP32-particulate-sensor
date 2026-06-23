@@ -2,6 +2,7 @@
 #include "a_filesystem.hpp"
 #include "a_geometry.hpp"
 #include "a_primitiveGenerator.hpp"
+#include "a_logger.hpp"
 #include <string>
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -20,12 +21,9 @@ namespace Andromeda {
         registerDefaultPrimitives();
         loadAllCubeMaps();
         for (const auto& [name, data] : m_CubemapData) {
-            std::printf("Cubemap Name: %s\n", name.c_str());
-            std::printf("  - ID: %u\n", data.textureID);
-            std::printf("  - Resolution: %dx%d\n", data.width, data.height);
-
+            A_DEBUG("Cubemap '{}' (ID {}) {}x{}", name, data.textureID, data.width, data.height);
             for (const auto& path : data.texturePath) {
-                std::printf("    Path: %s\n", path.c_str());
+                A_TRACE("    Path: {}", path);
             }
         }
     }
@@ -98,7 +96,7 @@ void ResourceManager::loadCubemapTexture(CubemapData& data){
 
             if (!data.pixelData[i])
             {
-                std::printf("[ERROR]: Failed to load cubemap face: %s\n", path);
+                A_ERROR("Failed to load cubemap face: {}", path);
             }
         }
 }
@@ -131,7 +129,7 @@ void ResourceManager::MapCubemapFacesLDR(CubemapData& data, const std::string& p
     else if (lowerName.find("back") != std::string::npos)   data.texturePath[4] = path;
     else if (lowerName.find("front") != std::string::npos)  data.texturePath[5] = path;
     else {
-        std::printf("[WARNING]: Could not map cubemap face for file: %s\n", path.c_str());
+        A_WARN("Could not map cubemap face for file: {}", path);
     }
 }
     /**
@@ -163,8 +161,7 @@ void ResourceManager::loadAndStoreCubemap(const std::string& name, const std::ve
     }
     else
     {
-        std::printf("[WARNING]: Cubemap directory '%s' contains %zu files! Skipping...\n",
-                name.c_str(), paths.size());
+        A_WARN("Cubemap directory '{}' contains {} files! Skipping...", name, paths.size());
     }
 }
 
@@ -267,7 +264,7 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
 		{
 			return it->second.vao;
 		}
-        std::printf("[WARNING]: Mesh ID %u not found!\n", meshID);
+        A_WARN("Mesh ID {} not found!", meshID);
         return 0;
     }
 
@@ -277,7 +274,7 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
         {
 			return it->second.indexBuffer.size();
         }
-        std::printf("[WARNING]: Mesh ID %u not found!\n", meshID);
+        A_WARN("Mesh ID {} not found!", meshID);
         return 0;
     }
 
@@ -386,7 +383,7 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
 
             bool hasNormals = mesh->HasNormals();
             if (!hasNormals) {
-                std::printf("Vertex doesnt have normals");
+                A_WARN("Mesh vertex has no normals");
             }
             material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
             for (unsigned int j = 0; j < mesh->mNumVertices; j++) {
@@ -440,7 +437,7 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
 
         std::string meshName = Filesystem::getFileName(path);
         if (m_MeshIDbyName.contains(meshName)) {
-            std::printf("Mesh already exists!\n");
+            A_DEBUG("Mesh '{}' already exists, skipping load", meshName);
             return;
         }
 

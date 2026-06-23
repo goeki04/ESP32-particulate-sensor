@@ -12,6 +12,7 @@
 #include "scene/scene.hpp"
 #include "serialization/sceneSerializer.hpp"
 #include <cstdlib>
+#include "a_logger.hpp"
 Andromeda::Window::WindowManager windowManager;
 Andromeda::InputSystem inputManager;
 Andromeda::Renderer renderer;
@@ -33,6 +34,9 @@ std::string g_ProjectPath = "";
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+    Andromeda::Log::init();
+    A_INFO("Andromeda starting up");
+
     if (argc > 1) {
         for (int32_t i = 1; i < argc; i++) {
             if (std::string(argv[i]) == "-project" && i + 1 < argc) {
@@ -41,10 +45,22 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         }
     }
     else {
-        const char* appdata = std::getenv("APPDATA");
-		assert(appdata && "APPDATA environment variable not set");
-        if (appdata) {
-            g_ProjectPath = std::string(appdata) + "\\Andromeda\\DefaultProject";
+#if defined(_WIN32)
+        const char* base = std::getenv("APPDATA");
+#else
+        const char* base = std::getenv("XDG_DATA_HOME");
+        std::string xdgFallback;
+        if (!base || base[0] == '\0') {
+            const char* home = std::getenv("HOME");
+            if (home) {
+                xdgFallback = std::string(home) + "/.local/share";
+                base = xdgFallback.c_str();
+            }
+        }
+#endif
+        assert(base && "could not determine a user data directory");
+        if (base) {
+            g_ProjectPath = (std::filesystem::path(base) / "Andromeda" / "DefaultProject").string();
         }
     }
 	std::filesystem::create_directories(g_ProjectPath);
@@ -57,7 +73,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Andromeda::SystemManager::getInstance().addSubsystem(&editor);
 
     Andromeda::SystemManager::getInstance().startSubsystems();
-    const std::string scenePath = g_ProjectPath + "\\scene.json";
+    const std::string scenePath = (std::filesystem::path(g_ProjectPath) / "scene.json").string();
 
     if (std::filesystem::exists(scenePath)) {
        Andromeda::SceneSerializer::load(scenePath, sceneManager.m_Registry, resourceManager);

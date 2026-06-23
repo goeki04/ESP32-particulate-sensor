@@ -10,6 +10,7 @@
 #include "OpenGL/a_opengl_upload.hpp"
 #include "a_shader_generated.hpp"
 #include "a_clearFlags.hpp"
+#include "a_logger.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
 
@@ -385,7 +386,7 @@ namespace Andromeda {
                     m_RenderContext->drawIndexed(vao, indexCount);
                 }
                 else {
-                    printf("material or vao missing\n");
+                    A_WARN("material or vao missing for entity {}", e);
                 }
             }
         }

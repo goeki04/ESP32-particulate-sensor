@@ -1,5 +1,6 @@
 #include "sceneSerializer.hpp"
 #include "a_components.hpp"
+#include "a_logger.hpp"
 #include <fstream>
 #include <iostream>
 #include <unordered_set>
@@ -81,8 +82,7 @@ namespace Andromeda {
             for (size_t i = 0; i < entities.size(); ++i) {
                 u32 id;
                 if (!rm.tryGetMeshIDByName(names[i], id)) {
-                    std::cout << "Warning: mesh '" << names[i]
-                              << "' not found; skipping entity " << entities[i] << std::endl;
+                    A_WARN("mesh '{}' not found; skipping entity {}", names[i], entities[i]);
                     continue;
                 }
                 rebuilt["entities"].push_back(entities[i]);
@@ -106,8 +106,7 @@ namespace Andromeda {
 
         if (maxID > 0 || !root.empty()) {
             registry.m_NextID = maxID + 1;
-			std::cout << "Scene loaded. Next entity ID set to: " << registry.m_NextID << std::endl;
-           
+            A_INFO("Scene loaded. Next entity ID set to: {}", registry.m_NextID);
         }
         registry.rebuildActiveEntities();
         return true;

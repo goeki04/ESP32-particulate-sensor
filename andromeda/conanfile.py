@@ -4,6 +4,14 @@ import requests
 class CmakeTest(ConanFile):
     generators = ("CMakeToolchain", "CMakeDeps")
     settings = ("os","build_type", "arch", "compiler")
+    # The glslang 1.4.350.0 Conan recipe fails to build from source with the
+    # optimizer enabled: it does not propagate the spirv-tools include dirs, so
+    # SPIRV/SpvTools.h cannot find 'spirv-tools/libspirv.h'. We don't need the
+    # SPIR-V optimizer (shaders are compiled and reflected separately), so we
+    # disable it for every glslang instance (host + build context).
+    default_options = {
+        "glslang/*:enable_optimizer": False,
+    }
     def requirements(self):
         self.requires("glm/1.0.1")
         self.requires("sdl/3.2.20")
@@ -17,7 +25,10 @@ class CmakeTest(ConanFile):
         self.requires("stb/cci.20230920")
         self.requires("protobuf/3.21.12")
         self.requires("imguizmo/cci.20231114")
-        self.requires("implot/0.17")
+        self.requires("spdlog/1.17.0")
+        # implot is vendored from master (bindings/implot) for imgui 1.92 compatibility.
+        # ConanCenter only ships implot/0.17, which is too old for imgui 1.92 and fails
+        # to link in Release (missing ImGui::GetForegroundDrawList from ShowMetricsWindow).
         self.requires("gtest/1.17.0")
     def build_requirements(self):
         self.tool_requires("glslang/1.4.350.0")

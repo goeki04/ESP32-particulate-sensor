@@ -5,6 +5,7 @@
 #include "resource_manager.h"
 #include "a_event_manager.hpp"
 #include "a_EventTypes.hpp"
+#include "a_logger.hpp"
 #include "ImGuizmo.h"
 namespace Andromeda::Gui {
     void ViewportPanel::initPanel(EditorContext& ctx)
@@ -25,7 +26,7 @@ namespace Andromeda::Gui {
         {
             if (textureIDs[i] == 0)
             {
-                std::printf("Viewport icon not found");
+                A_ERROR("Viewport icon not found (index {})", i);
                 return;
             }
             m_TextureHandles.handles[i] = static_cast<ImTextureID>(static_cast<intptr_t>(textureIDs[i]));

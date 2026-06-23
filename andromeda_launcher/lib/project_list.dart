@@ -296,6 +296,74 @@ class _ProjectRowState extends State<_ProjectRow> {
     } catch (_) {}
   }
 
+  Future<void> _showContextMenu(Offset globalPos) async {
+    final overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final selected = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromRect(
+        Rect.fromLTWH(globalPos.dx, globalPos.dy, 0, 0),
+        Offset.zero & overlay.size,
+      ),
+      items: const [
+        PopupMenuItem<String>(
+          value: 'remove',
+          child: Row(
+            children: [
+              Icon(Icons.playlist_remove, size: 16, color: Colors.white70),
+              SizedBox(width: 8),
+              Text('Aus Liste entfernen'),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'delete',
+          child: Row(
+            children: [
+              Icon(Icons.delete_outline, size: 16, color: Colors.redAccent),
+              SizedBox(width: 8),
+              Text('Komplett löschen'),
+            ],
+          ),
+        ),
+      ],
+    );
+    if (selected == 'remove') {
+      await ProjectService.instance.remove(widget.project);
+    } else if (selected == 'delete') {
+      await _confirmDelete();
+    }
+  }
+
+  Future<void> _confirmDelete() async {
+    if (!mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Projekt löschen?'),
+        content: Text(
+          '„${widget.project.name}" wird endgültig gelöscht. Der gesamte '
+          'Projektordner inklusive aller Dateien wird vom Datenträger '
+          'entfernt. Das kann nicht rückgängig gemacht werden.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Abbrechen'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Löschen',
+                style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await ProjectService.instance.delete(widget.project, deleteFiles: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = widget.project;
@@ -307,6 +375,8 @@ class _ProjectRowState extends State<_ProjectRow> {
         onExit: (_) => setState(() => _hover = false),
         child: GestureDetector(
           onTap: _launch,
+          onSecondaryTapDown: (d) => _showContextMenu(d.globalPosition),
+          onLongPressStart: (d) => _showContextMenu(d.globalPosition),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
             transform: Matrix4.translationValues(_hover ? 2 : 0, 0, 0),
