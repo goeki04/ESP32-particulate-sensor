@@ -1,4 +1,10 @@
 #pragma once
+
+/**
+ * @file a_GLcubemap.hpp
+ * @brief OpenGL cubemap utilities: uploading cubemaps and baking image-based-lighting (IBL) resources.
+ */
+
 #include "a_GLcubemap.hpp"
 #include <GL/glew.h>
 #include "a_primitives.hpp"
@@ -8,8 +14,21 @@
 #include "a_math.hpp"
 #include "a_logger.hpp"
 namespace Andromeda {
+	/**
+	 * @class CubemapGL
+	 * @brief Static OpenGL helpers for creating cubemap textures and the IBL baking pipeline.
+	 *
+	 * @details Provides upload paths for both LDR (six-face) and HDR (equirectangular) sources,
+	 *          allocation of empty cubemaps used as render targets during baking, and the
+	 *          equirectangular-to-cubemap conversion. Also exposes the fixed projection/view
+	 *          matrices used to render each of the six cube faces.
+	 */
 	class CubemapGL {
 	public:
+		/**
+		 * @brief Uploads cubemap pixel data to the GPU, choosing the HDR or LDR path automatically.
+		 * @param data The cubemap data; its CPU pixel buffers are freed after upload.
+		 */
 		static void CubemapTextureUploadGL(CubemapData& data) {
 			if (data.isHDR)
 			{
@@ -24,6 +43,10 @@ namespace Andromeda {
 			data.pixelData.fill(nullptr);
 		}
 
+		/**
+		 * @brief Uploads HDR panorama pixel data into a float 2D texture (equirectangular source).
+		 * @param data The cubemap data carrying the HDR source image; receives the created texture ID.
+		 */
 		static void createCubeMapTextureHDR(CubemapData& data)
 		{
 			GLuint tempID;
@@ -42,6 +65,10 @@ namespace Andromeda {
 			}
 		}
 
+		/**
+		 * @brief Uploads six LDR face images into an OpenGL cubemap texture.
+		 * @param data The cubemap data carrying the six face buffers; receives the created texture ID.
+		 */
 		static void createCubeMapTextureLDR(CubemapData& data)
 		{
 			GLuint tempID;
@@ -63,6 +90,12 @@ namespace Andromeda {
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		}
 
+		/**
+		 * @brief Allocates an empty float cubemap (no mipmaps) for use as a baking render target.
+		 * @param context Graphics context used to apply the sampler state.
+		 * @param data Cubemap data providing the face dimensions; receives the created texture ID.
+		 * @param state Sampler state; must have @c TextureType::Cubemap or the call fails.
+		 */
 		static void AllocateCubemapTexture(IGraphicsContext* context,CubemapData* data,const SamplerState& state) {
 			if (state.type != TextureType::Cubemap) {
 				A_ERROR("Allocating cubemap texture failed: Invalid sampler state type");
@@ -81,6 +114,12 @@ namespace Andromeda {
 			glBindTexture(GL_TEXTURE_CUBE_MAP,0);
 		}
 
+		/**
+		 * @brief Allocates an empty float cubemap with a mipmap chain (e.g. for prefiltered specular maps).
+		 * @param context Graphics context used to apply the sampler state.
+		 * @param data Cubemap data providing the face dimensions; receives the created texture ID.
+		 * @param state Sampler state; must have @c TextureType::Cubemap or the call fails.
+		 */
 		static void AllocateCubemapTextureWithMipmap(IGraphicsContext* context, CubemapData* data, const SamplerState& state) {
 			if (state.type != TextureType::Cubemap) {
 				A_ERROR("Allocating cubemap texture failed: Invalid sampler state type");
@@ -101,7 +140,9 @@ namespace Andromeda {
 			glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 		}
 
+		/** @brief 90° FOV perspective projection used when rendering each cube face during baking. */
 		static inline const mat4 cubeProjection = amath::perspective(amath::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		/** @brief The six view matrices (one per cube face) used to render into a cubemap. */
 		static inline const mat4 cubeViews[] =
 		{
 		   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f,  0.0f,  0.0f), vec3(0.0f, -1.0f,  0.0f)),
@@ -112,6 +153,15 @@ namespace Andromeda {
 		   amath::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f,  0.0f, -1.0f), vec3(0.0f, -1.0f,  0.0f))
 		};
 
+		/**
+		 * @brief Renders an equirectangular HDR texture into the six faces of a cubemap.
+		 * @param context The graphics context used to issue the render commands.
+		 * @param shaderHandle The equirectangular-to-cubemap conversion shader.
+		 * @param hdrTexture The source equirectangular HDR 2D texture.
+		 * @param bakingFBO The framebuffer used as the render target during conversion.
+		 * @param envCubemap The destination cubemap texture ID to render the faces into.
+		 * @param renderCube Callback that draws the unit cube geometry for each face.
+		 */
 		static void ConvertEquiretangularToCubemap(IGraphicsContext* context,ShaderProgramHandle shaderHandle, GLuint& hdrTexture,std::shared_ptr<IFramebuffer> bakingFBO ,u32 envCubemap, std::function<void()> renderCube) {
 
 			RenderPassSpecs specs;

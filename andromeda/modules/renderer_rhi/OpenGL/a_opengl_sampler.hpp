@@ -1,4 +1,10 @@
 #pragma once
+
+/**
+ * @file a_opengl_sampler.hpp
+ * @brief OpenGL helper that translates an engine @c SamplerState into glTexParameter calls.
+ */
+
 #include "a_samplerState.hpp"
 #include <GL/glew.h>
 
@@ -21,6 +27,11 @@ namespace Andromeda {
          */
         GLSampler(const SamplerState& state) : state(state) {}
 
+        /**
+         * @brief Maps an engine texture type to its OpenGL texture target.
+         * @param type The texture type (2D or cubemap).
+         * @return GL_TEXTURE_2D for 2D textures, otherwise GL_TEXTURE_CUBE_MAP.
+         */
         static GLenum GetTarget(TextureType type) {
             return (type == TextureType::Texture2D) ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP;
         }
@@ -59,6 +70,11 @@ namespace Andromeda {
             glTexParameteri(target, GL_TEXTURE_WRAP_R, MapWrap(state.wrapR));
         }
 
+        /**
+         * @brief Maps an engine texture type to its OpenGL texture target (switch-based variant).
+         * @param type The texture type to translate.
+         * @return The corresponding GL texture target (defaults to GL_TEXTURE_2D).
+         */
         static GLenum textureTypeToGLTextureTarget(TextureType type) {
             switch (type) {
             case TextureType::Texture2D: return GL_TEXTURE_2D;

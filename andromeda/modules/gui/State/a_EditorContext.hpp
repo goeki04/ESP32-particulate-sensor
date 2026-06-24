@@ -79,7 +79,7 @@ namespace Andromeda::Gui
 
         /**
          * @brief Initializes the context with null pointers.
-         * Subsystems must be assigwned before passing the context to UI panels.
+         * Subsystems must be assigned before passing the context to UI panels.
          */
         EditorContext()
             : registry(nullptr),

@@ -1,10 +1,28 @@
 #pragma once
+
+/**
+ * @file a_components.hpp
+ * @brief Definitions of all ECS component structures used by the Andromeda engine.
+ *
+ * @details Components in this file are scanned at build time by the Python
+ *          metadata pre-processor (`gen_components.py`) to generate the
+ *          component tuple and name tables (see @c generated_components.hpp
+ *          and @c generated_component_names.hpp). They are intentionally kept
+ *          as plain, dependency-light POD-like structs so that the registry
+ *          can store, copy and serialize them cheaply.
+ */
+
 #include "a_math.hpp"
 #include "a_model_record.hpp"
 #include <string>
 
 namespace Andromeda::ECS::Component {
 
+    /**
+     * @brief Resets a component back to its default-constructed state.
+     * @tparam T The component type, must be default-constructible.
+     * @param component Reference to the component instance to reset in place.
+     */
     template<typename T>
     void resetComponent(T& component) {
         component = T();
@@ -32,9 +50,14 @@ namespace Andromeda::ECS::Component {
      *          and rotation changes in the editor.
      */
     struct [[Andromeda::Undo]] Transform {
-        vec3 position{ 0.0f, 0.0f, 0.0f };
-        vec3 scale{ 1.0f, 1.0f, 1.0f };
-        quat rotation = quat(1.0f,0.0f,0.0f,0.0f);
+        vec3 position{ 0.0f, 0.0f, 0.0f }; ///< World-space position of the entity.
+        vec3 scale{ 1.0f, 1.0f, 1.0f };    ///< Per-axis scale factor of the entity.
+        quat rotation = quat(1.0f,0.0f,0.0f,0.0f); ///< Orientation of the entity, stored as a quaternion (identity by default).
+
+        /**
+         * @brief Builds the local-to-world transformation matrix from position, rotation and scale.
+         * @return The combined TRS (Translate * Rotate * Scale) model matrix.
+         */
         [[nodiscard]] mat4 modelMatrix() const {
             mat4 m(1.0f);
             m = amath::translate(m, position);
@@ -44,27 +67,45 @@ namespace Andromeda::ECS::Component {
         }
     };
 
+    /**
+     * @brief Associates an entity with a named material used by the renderer.
+     * @note Currently stores only a material name; lookup of the actual material data happens elsewhere (resource manager).
+     */
     struct Material {
-        std::string materialName = "PBRMaterial";
+        std::string materialName = "PBRMaterial"; ///< Name of the material to look up/apply when rendering this entity.
     };
 
+    /**
+     * @brief Marks an entity as representing a physical hardware device (sensor, controller, etc.) in the scene.
+     */
     struct Device
     {
-        deviceType type;
+        deviceType type; ///< The kind of device this entity represents (see @c deviceType in a_model_record.hpp).
     };
 
+    /**
+     * @brief Links an entity to the mesh that should be drawn for it.
+     */
     struct MeshRenderer
     {
-        u32 meshID;
+        u32 meshID; ///< Identifier of the mesh resource to render, as registered with the resource manager.
     };
 
+    /**
+     * @brief Axis-Aligned Bounding Box component, used for picking, culling and gizmo placement.
+     * @note This is derived/calculated data (see @c Mesh::getAABB()) rather than user-edited data,
+     *       which is why it is not marked with [[Andromeda::Undo]].
+     */
     struct AABB {
-        vec3 min = { 0.0f,0.0f,0.0f };
-        vec3 max = { 0.0f,0.0f,0.0f };
-        vec3 center = { 0.0f,0.0f,0.0f };
+        vec3 min = { 0.0f,0.0f,0.0f };    ///< Minimum corner of the bounding box in local/world space.
+        vec3 max = { 0.0f,0.0f,0.0f };    ///< Maximum corner of the bounding box in local/world space.
+        vec3 center = { 0.0f,0.0f,0.0f }; ///< Midpoint between @c min and @c max, cached for convenience.
     };
 
+    /**
+     * @brief Human-readable identifier for an entity, shown in the editor hierarchy/inspector.
+     */
     struct [[Andromeda::Undo]] Tag{
-        std::string name = "Unnamed";
+        std::string name = "Unnamed"; ///< Display name of the entity.
     };
 }

@@ -168,6 +168,11 @@ namespace Andromeda::ECS {
             return newEntity;
         }
 
+        /**
+         * @brief Rebuilds @c m_ActiveEntities from the union of all entities across every pool.
+         * @details Useful after deserialization, where pools are restored directly and the active
+         *          entity list must be reconstructed to reflect their contents.
+         */
         void rebuildActiveEntities() {
             std::unordered_set<Entity> unique;
             for (const auto& pool : m_Pools | std::views::values) {
@@ -176,6 +181,7 @@ namespace Andromeda::ECS {
             m_ActiveEntities.assign(unique.begin(), unique.end());
         }
 
+		/** @brief Wipes the registry: clears all entities and component pools and resets the ID counter (e.g. when loading a new scene). */
 		void clearRegistry() {
 			m_ActiveEntities.clear();
 			m_Pools.clear();

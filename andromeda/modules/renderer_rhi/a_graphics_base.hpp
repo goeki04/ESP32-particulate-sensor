@@ -1,5 +1,14 @@
 #pragma once
 
+/**
+ * @file a_graphics_base.hpp
+ * @brief Common include hub for the graphics stack: GLEW, SDL3, OpenGL and the ImGui SDL/OpenGL backends.
+ *
+ * @details Pulled in by code that needs the raw graphics/UI headers together in the correct order.
+ *          Defining @c IMGUI_IMPL_OPENGL_LOADER_CUSTOM tells ImGui's OpenGL3 backend that the loader
+ *          (GLEW) is provided by the application rather than ImGui's built-in loader.
+ */
+
 #ifndef IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 	#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #endif

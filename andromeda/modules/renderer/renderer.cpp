@@ -11,6 +11,7 @@
 #include "a_shader_generated.hpp"
 #include "a_clearFlags.hpp"
 #include "a_logger.hpp"
+#include "a_rhi_storage_buffer.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
 

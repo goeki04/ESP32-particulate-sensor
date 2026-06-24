@@ -16,6 +16,10 @@ compiler=clang
 compiler.version=21
 compiler.cppstd=20
 compiler.libcxx=libstdc++11
+# Default build_type. The host build_type is overridden per run with
+# -s build_type=Debug/Release; this default is what the build context
+# (tool_requires built from source, e.g. libxml2) uses, which must not be None.
+build_type=Release
 
 [options]
 # The glslang 1.4.350.0 recipe fails to build its SPIR-V optimizer from source
@@ -27,3 +31,7 @@ glslang/*:enable_optimizer=False
 tools.cmake.cmaketoolchain:generator=Ninja
 # Force the Clang executables even if CC/CXX point elsewhere.
 tools.build:compiler_executables={"c": "clang", "cpp": "clang++"}
+# Let Conan install missing system packages (libudev-dev, libxcb-*, ...) via apt.
+# Requires sudo; may prompt for your password on the first build.
+tools.system.package_manager:mode=install
+tools.system.package_manager:sudo=True

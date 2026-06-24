@@ -1,9 +1,26 @@
 #pragma once
+
+/**
+ * @file sceneSerializer.hpp
+ * @brief Saving and loading of the ECS scene state to and from JSON files.
+ */
+
 #include <string>
 #include "a_registry.hpp"
 #include "resource_manager.h"
 namespace Andromeda {
 	class ResourceManager;
+
+	/**
+	 * @class SceneSerializer
+	 * @brief Persists and restores a @c ComponentRegistry (the whole scene) as JSON.
+	 *
+	 * @details Walks the registry's component pools to write/read each component type. Stateless;
+	 *          all functionality is exposed through static methods.
+	 *
+	 * @warning Component pools are keyed by @c typeid(T).name(), which is compiler-specific.
+	 *          See @c save() / @c load() for the cross-platform implications.
+	 */
 	class SceneSerializer{
 	public:
         /**

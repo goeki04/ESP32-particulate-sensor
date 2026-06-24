@@ -28,11 +28,26 @@ namespace Andromeda::Gui
          * ImGui::Begin() and ImGui::End() calls and all widgets in between.
          */
         virtual void onGuiRender(EditorContext& ctx) = 0;
+
+        /**
+         * @brief Optional one-time initialization hook, called before the first render.
+         * @details Override to cache resources (icons, textures) or subscribe to events.
+         *          The base implementation does nothing.
+         * @param ctx The shared editor context.
+         */
         virtual void initPanel(EditorContext& ctx) {}
+
+        /** @brief Returns the panel's display name (also used as the ImGui window title). */
         const char* getName() const { return m_Name; }
+
+        /**
+         * @brief Constructs a panel with the given window title.
+         * @param name The display name of the panel; must outlive the panel (typically a string literal).
+         */
         explicit EditorPanel(const char* name) : m_Name(name){}
+
         bool m_IsOpen = true; ///< Controls the visibility of the panel.
-        EditorWindowFlags m_WindowFlags = 0;
+        EditorWindowFlags m_WindowFlags = 0; ///< Extra ImGui window flags applied when this panel begins.
     protected:
         const char* m_Name = nullptr; ///< The title of the ImGui window.
     };

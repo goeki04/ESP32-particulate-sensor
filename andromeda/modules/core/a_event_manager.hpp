@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file a_event_manager.hpp
+ * @brief Type-safe, reentrancy-safe publish/subscribe event system for decoupled engine communication.
+ */
+
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
@@ -53,6 +58,10 @@ namespace Andromeda {
         int m_DispatchLevel = 0;
 
     public:
+        /**
+         * @brief Returns the global singleton instance of the event manager.
+         * @return Reference to the single shared @c EventManager.
+         */
         static EventManager& getInstance() {
             static EventManager instance;
             return instance;

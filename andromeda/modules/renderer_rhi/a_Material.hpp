@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file a_Material.hpp
+ * @brief Data-oriented material: shader + a flat byte buffer of uniforms + textures, optimized for cache-friendly binding.
+ */
+
 #include "a_IGraphicsContext.hpp"
 #include <unordered_map>
 #include <vector>
@@ -21,7 +26,7 @@ namespace Andromeda {
      */
     class Material {
     public:
-        std::any m_UboStructure;
+        std::any m_UboStructure; ///< Type-erased copy of the material's UBO struct (e.g. for editor reflection/editing).
         /**
          * @struct PropertyLayout
          * @brief Describes the memory metadata of a single shader variable inside the byte buffer.
@@ -35,8 +40,8 @@ namespace Andromeda {
 
         /** @brief The API-agnostic handle of the assigned shader program. */
         ShaderProgramHandle m_ShaderHandle{};
-        std::shared_ptr<IConstantBuffer> m_MaterialUBO;
-        u32 m_UboBindingSlot = 0;
+        std::shared_ptr<IConstantBuffer> m_MaterialUBO; ///< Optional uniform buffer holding the material's UBO struct on the GPU.
+        u32 m_UboBindingSlot = 0;                       ///< Binding point the material UBO is bound to.
         /**
          * @brief Constructs a new Material and reflects the active shader uniforms from the GPU.
          * * During initialization, the constructor queries the GPU via the graphics context for
@@ -54,6 +59,13 @@ namespace Andromeda {
             }
         }
 
+        /**
+         * @brief Assigns the material's uniform-block data, creating and binding the backing UBO on first use.
+         * @tparam T The UBO struct type.
+         * @param data The uniform block values to upload.
+         * @param bindingSlot The binding point to bind the UBO to.
+         * @param ctx The graphics context used to allocate the buffer.
+         */
         template<typename T>
         void setUBOData(const T& data, u32 bindingSlot, IGraphicsContext* ctx) {
             m_UboBindingSlot = bindingSlot;
@@ -66,6 +78,11 @@ namespace Andromeda {
             m_MaterialUBO->bind(bindingSlot);
         }
 
+        /**
+         * @brief Updates the contents of an already-created material UBO.
+         * @tparam T The UBO struct type.
+         * @param data The new uniform block values (no-op if the UBO has not been created yet).
+         */
         template<typename T>
         void updateUBOData(const T& data) {
             m_UboStructure = data;
@@ -152,7 +169,14 @@ namespace Andromeda {
             ctx->bindTextures(m_Textures);
         }
 
+        /** @brief Returns the layout metadata for all active uniform properties. */
         const std::vector<PropertyLayout>& getProperties() const { return m_Properties; }
+
+        /**
+         * @brief Reverse-looks-up a uniform's name from its GPU location.
+         * @param location The uniform location to resolve.
+         * @return The uniform's name, or an empty string if not found.
+         */
         const std::string getUniformNameByLocation(u32 location) const {
             for (const auto& [name, meta] : m_UniformTable) {
                 if (meta.location == location) return name;
@@ -160,6 +184,11 @@ namespace Andromeda {
             return "";
         }
 
+        /**
+         * @brief Returns a pointer to a property's raw bytes inside the CPU storage buffer.
+         * @param prop The property layout describing the offset.
+         * @return Pointer into @c m_CpuStorage at the property's offset (e.g. for editing in the inspector).
+         */
         void* getPropertyPointer(const PropertyLayout& prop) {
             return m_CpuStorage.data() + prop.offset;
         }

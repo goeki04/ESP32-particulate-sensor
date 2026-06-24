@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file resource_manager.h
+ * @brief Central asset-management subsystem: loads, caches and serves meshes, textures, cubemaps, shaders and materials.
+ */
+
 #include <vector>
 #include <unordered_map>
 #include <string>
@@ -196,14 +201,44 @@ namespace Andromeda {
         u32 registerCustomMesh(Mesh&& mesh, const std::string& name);
 
 
+        /**
+         * @brief Loads, compiles and caches a shader program through the RHI under a lookup name.
+         * @param ctx The graphics context used to create the program (backend-agnostic).
+         * @param name The key under which the resulting shader is cached and later retrieved.
+         * @param vertPath Path to the vertex shader source.
+         * @param fragPath Path to the fragment shader source.
+         * @return A handle to the created (or already cached) shader program.
+         */
         ShaderProgramHandle loadShaderRHI(IGraphicsContext* ctx, const std::string& name, const std::string& vertPath, const std::string& fragPath);
 
+        /**
+         * @brief Retrieves a previously loaded shader program by name.
+         * @param name The cache key the shader was registered under.
+         * @return The cached shader handle (a default/zero handle if not found).
+         */
         ShaderProgramHandle getShaderRHI(const std::string& name) const;
 
+        /**
+         * @brief Creates and caches a material instance bound to a given shader program.
+         * @param materialName The key under which the material is cached.
+         * @param shaderHandle The shader program the material wraps.
+         * @param ctx The graphics context used to allocate any backing GPU resources (e.g. UBOs).
+         * @return A shared pointer to the newly created material.
+         */
         std::shared_ptr<Material> createMaterial(const std::string& materialName, ShaderProgramHandle shaderHandle, IGraphicsContext* ctx);
 
+        /**
+         * @brief Retrieves a previously created material by name.
+         * @param materialName The cache key the material was registered under.
+         * @return A shared pointer to the material, or nullptr if not found.
+         */
         std::shared_ptr<Material> getMaterial(const std::string& materialName) const;
 
+        /**
+         * @brief Releases all GPU-side RHI resources (shaders, materials) owned by the manager.
+         * @details Must be called while the graphics context is still valid, i.e. before shutdown.
+         * @param ctx The graphics context used to destroy the resources.
+         */
         void destroyRHIResources(IGraphicsContext* ctx);
 
     private:
@@ -226,10 +261,9 @@ namespace Andromeda {
         std::unordered_map<std::string, u32> m_MeshIDbyName;     /**< Maps string names to internal Mesh IDs to prevent duplicates. */
 
 
-        /// <summary>
-        /// RHI Material
-        /// </summary>
+        /** @brief Cached RHI shader programs, keyed by their registration name. */
         std::unordered_map<std::string, ShaderProgramHandle> m_RhiShaders;
+        /** @brief Cached material instances, keyed by their registration name. */
         std::unordered_map<std::string, std::shared_ptr<Material>> m_Materials;
 
         u32 m_NextMeshID = 0; /**< Autoincrementing counter for assigning unique Mesh IDs. */

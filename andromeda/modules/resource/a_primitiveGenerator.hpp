@@ -1,11 +1,32 @@
 #pragma once
+
+/**
+ * @file a_primitiveGenerator.hpp
+ * @brief Procedural generation of built-in primitive meshes (cube, plane, UV sphere).
+ */
+
 #include <vector>
 #include "a_primitives.hpp"
 #include "a_geometry.hpp"
 
 namespace Andromeda {
+    /**
+     * @class PrimitiveGenerator
+     * @brief Stateless utility that fills @c Mesh objects with the geometry of standard primitives.
+     *
+     * @details All generators write directly into a caller-provided @c Mesh (clearing it first),
+     *          producing per-vertex position, normal, UV and color, plus a triangle index buffer.
+     *          Primitives are unit-sized and centered on the origin. Used by the @c ResourceManager
+     *          to register the default Cube/Plane/Sphere meshes.
+     */
     class PrimitiveGenerator {
     public:
+        /**
+         * @brief Generates a unit cube (side length 1, centered on the origin) with per-face normals.
+         * @details Builds each of the 6 faces from 4 vertices and 2 triangles, so face normals and
+         *          UVs are sharp rather than shared/smoothed across edges.
+         * @param outMesh The mesh to populate; its existing vertex/index data is cleared first.
+         */
         static void generateCube(Mesh& outMesh) {
             outMesh.vertexbuffer.clear();
             outMesh.indexBuffer.clear();
@@ -36,6 +57,10 @@ namespace Andromeda {
             }
         }
 
+        /**
+         * @brief Generates a flat square plane on the XZ axis (facing +Y), spanning -1..1 in X and Z.
+         * @param outMesh The mesh to populate; overwritten with the plane's 4 vertices and 2 triangles.
+         */
         static void generatePlane(Mesh& outMesh) {
             float h = 1;
             outMesh.vertexbuffer = {
@@ -48,11 +73,17 @@ namespace Andromeda {
         }
 
 
+        /**
+         * @brief Generates a UV sphere of radius 0.5 centered on the origin.
+         * @details Uses a latitude/longitude tessellation with a fixed resolution of 32 stacks and
+         *          32 sectors. Vertices carry normalized normals and spherical UV coordinates.
+         * @param outMesh The mesh to populate; its existing vertex/index data is cleared first.
+         */
         static void generateSphere(Mesh& outMesh) {
             outMesh.vertexbuffer.clear();
             outMesh.indexBuffer.clear();
-            constexpr u32 sectors = 32;
-            constexpr u32 stacks = 32;
+            constexpr u32 sectors = 32; ///< Number of longitudinal subdivisions.
+            constexpr u32 stacks = 32;  ///< Number of latitudinal subdivisions.
             constexpr float PI = 3.14159265359f;
             float sectorStep = 2 * PI / sectors;
             float stackStep = PI / stacks;

@@ -1,4 +1,7 @@
 #include "a_OpenGLContext.hpp"
+#include "a_OpenGLContext.hpp"
+#include "a_OpenGLContext.hpp"
+#include "a_OpenGLContext.hpp"
 #include "a_Primitives.hpp"
 #include "GL/Glew.h"
 #include "a_logger.hpp"
@@ -86,6 +89,12 @@ namespace Andromeda {
         newHandle.apiID = compileOpenGLShader(vertSrc, fragSrc);
         return newHandle;
     }
+    ShaderProgramHandle OpenGLContext::createComputeProgram(const std::string& computeSrc)
+    {
+		ShaderProgramHandle newHandle = {};
+        newHandle.apiID = compileOpenGLComputeShader(computeSrc);
+        return newHandle;
+    }
     void OpenGLContext::destroyShaderProgram(ShaderProgramHandle handle) {
         if (handle.apiID != 0) {
             glDeleteProgram(handle.apiID);
@@ -112,6 +121,25 @@ namespace Andromeda {
         buffer << fileStream.rdbuf();
         std::string shaderSource = buffer.str();
         return shaderSource;
+    }
+
+    u32 OpenGLContext::compileOpenGLComputeShader(const std::string& computeSrc) {
+        std::string  computeSource = readShaderSource(computeSrc.c_str());
+
+		GLuint computeShader = compileStage(GL_COMPUTE_SHADER, computeSource, "Compute Shader");
+        GLuint program = glCreateProgram();
+		glAttachShader(program, computeShader);
+        glLinkProgram(program);
+        throwShaderLog(program, "Compute Shader Program Linking", GL_LINK_STATUS);
+        glDeleteShader(computeShader);
+        return program;
+    }
+
+    void OpenGLContext::dispatchCompute(ShaderProgramHandle handle, u32 groupCountX, u32 groupCountY, u32 groupCountZ)
+    {
+		bindShaderProgram(handle);
+		glDispatchCompute(groupCountX, groupCountY, groupCountZ);
+        glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
     }
 
     u32 OpenGLContext::compileOpenGLShader(const std::string& vertSrc, const std::string& fragSrc)
