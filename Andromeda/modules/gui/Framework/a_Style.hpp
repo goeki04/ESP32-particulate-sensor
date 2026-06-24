@@ -1,6 +1,19 @@
 #pragma once
+
+/**
+ * @file a_Style.hpp
+ * @brief Applies the Andromeda editor's custom ImGui visual theme (dark, low-contrast).
+ */
+
 #include "imgui.h"
 namespace Andromeda::Gui{
+    /**
+     * @brief Configures the global ImGui style: rounding, spacing and the engine's dark color palette.
+     *
+     * @details Should be called once after the ImGui context is created. Sizes are scaled by the
+     *          primary display's content scale (DPI awareness) via @c ScaleAllSizes(), and an
+     *          accent blue (~RGB 0, 0.45, 0.84) is used for active/selected widget states.
+     */
     inline void setStyle() {
         ImGuiStyle& style = ImGui::GetStyle();
 

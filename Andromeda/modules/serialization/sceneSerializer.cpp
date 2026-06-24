@@ -106,7 +106,6 @@ namespace Andromeda {
 
         if (maxID > 0 || !root.empty()) {
             registry.m_NextID = maxID + 1;
-            A_INFO("Scene loaded. Next entity ID set to: {}", registry.m_NextID);
         }
         registry.rebuildActiveEntities();
         return true;

@@ -1,4 +1,18 @@
 #pragma once
+
+/**
+ * @file a_glm_json_parser.hpp
+ * @brief nlohmann::json (de)serialization support for GLM vector, matrix and quaternion types.
+ *
+ * @details Including this header makes @c nlohmann::json able to convert
+ *          @c vec2/vec3/vec4, @c mat3/mat4 and @c quat to and from JSON
+ *          automatically via ADL (argument-dependent lookup), e.g. when a
+ *          struct containing these types uses
+ *          @c NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE. Vectors/matrices are stored
+ *          as plain JSON arrays; quaternions are stored as an object with
+ *          named @c x/y/z/w fields.
+ */
+
 #include "a_primitives.hpp"
 #include "nlohmann/json.hpp"
 /**
@@ -82,9 +96,12 @@ namespace glm {
         m[2] = j.at(2).get<vec3>();
     }
 
+    /** @brief Quaternion to JSON object conversion (stored as named x/y/z/w fields). */
     inline void to_json(nlohmann::json& j, const quat& q) {
         j = nlohmann::json{ {"x", q.x}, {"y", q.y}, {"z", q.z}, {"w", q.w} };
     }
+
+    /** @brief JSON object to quaternion conversion. @throws nlohmann::json::out_of_range if a field is missing. */
     inline void from_json(const nlohmann::json& j, quat& q) {
         q.x = j.at("x").get<float>();
         q.y = j.at("y").get<float>();

@@ -1,4 +1,16 @@
 #pragma once
+
+/**
+ * @file component_ui.hpp
+ * @brief Per-component ImGui editor widgets used by the Inspector (DetailsPanel).
+ *
+ * @details Provides @c drawComponentUI<T>(), a function template specialized for each
+ *          editable component type (Transform, Tag, Material, ...). Edits that should be
+ *          undoable snapshot the component into a @c std::any before the change and
+ *          dispatch an undo event once the edit is committed. @c renderEntityComponentUI()
+ *          ties this together by iterating over all supported component types on an entity.
+ */
+
 #include "a_registry.hpp"
 #include "imgui.h"
 #include <string_view>
@@ -7,11 +19,33 @@
 #include "a_event_manager.hpp"
 #include "a_subsystem_manager.hpp"
 #include "a_shader_generated.hpp"
+
+/**
+ * @namespace Andromeda::Gui::Component
+ * @brief ImGui drawing routines that render the editable inspector UI for ECS components.
+ */
 namespace Andromeda::Gui::Component
 {
+    /**
+     * @brief Primary template for rendering a component's inspector UI.
+     * @details The unspecialized version intentionally does nothing; each editable
+     *          component provides its own explicit specialization.
+     * @tparam T The component type to draw a UI for.
+     * @param handle Handle to the entity that owns the component.
+     * @param undoState Scratch storage used to snapshot the component before an undoable edit.
+     */
     template<typename T>
     inline void drawComponentUI(ECS::EntityHandle handle, std::any& undoState){
     }
+
+    /**
+     * @brief Inspector UI for the @c Transform component: position, rotation (degrees) and scale.
+     * @details Rotation is presented in degrees for readability and converted back to a quaternion
+     *          on edit. Each field snapshots the transform on activation and dispatches an
+     *          @c OnPushUndoTransform event when the edit completes.
+     * @param handle Handle to the entity that owns the Transform.
+     * @param undoState Storage for the pre-edit Transform snapshot.
+     */
     template<>
     inline void drawComponentUI<ECS::Component::Transform>(ECS::EntityHandle handle, std::any& undoState)
     {
@@ -57,6 +91,11 @@ namespace Andromeda::Gui::Component
             ImGui::Spacing();
     }
 
+    /**
+     * @brief Inspector UI for the @c Tag component: an editable text field for the entity's name.
+     * @param handle Handle to the entity that owns the Tag.
+     * @param undoState Unused for this component, present to satisfy the common signature.
+     */
     template<>
     inline void drawComponentUI<ECS::Component::Tag>(ECS::EntityHandle handle, std::any& undoState){
         auto& tag = handle.get<ECS::Component::Tag>();
@@ -77,6 +116,15 @@ namespace Andromeda::Gui::Component
         ImGui::Spacing();
     }
 
+    /**
+     * @brief Inspector UI for the @c Material component: reflects the material's UBO fields into editable widgets.
+     * @details Looks up the material via the @c ResourceManager and, if it exposes a UBO structure,
+     *          uses the generated @c reflect() visitor to emit a widget per field (drag, slider or
+     *          color picker depending on type and metadata). Matrix fields are skipped. Changed values
+     *          are pushed back to the GPU via @c updateUBOData().
+     * @param handle Handle to the entity that owns the Material.
+     * @param undoState Storage for the pre-edit Material snapshot.
+     */
     template<>
     inline void drawComponentUI<ECS::Component::Material>(ECS::EntityHandle handle, std::any& undoState) {
         ResourceManager* rm = SystemManager::getInstance().getSubsystem<ResourceManager>();
@@ -163,6 +211,15 @@ namespace Andromeda::Gui::Component
         ImGui::Spacing();
     }
 
+    /**
+     * @brief Renders the inspector UI for every supported component attached to an entity.
+     * @details Iterates a compile-time list of allowed component types; for each type present on
+     *          the entity it emits a collapsing header (using the demangled type name) and calls
+     *          the matching @c drawComponentUI<T>() specialization.
+     * @param handle Handle to the entity to inspect.
+     * @param rm The resource manager, forwarded for components that need resource lookups.
+     * @param undoState Scratch storage for undo snapshots, shared across the drawn components.
+     */
     inline void renderEntityComponentUI(const ECS::EntityHandle handle, ResourceManager* rm, std::any& undoState)
     {
         using AllowedComponents = std::tuple<

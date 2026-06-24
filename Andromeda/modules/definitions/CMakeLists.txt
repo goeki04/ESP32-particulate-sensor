@@ -43,3 +43,9 @@ target_link_libraries(definitions INTERFACE
 	nlohmann_json::nlohmann_json
 	spdlog::spdlog
 )
+
+if(WIN32)
+    target_compile_definitions(definitions INTERFACE _WIN32_WINNT=0x0A00 WINVER=0x0A00)
+endif()
+
+target_compile_definitions(definitions INTERFACE CPPHTTPLIB_OPENSSL_SUPPORT)

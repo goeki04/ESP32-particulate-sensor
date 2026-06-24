@@ -1,28 +1,49 @@
 #pragma once
+
+/**
+ * @file a_opengl_texture.hpp
+ * @brief OpenGL texture handle (RAII) and the mapping from engine texture formats to GL enums.
+ */
+
 #include "a_primitives.hpp"
 #include "GL/Glew.h"
 #include <SDL3/SDL.h>
 #include "a_texture.hpp"
 namespace Andromeda {
+	/**
+	 * @struct GLTextureFormat
+	 * @brief The triple of OpenGL enums describing how a texture's pixels are stored and supplied.
+	 */
 	struct GLTextureFormat {
-		GLenum internalFormat;
-		GLenum dataFormat;
-		GLenum dataType;
+		GLenum internalFormat; ///< GPU-side storage format (e.g. GL_RGBA8).
+		GLenum dataFormat;     ///< Layout of the source pixel data (e.g. GL_RGBA).
+		GLenum dataType;       ///< Component type of the source data (e.g. GL_UNSIGNED_BYTE).
 	};
+
+	/**
+	 * @struct GLtexture
+	 * @brief Move-only RAII wrapper owning an OpenGL texture object and its dimensions.
+	 *
+	 * @details On destruction the texture is deleted (guarded by a current-GL-context check, so it is
+	 *          safe even during shutdown). Copying is disabled to prevent double-frees of the GL object.
+	 */
 	struct GLtexture
 	{
-		u32 id = 0;
-		int w = 0;
-		int h = 0;
+		u32 id = 0; ///< OpenGL texture object ID (0 if none).
+		int w = 0;  ///< Texture width in pixels.
+		int h = 0;  ///< Texture height in pixels.
 
 		GLtexture() = default;
 		GLtexture(const GLtexture&) = delete;
 		GLtexture& operator=(const GLtexture&) = delete;
+
+		/** @brief Move-constructs, taking ownership of the other texture's GL object. */
 		GLtexture(GLtexture&& other) noexcept
 		{
 			*this = std::move(other);
 		}
 
+		/** @brief Move-assigns, deleting this texture first and taking ownership of the other's. */
 		GLtexture& operator=(GLtexture&& other) noexcept
 		{
 			if (this != &other) {
@@ -36,8 +57,10 @@ namespace Andromeda {
 			return *this;
 		}
 
+		/** @brief Destroys the wrapper, freeing the owned GL texture. */
 		~GLtexture() { destroy(); }
 
+		/** @brief Deletes the owned OpenGL texture if a GL context is current, then resets the ID. */
 		void destroy()
 		{
 			if (id != 0) {
@@ -48,6 +71,11 @@ namespace Andromeda {
 			}
 		}
 
+		/**
+		 * @brief Maps an engine @c TextureFormat to the corresponding OpenGL format triple.
+		 * @param format The backend-agnostic texture format.
+		 * @return The matching internal/data/type GL enums (all zero for an unsupported format).
+		 */
 		inline static GLTextureFormat ConvertFormat(TextureFormat format)
 		{
 			switch (format)

@@ -1,4 +1,10 @@
 #pragma once
+
+/**
+ * @file a_component_parser.hpp
+ * @brief JSON (de)serialization bindings for all ECS components, used by the scene serializer.
+ */
+
 #include <nlohmann/json.hpp>
 #include "a_glm_json_parser.hpp"
 #include "a_components.hpp"

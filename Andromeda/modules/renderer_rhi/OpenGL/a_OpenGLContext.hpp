@@ -1,3 +1,4 @@
+#pragma once
 #include "a_IGraphicsContext.hpp"
 #include <string>
 #include "a_clearFlags.hpp"
@@ -24,7 +25,7 @@ namespace Andromeda {
          * @return A ShaderProgramHandle identifying the created program.
          */
         ShaderProgramHandle createShaderProgram(const std::string& vertSrc, const std::string& fragSrc) override;
-
+        ShaderProgramHandle createComputeProgram(const std::string& computeSrc) override;
         /**
          * @brief Compiles vertex and fragment shaders and links them into a program.
          * @param vertSrc Path to the vertex shader.
@@ -47,6 +48,10 @@ namespace Andromeda {
          * @return The shader source code as a string.
          */
         std::string readShaderSource(const char* shaderPath);
+
+        u32 compileOpenGLComputeShader(const std::string& computeSrc);
+
+        void dispatchCompute(ShaderProgramHandle handle, u32 groupCountX, u32 groupCountY, u32 groupCountZ) override;
 
         /**
          * @brief Sets the active shader program for subsequent draw calls.
