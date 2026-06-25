@@ -1,0 +1,5 @@
+<map id="Andromeda::MouseBtnUp" name="Andromeda::MouseBtnUp">
+<area shape="rect" id="Node000001" title="Triggered when a mouse button is released." alt="" coords="5,80,177,107"/>
+<area shape="rect" id="Node000002" href="$struct_andromeda_1_1_i_event.html" title="Base interface for all events. Includes a virtual destructor to ensure proper cleanup of derived even..." alt="" coords="24,5,158,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,46,93,81,89,79,89,50"/>
+</map>

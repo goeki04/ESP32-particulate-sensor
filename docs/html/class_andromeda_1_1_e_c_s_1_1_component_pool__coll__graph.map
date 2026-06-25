@@ -1,0 +1,14 @@
+<map id="Andromeda::ECS::ComponentPool&lt; T &gt;" name="Andromeda::ECS::ComponentPool&lt; T &gt;">
+<area shape="rect" id="Node000001" title="Dense&#45;storage pool for components using a Sparse&#45;Set approach for O(1) access and removal." alt="" coords="230,301,428,344"/>
+<area shape="rect" id="Node000002" href="$class_andromeda_1_1_e_c_s_1_1_i_component_pool.html" title="Interface for component pools to allow polymorphic storage and serialization." alt="" coords="5,203,234,229"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,234,290,299,285,302,158,239"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="258,203,400,229"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="331,243,331,302,327,299,327,247"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="353,104,467,131"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="392,141,341,204,337,200,388,144"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="423,203,565,229"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="436,139,450,153,488,203,483,202,445,156,434,144"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="391,5,429,32"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="412,46,413,105,408,103,409,50"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="466,238,406,280,366,303,365,298,403,275,461,239"/>
+</map>

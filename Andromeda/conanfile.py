@@ -22,6 +22,7 @@ class CmakeTest(ConanFile):
         self.requires("assimp/6.0.2")
         self.requires("cpp-httplib/0.47.0")
         self.requires("spirv-reflect/1.4.350.0")
+        self.requires("ixwebsocket/12.0.0")
         self.requires("glslang/1.4.350.0")
         self.requires("stb/cci.20230920")
         self.requires("protobuf/3.21.12")

@@ -139,19 +139,25 @@ enable_testing()
 include(GoogleTest)
 
 set(ANDROMEDA_TEST_SOURCES
-    "tests/test_system_start.cpp"
-) 
+    "tests/test_ecs.cpp"
+    "tests/test_math.cpp"
+    "tests/test_resource.cpp"
+    "tests/test_rhi.cpp"
+)
 
 add_executable(AndromedaTests ${ANDROMEDA_TEST_SOURCES})
-target_compile_definitions(AndromedaTests PRIVATE ASSET_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/")
 target_compile_definitions(resource PRIVATE SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/modules/shader/")
+
+# Headers under test are header-only (ECS, math, geometry, primitive generator,
+# RHI types), so we only need their include directories plus glm/nlohmann (via
+# the definitions interface target). No GL context is required at runtime.
+target_include_directories(AndromedaTests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/modules/core
+    ${CMAKE_CURRENT_SOURCE_DIR}/modules/resource
+    ${CMAKE_CURRENT_SOURCE_DIR}/modules/renderer_rhi
+)
 target_link_libraries(AndromedaTests PRIVATE
     GTest::gtest_main
-    core
-    resource
-    renderer
-    scene
-    editor
     definitions
 )
 

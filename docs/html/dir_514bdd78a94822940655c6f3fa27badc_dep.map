@@ -1,0 +1,28 @@
+<map id="andromeda/modules/editor" name="andromeda/modules/editor">
+<area shape="rect" id="node1" href="dir_00101cfe1f5647fc46dfe3714c886e95.html" title="renderer_rhi" alt="" coords="27,128,117,155"/>
+<area shape="rect" id="node2" href="dir_de532c0efdf3070aa84271b1e25dc44f.html" title="renderer" alt="" coords="140,128,209,155"/>
+<area shape="rect" id="node3" href="dir_cb4a5b12b72a112763cb8fa56446af32.html" title="core" alt="" coords="233,128,279,155"/>
+<area shape="rect" id="node4" href="dir_b7445e902ea5bef1dde11b73dc3f25aa.html" title="input" alt="" coords="303,128,353,155"/>
+<area shape="rect" id="node5" href="dir_aac77115b0e189d7522835d9d581158b.html" title="resource" alt="" coords="376,128,448,155"/>
+<area shape="rect" id="node6" href="dir_06bf32daa57ed935ece0e499a4dce661.html" title="gui" alt="" coords="471,128,510,155"/>
+<area shape="rect" id="node7" href="dir_32cd31bf577210cfc51bf650cdbf6a69.html" title="scene" alt="" coords="534,128,591,155"/>
+<area shape="rect" id="node8" href="dir_9bb0b61234714e0272a4587be2b9fb30.html" title="definitions" alt="" coords="614,128,695,155"/>
+<area shape="rect" id="node9" href="dir_514bdd78a94822940655c6f3fa27badc.html" title="editor" alt="" coords="343,53,396,80"/>
+<area shape="poly" id="edge1" href="dir_000004_000017.html" alt="" coords="343,77,133,128,131,123,342,72"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000004_000017.html" title="1" alt="" coords="133,125,140,141"/>
+<area shape="poly" id="edge8" href="dir_000004_000016.html" alt="" coords="345,77,224,125,222,120,340,79"/>
+<area shape="rect" id="edge8-headlabel" href="dir_000004_000016.html" title="1" alt="" coords="225,121,232,137"/>
+<area shape="poly" id="edge7" href="dir_000004_000001.html" alt="" coords="352,80,290,122,287,117,347,81"/>
+<area shape="rect" id="edge7-headlabel" href="dir_000004_000001.html" title="7" alt="" coords="292,117,299,133"/>
+<area shape="poly" id="edge6" href="dir_000004_000009.html" alt="" coords="364,79,344,117,341,113,360,82"/>
+<area shape="rect" id="edge6-headlabel" href="dir_000004_000009.html" title="1" alt="" coords="348,108,355,124"/>
+<area shape="poly" id="edge5" href="dir_000004_000018.html" alt="" coords="378,78,399,116,394,114,376,83"/>
+<area shape="rect" id="edge5-headlabel" href="dir_000004_000018.html" title="1" alt="" coords="399,100,406,116"/>
+<area shape="poly" id="edge2" href="dir_000004_000008.html" alt="" coords="391,78,461,121,455,120,390,83"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000004_000008.html" title="3" alt="" coords="456,104,463,120"/>
+<area shape="poly" id="edge3" href="dir_000004_000019.html" alt="" coords="397,76,523,124,518,124,396,81"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000004_000019.html" title="2" alt="" coords="517,107,524,123"/>
+<area shape="poly" id="edge4" href="dir_000004_000002.html" alt="" coords="397,72,602,125,597,127,396,77"/>
+<area shape="rect" id="edge4-headlabel" href="dir_000004_000002.html" title="5" alt="" coords="595,109,602,125"/>
+<area shape="rect" id="clust1" href="dir_a6d3f3cd5ce2d0140642e50638afddda.html" title="modules" alt="" coords="16,16,705,165"/>
+</map>

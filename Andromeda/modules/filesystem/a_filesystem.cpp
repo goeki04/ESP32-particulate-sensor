@@ -1,6 +1,7 @@
 #include "a_filesystem.hpp"
 #include "a_logger.hpp"
 #include <filesystem>
+#include <fstream>
 namespace Andromeda {
     /// <summary>
     /// This function sets the device type based on the path.
@@ -83,6 +84,19 @@ namespace Andromeda {
         const size_t dotPos = objectName.find_last_of('.');
         std::string fileName = (dotPos == std::string::npos) ? objectName : objectName.substr(0, dotPos);
         return fileName;
+    }
+
+    std::string Filesystem::readFile(const std::string& path)
+    {
+        std::ifstream file(path, std::ios::in | std::ios::binary);
+
+        if (!file.is_open()) {
+            throw std::runtime_error("Could not open file: " + path);
+        }
+
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        return buffer.str();
     }
 
     /// Returns a list of directory names within the specified path

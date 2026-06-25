@@ -1,0 +1,5 @@
+<map id="Andromeda::SceneObjectSelected" name="Andromeda::SceneObjectSelected">
+<area shape="rect" id="Node000001" title="Dispatches if the user selects an object in the viewport." alt="" coords="5,80,227,107"/>
+<area shape="rect" id="Node000002" href="$struct_andromeda_1_1_i_event.html" title="Base interface for all events. Includes a virtual destructor to ensure proper cleanup of derived even..." alt="" coords="49,5,183,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,46,118,81,114,78,114,50"/>
+</map>
