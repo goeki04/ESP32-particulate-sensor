@@ -13,7 +13,8 @@
 #include "serialization/sceneSerializer.hpp"
 #include <cstdlib>
 #include "a_logger.hpp"
-#include "a_WeatherService.hpp"
+#include "network/service/a_WeatherService.hpp"
+#include "a_HomeAssistant.hpp"
 Andromeda::Window::WindowManager windowManager;
 Andromeda::InputSystem inputManager;
 Andromeda::Renderer renderer;
@@ -74,6 +75,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Andromeda::SystemManager::getInstance().addSubsystem(&editor);
 	Andromeda::WeatherService weatherService;
 	weatherService.getLiveWeatherData();
+	Andromeda::HomeAssistantService homeAssistantService;
+	homeAssistantService.init();
     Andromeda::SystemManager::getInstance().startSubsystems();
     const std::string scenePath = (std::filesystem::path(g_ProjectPath) / "scene.json").string();
 

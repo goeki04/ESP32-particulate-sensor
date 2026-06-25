@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "a_logger.hpp"
 #include <nlohmann/json.hpp>
-
+#include "a_network_info.hpp"
 namespace Andromeda {
 	WeatherData WeatherService::getLiveWeatherData() {
 		std::string location = "Reutlingen";
@@ -28,7 +28,10 @@ namespace Andromeda {
 		std::string geoDomain = "geocoding-api.open-meteo.com";
 		httplib::SSLClient geoClient(geoDomain.c_str());
 		geoClient.set_follow_location(true);
-		applySystemProxy(geoClient);
+		auto proxy = NetworkInfo::getProxySettings();
+		if (proxy.has_value()) {
+			geoClient.set_proxy(proxy->host.c_str(), proxy->port);
+		}
 		std::string geoURL = "/v1/search?name=" + location + "&count=1&language=de&format=json";
 		auto geoResponse = geoClient.Get(geoURL.c_str());
 		float latitude = 0.0f;
@@ -68,7 +71,10 @@ namespace Andromeda {
 
 		httplib::SSLClient client(domain.c_str());
 		client.set_follow_location(true);
-		applySystemProxy(client);
+		auto proxy = NetworkInfo::getProxySettings();
+		if (proxy.has_value()) {
+			client.set_proxy(proxy->host.c_str(), proxy->port);
+		}
 
 		auto res = client.Get(url.c_str());
 		float windSpeed = 0.0f;
@@ -99,31 +105,5 @@ namespace Andromeda {
 			return std::nullopt;
 		}
 		return WeatherData{ windSpeed, windDirection }; 
-	}
-	void WeatherService::applySystemProxy(httplib::SSLClient& client)
-	{
-		const char* proxyEnv = std::getenv("HTTPS_PROXY");
-		if (!proxyEnv || proxyEnv[0] == '\0') {
-			proxyEnv = std::getenv("HTTP_PROXY");
-		}
-		if (!proxyEnv || proxyEnv[0] == '\0') {
-			return;
-		}
-
-		std::string proxyUrl = proxyEnv;
-		auto schemeEnd = proxyUrl.find("://");
-		std::string hostPort = (schemeEnd != std::string::npos) ? proxyUrl.substr(schemeEnd + 3) : proxyUrl;
-		auto colonPos = hostPort.find(':');
-		if (colonPos == std::string::npos) {
-			return;
-		}
-
-		std::string host = hostPort.substr(0, colonPos);
-		i32 port = std::atoi(hostPort.c_str() + colonPos + 1);
-		if (host.empty() || port <= 0) {
-			return;
-		}
-
-		client.set_proxy(host.c_str(), port);
 	}
 }

@@ -88,12 +88,7 @@ namespace Andromeda {
 		 */
 		std::string getFileName(const std::string& path);
 
-		/**
-		 * @brief Builds a @c Directory record (name + contained files) for a single directory.
-		 * @param path Path of the directory to describe.
-		 * @return The populated @c Directory.
-		 */
-		Directory getDirectory(const std::string& path);
+		std::string readFile(const std::string& path);
 
 		/**
 		 * @brief Enumerates all immediate subdirectories of a path, each as a @c Directory record.
