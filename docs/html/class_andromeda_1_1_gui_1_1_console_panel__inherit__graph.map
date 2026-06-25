@@ -1,5 +1,0 @@
-<map id="Andromeda::Gui::ConsolePanel" name="Andromeda::Gui::ConsolePanel">
-<area shape="rect" id="Node000001" title="Wraps an AppConsole in an editor panel, providing a command input and log output view." alt="" coords="5,80,210,107"/>
-<area shape="rect" id="Node000002" href="$class_andromeda_1_1_gui_1_1_editor_panel.html" title="Abstract base class for all editor UI components." alt="" coords="12,5,203,32"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,46,110,81,105,79,106,50"/>
-</map>

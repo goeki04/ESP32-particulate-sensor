@@ -1,7 +1,0 @@
-<map id="Andromeda::ECS::Component::Tag" name="Andromeda::ECS::Component::Tag">
-<area shape="rect" id="Node000001" title="Human&#45;readable identifier for an entity, shown in the editor hierarchy/inspector." alt="" coords="5,196,233,223"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="79,97,159,124"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,138,122,197,116,195,117,141"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="56,5,182,48"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="120,61,122,98,116,96,118,66"/>
-</map>

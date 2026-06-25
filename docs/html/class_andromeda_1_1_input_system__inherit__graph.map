@@ -1,5 +1,0 @@
-<map id="Andromeda::InputSystem" name="Andromeda::InputSystem">
-<area shape="rect" id="Node000001" title="Maintains the current keyboard state and dispatches input events from raw SDL events." alt="" coords="5,80,175,107"/>
-<area shape="rect" id="Node000002" href="$class_andromeda_1_1_i_subsystem.html" title="Interface declaring essential lifecycle functions for all engine subsystems." alt="" coords="7,5,173,32"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,46,92,81,88,79,88,50"/>
-</map>

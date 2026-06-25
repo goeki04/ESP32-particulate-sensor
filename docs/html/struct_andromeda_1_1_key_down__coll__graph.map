@@ -1,5 +1,0 @@
-<map id="Andromeda::KeyDown" name="Andromeda::KeyDown">
-<area shape="rect" id="Node000001" title="Triggered when a keyboard key is pressed." alt="" coords="5,80,158,107"/>
-<area shape="rect" id="Node000002" href="$struct_andromeda_1_1_i_event.html" title="Base interface for all events. Includes a virtual destructor to ensure proper cleanup of derived even..." alt="" coords="15,5,148,32"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="83,46,84,81,79,79,80,50"/>
-</map>

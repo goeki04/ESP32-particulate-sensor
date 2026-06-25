@@ -1,7 +1,0 @@
-<map id="Andromeda::OpenGLContext" name="Andromeda::OpenGLContext">
-<area shape="rect" id="Node000001" title="Handles low&#45;level rendering operations and state management for the OpenGL backend." alt="" coords="121,104,311,131"/>
-<area shape="rect" id="Node000002" href="$class_andromeda_1_1_i_graphics_context.html" title="Abstract interface over a graphics backend (shaders, compute, buffers, textures, framebuffers,..." alt="" coords="5,5,203,32"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,40,204,103,199,104,129,45"/>
-<area shape="rect" id="Node000003" href="$struct_andromeda_1_1_render_pass_specs.html" title="Encapsulates the global state configuration for a render pass." alt="" coords="227,5,432,32"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="306,42,232,106,229,101,301,43"/>
-</map>
