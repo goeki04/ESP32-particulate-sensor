@@ -1,0 +1,5 @@
+<map id="Andromeda::Renderer" name="Andromeda::Renderer">
+<area shape="rect" id="Node000001" title="Drives all frame rendering: PBR scene pass, selection/outline, post&#45;processing and IBL baking." alt="" coords="14,80,162,107"/>
+<area shape="rect" id="Node000002" href="$class_andromeda_1_1_i_subsystem.html" title="Interface declaring essential lifecycle functions for all engine subsystems." alt="" coords="5,5,171,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,46,90,81,86,79,86,50"/>
+</map>

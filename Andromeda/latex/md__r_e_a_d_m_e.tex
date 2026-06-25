@@ -1,0 +1,70 @@
+\chapter{Smart Home Visual Engine (C++20 /\+ Open\+GL) }
+\hypertarget{md__r_e_a_d_m_e}{}\label{md__r_e_a_d_m_e}\index{Smart Home Visual Engine (C++20 / OpenGL)@{Smart Home Visual Engine (C++20 / OpenGL)}}
+\label{md__r_e_a_d_m_e_autotoc_md0}%
+\Hypertarget{md__r_e_a_d_m_e_autotoc_md0}%
+
+
+This project is a high-\/performance, data-\/oriented visualization engine for smart home environments. Instead of relying on traditional, often sluggish web frontends, this application leverages an {\bfseries{Entity Component System (ECS)}} and {\bfseries{hardware-\/near graphics APIs}} to display sensor and actuator data (e.\+g., Home Assistant, ESPHome) in real-\/time.
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md2}{}\doxysection{\texorpdfstring{Key Features}{Key Features}}\label{md__r_e_a_d_m_e_autotoc_md2}
+
+\begin{DoxyItemize}
+\item {\bfseries{Hybrid Networking Architecture:\+}}
+\begin{DoxyItemize}
+\item ESPHome Native API
+\item Rest API
+\item Matter
+\end{DoxyItemize}
+\item {\bfseries{Data-\/\+Oriented Design (DOD):\+}} Implements an ECS to strictly separate data (Components) from logic (Systems), optimized for CPU cache efficiency.
+\item {\bfseries{Renderer RHI:\+}} Custom renderer hardware interface which you can extend by choice. ~\newline
+
+\item {\bfseries{Modern C++ Toolchain:\+}} Full utilization of C++20 features, SDL3 for window management, and Conan for clean dependency handling.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md4}{}\doxysection{\texorpdfstring{Requirements}{Requirements}}\label{md__r_e_a_d_m_e_autotoc_md4}
+
+\begin{DoxyItemize}
+\item {\bfseries{Compiler:\+}} C++20 compatible (MSVC 2022 recommended, GCC 11+, Clang 13+).
+\item {\bfseries{Graphics:\+}} Open\+GL 4.\+5 support (architecture prepared for Vulkan backend).
+\item {\bfseries{Package Manager:\+}} \href{https://conan.io/}{\texttt{Conan}} for automated library management.
+\item {\bfseries{Build System:\+}} \href{https://cmake.org/}{\texttt{CMake}} ≥ 3.\+23.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md6}{}\doxysection{\texorpdfstring{Toolchain Setup}{Toolchain Setup}}\label{md__r_e_a_d_m_e_autotoc_md6}
+
+\begin{DoxyEnumerate}
+\item \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} Installation:\+ \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} Install CMake, Ninja-\/\+Build, and MSVC (with C++20 workload).
+\item \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} Conan Configuration:\+ \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} {\ttfamily powershell pip install conan conan profile detect -\/-\/force }
+\item \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} Build Process:\+\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}
+\begin{DoxyItemize}
+\item Run the {\ttfamily build.\+ps1} script to install dependencies and generate project files.
+\item Open the generated {\ttfamily .sln} file in the {\ttfamily build} directory.
+\end{DoxyItemize}
+\item \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} Coding Standard:\+\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}
+\begin{DoxyItemize}
+\item {\bfseries{Important:\+}} All code is written in {\bfseries{English}} as per project guidelines.
+\end{DoxyItemize}
+\end{DoxyEnumerate}
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md8}{}\doxysection{\texorpdfstring{Architecture Overview}{Architecture Overview}}\label{md__r_e_a_d_m_e_autotoc_md8}
+The project strictly separates {\bfseries{Frontend}} (Rendering/\+\+UI) and {\bfseries{Backend}} (Logic/\+\+Network):\+
+
+
+\begin{DoxyTable}{3}{}{}{1}
+\SetCell{bg=\tableheadbgcolor,font=\bfseries}Layer  &\SetCell{bg=\tableheadbgcolor,font=\bfseries}Technology  &\SetCell{bg=\tableheadbgcolor,font=\bfseries}Responsibility  \\
+{\bfseries{Graphics}}  &Open\+GL /\+ Im\+Gui  &Visualization \& Dashboard UI  \\
+{\bfseries{Logic}}  &ECS (Systems)  &Transforming sensor data into graphical components  \\
+{\bfseries{Networking}}  &ESPHome Native API  &Thread-\/safe communication with Smart Home hubs  \\
+\end{DoxyTable}
+
+
+\DoxyHorRuler{0}
+\hypertarget{md__r_e_a_d_m_e_autotoc_md10}{}\doxysection{\texorpdfstring{Why this Approach?}{Why this Approach?}}\label{md__r_e_a_d_m_e_autotoc_md10}
+In modern software engineering (keyword:\+ {\itshape Data-\/\+Oriented Design}), the hardware is the reality. This engine avoids unnecessary OOP hierarchies to minimize the latency between sensor updates and visual representation. It combines the raw power of C++ with the flexibility of modern smart home interfaces.
+
+\DoxyHorRuler{0}
+ {\itshape This project serves as a deep-\/dive into high-\/performance systems programming and asynchronous I/\+O during my first year of apprenticeship.} 

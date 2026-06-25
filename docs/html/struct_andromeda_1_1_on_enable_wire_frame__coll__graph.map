@@ -1,0 +1,5 @@
+<map id="Andromeda::OnEnableWireFrame" name="Andromeda::OnEnableWireFrame">
+<area shape="rect" id="Node000001" title="Triggered when the wireframe rendering mode is toggled." alt="" coords="5,80,222,107"/>
+<area shape="rect" id="Node000002" href="$struct_andromeda_1_1_i_event.html" title="Base interface for all events. Includes a virtual destructor to ensure proper cleanup of derived even..." alt="" coords="47,5,180,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,46,116,81,111,78,112,50"/>
+</map>

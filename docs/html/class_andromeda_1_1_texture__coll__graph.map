@@ -1,0 +1,5 @@
+<map id="Andromeda::Texture" name="Andromeda::Texture">
+<area shape="rect" id="Node000001" title="Lightweight handle/description of a GPU texture (dimensions, format, sampler and API ID)." alt="" coords="23,104,162,131"/>
+<area shape="rect" id="Node000002" href="$struct_andromeda_1_1_sampler_state.html" title="Bundles all sampling parameters (filtering, wrapping, type) for a texture." alt="" coords="5,5,180,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,46,95,104,90,103,90,49"/>
+</map>

@@ -1,0 +1,41 @@
+<map id="Andromeda::Material" name="Andromeda::Material">
+<area shape="rect" id="Node000001" title="Represents a data&#45;oriented material system within the Andromeda Engine." alt="" coords="1021,219,1163,246"/>
+<area shape="rect" id="Node000002" href="$struct_andromeda_1_1_shader_program_handle.html" title="An opaque handle to an underlying GPU shader program." alt="" coords="675,58,860,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="875,83,939,97,970,108,999,122,1028,144,1052,170,1086,219,1080,218,1048,173,1024,148,996,127,968,113,937,102,876,88"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="675,308,860,351"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="875,319,936,308,996,290,1038,268,1072,247,1076,245,1041,273,998,295,937,313,876,324"/>
+<area shape="rect" id="Node000004" href="$class_andromeda_1_1_i_constant_buffer.html" title="Abstract GPU constant buffer used to upload uniform block data to shaders." alt="" coords="240,312,426,339"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="441,324,677,328,672,330,442,329"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="263,363,402,390"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="417,373,526,367,646,355,682,351,677,352,646,360,527,373,418,378"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="49,363,87,390"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="102,374,264,374,261,378,103,379"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="265,483,401,526"/>
+<area shape="poly" id="edge12_Node000011_Node000006" title=" " alt="" coords="101,392,166,428,241,466,275,482,270,483,239,471,163,433,101,398"/>
+<area shape="rect" id="Node000014" title=" " alt="" coords="276,107,390,134"/>
+<area shape="poly" id="edge15_Node000014_Node000006" title=" " alt="" coords="86,349,151,271,193,225,238,181,273,154,310,132,306,136,276,158,241,185,197,228,155,274,91,352"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="670,443,865,502"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="853,434,925,395,996,346,1022,321,1046,293,1080,248,1084,245,1050,296,1026,324,999,350,928,400,855,439"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="293,552,372,579"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="388,568,443,569,508,568,577,560,645,544,689,525,727,503,732,501,692,529,647,550,578,565,508,573,443,575,388,573"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="5,544,131,587"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="146,563,294,564,291,568,146,568"/>
+<area shape="rect" id="Node000010" href="$struct_andromeda_1_1_material_1_1_internal_meta_data.html" title="Internal helper structure to store mapped reflection metadata." alt="" coords="262,414,404,456"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="419,440,672,463,667,465,419,445"/>
+<area shape="poly" id="edge10_Node000007_Node000011" title=" " alt="" coords="416,511,526,515,586,513,646,507,678,503,684,502,646,512,587,519,526,520,417,516"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="49,491,87,518"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="103,502,266,502,263,507,103,507"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="707,124,828,151"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="843,143,919,156,998,178,1038,196,1073,219,1068,218,1036,201,996,183,918,161,844,148"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="362,96,403,72,449,54,505,38,552,28,574,27,597,30,621,39,648,54,659,68,661,83,663,97,672,110,688,121,709,131,704,131,686,126,668,114,658,99,656,84,654,70,644,58,619,44,596,36,574,32,553,33,507,43,451,59,405,77,366,100"/>
+<area shape="rect" id="Node000015" title=" " alt="" coords="676,242,859,284"/>
+<area shape="poly" id="edge18_Node000015_Node000014" title=" " alt="" coords="381,137,451,159,480,164,506,165,553,161,597,163,621,170,648,185,657,196,661,207,664,218,672,228,690,241,684,241,668,232,659,220,656,208,653,198,644,189,619,175,596,168,553,166,506,170,480,169,449,164,382,142"/>
+<area shape="rect" id="Node000017" title=" " alt="" coords="688,175,848,218"/>
+<area shape="poly" id="edge21_Node000017_Node000014" title=" " alt="" coords="404,107,470,99,541,94,604,96,629,101,648,109,659,121,662,135,664,149,672,161,690,175,684,175,668,165,659,151,656,136,654,124,644,113,627,106,603,101,541,99,471,104,406,112"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="875,261,997,252,1044,246,1039,247,998,258,875,266"/>
+<area shape="rect" id="Node000016" href="$struct_andromeda_1_1_material_1_1_property_layout.html" title="Describes the memory metadata of a single shader variable inside the byte buffer." alt="" coords="262,246,404,288"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="419,264,646,263,678,265,673,266,646,268,420,270"/>
+<area shape="poly" id="edge19_Node000001_Node000017" title=" " alt="" coords="863,204,1024,224,1019,225,863,209"/>
+<area shape="rect" id="Node000018" href="$struct_andromeda_1_1_texture_binding.html" title="Associates a texture with a specific GPU binding slot." alt="" coords="242,195,424,222"/>
+<area shape="poly" id="edge20_Node000017_Node000018" title=" " alt="" coords="438,208,450,208,548,211,646,208,689,207,684,208,646,214,548,216,450,214,440,213"/>
+</map>

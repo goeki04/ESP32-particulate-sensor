@@ -1,0 +1,5 @@
+<map id="Andromeda::GLFramebuffer" name="Andromeda::GLFramebuffer">
+<area shape="rect" id="Node000001" title="OpenGL framebuffer object (FBO) with its color and depth/stencil attachments, implementing IFramebuff..." alt="" coords="5,80,187,107"/>
+<area shape="rect" id="Node000002" href="$class_andromeda_1_1_i_framebuffer.html" title="Abstract render target wrapping one or more attachments; implemented per backend." alt="" coords="12,5,180,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,46,98,81,94,79,94,50"/>
+</map>

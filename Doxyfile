@@ -1,0 +1,79 @@
+# Doxyfile for the Andromeda engine
+#
+# Usage (run from the repository root, i.e. the folder containing this file):
+#   doxygen Doxyfile
+# Then open the result:
+#   start docs/html/index.html
+#
+# Only non-default options are set here; every other Doxygen setting keeps its
+# built-in default.
+
+#---------------------------------------------------------------------------
+# Project
+#---------------------------------------------------------------------------
+PROJECT_NAME           = "Andromeda"
+PROJECT_BRIEF          = "3D engine and editor for visualizing ESP32 particulate-sensor data"
+OUTPUT_DIRECTORY       = docs
+OUTPUT_LANGUAGE        = English
+INPUT_ENCODING         = UTF-8
+
+#---------------------------------------------------------------------------
+# What to parse
+#---------------------------------------------------------------------------
+INPUT                  = andromeda/modules
+RECURSIVE              = YES
+FILE_PATTERNS          = *.hpp *.h *.cpp
+
+# Skip auto-generated headers (their docs belong in the generator scripts).
+EXCLUDE_PATTERNS       = */generated_*
+
+#---------------------------------------------------------------------------
+# What to extract
+#---------------------------------------------------------------------------
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+
+# C++ niceties
+BUILTIN_STL_SUPPORT    = YES
+OPTIMIZE_OUTPUT_FOR_C  = NO
+
+#---------------------------------------------------------------------------
+# Output
+#---------------------------------------------------------------------------
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+GENERATE_TREEVIEW      = YES
+SOURCE_BROWSER         = YES
+
+#---------------------------------------------------------------------------
+# Diagrams (Graphviz / dot)
+#---------------------------------------------------------------------------
+HAVE_DOT               = YES
+# Point Doxygen straight at the Graphviz bin folder so it works without 'dot'
+# being on the system PATH. Adjust if you install Graphviz elsewhere.
+DOT_PATH               = "C:/Program Files (x86)/Graphviz/bin"
+
+# Useful, readable graphs for this codebase...
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = YES
+TEMPLATE_RELATIONS     = YES
+
+# ...and the noisy/slow ones left off on purpose.
+INCLUDE_GRAPH          = NO
+INCLUDED_BY_GRAPH      = NO
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+
+# Scalable, navigable SVG output instead of static PNGs.
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+
+#---------------------------------------------------------------------------
+# Warnings (helpful while documenting)
+#---------------------------------------------------------------------------
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = YES

@@ -1,0 +1,9 @@
+<map id="Andromeda::Gui::BrowserPanel::Tile" name="Andromeda::Gui::BrowserPanel::Tile">
+<area shape="rect" id="Node000001" title="Internal data structure representing a single device entry in the browser grid." alt="" coords="5,295,210,337"/>
+<area shape="rect" id="Node000002" href="$struct_andromeda_1_1_model_record.html" title="Static metadata describing a single built&#45;in model entry." alt="" coords="21,196,194,223"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,236,110,295,105,293,105,240"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="68,97,147,124"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="109,137,110,196,105,195,106,142"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="45,5,170,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="108,61,110,97,105,96,107,66"/>
+</map>

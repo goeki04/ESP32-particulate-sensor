@@ -1,0 +1,5 @@
+<map id="Andromeda::ECS::IComponentPool" name="Andromeda::ECS::IComponentPool">
+<area shape="rect" id="Node000001" title="Interface for component pools to allow polymorphic storage and serialization." alt="" coords="5,5,234,32"/>
+<area shape="rect" id="Node000002" href="$class_andromeda_1_1_e_c_s_1_1_component_pool.html" title="Dense&#45;storage pool for components using a Sparse&#45;Set approach for O(1) access and removal." alt="" coords="20,80,219,123"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,46,122,81,117,79,118,50"/>
+</map>

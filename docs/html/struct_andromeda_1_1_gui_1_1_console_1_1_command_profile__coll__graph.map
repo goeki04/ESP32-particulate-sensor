@@ -1,0 +1,13 @@
+<map id="Andromeda::Gui::Console::CommandProfile" name="Andromeda::Gui::Console::CommandProfile">
+<area shape="rect" id="Node000001" title="Describes a registered command: which flags it accepts and what it does." alt="" coords="59,333,231,376"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="77,219,213,261"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,275,147,334,143,332,143,279"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="24,120,138,147"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="97,157,135,218,130,219,96,162"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,5,157,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="81,61,84,120,78,119,81,66"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="161,120,260,147"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="196,158,160,220,156,217,193,162"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="191,13,230,40"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="211,53,213,120,208,119,209,58"/>
+</map>

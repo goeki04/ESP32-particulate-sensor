@@ -1,0 +1,5 @@
+<map id="Andromeda::Gui::ViewportPanel" name="Andromeda::Gui::ViewportPanel">
+<area shape="rect" id="Node000001" title="The primary 3D rendering window of the editor." alt="" coords="13,80,188,123"/>
+<area shape="rect" id="Node000002" href="$class_andromeda_1_1_gui_1_1_editor_panel.html" title="Abstract base class for all editor UI components." alt="" coords="5,5,196,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,46,103,81,98,79,99,50"/>
+</map>

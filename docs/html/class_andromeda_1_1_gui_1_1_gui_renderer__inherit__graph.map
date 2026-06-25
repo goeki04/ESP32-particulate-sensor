@@ -1,0 +1,5 @@
+<map id="Andromeda::Gui::GuiRenderer" name="Andromeda::Gui::GuiRenderer">
+<area shape="rect" id="Node000001" title="Owns, initializes and renders all editor panels each frame; the heart of the editor UI." alt="" coords="15,80,212,107"/>
+<area shape="rect" id="Node000002" href="$class_andromeda_1_1_gui_1_1_i_panel_controller.html" title="Abstraction allowing UI elements (e.g. the &quot;Window&quot; menu) to control panel visibility without dependi..." alt="" coords="5,5,222,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,46,116,81,111,78,112,50"/>
+</map>
