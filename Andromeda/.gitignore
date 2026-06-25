@@ -10,5 +10,4 @@ build/
 .claude/
 .docs/
 
-# Local secrets - never commit (HA token etc.)
 secrets.json
