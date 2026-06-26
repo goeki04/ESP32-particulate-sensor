@@ -7,7 +7,6 @@
 #include "input/input_manager.hpp"
 #include "resource/resource_manager.h"
 #include "renderer/renderer.h"
-#include "network/esphome_client.h"
 #include "editor/editor.hpp"
 #include "scene/scene.hpp"
 #include "serialization/sceneSerializer.hpp"
@@ -21,7 +20,6 @@ Andromeda::Renderer renderer;
 Andromeda::ResourceManager resourceManager;
 Andromeda::Editor::Editor editor;
 Andromeda::SceneManager sceneManager;
-static Andromeda::Network::ESPHomeClient g_EspClient;
 
 SDL_AppResult SDL_Init() {
     SDL_SetAppMetadata("ESP32", "1.0", "ESP32.goeki.com");
@@ -83,11 +81,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     if (std::filesystem::exists(scenePath)) {
        Andromeda::SceneSerializer::load(scenePath, sceneManager.m_Registry, resourceManager);
     }
-    g_EspClient.getDecoder().addOnMessageCallback([](uint32_t type, const std::vector<uint8_t>& payload) {
-        SDL_Log("MESSAGE EMPFANGEN! Typ: %u, Bytes: %zu", type, payload.size());
-        });
-    SDL_Log("Starte Verbindung zum ESP32...");
-    g_EspClient.connect("192.168.178.92", "6053");
+
     return SDL_APP_CONTINUE;
 }
   
