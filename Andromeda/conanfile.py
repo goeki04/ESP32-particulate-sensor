@@ -11,6 +11,7 @@ class CmakeTest(ConanFile):
     # disable it for every glslang instance (host + build context).
     default_options = {
         "glslang/*:enable_optimizer": False,
+        "boost/*:without_cobalt": True,
     }
     def requirements(self):
         self.requires("glm/1.0.1")
@@ -18,15 +19,14 @@ class CmakeTest(ConanFile):
         self.requires("imgui/1.92.5-docking", override=True)
         self.requires("glew/2.2.0")
         self.requires("nlohmann_json/3.12.0")
-        self.requires("asio/1.36.0")
         self.requires("assimp/6.0.2")
         self.requires("cpp-httplib/0.47.0")
         self.requires("spirv-reflect/1.4.350.0")
-        self.requires("ixwebsocket/12.0.0")
         self.requires("glslang/1.4.350.0")
         self.requires("stb/cci.20230920")
         self.requires("protobuf/3.21.12")
         self.requires("openssl/4.0.1")
+        self.requires("boost/1.91.0")
         self.requires("imguizmo/cci.20231114")
         self.requires("spdlog/1.17.0")
         # implot is vendored from master (bindings/implot) for imgui 1.92 compatibility.

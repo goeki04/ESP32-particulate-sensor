@@ -1,5 +1,5 @@
-find_package(asio REQUIRED)
-find_package(ixwebsocket REQUIRED)
+
+find_package(Boost REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(httplib REQUIRED)
@@ -15,11 +15,9 @@ target_compile_definitions(network PRIVATE SOURCE_DIRECTORY="${CMAKE_SOURCE_DIR}
 target_include_directories(network PUBLIC .)
 
 target_link_libraries(network PUBLIC
-asio::asio
-ixwebsocket::ixwebsocket
 nlohmann_json::nlohmann_json
 httplib::httplib
 OpenSSL::SSL
-definitions
+Boost::boost
 filesystem
 )

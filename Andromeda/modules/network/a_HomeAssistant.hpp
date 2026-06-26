@@ -1,17 +1,21 @@
 #pragma once
 #include "a_Primitives.hpp"
-#include <ixwebsocket/IXNetSystem.h>
-#include <ixwebsocket/IXWebSocket.h>
-#include <ixwebsocket/IXUserAgent.h>
+#include <boost/beast/core.hpp>
+#include <boost/beast/websocket.hpp>
+#include <boost/beast/ssl.hpp>
+#include <boost/beast/http.hpp>
+#include <boost/asio/connect.hpp>
+#include <boost/asio/ip/tcp.hpp>
+
 #include <string>
 namespace Andromeda {
 	class HomeAssistantService {
 	public:
 		void init();
 	private:
-		i32 m_CurrentID = 0;
-		ix::WebSocket m_WebSocket;
+		boost::asio::io_context ioContext;
 		std::string readHomeAssistantTokenFromSecretsJson();
-		void subscribeToEvents();
+		std::string dechunkBody(const std::string& chunkedBody);
+		bool validateStatusCode(i32 statusCode);
 	};
 }
