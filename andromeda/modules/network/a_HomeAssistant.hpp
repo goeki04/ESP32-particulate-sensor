@@ -15,7 +15,5 @@ namespace Andromeda {
 	private:
 		boost::asio::io_context ioContext;
 		std::string readHomeAssistantTokenFromSecretsJson();
-		std::string dechunkBody(const std::string& chunkedBody);
-		bool validateStatusCode(i32 statusCode);
 	};
 }
