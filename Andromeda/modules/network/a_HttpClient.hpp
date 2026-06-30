@@ -59,7 +59,7 @@ namespace Andromeda {
 
                     boost::beast::flat_buffer tunnelBuffer;
                     boost::beast::http::response_parser<boost::beast::http::empty_body> tunnelParser;
-                    tunnelParser.skip(true); // CONNECT-Antwort hat keinen Body -> nicht auf EOF warten
+                    tunnelParser.skip(true);
                     co_await boost::beast::http::async_read(stream.next_layer(), tunnelBuffer, tunnelParser, boost::asio::use_awaitable);
 
                     if (tunnelParser.get().result() != boost::beast::http::status::ok) {
@@ -106,18 +106,23 @@ namespace Andromeda {
                     co_await stream.async_shutdown(boost::asio::use_awaitable);
                 }
                 catch (const boost::system::system_error& e) {
-                    // Gegenseite schliesst bei "Connection: close" oft hart -> kein sauberer close_notify.
-                    // Diese Codes sind harmlos, der Body wurde bereits vollstaendig gelesen.
+
                     if (e.code() != boost::asio::error::eof
                         && e.code() != boost::asio::ssl::error::stream_truncated
-                        && e.code() != boost::asio::error::connection_aborted   // 10053 (WSAECONNABORTED)
-                        && e.code() != boost::asio::error::connection_reset) {  // 10054 (WSAECONNRESET)
+                        && e.code() != boost::asio::error::connection_aborted
+                        && e.code() != boost::asio::error::connection_reset) { 
                         A_WARN("HttpClient shutdown warning: {}", e.what());
                     }
                 }
 
                 int statusCode = httpRes.result_int();
                 A_INFO("HTTP Status Code: {}", statusCode);
+
+                if (statusCode >= 300 && statusCode < 400) {
+                    A_WARN("Redirect {} -> Location: {}", statusCode,
+                        std::string(httpRes[boost::beast::http::field::location]));
+                    co_return "";
+                }
 
                 if (statusCode < 200 || statusCode >= 300) {
                     A_WARN("Server returned error code: {}", statusCode);
