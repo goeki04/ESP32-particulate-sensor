@@ -8,7 +8,6 @@ add_library(network STATIC
     a_network_manager.cpp
     service/a_WeatherService.cpp
     a_BoostWebsocketClient.cpp
-    
 )
 
 target_compile_definitions(network PRIVATE SOURCE_DIRECTORY="${CMAKE_SOURCE_DIR}")
