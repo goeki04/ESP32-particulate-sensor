@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdlib>
 #include <optional>
+#include "a_logger.hpp"
 namespace Andromeda {
 	struct ProxySettings {
 		std::string host;
@@ -51,6 +52,17 @@ namespace Andromeda {
             catch (const std::exception&) {
                 return {};
             }
+        }
+
+        static bool hasProxysettings(const std::optional<ProxySettings> &proxySettings) {
+            if (proxySettings.has_value()) {
+                if (proxySettings->host != "" && proxySettings->port > 0) {
+                    A_INFO("Proxy settings found: {}:{}", proxySettings->host, proxySettings->port);
+                    return true;
+                }
+            }
+            A_INFO("No proxy found or invalid configuration. Connecting directly.");
+            return false;
         }
 	};
 }

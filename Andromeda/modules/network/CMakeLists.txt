@@ -4,10 +4,11 @@ find_package(nlohmann_json REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(httplib REQUIRED)
 add_library(network STATIC
-    esphome_client.cpp
-    esphome_decoder.cpp
     a_HomeAssistant.cpp
+    a_network_manager.cpp
     service/a_WeatherService.cpp
+    a_BoostWebsocketClient.cpp
+    
 )
 
 target_compile_definitions(network PRIVATE SOURCE_DIRECTORY="${CMAKE_SOURCE_DIR}")
@@ -20,4 +21,6 @@ httplib::httplib
 OpenSSL::SSL
 Boost::boost
 filesystem
+
+core
 )
