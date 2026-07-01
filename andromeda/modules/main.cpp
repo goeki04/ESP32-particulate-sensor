@@ -14,13 +14,14 @@
 #include "a_logger.hpp"
 #include "network/service/a_WeatherService.hpp"
 #include "a_HomeAssistant.hpp"
+#include "network/a_network_manager.hpp"
 Andromeda::Window::WindowManager windowManager;
 Andromeda::InputSystem inputManager;
 Andromeda::Renderer renderer;
 Andromeda::ResourceManager resourceManager;
 Andromeda::Editor::Editor editor;
 Andromeda::SceneManager sceneManager;
-
+Andromeda::NetworkManager networkManager;
 SDL_AppResult SDL_Init() {
     SDL_SetAppMetadata("ESP32", "1.0", "ESP32.goeki.com");
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -71,6 +72,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Andromeda::SystemManager::getInstance().addSubsystem(&sceneManager);
     Andromeda::SystemManager::getInstance().addSubsystem(&renderer);
     Andromeda::SystemManager::getInstance().addSubsystem(&editor);
+	Andromeda::SystemManager::getInstance().addSubsystem(&networkManager);
 	Andromeda::WeatherService weatherService;
 	weatherService.getLiveWeatherData();
 	Andromeda::HomeAssistantService homeAssistantService;
