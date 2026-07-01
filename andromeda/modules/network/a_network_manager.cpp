@@ -5,11 +5,13 @@
 namespace Andromeda {
 	void NetworkManager::start()
 	{
-		ssl_context.set_verify_mode(boost::asio::ssl::verify_peer);
+		m_ProxySettings = NetworkInfo::getProxySettings();
+		m_SslContext.set_verify_mode(boost::asio::ssl::verify_peer);
 		std::string certFile = std::string(SOURCE_DIRECTORY) + "/certs/cacert.pem";
-		ssl_context.load_verify_file(certFile);
-		ssl_context.set_default_verify_paths();
-		m_WebsocketClient = std::make_unique<BoostWebsocketClient>(io_context, ssl_context);
+		m_SslContext.load_verify_file(certFile);
+		m_SslContext.set_default_verify_paths();
+		m_WebsocketClient = std::make_unique<BoostWebsocketClient>(m_IoContext, m_SslContext, m_ProxySettings);
+		m_WebsocketClient->connect();
 	}
 	void NetworkManager::update()
 	{

@@ -3,6 +3,8 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ssl/context.hpp>
 #include "a_BoostWebsocketClient.hpp"
+#include "a_network_info.hpp"
+#include <optional>
 namespace Andromeda {
 	class NetworkManager : public ISubsystem {
 		public:
@@ -18,7 +20,8 @@ namespace Andromeda {
 			}
 	private:
 		std::unique_ptr<BoostWebsocketClient> m_WebsocketClient;
-		boost::asio::io_context io_context;
-		boost::asio::ssl::context ssl_context{boost::asio::ssl::context::tls_client};
+		std::optional<ProxySettings> m_ProxySettings;
+		boost::asio::io_context m_IoContext;
+		boost::asio::ssl::context m_SslContext{boost::asio::ssl::context::tls_client};
 	};
 }
