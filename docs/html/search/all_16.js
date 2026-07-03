@@ -2,9 +2,9 @@ var searchData=
 [
   ['w_0',['W',['../namespace_andromeda.html#a83119d34686976ca63271182cc401b9aa61e9c06ea9a85a5088a499df6458d276',1,'Andromeda']]],
   ['w_1',['w',['../struct_andromeda_1_1_g_ltexture.html#a2bb74e3ef2349d468ffc51fb5d6ca04f',1,'Andromeda::GLtexture']]],
-  ['waitpreamble_2',['WaitPreamble',['../namespace_andromeda_1_1_network.html#a9a7181427c1b9e5061c83a2394646f24ac3759e9bfc41c53bb63296bbe5dbe4a9',1,'Andromeda::Network']]],
-  ['weatherdata_3',['WeatherData',['../struct_andromeda_1_1_weather_data.html',1,'Andromeda']]],
-  ['weatherservice_4',['WeatherService',['../class_andromeda_1_1_weather_service.html',1,'Andromeda::WeatherService'],['../class_andromeda_1_1_weather_service.html#a597c61b79e8cf710368f094bf64c327e',1,'Andromeda::WeatherService::WeatherService()']]],
+  ['weatherdata_2',['WeatherData',['../struct_andromeda_1_1_weather_data.html',1,'Andromeda']]],
+  ['weatherservice_3',['WeatherService',['../class_andromeda_1_1_weather_service.html',1,'Andromeda::WeatherService'],['../class_andromeda_1_1_weather_service.html#a597c61b79e8cf710368f094bf64c327e',1,'Andromeda::WeatherService::WeatherService()']]],
+  ['websocketreq_4',['WebsocketReq',['../struct_andromeda_1_1_websocket_req.html',1,'Andromeda']]],
   ['width_5',['width',['../struct_andromeda_1_1_cubemap_data.html#a7c3bc850761ca56a85fabb76e04d343c',1,'Andromeda::CubemapData::width'],['../struct_andromeda_1_1_framebuffer_specification.html#aed9cba7b6c6c15da607d8d5023d1c1b8',1,'Andromeda::FramebufferSpecification::width'],['../class_andromeda_1_1_texture.html#a877fa90ae196f2d7965dc582aa945394',1,'Andromeda::Texture::width']]],
   ['winddirection_6',['windDirection',['../struct_andromeda_1_1_weather_data.html#a46b0662fa2d7d8fe3b38f4ef3b837b04',1,'Andromeda::WeatherData']]],
   ['window_7',['window',['../struct_window_context.html#a78199947e8354816f092b1da6c868575',1,'WindowContext']]],

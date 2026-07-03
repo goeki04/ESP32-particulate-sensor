@@ -52,10 +52,6 @@ var annotated_dup =
         [ "ViewportDrawInfo", "struct_andromeda_1_1_gui_1_1_viewport_draw_info.html", "struct_andromeda_1_1_gui_1_1_viewport_draw_info" ],
         [ "ViewportPanel", "class_andromeda_1_1_gui_1_1_viewport_panel.html", "class_andromeda_1_1_gui_1_1_viewport_panel" ]
       ] ],
-      [ "Network", "namespace_andromeda_1_1_network.html", [
-        [ "ESPHomeClient", "class_andromeda_1_1_network_1_1_e_s_p_home_client.html", "class_andromeda_1_1_network_1_1_e_s_p_home_client" ],
-        [ "ESPHomeDecoder", "class_andromeda_1_1_network_1_1_e_s_p_home_decoder.html", "class_andromeda_1_1_network_1_1_e_s_p_home_decoder" ]
-      ] ],
       [ "RendererRHI", "namespace_andromeda_1_1_renderer_r_h_i.html", [
         [ "Shader", "class_andromeda_1_1_renderer_r_h_i_1_1_shader.html", "class_andromeda_1_1_renderer_r_h_i_1_1_shader" ]
       ] ],
@@ -63,6 +59,7 @@ var annotated_dup =
         [ "WindowManager", "class_andromeda_1_1_window_1_1_window_manager.html", "class_andromeda_1_1_window_1_1_window_manager" ]
       ] ],
       [ "AABB", "struct_andromeda_1_1_a_a_b_b.html", "struct_andromeda_1_1_a_a_b_b" ],
+      [ "BoostWebsocketClient", "class_andromeda_1_1_boost_websocket_client.html", "class_andromeda_1_1_boost_websocket_client" ],
       [ "CubemapData", "struct_andromeda_1_1_cubemap_data.html", "struct_andromeda_1_1_cubemap_data" ],
       [ "CubemapGL", "class_andromeda_1_1_cubemap_g_l.html", "class_andromeda_1_1_cubemap_g_l" ],
       [ "EventListenerID", "struct_andromeda_1_1_event_listener_i_d.html", "struct_andromeda_1_1_event_listener_i_d" ],
@@ -76,6 +73,7 @@ var annotated_dup =
       [ "GLStorageBuffer", "class_andromeda_1_1_g_l_storage_buffer.html", "class_andromeda_1_1_g_l_storage_buffer" ],
       [ "GLtexture", "struct_andromeda_1_1_g_ltexture.html", "struct_andromeda_1_1_g_ltexture" ],
       [ "GLTextureFormat", "struct_andromeda_1_1_g_l_texture_format.html", "struct_andromeda_1_1_g_l_texture_format" ],
+      [ "HomeAssistantService", "class_andromeda_1_1_home_assistant_service.html", "class_andromeda_1_1_home_assistant_service" ],
       [ "IConstantBuffer", "class_andromeda_1_1_i_constant_buffer.html", "class_andromeda_1_1_i_constant_buffer" ],
       [ "IEvent", "struct_andromeda_1_1_i_event.html", "struct_andromeda_1_1_i_event" ],
       [ "IFramebuffer", "class_andromeda_1_1_i_framebuffer.html", "class_andromeda_1_1_i_framebuffer" ],
@@ -83,6 +81,7 @@ var annotated_dup =
       [ "IModelProvider", "class_andromeda_1_1_i_model_provider.html", "class_andromeda_1_1_i_model_provider" ],
       [ "InputSystem", "class_andromeda_1_1_input_system.html", "class_andromeda_1_1_input_system" ],
       [ "ISubsystem", "class_andromeda_1_1_i_subsystem.html", "class_andromeda_1_1_i_subsystem" ],
+      [ "IWebsocketClient", "class_andromeda_1_1_i_websocket_client.html", "class_andromeda_1_1_i_websocket_client" ],
       [ "KeyDown", "struct_andromeda_1_1_key_down.html", "struct_andromeda_1_1_key_down" ],
       [ "KeyUp", "struct_andromeda_1_1_key_up.html", "struct_andromeda_1_1_key_up" ],
       [ "Material", "class_andromeda_1_1_material.html", "class_andromeda_1_1_material" ],
@@ -93,11 +92,14 @@ var annotated_dup =
       [ "MouseBtnUp", "struct_andromeda_1_1_mouse_btn_up.html", "struct_andromeda_1_1_mouse_btn_up" ],
       [ "MouseMoved", "struct_andromeda_1_1_mouse_moved.html", "struct_andromeda_1_1_mouse_moved" ],
       [ "MouseWheelScroll", "struct_andromeda_1_1_mouse_wheel_scroll.html", "struct_andromeda_1_1_mouse_wheel_scroll" ],
+      [ "NetworkInfo", "class_andromeda_1_1_network_info.html", "class_andromeda_1_1_network_info" ],
+      [ "NetworkManager", "class_andromeda_1_1_network_manager.html", "class_andromeda_1_1_network_manager" ],
       [ "OnEnableWireFrame", "struct_andromeda_1_1_on_enable_wire_frame.html", "struct_andromeda_1_1_on_enable_wire_frame" ],
       [ "OpenGLContext", "class_andromeda_1_1_open_g_l_context.html", "class_andromeda_1_1_open_g_l_context" ],
       [ "Particle", "struct_andromeda_1_1_particle.html", "struct_andromeda_1_1_particle" ],
       [ "ParticleEmitter", "struct_andromeda_1_1_particle_emitter.html", "struct_andromeda_1_1_particle_emitter" ],
       [ "PrimitiveGenerator", "class_andromeda_1_1_primitive_generator.html", "class_andromeda_1_1_primitive_generator" ],
+      [ "ProxySettings", "struct_andromeda_1_1_proxy_settings.html", "struct_andromeda_1_1_proxy_settings" ],
       [ "PushUndoTransformEvent", "struct_andromeda_1_1_push_undo_transform_event.html", "struct_andromeda_1_1_push_undo_transform_event" ],
       [ "ReflectedUniform", "struct_andromeda_1_1_reflected_uniform.html", "struct_andromeda_1_1_reflected_uniform" ],
       [ "Renderer", "class_andromeda_1_1_renderer.html", "class_andromeda_1_1_renderer" ],
@@ -115,7 +117,8 @@ var annotated_dup =
       [ "UniformData", "struct_andromeda_1_1_uniform_data.html", "struct_andromeda_1_1_uniform_data" ],
       [ "Vertex", "struct_andromeda_1_1_vertex.html", "struct_andromeda_1_1_vertex" ],
       [ "WeatherData", "struct_andromeda_1_1_weather_data.html", "struct_andromeda_1_1_weather_data" ],
-      [ "WeatherService", "class_andromeda_1_1_weather_service.html", "class_andromeda_1_1_weather_service" ]
+      [ "WeatherService", "class_andromeda_1_1_weather_service.html", "class_andromeda_1_1_weather_service" ],
+      [ "WebsocketReq", "struct_andromeda_1_1_websocket_req.html", "struct_andromeda_1_1_websocket_req" ]
     ] ],
     [ "Undo", "struct_andromeda_1_1_undo.html", null ],
     [ "WindowContext", "struct_window_context.html", "struct_window_context" ]

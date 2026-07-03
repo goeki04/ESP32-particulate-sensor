@@ -2,14 +2,18 @@
 #include "a_subsystem_manager.hpp"
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ssl/context.hpp>
-#include "a_BoostWebsocketClient.hpp"
+#include <memory>
+#include "a_HomeAssistant.hpp"
 #include "a_network_info.hpp"
 #include <optional>
+#include <thread>
+#include <boost/asio/executor_work_guard.hpp>
 namespace Andromeda {
 	class NetworkManager : public ISubsystem {
 		public:
 			void start() override;
 			void update() override;
+			void destroy() override;
 			static constexpr std::string_view GetStaticName() { return "NetworkManager"; }
 			/**
 			 * @brief Gets the runtime string identifier of the subsystem.
@@ -19,9 +23,11 @@ namespace Andromeda {
 				return GetStaticName().data();
 			}
 	private:
-		std::unique_ptr<BoostWebsocketClient> m_WebsocketClient;
-		std::optional<ProxySettings> m_ProxySettings;
-		boost::asio::io_context m_IoContext;
+		std::shared_ptr<boost::asio::io_context> m_IoContext;
 		boost::asio::ssl::context m_SslContext{boost::asio::ssl::context::tls_client};
+		std::unique_ptr<HomeAssistantService> m_HomeAssistantService;
+		std::optional<ProxySettings> m_ProxySettings;
+		std::optional<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> m_WorkGuard;
+		std::jthread m_NetworkThread;
 	};
 }

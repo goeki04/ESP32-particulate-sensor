@@ -1,0 +1,5 @@
+<map id="Andromeda::BoostWebsocketClient" name="Andromeda::BoostWebsocketClient">
+<area shape="rect" id="Node000001" title=" " alt="" coords="7,80,202,123"/>
+<area shape="rect" id="Node000002" href="$class_andromeda_1_1_i_websocket_client.html" title="Abstract interface for a WebSocket client." alt="" coords="5,5,204,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,46,107,81,102,79,103,50"/>
+</map>

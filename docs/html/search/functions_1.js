@@ -10,7 +10,8 @@ var searchData=
   ['bindtextures_7',['bindTextures',['../class_andromeda_1_1_i_graphics_context.html#ade1bb9e6bda54b0fef2f93e575130bdf',1,'Andromeda::IGraphicsContext::bindTextures()'],['../class_andromeda_1_1_open_g_l_context.html#aa535ca48e6c37355a57670b03784250a',1,'Andromeda::OpenGLContext::bindTextures()']]],
   ['bindtotarget_8',['bindToTarget',['../class_andromeda_1_1_i_graphics_context.html#aab221741928fc17768a088421a61773c',1,'Andromeda::IGraphicsContext::bindToTarget()'],['../class_andromeda_1_1_open_g_l_context.html#ae72c149c7031d6d9fc8329440de4fea1',1,'Andromeda::OpenGLContext::bindToTarget()']]],
   ['blitframebuffer_9',['blitFramebuffer',['../class_andromeda_1_1_i_graphics_context.html#af414239d1a4fd7e27a5bf6060595a668',1,'Andromeda::IGraphicsContext::blitFramebuffer()'],['../class_andromeda_1_1_open_g_l_context.html#a2724e6524c34241c823bd942e13b5038',1,'Andromeda::OpenGLContext::blitFramebuffer()']]],
-  ['brdflutbaking_10',['brdfLUTBaking',['../class_andromeda_1_1_renderer.html#a330d5681dec58d2669d2990a29307819',1,'Andromeda::Renderer']]],
-  ['browserpanel_11',['BrowserPanel',['../class_andromeda_1_1_gui_1_1_browser_panel.html#a6fde0db91be5935dd10d0e324bcaab0e',1,'Andromeda::Gui::BrowserPanel']]],
-  ['bufferusagetogl_12',['BufferUsageToGL',['../namespace_andromeda.html#a155c67f942f52290f68cd299d6ef8ed7',1,'Andromeda']]]
+  ['boostwebsocketclient_10',['BoostWebsocketClient',['../class_andromeda_1_1_boost_websocket_client.html#a9daf0a158af3c3f4e934acbd74c0bf04',1,'Andromeda::BoostWebsocketClient']]],
+  ['brdflutbaking_11',['brdfLUTBaking',['../class_andromeda_1_1_renderer.html#a330d5681dec58d2669d2990a29307819',1,'Andromeda::Renderer']]],
+  ['browserpanel_12',['BrowserPanel',['../class_andromeda_1_1_gui_1_1_browser_panel.html#a6fde0db91be5935dd10d0e324bcaab0e',1,'Andromeda::Gui::BrowserPanel']]],
+  ['bufferusagetogl_13',['BufferUsageToGL',['../namespace_andromeda.html#a155c67f942f52290f68cd299d6ef8ed7',1,'Andromeda']]]
 ];

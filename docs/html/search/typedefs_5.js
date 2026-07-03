@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['vec2_0',['vec2',['../namespace_andromeda.html#aa7064b0100ee526895716f353374c1b7',1,'Andromeda']]],
-  ['vec3_1',['vec3',['../namespace_andromeda.html#a49cca709e969a1593cac7573b06ccfe5',1,'Andromeda']]],
-  ['vec4_2',['vec4',['../namespace_andromeda.html#a67bb3f66dfc1a92364d0aec483c9bbde',1,'Andromeda']]]
+  ['u16_0',['u16',['../namespace_andromeda.html#ab41ca7839720ce0bfb7e07cd3a5649fe',1,'Andromeda']]],
+  ['u32_1',['u32',['../namespace_andromeda.html#aba65bc2d5a617d3d32e2cd9c722501d3',1,'Andromeda']]],
+  ['u64_2',['u64',['../namespace_andromeda.html#a3a3dfba33b50f4fef60ba39ac9ad6936',1,'Andromeda']]],
+  ['u8_3',['u8',['../namespace_andromeda.html#a138d0961401c30b4df2eb0cc452bc0ca',1,'Andromeda']]]
 ];

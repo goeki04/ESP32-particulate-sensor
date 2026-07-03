@@ -1,7 +1,16 @@
 <map id="andromeda/modules/network" name="andromeda/modules/network">
-<area shape="rect" id="node1" href="dir_9bb0b61234714e0272a4587be2b9fb30.html" title="definitions" alt="" coords="26,128,107,155"/>
-<area shape="rect" id="node2" href="dir_4c3a4e371920afa2d03bb73cbf8574ce.html" title="network" alt="" coords="33,53,100,80"/>
-<area shape="poly" id="edge1" href="dir_000012_000002.html" alt="" coords="68,78,69,113,64,112,65,83"/>
-<area shape="rect" id="edge1-headlabel" href="dir_000012_000002.html" title="1" alt="" coords="72,101,79,117"/>
-<area shape="rect" id="clust1" href="dir_a6d3f3cd5ce2d0140642e50638afddda.html" title="modules" alt="" coords="16,16,117,165"/>
+<area shape="rect" id="node1" href="dir_9bb0b61234714e0272a4587be2b9fb30.html" title="definitions" alt="" coords="26,139,107,165"/>
+<area shape="rect" id="node2" href="dir_fcd762ed92d7594e135cd07571d659be.html" title="filesystem" alt="" coords="131,139,213,165"/>
+<area shape="rect" id="node3" href="dir_cb4a5b12b72a112763cb8fa56446af32.html" title="core" alt="" coords="237,139,283,165"/>
+<area shape="poly" id="edge1" href="dir_000012_000002.html" alt="" coords="151,89,98,131,95,127,147,92"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000012_000002.html" title="10" alt="" coords="97,126,111,142"/>
+<area shape="poly" id="edge3" href="dir_000012_000006.html" alt="" coords="168,88,172,124,167,122,165,93"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000012_000006.html" title="1" alt="" coords="174,111,181,127"/>
+<area shape="poly" id="edge2" href="dir_000012_000001.html" alt="" coords="182,88,234,129,229,129,180,93"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000012_000001.html" title="1" alt="" coords="231,112,238,128"/>
+<area shape="rect" id="node5" href="dir_dc04d4e04f229540f3b46e9ded0983cb.html" title="service" alt="" coords="44,64,108,91"/>
+<area shape="poly" id="edge4" href="dir_000021_000002.html" alt="" coords="76,89,73,124,68,123,73,93"/>
+<area shape="rect" id="edge4-headlabel" href="dir_000021_000002.html" title="2" alt="" coords="75,113,82,129"/>
+<area shape="rect" id="clust2" href="dir_4c3a4e371920afa2d03bb73cbf8574ce.html" alt="" coords="33,53,209,101"/>
+<area shape="rect" id="clust1" href="dir_a6d3f3cd5ce2d0140642e50638afddda.html" title="modules" alt="" coords="16,16,293,176"/>
 </map>

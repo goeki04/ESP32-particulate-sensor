@@ -17,7 +17,6 @@ namespace Andromeda {
 		i32 port;                          ///< Target port number of the WebSocket server.
 		std::string host;                ///< Host or IP address of the WebSocket server.
 		std::string path;                  ///< Request path/endpoint used for the WebSocket handshake.
-		std::vector<std::string> headers;  ///< Additional HTTP headers to send during the handshake.
 	};
 
 	/**
@@ -32,7 +31,6 @@ namespace Andromeda {
 	public:
 		/** @brief Virtual destructor to allow safe destruction through the interface pointer. */
 		virtual ~IWebsocketClient() = default;
-
 		/** @brief Establishes the WebSocket connection to the configured server. */
 		virtual void connect() = 0;
 
@@ -50,5 +48,8 @@ namespace Andromeda {
 		 * @param callback Function called with the received message content.
 		 */
 		virtual void onMessageReceived(std::function<void(const std::string&)> callback) = 0;
+
+		/** @brief Returns whether the WebSocket connection is currently established. */
+		virtual bool isConnected() const = 0;
 	};
 }

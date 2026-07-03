@@ -75,8 +75,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 	Andromeda::SystemManager::getInstance().addSubsystem(&networkManager);
 	Andromeda::WeatherService weatherService;
 	weatherService.getLiveWeatherData();
-	Andromeda::HomeAssistantService homeAssistantService;
-	homeAssistantService.init();
     Andromeda::SystemManager::getInstance().startSubsystems();
     const std::string scenePath = (std::filesystem::path(g_ProjectPath) / "scene.json").string();
 

@@ -85,7 +85,7 @@ var sectionId = 'dynsection-0';
 <g id="node3" class="node">
 <title>dir_cb4a5b12b72a112763cb8fa56446af32</title>
 <g id="a_node3"><a xlink:href="dir_cb4a5b12b72a112763cb8fa56446af32.html" target="_top" xlink:title="core">
-<polygon fill="#a2b4d6" stroke="red" points="205.38,-36 170.62,-36 170.62,-16 205.38,-16 205.38,-36"/>
+<polygon fill="#a2b4d6" stroke="#404040" points="205.38,-36 170.62,-36 170.62,-16 205.38,-16 205.38,-36"/>
 <text xml:space="preserve" text-anchor="middle" x="188" y="-22.5" font-family="Helvetica,sans-Serif" font-size="10.00">core</text>
 </a>
 </g>

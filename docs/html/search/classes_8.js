@@ -9,5 +9,6 @@ var searchData=
   ['inputsystem_6',['InputSystem',['../class_andromeda_1_1_input_system.html',1,'Andromeda']]],
   ['internalmetadata_7',['InternalMetaData',['../struct_andromeda_1_1_material_1_1_internal_meta_data.html',1,'Andromeda::Material']]],
   ['ipanelcontroller_8',['IPanelController',['../class_andromeda_1_1_gui_1_1_i_panel_controller.html',1,'Andromeda::Gui']]],
-  ['isubsystem_9',['ISubsystem',['../class_andromeda_1_1_i_subsystem.html',1,'Andromeda']]]
+  ['isubsystem_9',['ISubsystem',['../class_andromeda_1_1_i_subsystem.html',1,'Andromeda']]],
+  ['iwebsocketclient_10',['IWebsocketClient',['../class_andromeda_1_1_i_websocket_client.html',1,'Andromeda']]]
 ];

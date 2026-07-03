@@ -1,6 +1,5 @@
 var dir_cb4a5b12b72a112763cb8fa56446af32 =
 [
-    [ "service", "dir_5cb5c7d15c54fea9955d25749e7776e3.html", "dir_5cb5c7d15c54fea9955d25749e7776e3" ],
     [ "a_event_manager.hpp", "a__event__manager_8hpp.html", "a__event__manager_8hpp" ],
     [ "a_registry.hpp", "a__registry_8hpp.html", "a__registry_8hpp" ],
     [ "a_subsystem_manager.cpp", "a__subsystem__manager_8cpp.html", null ],

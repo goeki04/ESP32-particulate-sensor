@@ -125,13 +125,14 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('main_8cpp.html
 <code>#include &quot;<a class="el" href="input__manager_8hpp_source.html">input/input_manager.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="resource__manager_8h_source.html">resource/resource_manager.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="renderer_8h_source.html">renderer/renderer.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="esphome__client_8h_source.html">network/esphome_client.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="editor_8hpp_source.html">editor/editor.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="scene_8hpp_source.html">scene/scene.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="scene_serializer_8hpp_source.html">serialization/sceneSerializer.hpp</a>&quot;</code><br />
 <code>#include &lt;cstdlib&gt;</code><br />
 <code>#include &quot;<a class="el" href="a__logger_8hpp_source.html">a_logger.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="a___weather_service_8hpp_source.html">a_WeatherService.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="a___weather_service_8hpp_source.html">network/service/a_WeatherService.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="a___home_assistant_8hpp_source.html">a_HomeAssistant.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="a__network__manager_8hpp_source.html">network/a_network_manager.hpp</a>&quot;</code><br />
 </div>
 <p><a href="main_8cpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -155,7 +156,7 @@ Variables</h2></td></tr>
 <tr class="memitem:a0c124af45d30e5bb1d059e34a8a507a4" id="r_a0c124af45d30e5bb1d059e34a8a507a4"><td class="memItemLeft"><a class="el" href="class_andromeda_1_1_resource_manager.html">Andromeda::ResourceManager</a>&#160;</td><td class="memItemRight"><a class="el" href="#a0c124af45d30e5bb1d059e34a8a507a4">resourceManager</a></td></tr>
 <tr class="memitem:a692f3864fd788750c743d680b7532da4" id="r_a692f3864fd788750c743d680b7532da4"><td class="memItemLeft"><a class="el" href="class_andromeda_1_1_editor_1_1_editor.html">Andromeda::Editor::Editor</a>&#160;</td><td class="memItemRight"><a class="el" href="#a692f3864fd788750c743d680b7532da4">editor</a></td></tr>
 <tr class="memitem:a0d8a5d93ab80a821595d9df6898095ba" id="r_a0d8a5d93ab80a821595d9df6898095ba"><td class="memItemLeft"><a class="el" href="class_andromeda_1_1_scene_manager.html">Andromeda::SceneManager</a>&#160;</td><td class="memItemRight"><a class="el" href="#a0d8a5d93ab80a821595d9df6898095ba">sceneManager</a></td></tr>
-<tr class="memitem:a54fea4055be0cb86d98cf29c2f0b216a" id="r_a54fea4055be0cb86d98cf29c2f0b216a"><td class="memItemLeft">static <a class="el" href="class_andromeda_1_1_network_1_1_e_s_p_home_client.html">Andromeda::Network::ESPHomeClient</a>&#160;</td><td class="memItemRight"><a class="el" href="#a54fea4055be0cb86d98cf29c2f0b216a">g_EspClient</a></td></tr>
+<tr class="memitem:a5fd33c8afd2d7cbfde397ba474eba688" id="r_a5fd33c8afd2d7cbfde397ba474eba688"><td class="memItemLeft"><a class="el" href="class_andromeda_1_1_network_manager.html">Andromeda::NetworkManager</a>&#160;</td><td class="memItemRight"><a class="el" href="#a5fd33c8afd2d7cbfde397ba474eba688">networkManager</a></td></tr>
 <tr class="memitem:a0324a03bf5b875544f62469bdb1539fe" id="r_a0324a03bf5b875544f62469bdb1539fe"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a0324a03bf5b875544f62469bdb1539fe">g_ProjectPath</a> = &quot;&quot;</td></tr>
 </table>
 <a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Macro Definition Documentation</h2>
@@ -195,7 +196,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00091">91</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00090">90</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
 
 </div>
 </div>
@@ -242,7 +243,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00101">101</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00100">100</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
 
 </div>
 </div>
@@ -265,7 +266,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00107">107</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00106">106</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
 
 </div>
 </div>
@@ -301,31 +302,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00021">21</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a54fea4055be0cb86d98cf29c2f0b216a" name="a54fea4055be0cb86d98cf29c2f0b216a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a54fea4055be0cb86d98cf29c2f0b216a">&#9670;&#160;</a></span>g_EspClient</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="class_andromeda_1_1_network_1_1_e_s_p_home_client.html">Andromeda::Network::ESPHomeClient</a> g_EspClient</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00023">23</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00022">22</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
 
 </div>
 </div>
@@ -357,7 +334,23 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00018">18</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00019">19</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a5fd33c8afd2d7cbfde397ba474eba688" name="a5fd33c8afd2d7cbfde397ba474eba688"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5fd33c8afd2d7cbfde397ba474eba688">&#9670;&#160;</a></span>networkManager</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_andromeda_1_1_network_manager.html">Andromeda::NetworkManager</a> networkManager</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00024">24</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
 
 </div>
 </div>
@@ -373,7 +366,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00019">19</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00020">20</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
 
 </div>
 </div>
@@ -389,7 +382,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00020">20</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00021">21</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
 
 </div>
 </div>
@@ -405,7 +398,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00022">22</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00023">23</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
 
 </div>
 </div>
@@ -421,7 +414,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00017">17</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8cpp_source.html#l00018">18</a> of file <a class="el" href="main_8cpp_source.html">main.cpp</a>.</p>
 
 </div>
 </div>

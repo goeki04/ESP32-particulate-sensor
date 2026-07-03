@@ -45,7 +45,6 @@ var NAVTREE =
         [ "All", "functions.html", "functions_dup" ],
         [ "Functions", "functions_func.html", "functions_func" ],
         [ "Variables", "functions_vars.html", "functions_vars" ],
-        [ "Typedefs", "functions_type.html", null ],
         [ "Enumerations", "functions_enum.html", null ],
         [ "Enumerator", "functions_eval.html", null ]
       ] ]
@@ -56,6 +55,7 @@ var NAVTREE =
         [ "All", "globals.html", null ],
         [ "Functions", "globals_func.html", null ],
         [ "Variables", "globals_vars.html", null ],
+        [ "Typedefs", "globals_type.html", null ],
         [ "Macros", "globals_defs.html", null ]
       ] ]
     ] ]
@@ -65,15 +65,15 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_console_8cpp.html",
-"class_andromeda_1_1_e_c_s_1_1_i_component_pool.html#aa4361b216cd3443cb814fde99eacf533",
-"class_andromeda_1_1_gui_1_1_editor_panel.html#aa591af79c281c85ca7d39824a102ca29",
-"class_andromeda_1_1_i_subsystem.html#a3791d979d51b40a25e6bb49cfcdca3fd",
-"class_andromeda_1_1_renderer.html#a4e73031a83bae3561d4f4a0d0f910663",
-"class_andromeda_1_1_texture.html#a877fa90ae196f2d7965dc582aa945394",
-"namespace_andromeda.html#a83119d34686976ca63271182cc401b9aa21c2e59531c8710156d34a3c30ac81d5",
-"struct_andromeda_1_1_cubemap_data.html#a4f6ab317ac0afdbf1dec43f3a13d2ff7",
-"struct_andromeda_1_1_gui_1_1_editor_context.html#a524eedbf6a06d23613ea095c7263d124",
-"struct_andromeda_1_1_render_pass_specs.html#a14e25908609d7313b6da26dc4d126519"
+"class_andromeda_1_1_e_c_s_1_1_component_pool.html#aebafd19f7f73e77d1ffe0d4d84d5bc60",
+"class_andromeda_1_1_gui_1_1_chart.html#a49f48707755a54b22a94f69004c23fa2",
+"class_andromeda_1_1_i_graphics_context.html#a7a62cdc819263478e388a22e7f8281cf",
+"class_andromeda_1_1_open_g_l_context.html#af82eb07937907c05bdb4d2b9b04473ec",
+"class_andromeda_1_1_scene_manager.html#aa92888b0c789214a2619b8b04a1d7a0e",
+"namespace_andromeda.html#a42c1cf9260ad65a2a1fa8275d16c927aaaacd89df7585eb749bfd3b129758148f",
+"renderer_8cpp.html",
+"struct_andromeda_1_1_gui_1_1_console_1_1_app_console.html#aa5f7d9bd43e32489d6dc44f8ab8af400",
+"struct_andromeda_1_1_particle_emitter.html#a3ec54a73e55df41262175665b2918476"
 ];
 
 const SYNCONMSG = 'click to disable panel synchronization';

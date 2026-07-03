@@ -1,0 +1,18 @@
+<map id="Andromeda::NetworkManager" name="Andromeda::NetworkManager">
+<area shape="rect" id="Node000001" title=" " alt="" coords="69,568,263,595"/>
+<area shape="rect" id="Node000002" href="$class_andromeda_1_1_i_subsystem.html" title="Interface declaring essential lifecycle functions for all engine subsystems." alt="" coords="62,461,227,488"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,501,166,568,161,567,148,505"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="251,453,435,496"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="298,504,189,570,186,565,293,504"/>
+<area shape="rect" id="Node000004" href="$class_andromeda_1_1_home_assistant_service.html" title=" " alt="" coords="150,339,336,381"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="272,391,328,453,322,453,271,396"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="66,203,250,245"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="180,256,233,338,227,339,178,261"/>
+<area shape="rect" id="Node000006" href="$class_andromeda_1_1_i_websocket_client.html" title="Abstract interface for a WebSocket client." alt="" coords="5,104,204,131"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="100,144,104,162,108,177,128,202,122,203,103,180,98,163,100,149"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="271,104,410,131"/>
+<area shape="poly" id="edge8_Node000003_Node000007" title=" " alt="" coords="362,140,370,154,371,166,370,179,359,337,348,454,343,452,354,336,365,178,366,166,365,155,361,146"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="254,127,198,139,175,147,161,156,156,166,153,178,155,203,149,202,148,178,151,165,157,153,173,142,196,134,258,124"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="321,5,360,32"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="341,45,343,104,338,103,340,50"/>
+</map>

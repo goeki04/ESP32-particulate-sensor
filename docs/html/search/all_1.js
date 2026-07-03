@@ -17,10 +17,11 @@ var searchData=
   ['blendmode_14',['blendMode',['../struct_andromeda_1_1_render_pass_specs.html#ab80e8ad39926a78db7f919b136e49ea1',1,'Andromeda::RenderPassSpecs']]],
   ['blitframebuffer_15',['blitFramebuffer',['../class_andromeda_1_1_i_graphics_context.html#af414239d1a4fd7e27a5bf6060595a668',1,'Andromeda::IGraphicsContext::blitFramebuffer()'],['../class_andromeda_1_1_open_g_l_context.html#a2724e6524c34241c823bd942e13b5038',1,'Andromeda::OpenGLContext::blitFramebuffer()']]],
   ['blueprint_16',['blueprint',['../struct_andromeda_1_1_gui_1_1_browser_panel_1_1_tile.html#a8fab0eb8d841343322c111c27f057d8d',1,'Andromeda::Gui::BrowserPanel::Tile']]],
-  ['brdflutbaking_17',['brdfLUTBaking',['../class_andromeda_1_1_renderer.html#a330d5681dec58d2669d2990a29307819',1,'Andromeda::Renderer']]],
-  ['breadboard_18',['BREADBOARD',['../namespace_andromeda.html#ae4f243f062056d503da01dc13b01d956ae2fe1afa7b78a6a1b3312bdd61f9ce45',1,'Andromeda']]],
-  ['browserpanel_19',['BrowserPanel',['../class_andromeda_1_1_gui_1_1_browser_panel.html',1,'Andromeda::Gui::BrowserPanel'],['../class_andromeda_1_1_gui_1_1_browser_panel.html#a6fde0db91be5935dd10d0e324bcaab0e',1,'Andromeda::Gui::BrowserPanel::BrowserPanel()']]],
-  ['bufferusage_20',['BufferUsage',['../namespace_andromeda.html#a2a44f2cdf1f217d4fdb2847727a33fdc',1,'Andromeda']]],
-  ['bufferusagetogl_21',['BufferUsageToGL',['../namespace_andromeda.html#a155c67f942f52290f68cd299d6ef8ed7',1,'Andromeda']]],
-  ['bug_20list_22',['Bug List',['../bug.html',1,'']]]
+  ['boostwebsocketclient_17',['BoostWebsocketClient',['../class_andromeda_1_1_boost_websocket_client.html',1,'Andromeda::BoostWebsocketClient'],['../class_andromeda_1_1_boost_websocket_client.html#a9daf0a158af3c3f4e934acbd74c0bf04',1,'Andromeda::BoostWebsocketClient::BoostWebsocketClient()']]],
+  ['brdflutbaking_18',['brdfLUTBaking',['../class_andromeda_1_1_renderer.html#a330d5681dec58d2669d2990a29307819',1,'Andromeda::Renderer']]],
+  ['breadboard_19',['BREADBOARD',['../namespace_andromeda.html#ae4f243f062056d503da01dc13b01d956ae2fe1afa7b78a6a1b3312bdd61f9ce45',1,'Andromeda']]],
+  ['browserpanel_20',['BrowserPanel',['../class_andromeda_1_1_gui_1_1_browser_panel.html',1,'Andromeda::Gui::BrowserPanel'],['../class_andromeda_1_1_gui_1_1_browser_panel.html#a6fde0db91be5935dd10d0e324bcaab0e',1,'Andromeda::Gui::BrowserPanel::BrowserPanel()']]],
+  ['bufferusage_21',['BufferUsage',['../namespace_andromeda.html#a2a44f2cdf1f217d4fdb2847727a33fdc',1,'Andromeda']]],
+  ['bufferusagetogl_22',['BufferUsageToGL',['../namespace_andromeda.html#a155c67f942f52290f68cd299d6ef8ed7',1,'Andromeda']]],
+  ['bug_20list_23',['Bug List',['../bug.html',1,'']]]
 ];

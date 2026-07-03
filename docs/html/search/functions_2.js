@@ -10,7 +10,7 @@ var searchData=
   ['compileopenglcomputeshader_7',['compileOpenGLComputeShader',['../class_andromeda_1_1_open_g_l_context.html#a83372289fc75e436bd522d21054c5295',1,'Andromeda::OpenGLContext']]],
   ['compileopenglshader_8',['compileOpenGLShader',['../class_andromeda_1_1_open_g_l_context.html#a58b09bcb9dcc43314b82e1147003665c',1,'Andromeda::OpenGLContext']]],
   ['configuredrawbuffers_9',['configureDrawBuffers',['../class_andromeda_1_1_g_l_framebuffer.html#a7e75a464936760170490aa0fbc44163e',1,'Andromeda::GLFramebuffer']]],
-  ['connect_10',['connect',['../class_andromeda_1_1_network_1_1_e_s_p_home_client.html#af7fd7fc5738364fc85f150fdce9577fc',1,'Andromeda::Network::ESPHomeClient']]],
+  ['connect_10',['connect',['../class_andromeda_1_1_boost_websocket_client.html#a24658ca6bf34a43c8f44a79b7cd4be5f',1,'Andromeda::BoostWebsocketClient::connect()'],['../class_andromeda_1_1_i_websocket_client.html#ad161526583a50dc655d203f132c7689c',1,'Andromeda::IWebsocketClient::connect()']]],
   ['consolepanel_11',['ConsolePanel',['../class_andromeda_1_1_gui_1_1_console_panel.html#a1dc7fb915593b2756a17e936975f2882',1,'Andromeda::Gui::ConsolePanel']]],
   ['convertequiretangulartocubemap_12',['ConvertEquiretangularToCubemap',['../class_andromeda_1_1_cubemap_g_l.html#a2d25aac9c6a4cbc992be3046427f8945',1,'Andromeda::CubemapGL']]],
   ['convertformat_13',['ConvertFormat',['../struct_andromeda_1_1_g_ltexture.html#a1f67db9d6edfbe66ec83bb1df7679b73',1,'Andromeda::GLtexture']]],

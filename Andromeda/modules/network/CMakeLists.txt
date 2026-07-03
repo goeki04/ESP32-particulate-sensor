@@ -12,6 +12,10 @@ add_library(network STATIC
 
 target_compile_definitions(network PRIVATE SOURCE_DIRECTORY="${CMAKE_SOURCE_DIR}")
 
+if(MSVC)
+    target_compile_options(network PRIVATE /bigobj)
+endif()
+
 target_include_directories(network PUBLIC .)
 
 target_link_libraries(network PUBLIC

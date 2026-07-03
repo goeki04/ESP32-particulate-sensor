@@ -1,0 +1,17 @@
+<map id="Andromeda::BoostWebsocketClient" name="Andromeda::BoostWebsocketClient">
+<area shape="rect" id="Node000001" title=" " alt="" coords="198,339,392,381"/>
+<area shape="rect" id="Node000002" href="$class_andromeda_1_1_i_websocket_client.html" title="Abstract interface for a WebSocket client." alt="" coords="5,240,204,267"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,272,260,337,255,339,140,277"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="228,240,362,267"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="297,280,297,339,293,337,293,284"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="236,120,354,147"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="297,160,298,241,293,239,293,165"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="276,13,314,40"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="296,53,298,121,293,119,294,58"/>
+<area shape="rect" id="Node000006" href="$struct_andromeda_1_1_websocket_req.html" title="Describes the parameters needed to establish a WebSocket connection." alt="" coords="387,240,571,267"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="456,276,402,317,353,341,351,336,399,312,451,278"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="440,120,519,147"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="481,161,481,241,477,238,477,165"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="416,5,542,48"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="481,61,482,121,477,118,478,66"/>
+</map>

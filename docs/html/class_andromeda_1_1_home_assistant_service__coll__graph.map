@@ -1,0 +1,11 @@
+<map id="Andromeda::HomeAssistantService" name="Andromeda::HomeAssistantService">
+<area shape="rect" id="Node000001" title=" " alt="" coords="73,317,258,360"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="74,203,258,245"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,259,168,318,163,316,164,263"/>
+<area shape="rect" id="Node000003" href="$class_andromeda_1_1_i_websocket_client.html" title="Abstract interface for a WebSocket client." alt="" coords="5,104,204,131"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="120,141,156,202,151,202,119,146"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="227,104,366,131"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="267,142,193,204,190,200,271,138"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="277,5,316,32"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="298,45,299,105,294,103,295,50"/>
+</map>

@@ -1,17 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$class_andromeda_1_1_i_model_provider.html" title="Interface for components that expose a fixed catalogue of built&#45;in models to the editor." alt="" coords="5,5,188,32"/>
-<area shape="rect" id="Node000001" href="$class_andromeda_1_1_resource_manager.html" title="asset management subsystem for the Andromeda Engine." alt="" coords="236,5,437,32"/>
-<area shape="poly" id="edge21_Node000000_Node000001" title=" " alt="" coords="202,16,237,17,233,20,205,21"/>
-<area shape="rect" id="Node000002" href="$class_andromeda_1_1_i_subsystem.html" title="Interface declaring essential lifecycle functions for all engine subsystems." alt="" coords="14,148,179,175"/>
-<area shape="poly" id="edge25_Node000002_Node000001" title=" " alt="" coords="118,135,169,87,200,63,234,42,266,31,262,34,237,46,203,67,172,91,122,138"/>
-<area shape="rect" id="Node000003" href="$class_andromeda_1_1_editor_1_1_editor.html" title="The core subsystem managing the editor state, viewport camera, and scene interaction." alt="" coords="268,56,405,99"/>
-<area shape="poly" id="edge22_Node000002_Node000003" title=" " alt="" coords="147,140,235,108,271,98,266,101,237,113,150,145"/>
-<area shape="rect" id="Node000004" href="$class_andromeda_1_1_input_system.html" title="Maintains the current keyboard state and dispatches input events from raw SDL events." alt="" coords="252,123,421,149"/>
-<area shape="poly" id="edge23_Node000002_Node000004" title=" " alt="" coords="194,148,254,144,249,146,195,154"/>
-<area shape="rect" id="Node000005" href="$class_andromeda_1_1_renderer.html" title="Drives all frame rendering: PBR scene pass, selection/outline, post&#45;processing and IBL baking." alt="" coords="262,173,410,200"/>
-<area shape="poly" id="edge24_Node000002_Node000005" title=" " alt="" coords="194,169,264,178,259,180,195,174"/>
-<area shape="rect" id="Node000006" href="$class_andromeda_1_1_scene_manager.html" title="Holds the scene&#39;s ECS registry and editor camera, and provides entity creation/removal." alt="" coords="245,224,428,251"/>
-<area shape="poly" id="edge26_Node000002_Node000006" title=" " alt="" coords="147,178,236,209,279,223,274,224,235,215,147,183"/>
-<area shape="rect" id="Node000007" href="$class_andromeda_1_1_window_1_1_window_manager.html" title="Creates and tears down the SDL window and OpenGL context as an engine subsystem." alt="" coords="261,275,412,317"/>
-<area shape="poly" id="edge27_Node000002_Node000007" title=" " alt="" coords="125,182,176,222,237,260,264,274,259,274,234,265,173,226,124,188"/>
+<area shape="rect" id="Node000000" href="$class_andromeda_1_1_i_graphics_context.html" title="Abstract interface over a graphics backend (shaders, compute, buffers, textures, framebuffers,..." alt="" coords="5,5,203,32"/>
+<area shape="rect" id="Node000001" href="$class_andromeda_1_1_open_g_l_context.html" title="Handles low&#45;level rendering operations and state management for the OpenGL backend." alt="" coords="251,5,440,32"/>
+<area shape="poly" id="edge20_Node000000_Node000001" title=" " alt="" coords="218,16,253,19,248,19,218,21"/>
 </map>

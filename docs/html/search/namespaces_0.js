@@ -12,7 +12,6 @@ var searchData=
   ['andromeda_3a_3agui_3a_3aconsole_9',['Console',['../namespace_andromeda_1_1_gui_1_1_console.html',1,'Andromeda::Gui']]],
   ['andromeda_3a_3agui_3a_3aconsole_3a_3aflags_10',['Flags',['../namespace_andromeda_1_1_gui_1_1_console_1_1_flags.html',1,'Andromeda::Gui::Console']]],
   ['andromeda_3a_3alog_11',['Log',['../namespace_andromeda_1_1_log.html',1,'Andromeda']]],
-  ['andromeda_3a_3anetwork_12',['Network',['../namespace_andromeda_1_1_network.html',1,'Andromeda']]],
-  ['andromeda_3a_3arendererrhi_13',['RendererRHI',['../namespace_andromeda_1_1_renderer_r_h_i.html',1,'Andromeda']]],
-  ['andromeda_3a_3awindow_14',['Window',['../namespace_andromeda_1_1_window.html',1,'Andromeda']]]
+  ['andromeda_3a_3arendererrhi_12',['RendererRHI',['../namespace_andromeda_1_1_renderer_r_h_i.html',1,'Andromeda']]],
+  ['andromeda_3a_3awindow_13',['Window',['../namespace_andromeda_1_1_window.html',1,'Andromeda']]]
 ];

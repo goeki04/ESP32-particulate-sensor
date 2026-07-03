@@ -35,7 +35,7 @@ var searchData=
   ['componentpool_32',['ComponentPool',['../class_andromeda_1_1_e_c_s_1_1_component_pool.html',1,'Andromeda::ECS']]],
   ['componentregistry_33',['ComponentRegistry',['../class_andromeda_1_1_e_c_s_1_1_component_registry.html',1,'Andromeda::ECS']]],
   ['configuredrawbuffers_34',['configureDrawBuffers',['../class_andromeda_1_1_g_l_framebuffer.html#a7e75a464936760170490aa0fbc44163e',1,'Andromeda::GLFramebuffer']]],
-  ['connect_35',['connect',['../class_andromeda_1_1_network_1_1_e_s_p_home_client.html#af7fd7fc5738364fc85f150fdce9577fc',1,'Andromeda::Network::ESPHomeClient']]],
+  ['connect_35',['connect',['../class_andromeda_1_1_boost_websocket_client.html#a24658ca6bf34a43c8f44a79b7cd4be5f',1,'Andromeda::BoostWebsocketClient::connect()'],['../class_andromeda_1_1_i_websocket_client.html#ad161526583a50dc655d203f132c7689c',1,'Andromeda::IWebsocketClient::connect()']]],
   ['console_2ecpp_36',['Console.cpp',['../_console_8cpp.html',1,'']]],
   ['console_2eh_37',['Console.h',['../_console_8h.html',1,'']]],
   ['consolepanel_38',['ConsolePanel',['../class_andromeda_1_1_gui_1_1_console_panel.html',1,'Andromeda::Gui::ConsolePanel'],['../class_andromeda_1_1_gui_1_1_console_panel.html#a1dc7fb915593b2756a17e936975f2882',1,'Andromeda::Gui::ConsolePanel::ConsolePanel()']]],

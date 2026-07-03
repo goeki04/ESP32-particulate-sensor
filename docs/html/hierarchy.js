@@ -23,8 +23,6 @@ var hierarchy =
       [ "Andromeda::Gui::ViewportPanel", "class_andromeda_1_1_gui_1_1_viewport_panel.html", null ]
     ] ],
     [ "Andromeda::ECS::EntityHandle", "struct_andromeda_1_1_e_c_s_1_1_entity_handle.html", null ],
-    [ "Andromeda::Network::ESPHomeClient", "class_andromeda_1_1_network_1_1_e_s_p_home_client.html", null ],
-    [ "Andromeda::Network::ESPHomeDecoder", "class_andromeda_1_1_network_1_1_e_s_p_home_decoder.html", null ],
     [ "Andromeda::EventManager::EventListener", "struct_andromeda_1_1_event_manager_1_1_event_listener.html", null ],
     [ "Andromeda::EventListenerID", "struct_andromeda_1_1_event_listener_i_d.html", null ],
     [ "Andromeda::EventManager", "class_andromeda_1_1_event_manager.html", null ],
@@ -35,6 +33,7 @@ var hierarchy =
     [ "Andromeda::GLStorageBuffer", "class_andromeda_1_1_g_l_storage_buffer.html", null ],
     [ "Andromeda::GLtexture", "struct_andromeda_1_1_g_ltexture.html", null ],
     [ "Andromeda::GLTextureFormat", "struct_andromeda_1_1_g_l_texture_format.html", null ],
+    [ "Andromeda::HomeAssistantService", "class_andromeda_1_1_home_assistant_service.html", null ],
     [ "Andromeda::ECS::IComponentPool", "class_andromeda_1_1_e_c_s_1_1_i_component_pool.html", [
       [ "Andromeda::ECS::ComponentPool< T >", "class_andromeda_1_1_e_c_s_1_1_component_pool.html", null ]
     ] ],
@@ -68,10 +67,14 @@ var hierarchy =
     [ "Andromeda::ISubsystem", "class_andromeda_1_1_i_subsystem.html", [
       [ "Andromeda::Editor::Editor", "class_andromeda_1_1_editor_1_1_editor.html", null ],
       [ "Andromeda::InputSystem", "class_andromeda_1_1_input_system.html", null ],
+      [ "Andromeda::NetworkManager", "class_andromeda_1_1_network_manager.html", null ],
       [ "Andromeda::Renderer", "class_andromeda_1_1_renderer.html", null ],
       [ "Andromeda::ResourceManager", "class_andromeda_1_1_resource_manager.html", null ],
       [ "Andromeda::SceneManager", "class_andromeda_1_1_scene_manager.html", null ],
       [ "Andromeda::Window::WindowManager", "class_andromeda_1_1_window_1_1_window_manager.html", null ]
+    ] ],
+    [ "Andromeda::IWebsocketClient", "class_andromeda_1_1_i_websocket_client.html", [
+      [ "Andromeda::BoostWebsocketClient", "class_andromeda_1_1_boost_websocket_client.html", null ]
     ] ],
     [ "Andromeda::Gui::MainMenuBar", "class_andromeda_1_1_gui_1_1_main_menu_bar.html", null ],
     [ "Andromeda::ECS::Component::Material", "struct_andromeda_1_1_e_c_s_1_1_component_1_1_material.html", null ],
@@ -80,10 +83,12 @@ var hierarchy =
     [ "Andromeda::MeshGPUHandle", "struct_andromeda_1_1_mesh_g_p_u_handle.html", null ],
     [ "Andromeda::ECS::Component::MeshRenderer", "struct_andromeda_1_1_e_c_s_1_1_component_1_1_mesh_renderer.html", null ],
     [ "Andromeda::ModelRecord", "struct_andromeda_1_1_model_record.html", null ],
+    [ "Andromeda::NetworkInfo", "class_andromeda_1_1_network_info.html", null ],
     [ "Andromeda::Particle", "struct_andromeda_1_1_particle.html", null ],
     [ "Andromeda::ParticleEmitter", "struct_andromeda_1_1_particle_emitter.html", null ],
     [ "Andromeda::PrimitiveGenerator", "class_andromeda_1_1_primitive_generator.html", null ],
     [ "Andromeda::Material::PropertyLayout", "struct_andromeda_1_1_material_1_1_property_layout.html", null ],
+    [ "Andromeda::ProxySettings", "struct_andromeda_1_1_proxy_settings.html", null ],
     [ "Andromeda::amath::Ray", "struct_andromeda_1_1amath_1_1_ray.html", null ],
     [ "Andromeda::ReflectedUniform", "struct_andromeda_1_1_reflected_uniform.html", null ],
     [ "Andromeda::RenderPassSpecs", "struct_andromeda_1_1_render_pass_specs.html", null ],
@@ -108,5 +113,6 @@ var hierarchy =
     [ "Andromeda::Gui::ViewportDrawInfo", "struct_andromeda_1_1_gui_1_1_viewport_draw_info.html", null ],
     [ "Andromeda::WeatherData", "struct_andromeda_1_1_weather_data.html", null ],
     [ "Andromeda::WeatherService", "class_andromeda_1_1_weather_service.html", null ],
+    [ "Andromeda::WebsocketReq", "struct_andromeda_1_1_websocket_req.html", null ],
     [ "WindowContext", "struct_window_context.html", null ]
 ];
