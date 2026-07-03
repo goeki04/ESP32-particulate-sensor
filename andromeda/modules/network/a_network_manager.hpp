@@ -12,8 +12,8 @@ namespace Andromeda {
 	class NetworkManager : public ISubsystem {
 		public:
 			void start() override;
-			void update() override;
 			void destroy() override;
+			void update() override;
 			static constexpr std::string_view GetStaticName() { return "NetworkManager"; }
 			/**
 			 * @brief Gets the runtime string identifier of the subsystem.

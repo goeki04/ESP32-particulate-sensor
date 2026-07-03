@@ -20,10 +20,6 @@ namespace Andromeda {
 			ctx->run();
 			});
 	}
-	void NetworkManager::update()
-	{
-
-	}
 
 	void NetworkManager::destroy()
 	{
@@ -31,6 +27,13 @@ namespace Andromeda {
 		m_IoContext->stop();
 		if (m_NetworkThread.joinable()) {
 			m_NetworkThread.join();
+		}
+	}
+
+	void NetworkManager::update()
+	{
+		if (m_HomeAssistantService) {
+			m_HomeAssistantService->update();
 		}
 	}
 }
