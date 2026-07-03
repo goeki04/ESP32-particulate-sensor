@@ -1,17 +1,35 @@
-#pragma once 
+#pragma once
+
+/**
+ * @file a_network_info.hpp
+ * @brief Helpers for reading the HTTP proxy configuration from the environment.
+ */
+
 #include "a_Primitives.hpp"
 #include <string>
 #include <cstdlib>
 #include <optional>
 #include "a_logger.hpp"
 namespace Andromeda {
+	/**
+	 * @struct ProxySettings
+	 * @brief Host and port of an HTTP proxy server.
+	 */
 	struct ProxySettings {
-		std::string host;
-		i32 port;
+		std::string host;	///< Hostname or IP address of the proxy.
+		i32 port;			///< Port the proxy listens on.
 	};
 
+	/**
+	 * @class NetworkInfo
+	 * @brief Static helpers for querying the system's proxy configuration.
+	 */
 	class NetworkInfo {
 	public:
+		/**
+		 * @brief Parses the HTTPS_PROXY/HTTP_PROXY environment variables.
+		 * @return The proxy settings, or an empty optional if none are configured.
+		 */
         static std::optional<ProxySettings> getProxySettings() {
             const char* proxyEnv = std::getenv("HTTPS_PROXY");
             if (!proxyEnv || proxyEnv[0] == '\0') {
@@ -54,6 +72,11 @@ namespace Andromeda {
             }
         }
 
+		/**
+		 * @brief Checks whether the given proxy settings are usable.
+		 * @param proxySettings Settings previously returned by getProxySettings().
+		 * @return True if a valid proxy is configured.
+		 */
         static bool hasProxysettings(const std::optional<ProxySettings> &proxySettings) {
             if (proxySettings.has_value()) {
                 if (proxySettings->host != "" && proxySettings->port > 0) {
