@@ -143,6 +143,7 @@ set(ANDROMEDA_TEST_SOURCES
     "tests/test_math.cpp"
     "tests/test_resource.cpp"
     "tests/test_rhi.cpp"
+    "tests/test_boost_websocket_client.cpp"
 )
 
 add_executable(AndromedaTests ${ANDROMEDA_TEST_SOURCES})
@@ -159,6 +160,7 @@ target_include_directories(AndromedaTests PRIVATE
 target_link_libraries(AndromedaTests PRIVATE
     GTest::gtest_main
     definitions
+    network
 )
 
 gtest_discover_tests(AndromedaTests)
