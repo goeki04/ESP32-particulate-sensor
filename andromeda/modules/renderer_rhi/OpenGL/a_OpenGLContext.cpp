@@ -8,8 +8,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "a_opengl_constant_buffer.hpp"
-#include "OpenGL/a_opengl_framebuffer.hpp"
+#include "a_rhi_constant_buffer.hpp"
+#include "a_rhi_framebuffer.hpp"
 #include "a_cubemapData.hpp"
 #include "a_samplerState.hpp"
 #include "a_opengl_texture.hpp"
@@ -280,15 +280,14 @@ namespace Andromeda {
         glBindVertexArray(0);
     }
 
-    void OpenGLContext::bindFramebuffer(std::shared_ptr<IFramebuffer> framebuffer)
+    void OpenGLContext::bindFramebuffer(std::shared_ptr<RHIFramebuffer> framebuffer)
     {
         if (!framebuffer) {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             return;
         }
 
-        auto glFbo = std::static_pointer_cast<GLFramebuffer>(framebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, glFbo->getFramebufferID());
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->getFramebufferID());
 
         const auto& specs = framebuffer->getSpecification();
         glViewport(0, 0, static_cast<GLsizei>(specs.width), static_cast<GLsizei>(specs.height));
@@ -299,9 +298,9 @@ namespace Andromeda {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    std::shared_ptr<IFramebuffer> OpenGLContext::createFramebuffer(const FramebufferSpecification& specs)
+    std::shared_ptr<RHIFramebuffer> OpenGLContext::createFramebuffer(const FramebufferSpecification& specs)
     {
-        return std::make_shared<GLFramebuffer>(specs);
+        return std::make_shared<RHIFramebuffer>(specs);
     }
 
     void OpenGLContext::deleteVertexArrays(u32 vao)
@@ -328,11 +327,10 @@ namespace Andromeda {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, cubemapTexID, 0);
     }
 
-    void OpenGLContext::blitFramebuffer(std::shared_ptr<IFramebuffer> source, std::shared_ptr<IFramebuffer> target, bool copyDepth)
+    void OpenGLContext::blitFramebuffer(std::shared_ptr<RHIFramebuffer> source, std::shared_ptr<RHIFramebuffer> target, bool copyDepth)
     {
         assert(source && "RHI Error: Source Framebuffer for blit is null!");
 
-        auto glSource = std::static_pointer_cast<GLFramebuffer>(source);
         const auto& srcSpecs = source->getSpecification();
 
         u32 targetID = 0;
@@ -340,14 +338,13 @@ namespace Andromeda {
         u32 targetHeight = srcSpecs.height;
 
         if (target) {
-            auto glTarget = std::static_pointer_cast<GLFramebuffer>(target);
-            targetID = glTarget->getFramebufferID();
+            targetID = target->getFramebufferID();
             const auto& dstSpecs = target->getSpecification();
             targetWidth = dstSpecs.width;
             targetHeight = dstSpecs.height;
         }
 
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, glSource->getFramebufferID());
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, source->getFramebufferID());
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetID);
 
         GLbitfield mask = GL_COLOR_BUFFER_BIT;
@@ -406,9 +403,9 @@ namespace Andromeda {
         glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     }
 
-    std::shared_ptr<IConstantBuffer> OpenGLContext::createConstantBuffer(u32 size)
+    std::shared_ptr<RHIConstantBuffer> OpenGLContext::createConstantBuffer(u32 size)
     {
-        auto buffer = std::make_shared<GLConstantBuffer>();
+        auto buffer = std::make_shared<RHIConstantBuffer>();
         buffer->initialize(size);
         return buffer;
     }

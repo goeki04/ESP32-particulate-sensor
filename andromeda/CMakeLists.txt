@@ -18,6 +18,17 @@ else()
     add_compile_definitions(ANDROMEDA_ARCH="x86")
 endif()
 
+# Graphics backend implementing the renderer_rhi module (modules/renderer_rhi/CMakeLists.txt
+# picks the matching *.cpp sources and dependencies for this). Only OpenGL has an actual
+# implementation right now; Vulkan/DirectX are reserved names for future backends.
+# Set via: cmake -DANDROMEDA_GRAPHICS_API=OpenGL ..
+set(ANDROMEDA_GRAPHICS_API "OpenGL" CACHE STRING "Graphics backend used by modules/renderer_rhi (OpenGL, Vulkan, DirectX)")
+set_property(CACHE ANDROMEDA_GRAPHICS_API PROPERTY STRINGS OpenGL Vulkan DirectX)
+
+# NOTE: the `renderer` and `gui` modules still talk to OpenGL directly in places (raw gl*
+# calls, OpenGLContext hardcoded in Renderer::initRenderer). This switch only governs which
+# backend modules/renderer_rhi is built with; it does not yet make the rest of the engine
+# backend-agnostic.
 find_package(SDL3 REQUIRED)
 find_package(protobuf REQUIRED)
 find_package(glew REQUIRED)

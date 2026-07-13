@@ -8,13 +8,13 @@
 #include "a_graphics_base.hpp"
 #include "a_ISubsystem.hpp"
 #include "a_components.hpp"
-#include "OpenGL/a_opengl_framebuffer.hpp"
+#include "a_rhi_framebuffer.hpp"
 #include "a_primitives.hpp"
 #include "OpenGL/a_opengl_handles.hpp"
 #include "a_IGraphicsContext.hpp"
 #include "OpenGL/a_OpenGLContext.hpp"
 #include <a_CubemapData.hpp>
-#include "OpenGL/a_opengl_constant_buffer.hpp"
+#include "a_rhi_constant_buffer.hpp"
 #include "a_rhi_storage_buffer.hpp"
 #include "a_texture.hpp"
 namespace Andromeda {
@@ -95,7 +95,7 @@ namespace Andromeda {
 		 * @param samples MSAA sample count (1 = no multisampling).
 		 * @return A shared pointer to the created framebuffer.
 		 */
-		std::shared_ptr<IFramebuffer> helperCreateFBO(ivec2 size, std::vector<FramebufferTextureFormat> formats, u32 samples);
+		std::shared_ptr<RHIFramebuffer> helperCreateFBO(ivec2 size, std::vector<FramebufferTextureFormat> formats, u32 samples);
 
 		/** @brief Releases all GPU resources (framebuffers, context, materials). */
 		void destroy() override;
@@ -172,21 +172,21 @@ namespace Andromeda {
 		CubemapData m_IrradianceCubemap;  ///< Baked diffuse irradiance map for IBL.
 		CubemapData m_PrefilterMap;       ///< Baked prefiltered specular environment map (mip chain) for IBL.
 		Texture m_BrdfLUTTexture;         ///< Baked BRDF integration lookup texture for IBL.
-		std::shared_ptr<IFramebuffer> m_MsaaBuffer;        ///< Multisampled framebuffer the scene is rendered into.
-		std::shared_ptr<IFramebuffer> m_SceneBuffer;       ///< Resolved (single-sample) scene color buffer.
-		std::shared_ptr<IFramebuffer> m_SelectionBuffer;   ///< Buffer holding the selected-entity mask for outlines.
-		std::shared_ptr<IFramebuffer> m_PostprocessBuffer; ///< Target for the post-processing pass.
-		std::shared_ptr<IFramebuffer> m_BakingBuffer;      ///< Offscreen buffer used during IBL baking.
+		std::shared_ptr<RHIFramebuffer> m_MsaaBuffer;        ///< Multisampled framebuffer the scene is rendered into.
+		std::shared_ptr<RHIFramebuffer> m_SceneBuffer;       ///< Resolved (single-sample) scene color buffer.
+		std::shared_ptr<RHIFramebuffer> m_SelectionBuffer;   ///< Buffer holding the selected-entity mask for outlines.
+		std::shared_ptr<RHIFramebuffer> m_PostprocessBuffer; ///< Target for the post-processing pass.
+		std::shared_ptr<RHIFramebuffer> m_BakingBuffer;      ///< Offscreen buffer used during IBL baking.
 
-		GLConstantBuffer m_CameraUBO;      ///< UBO holding camera matrices (view/projection).
-		GLConstantBuffer m_ObjectUBO;      ///< UBO holding per-object data (model matrix, etc.).
-		GLConstantBuffer m_ColorUBO;       ///< UBO holding color parameters.
-		GLConstantBuffer m_GridUBO;        ///< UBO holding ground-grid transform data.
-		GLConstantBuffer m_GridParamsUBO;  ///< UBO holding ground-grid appearance parameters.
-		GLConstantBuffer m_OutlineUBO;     ///< UBO holding selection-outline parameters.
-		GLConstantBuffer m_LightUBO;       ///< UBO holding scene light data.
-		GLConstantBuffer m_pbrMaterialUBO; ///< UBO holding PBR material parameters.
-		std::unique_ptr<IConstantBuffer> m_ParticleSystem; ///< UBO holding particle system data.
+		RHIConstantBuffer m_CameraUBO;      ///< UBO holding camera matrices (view/projection).
+		RHIConstantBuffer m_ObjectUBO;      ///< UBO holding per-object data (model matrix, etc.).
+		RHIConstantBuffer m_ColorUBO;       ///< UBO holding color parameters.
+		RHIConstantBuffer m_GridUBO;        ///< UBO holding ground-grid transform data.
+		RHIConstantBuffer m_GridParamsUBO;  ///< UBO holding ground-grid appearance parameters.
+		RHIConstantBuffer m_OutlineUBO;     ///< UBO holding selection-outline parameters.
+		RHIConstantBuffer m_LightUBO;       ///< UBO holding scene light data.
+		RHIConstantBuffer m_pbrMaterialUBO; ///< UBO holding PBR material parameters.
+		std::unique_ptr<RHIConstantBuffer> m_ParticleSystem; ///< UBO holding particle system data.
 		/** @brief Internal one-time setup of the render context and global GL state. */
 		void initRenderer();
         /** @brief Bakes the prefiltered specular environment map (IBL precomputation). */

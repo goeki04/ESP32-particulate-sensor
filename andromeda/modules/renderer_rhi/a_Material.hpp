@@ -40,7 +40,7 @@ namespace Andromeda {
 
         /** @brief The API-agnostic handle of the assigned shader program. */
         ShaderProgramHandle m_ShaderHandle{};
-        std::shared_ptr<IConstantBuffer> m_MaterialUBO; ///< Optional uniform buffer holding the material's UBO struct on the GPU.
+        std::shared_ptr<RHIConstantBuffer> m_MaterialUBO; ///< Optional uniform buffer holding the material's UBO struct on the GPU.
         u32 m_UboBindingSlot = 0;                       ///< Binding point the material UBO is bound to.
         /**
          * @brief Constructs a new Material and reflects the active shader uniforms from the GPU.

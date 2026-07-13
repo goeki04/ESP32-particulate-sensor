@@ -102,7 +102,7 @@ namespace Andromeda {
          * @brief Binds a framebuffer for rendering.
          * @param framebuffer A shared pointer to the framebuffer object.
          */
-        void bindFramebuffer(std::shared_ptr<IFramebuffer> framebuffer) override;
+        void bindFramebuffer(std::shared_ptr<RHIFramebuffer> framebuffer) override;
 
         /**
          * @brief Unbinds the currently bound framebuffer, reverting to the default framebuffer.
@@ -115,7 +115,7 @@ namespace Andromeda {
          * @param target The target framebuffer (pass nullptr to target the default framebuffer).
          * @param copyDepth Whether to include the depth buffer in the blit operation.
          */
-        void blitFramebuffer(std::shared_ptr<IFramebuffer> source, std::shared_ptr<IFramebuffer> target, bool copyDepth = false) override;
+        void blitFramebuffer(std::shared_ptr<RHIFramebuffer> source, std::shared_ptr<RHIFramebuffer> target, bool copyDepth = false) override;
 
         /**
          * @brief Generates an empty Vertex Array Object (VAO).
@@ -144,9 +144,9 @@ namespace Andromeda {
         /**
          * @brief Creates a constant buffer for uniform data.
          * @param size Size in bytes.
-         * @return A shared pointer to the created IConstantBuffer.
+         * @return A shared pointer to the created RHIConstantBuffer.
          */
-        std::shared_ptr<IConstantBuffer> createConstantBuffer(u32 size) override;
+        std::shared_ptr<RHIConstantBuffer> createConstantBuffer(u32 size) override;
 
         /**
          * @brief Sets the active viewport dimensions.
@@ -160,9 +160,9 @@ namespace Andromeda {
         /**
          * @brief Creates a framebuffer object based on the provided specifications.
          * @param specs The framebuffer requirements.
-         * @return A shared pointer to the IFramebuffer object.
+         * @return A shared pointer to the RHIFramebuffer object.
          */
-        std::shared_ptr<IFramebuffer> createFramebuffer(const FramebufferSpecification& specs) override;
+        std::shared_ptr<RHIFramebuffer> createFramebuffer(const FramebufferSpecification& specs) override;
 
         /**
          * @brief Deletes a vertex array object from the GPU.

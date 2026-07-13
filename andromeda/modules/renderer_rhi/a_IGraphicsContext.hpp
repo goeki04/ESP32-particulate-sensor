@@ -95,7 +95,7 @@ namespace Andromeda {
 		virtual void submitUniforms(std::span<const UniformData> uniforms) = 0;
 
 		/** @brief Binds a framebuffer as the active render target. */
-		virtual void bindFramebuffer(std::shared_ptr<IFramebuffer> framebuffer) = 0;
+		virtual void bindFramebuffer(std::shared_ptr<RHIFramebuffer> framebuffer) = 0;
 
 		/** @brief Unbinds the current framebuffer, restoring the default (window) target. */
 		virtual void unbindFramebuffer() = 0;
@@ -106,10 +106,10 @@ namespace Andromeda {
 		 * @param target Destination framebuffer (nullptr targets the default framebuffer).
 		 * @param copyDepth Whether to also blit the depth buffer.
 		 */
-		virtual void blitFramebuffer(std::shared_ptr<IFramebuffer> source, std::shared_ptr<IFramebuffer> target, bool copyDepth = false) = 0;
+		virtual void blitFramebuffer(std::shared_ptr<RHIFramebuffer> source, std::shared_ptr<RHIFramebuffer> target, bool copyDepth = false) = 0;
 
 		/** @brief Creates a framebuffer matching the given specification. */
-		virtual std::shared_ptr<IFramebuffer> createFramebuffer(const FramebufferSpecification& specs) = 0;
+		virtual std::shared_ptr<RHIFramebuffer> createFramebuffer(const FramebufferSpecification& specs) = 0;
 
 		/** @brief Creates an empty vertex array object (e.g. for attribute-less / SSBO-driven draws). */
 		virtual u32 createEmptyVAO() = 0;
@@ -140,7 +140,7 @@ namespace Andromeda {
 		 * @param size Buffer size in bytes.
 		 * @return A shared pointer to the created buffer.
 		 */
-		virtual std::shared_ptr<IConstantBuffer> createConstantBuffer(u32 size) = 0;
+		virtual std::shared_ptr<RHIConstantBuffer> createConstantBuffer(u32 size) = 0;
 
 		/** @brief Binds a 2D texture to a shader sampler slot. */
 		virtual void bindShaderTexture(u32 slot, const Texture& tex) = 0;

@@ -92,8 +92,6 @@ namespace Andromeda {
         prefilterSampler.magFilter = FilterModeMag::Linear;
         CubemapGL::AllocateCubemapTextureWithMipmap(m_RenderContext, &m_PrefilterMap, prefilterSampler);
 
-        auto bakingFBO = std::static_pointer_cast<GLFramebuffer>(m_BakingBuffer);
-
         ShaderProgramHandle irradianceShaderHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "Irradiance_Shader", SHADER_PATH "equirect.vert", SHADER_PATH "irradiance.frag");
         m_RenderContext->bindShaderProgram(irradianceShaderHandle);
         m_RenderContext->bindTextureCube(0,m_EnvironmentCubemap);
@@ -204,13 +202,12 @@ namespace Andromeda {
         PrimitiveGenerator::generateCube(cubeMesh);
 
         createMesh(cubemapgpuHandle, cubeMesh);
-        auto glBakingFBO = std::static_pointer_cast<GLFramebuffer>(m_BakingBuffer);
 
         ShaderProgramHandle equirectangularHandle = m_ResourceManager->loadShaderRHI(m_RenderContext, "equirectangular_Shader", SHADER_PATH "equirect.vert", SHADER_PATH "equirect.frag");
         CubemapGL::ConvertEquiretangularToCubemap(
             m_RenderContext, equirectangularHandle,
             hdrMapID,
-            glBakingFBO,
+            m_BakingBuffer,
             m_EnvironmentCubemap.textureID,
             [&]() {
                 m_RenderContext->drawIndexed(cubemapgpuHandle.vao, 36);
@@ -230,7 +227,7 @@ namespace Andromeda {
         registerEvents();
     }
 
-    std::shared_ptr<IFramebuffer> Renderer::helperCreateFBO(ivec2 size, std::vector<FramebufferTextureFormat> formats, u32 samples) {
+    std::shared_ptr<RHIFramebuffer> Renderer::helperCreateFBO(ivec2 size, std::vector<FramebufferTextureFormat> formats, u32 samples) {
         FramebufferSpecification specs;
         specs.width = size.x;
         specs.height = size.y;
@@ -325,7 +322,7 @@ namespace Andromeda {
         camData.viewMatrix = m_Cam->viewMatrix;
         camData.projMatrix = m_Cam->projection;
         camData.camPos = m_Cam->cameraPos;
-        auto& mutableCamUBO = const_cast<GLConstantBuffer&>(m_CameraUBO);
+        auto& mutableCamUBO = const_cast<RHIConstantBuffer&>(m_CameraUBO);
         mutableCamUBO.setData(&camData, sizeof(Generated::CameraBuffer));
         mutableCamUBO.bind(0);
 
@@ -341,7 +338,7 @@ namespace Andromeda {
         lightData.lightColors[2] = vec4(300.0f, 300.0f, 300.0f, 1.0f);
         lightData.lightColors[3] = vec4(300.0f, 300.0f, 300.0f, 1.0f);
 
-        auto& mutableLightUBO = const_cast<GLConstantBuffer&>(m_LightUBO);
+        auto& mutableLightUBO = const_cast<RHIConstantBuffer&>(m_LightUBO);
         mutableLightUBO.setData(&lightData, sizeof(Generated::lights));
         mutableLightUBO.bind(3);
     }
@@ -365,7 +362,7 @@ namespace Andromeda {
         const auto& entitiesWithMesh = meshPool.getEntities();
         const auto& meshData = meshPool.data();
 
-        auto& mutableObjectUBO = const_cast<GLConstantBuffer&>(m_ObjectUBO);
+        auto& mutableObjectUBO = const_cast<RHIConstantBuffer&>(m_ObjectUBO);
 
         for (size_t i = 0; i < entitiesWithMesh.size(); ++i) {
             Entity e = entitiesWithMesh[i];
@@ -444,7 +441,7 @@ namespace Andromeda {
 
                 Generated::ObjectBuffer objData;
                 objData.model = transform.modelMatrix();
-                auto& mutableObjectUBO = const_cast<GLConstantBuffer&>(m_ObjectUBO);
+                auto& mutableObjectUBO = const_cast<RHIConstantBuffer&>(m_ObjectUBO);
                 mutableObjectUBO.setData(&objData, sizeof(Generated::ObjectBuffer));
                 mutableObjectUBO.bind(1);
 
@@ -473,7 +470,7 @@ namespace Andromeda {
             Generated::OutlineParamsBuffer outlineData;
             outlineData.texelSize = m_TexelSize;
 
-            auto& mutableOutlineUBO = const_cast<GLConstantBuffer&>(m_OutlineUBO);
+            auto& mutableOutlineUBO = const_cast<RHIConstantBuffer&>(m_OutlineUBO);
             mutableOutlineUBO.setData(&outlineData, sizeof(Generated::OutlineParamsBuffer));
             mutableOutlineUBO.bind(0);
 
@@ -539,4 +536,4 @@ namespace Andromeda {
             m_ResizePending = false;
         }
     }
-}
+}                                                                                                                      

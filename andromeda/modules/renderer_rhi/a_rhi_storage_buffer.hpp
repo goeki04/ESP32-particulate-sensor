@@ -14,10 +14,11 @@ namespace Andromeda {
 	 * @concept IsStorageBuffer
 	 * @brief Constrains a type to the storage-buffer interface required by the engine.
 	 *
-	 * @details Unlike @c IConstantBuffer (runtime polymorphism), storage buffers are used via
-	 *          static polymorphism: any backend type that provides @c create / @c bind / @c unbind /
-	 *          @c setData / @c getSize satisfies this concept and can be used directly (e.g.
-	 *          @c GLStorageBuffer). This keeps the hot path free of virtual calls.
+	 * @details Storage buffers are used via static polymorphism: any backend type that provides
+	 *          @c create / @c bind / @c unbind / @c setData / @c getSize satisfies this concept
+	 *          and can be used directly (e.g. @c GLStorageBuffer). This keeps the hot path free
+	 *          of virtual calls - the same goal @c RHIConstantBuffer and @c RHIFramebuffer pursue
+	 *          via the Pimpl idiom instead (see a_rhi_constant_buffer.hpp / a_rhi_framebuffer.hpp).
 	 *
 	 * @tparam T The candidate storage-buffer type.
 	 */
