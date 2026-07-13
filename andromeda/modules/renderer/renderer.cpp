@@ -12,6 +12,7 @@
 #include "a_clearFlags.hpp"
 #include "a_logger.hpp"
 #include "a_rhi_storage_buffer.hpp"
+#include "OpenGL/a_opengl_storage_buffer.hpp"
 using namespace Andromeda::ECS;
 namespace Andromeda {
 

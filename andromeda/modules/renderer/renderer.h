@@ -15,6 +15,7 @@
 #include "OpenGL/a_OpenGLContext.hpp"
 #include <a_CubemapData.hpp>
 #include "OpenGL/a_opengl_constant_buffer.hpp"
+#include "a_rhi_storage_buffer.hpp"
 #include "a_texture.hpp"
 namespace Andromeda {
 	namespace amath {
@@ -185,7 +186,7 @@ namespace Andromeda {
 		GLConstantBuffer m_OutlineUBO;     ///< UBO holding selection-outline parameters.
 		GLConstantBuffer m_LightUBO;       ///< UBO holding scene light data.
 		GLConstantBuffer m_pbrMaterialUBO; ///< UBO holding PBR material parameters.
-
+		std::unique_ptr<IConstantBuffer> m_ParticleSystem; ///< UBO holding particle system data.
 		/** @brief Internal one-time setup of the render context and global GL state. */
 		void initRenderer();
         /** @brief Bakes the prefiltered specular environment map (IBL precomputation). */

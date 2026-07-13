@@ -1,31 +1,31 @@
 #version 460 core
 
-layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
-struct Particle{
-    vec4 position;
-    vec4 velocity;
-}
 
-layout(std430, binding = 0) buffer ParticleBuffer{
+struct Particle {
+    vec4 position; //xyz = Position, w = Lifetime
+    vec4 velocity; //xyz = Velocity, w = Mass
+};
+
+layout (std430, binding = 0) buffer positionBuffer {
     Particle particles[];
 };
 
-uniform float u_DeltaTime;
-uniform vec3 u_EmitterPosition;
-uniform uint u_EmitMaxCount;
-
-float hash11(uint x) {
-    x = ((x >> 16) ^ x) * 0x45d9f3bu;
-    x = ((x >> 16) ^ x) * 0x45d9f3bu;
-    x = (x >> 16) ^ x;
-    return float(x) / 4294967295.0;
-}
+uniform float deltaTime;
+uniform uint numParticles;
 
 void main(){
-    uint id = gl_GlobalInvocationID.x;
-
-    if(id >= particles.length()){
+    uint index = gl_GlobalInvocationID.x;
+    if(index >= numParticles){
         return;
     }
+
+    vec3 pos = particles[index].position.xyz;
+    vec3 vel = particles[index].velocity.xyz;
+    float mass = particles[index].velocity.w;
+    float life = particles[index].position.w;
+
+    pos.y += 0.1f;
+    particles[index].position = vec4(pos, life);
 }

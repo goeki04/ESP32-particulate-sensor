@@ -1,14 +1,22 @@
 #include "a_opengl_storage_buffer.hpp"
 #include "a_Primitives.hpp"
-
+#include "a_logger.hpp"
 namespace Andromeda {
 	void GLStorageBuffer::bind(u32 bindingPoint)
 	{
+		if (m_BufferID == 0) {
+			A_WARN("Attempted to bind an uninitialized GLStorageBuffer");
+			return;
+		}
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bindingPoint, m_BufferID);
 	}
 
 	void GLStorageBuffer::setData(const void* data, u32 size, u32 offset)
 	{
+		if (m_BufferID == 0) {
+			A_WARN("Attempted to set data on an uninitialized GLStorageBuffer");
+			return;
+		}
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BufferID);
 		glBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, size, data);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
