@@ -3,7 +3,7 @@ find_package(glew REQUIRED)
 find_package(SDL3 REQUIRED)
 find_package(imgui REQUIRED)
 add_library(renderer STATIC
-    a_particle.hpp
+    a_particle.cpp
     renderer.cpp
 )
 

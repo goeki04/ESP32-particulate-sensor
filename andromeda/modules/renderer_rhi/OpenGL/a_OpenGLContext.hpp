@@ -4,6 +4,7 @@
 #include "a_clearFlags.hpp"
 #include "a_rhi_constant_buffer.hpp"
 #include "a_texture.hpp"
+#include "GL/Glew.h"
 namespace Andromeda {
     class SamplerState;
     struct CubemapData;
@@ -25,6 +26,12 @@ namespace Andromeda {
          * @return A ShaderProgramHandle identifying the created program.
          */
         ShaderProgramHandle createShaderProgram(const std::string& vertSrc, const std::string& fragSrc) override;
+
+        /**
+         * @brief Compiles and links a standalone compute shader program.
+         * @param computeSrc Path to the compute shader source file.
+         * @return A ShaderProgramHandle identifying the created compute program.
+         */
         ShaderProgramHandle createComputeProgram(const std::string& computeSrc) override;
         /**
          * @brief Compiles vertex and fragment shaders and links them into a program.
@@ -40,6 +47,7 @@ namespace Andromeda {
          */
         void destroyShaderProgram(ShaderProgramHandle handle) override;
 
+        /** @brief Unbinds the currently bound 2D texture (binds texture id 0 to GL_TEXTURE_2D). */
         void unbindTexture() override;
 
         /**
@@ -49,8 +57,20 @@ namespace Andromeda {
          */
         std::string readShaderSource(const char* shaderPath);
 
+        /**
+         * @brief Reads, compiles and links a compute shader source file into a standalone OpenGL program.
+         * @param computeSrc Path to the compute shader source file.
+         * @return The OpenGL program ID (apiID).
+         */
         u32 compileOpenGLComputeShader(const std::string& computeSrc);
 
+        /**
+         * @brief Dispatches a compute shader with the specified group counts, also sets the memory barrier.
+         * @param handle The handle of the compute shader program.
+         * @param groupCountX Number of work groups to dispatch in the X dimension.
+         * @param groupCountY Number of work groups to dispatch in the Y dimension.
+         * @param groupCountZ Number of work groups to dispatch in the Z dimension.
+         */
         void dispatchCompute(ShaderProgramHandle handle, u32 groupCountX, u32 groupCountY, u32 groupCountZ) override;
 
         /**
@@ -185,6 +205,7 @@ namespace Andromeda {
          */
         void bindShaderTexture(u32 slot, const Texture& tex) override;
 
+        /** @brief Binds a texture as the active GL_TEXTURE_2D target (e.g. before setting parameters or as a framebuffer attachment target). */
         void bindToTarget(const Texture& tex) override;
 
         /**
@@ -225,8 +246,13 @@ namespace Andromeda {
          */
         void framebufferTexture2D(u32 faceIndex,const CubemapData& tex, u32 mip) override;
 
+        /**
+         * @brief Attaches a 2D texture's mip level to the currently bound framebuffer's color attachment 0.
+         * @param tex The 2D texture to attach.
+         * @param mip The mip level to attach.
+         */
         void framebufferTexture2D(const Texture& tex, u32 mip);
-               
+
          /**
          * @brief Allocates the physical memory (VRAM) on the GPU for a texture.
          *
@@ -270,9 +296,24 @@ namespace Andromeda {
          * knows which target (e.g., GL_TEXTURE_2D) to calculate the mipmaps for.
          */
         void generateMipmap(TextureType type) override;
-        
+
+        /**
+         * @brief Maps a backend-agnostic @c DrawMode to its OpenGL primitive-type enum.
+         * @param mode The primitive topology to translate.
+         * @return The corresponding GL_POINTS/GL_LINES/GL_TRIANGLES constant (falls back to GL_TRIANGLES for unknown values).
+         */
+        inline GLenum translateDrawModeToOpenGL(DrawMode mode);
+
+        /**
+         * @brief Issues a non-indexed, instanced draw call.
+         * @param mode Primitive topology to draw.
+         * @param vertexCount Number of vertices per instance.
+         * @param instanceCount Number of instances to draw.
+         * @param firstVertex Index of the first vertex to start drawing from.
+         */
+		void drawInstanced(DrawMode mode, u32 vertexCount, u32 instanceCount, u32 firstVertex) override;
     private:
-        RenderPassSpecs m_CurrentSpecs;
-        bool m_IsFirstContextInit = true;
+        RenderPassSpecs m_CurrentSpecs; ///< Pipeline state (culling, depth test, blend, rasterizer mode) applied by the last setRenderPassSpecs() call.
+        bool m_IsFirstContextInit = true; ///< Guards one-time global GL state setup in initRenderContext().
     };
 }

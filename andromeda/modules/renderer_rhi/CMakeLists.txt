@@ -46,10 +46,11 @@ add_library(renderer_rhi STATIC
 
 include(${CMAKE_SOURCE_DIR}/cmake/CompileShaders.cmake)
 
-file(GLOB_RECURSE RHI_GLSL_SHADERS 
-     CONFIGURE_DEPENDS 
+file(GLOB_RECURSE RHI_GLSL_SHADERS
+     CONFIGURE_DEPENDS
      "${CMAKE_SOURCE_DIR}/modules/shader/*.vert"
      "${CMAKE_SOURCE_DIR}/modules/shader/*.frag"
+     "${CMAKE_SOURCE_DIR}/modules/shader/*.comp"
 )
 
 compile_shaders(

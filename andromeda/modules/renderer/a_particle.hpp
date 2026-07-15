@@ -7,19 +7,36 @@
 
 #include "a_Primitives.hpp"
 #include "a_rhi_types.hpp"
+#include <variant>
+#include "a_rhi_storage_buffer.hpp"
+#include "a_IGraphicsContext.hpp"
+#include "a_shader_generated_compute.hpp"
+#include "a_math.hpp"
 namespace Andromeda {
 
-	/**
-	 * @struct Particle
-	 * @brief State of a single particle as stored in the GPU shader-storage buffer.
-	 *
-	 * @details Updated by the compute shader each frame. @c alignas(16) keeps the layout
-	 *          compatible with the std430 buffer alignment rules expected on the GPU side,
-	 *          avoiding a CPU/GPU struct-size mismatch.
-	 */
-	struct alignas(16) Particle {
-		vec3 position; ///< World-space position of the particle.
-		vec3 velocity; ///< Current velocity, integrated against external forces (e.g. wind) on the GPU.
+	struct SphereShape {
+		float radius = 1.0f; ///< Radius of the sphere shape.
+	};
+
+	struct HemisphereShape {
+		float radius = 1.0f; ///< Radius of the hemisphere shape.
+	};
+
+	struct ConeShape {
+		float radius = 1.0f; ///< Radius of the base of the cone.
+		float height = 2.0f; ///< Height of the cone.
+		float angle = 25.0f; ///< Angle of the cone in degrees.
+	};
+
+	struct BoxShape {
+		vec3 dimensions = vec3(1.0f); ///< Dimensions of the box shape along each axis.
+	};
+
+	enum class ParticleEmitterShape {
+		Sphere, ///< Emit particles from a sphere surface.
+		Cone,   ///< Emit particles from a cone surface.
+		Cube,   ///< Emit particles from a cube volume.
+		Hemisphere ///< Emit particles from a hemisphere surface.
 	};
 
 	/**
@@ -32,25 +49,28 @@ namespace Andromeda {
 	 */
 	struct ParticleEmitter {
 	public:
-		vec3 position;      ///< Spawn origin of newly emitted particles, in world space.
-		u32 emissionRate;   ///< Number of particles emitted per second.
-		u32 maxParticles;   ///< Capacity of the particle pool / storage buffer.
-		float lifetime;     ///< Lifespan of each particle, in seconds.
-
+		std::variant<SphereShape, HemisphereShape, ConeShape, BoxShape> shape; ///< Shape of the emitter.
 		/** @brief Allocates the GPU storage buffer and loads/links the compute and render shaders. */
-		void initialize();
+		void initialize(IGraphicsContext& context, ShaderProgramHandle computeShader, ShaderProgramHandle renderShader, amath::CameraData& data);
 
 		/**
 		 * @brief Advances the simulation by dispatching the compute shader for this frame.
 		 * @param deltaTime Elapsed time since the last update, in seconds.
 		 */
-		void update(float deltaTime);
+		void update();
 
 		/** @brief Issues the draw call that renders the current particle state. */
 		void render();
 	private:
+		bool m_IsInitialized = false; ///< Tracks whether the emitter has been initialized.
 		ShaderProgramHandle m_ComputeShader; ///< Compute shader that updates particle positions/velocities.
 		ShaderProgramHandle m_RenderShader;  ///< Shader program used to render the particles.
+		RHIStorageBuffer m_ParticleBuffer; ///< GPU storage buffer that holds the particle pool.
+		RHIConstantBuffer m_EmitterSettingsBuffer; ///< Constant buffer that holds the emitter settings.
+		RHIConstantBuffer m_CameraDataBuffer; ///< Constant buffer that holds the camera data.
+		amath::CameraData* m_SceneCamera; ///< Pointer to the camera data used for rendering.
+		Generated::Compute::EmitterSettings m_EmitterSettings; ///< CPU-side mirror of the `EmitterSettings` UBO; edited here and re-uploaded to @c m_EmitterSettingsBuffer every update().
+		IGraphicsContext* m_Context = nullptr; ///< Pointer to the graphics context for rendering.
 	};
 
 }

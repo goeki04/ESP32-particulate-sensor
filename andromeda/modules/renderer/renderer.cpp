@@ -12,7 +12,8 @@
 #include "a_clearFlags.hpp"
 #include "a_logger.hpp"
 #include "a_rhi_storage_buffer.hpp"
-#include "OpenGL/a_opengl_storage_buffer.hpp"
+
+
 using namespace Andromeda::ECS;
 namespace Andromeda {
 
@@ -114,8 +115,14 @@ namespace Andromeda {
     /// <summary>
     /// TODO: remove this api specific function and add uvs to the mesh class
     /// </summary>
-    unsigned int quadVAO = 0;
-    unsigned int quadVBO;
+    unsigned int quadVAO = 0; ///< VAO of the screen-space quad used for full-screen passes (e.g. BRDF LUT baking); lazily created on first renderQuad() call.
+    unsigned int quadVBO; ///< VBO backing quadVAO's position + UV vertex attributes.
+
+    /**
+     * @brief Draws a full-screen quad (position + UV) with a triangle strip, lazily creating its VAO/VBO on first call.
+     * @details Used by passes that need to run a shader over every pixel of the current render
+     *          target without real scene geometry (e.g. the BRDF LUT integration pass in @c brdfLUTBaking()).
+     */
     void renderQuad()
     {
         if (quadVAO == 0)
@@ -536,4 +543,4 @@ namespace Andromeda {
             m_ResizePending = false;
         }
     }
-}                                                                                                                      
+}

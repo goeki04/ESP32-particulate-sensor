@@ -34,6 +34,7 @@ namespace Andromeda {
 	RHIConstantBuffer::RHIConstantBuffer(RHIConstantBuffer&& other) noexcept = default;
 	RHIConstantBuffer& RHIConstantBuffer::operator=(RHIConstantBuffer&& other) noexcept = default;
 
+	/** @copydoc RHIConstantBuffer::initialize */
 	void RHIConstantBuffer::initialize(i32 size) {
 		if (m_Impl->m_Id == 0) {
 			glGenBuffers(1, &m_Impl->m_Id);
@@ -42,11 +43,13 @@ namespace Andromeda {
 		}
 	}
 
+	/** @copydoc RHIConstantBuffer::setData */
 	void RHIConstantBuffer::setData(const void* data, i32 size) {
 		glBindBuffer(GL_UNIFORM_BUFFER, m_Impl->m_Id);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
 	}
 
+	/** @copydoc RHIConstantBuffer::bind */
 	void RHIConstantBuffer::bind(u32 bindingPoint) {
 		glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, m_Impl->m_Id);
 	}

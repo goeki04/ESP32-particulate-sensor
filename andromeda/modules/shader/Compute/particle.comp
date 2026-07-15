@@ -1,0 +1,49 @@
+#version 460 core
+
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+struct Particle {
+    vec4 position; //xyz = Position, w = remaining lifetime in seconds
+    vec4 velocity; //xyz = Velocity, w = max lifetime in seconds
+};
+
+layout (std430, binding = 1) buffer particleBuffer {
+    Particle particles[];
+};
+
+layout(std140, binding = 2) uniform EmitterSettings {
+    float deltaTime;
+    uint maxParticles;
+    vec3 emitterPosition;
+    int padding1;
+    int padding2;
+    int padding3;
+};
+
+void main() {
+    uint index = gl_GlobalInvocationID.x;
+    if (index >= maxParticles) {
+        return;
+    }
+
+    vec3 pos = particles[index].position.xyz;
+    vec3 vel = particles[index].velocity.xyz;
+    float maxLife = particles[index].velocity.w;
+    float remainingLife = particles[index].position.w;
+
+    pos.y += 0.5 * deltaTime;
+    remainingLife -= deltaTime;
+
+    if (remainingLife <= 0.0) {
+        pos = emitterPosition; 
+
+        float finalMaxLife = (maxLife <= 0.0) ? 2.0 : maxLife;
+        remainingLife = finalMaxLife;
+
+        particles[index].velocity.w = finalMaxLife;
+        
+        particles[index].velocity.xyz = vec3(0.0, 1.0, 0.0); 
+    }
+
+    particles[index].position = vec4(pos, remainingLife);
+}

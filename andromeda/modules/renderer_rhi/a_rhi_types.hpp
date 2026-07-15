@@ -25,6 +25,14 @@ namespace Andromeda {
     };
 
     /**
+	 * @enum FillMode
+	 * @brief DrawMode is primarily used for instanced rendering to tell the GPU how to interpret the vertex data.
+     */
+	enum class DrawMode {
+		Triangles, Lines, Points
+	};
+
+    /**
      * @enum BufferUsage
      * @brief Hints how a GPU buffer's data will be accessed, mirroring OpenGL's usage tokens.
      * @details The first word describes update frequency (Stream = once and used a few times,
@@ -85,11 +93,11 @@ namespace Andromeda {
      * before issuing draw commands.
      */
     struct RenderPassSpecs {
-        RasterizerMode rasterizerMode = RasterizerMode::Fill;
-        CullMode cullMode = CullMode::Back;
-        bool depthTest = true;
-        DepthFunc depthFunction = DepthFunc::Less;
-        BlendMode blendMode = BlendMode::None;
+        RasterizerMode rasterizerMode = RasterizerMode::Fill; ///< Whether polygons are rasterized solid or as wireframe.
+        CullMode cullMode = CullMode::Back;                   ///< Which polygon winding to discard, if any.
+        bool depthTest = true;                                ///< Whether the depth test is enabled for this pass.
+        DepthFunc depthFunction = DepthFunc::Less;             ///< Comparison function used by the depth test.
+        BlendMode blendMode = BlendMode::None;                ///< Blending equation used for transparent geometry.
     };
 
     /**
@@ -97,7 +105,7 @@ namespace Andromeda {
      * @brief An opaque handle to an underlying GPU shader program.
      */
     struct ShaderProgramHandle {
-        u32 apiID = 0;
+        u32 apiID = 0; ///< Backend-specific program id (e.g. an OpenGL program object); 0 = not created.
     };
 
     /**
@@ -105,8 +113,8 @@ namespace Andromeda {
      * @brief Associates a texture with a specific GPU binding slot.
      */
     struct TextureBinding {
-        u32 apiID = 0;
-        u32 slot = 0;
+        u32 apiID = 0; ///< Backend-specific texture id.
+        u32 slot = 0;  ///< The sampler/binding slot the texture is bound to.
     };
 
     /**
@@ -114,9 +122,9 @@ namespace Andromeda {
      * @brief Metadata for a uniform variable discovered via shader reflection.
      */
     struct ReflectedUniform {
-        std::string name;
-        u32 location;
-        ShaderDataType type;
+        std::string name;    ///< The uniform's name as declared in the shader source.
+        u32 location;        ///< The GPU-assigned location of the uniform within its program.
+        ShaderDataType type; ///< The uniform's platform-agnostic data type.
     };
 
     /**
@@ -124,9 +132,9 @@ namespace Andromeda {
      * @brief Encapsulates uniform data to be uploaded to the GPU.
      */
     struct UniformData {
-        u32 location;
-        u32 size;
-        const void* dataPtr;
-        ShaderDataType type;
+        u32 location;        ///< The GPU-assigned location to upload this value to.
+        u32 size;             ///< Size of the value pointed to by @c dataPtr, in bytes.
+        const void* dataPtr; ///< Pointer to the raw bytes to upload; must stay valid for the duration of the upload call.
+        ShaderDataType type; ///< The value's platform-agnostic data type.
     };
 }

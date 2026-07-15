@@ -212,6 +212,17 @@ namespace Andromeda {
         ShaderProgramHandle loadShaderRHI(IGraphicsContext* ctx, const std::string& name, const std::string& vertPath, const std::string& fragPath);
 
         /**
+         * @brief Loads, compiles and caches a compute shader program through the RHI under a lookup name.
+         * @details Shares the same name -> handle cache as @c loadShaderRHI, so compute and
+         *          graphics programs must use distinct cache keys.
+         * @param ctx The graphics context used to create the program (backend-agnostic).
+         * @param name The key under which the resulting shader is cached and later retrieved.
+         * @param computePath Path to the compute shader source.
+         * @return A handle to the created (or already cached) compute program.
+         */
+        ShaderProgramHandle loadComputeShaderRHI(IGraphicsContext* ctx, const std::string& name, const std::string& computePath);
+
+        /**
          * @brief Retrieves a previously loaded shader program by name.
          * @param name The cache key the shader was registered under.
          * @return The cached shader handle (a default/zero handle if not found).

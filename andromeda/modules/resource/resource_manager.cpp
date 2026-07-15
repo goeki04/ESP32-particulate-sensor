@@ -467,6 +467,17 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
         return handle;
     }
 
+    ShaderProgramHandle ResourceManager::loadComputeShaderRHI(IGraphicsContext* ctx, const std::string& name, const std::string& computePath) {
+        auto it = m_RhiShaders.find(name);
+        if (it != m_RhiShaders.end()) {
+            return it->second;
+        }
+
+        ShaderProgramHandle handle = ctx->createComputeProgram(computePath);
+        m_RhiShaders[name] = handle;
+        return handle;
+    }
+
     ShaderProgramHandle ResourceManager::getShaderRHI(const std::string& name) const {
         auto it = m_RhiShaders.find(name);
         if (it != m_RhiShaders.end()) [[likely]] {

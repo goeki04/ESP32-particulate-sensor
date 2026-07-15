@@ -196,5 +196,8 @@ namespace Andromeda {
 
 		/** @brief Sets an int uniform by name on the given shader program. */
 		virtual void setParameter(ShaderProgramHandle shader, const std::string& name, i32 value) = 0;
+
+		/** @brief Draws multiple instances of a mesh using instancing. */
+		virtual void drawInstanced(DrawMode mode, u32 vertexCount, u32 instanceCount, u32 firstVertex) = 0;
 	};
 }

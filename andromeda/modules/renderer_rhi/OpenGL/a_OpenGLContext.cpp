@@ -3,7 +3,6 @@
 #include "a_OpenGLContext.hpp"
 #include "a_OpenGLContext.hpp"
 #include "a_Primitives.hpp"
-#include "GL/Glew.h"
 #include "a_logger.hpp"
 #include <iostream>
 #include <fstream>
@@ -17,6 +16,12 @@
 namespace Andromeda {
 
     namespace {
+        /**
+         * @brief Uploads a single raw uniform value to a fixed GL location, dispatched by @c ShaderDataType.
+         * @tparam T The uniform's data type; selects which `glUniform*`/`glUniformMatrix*` call to issue.
+         * @param loc The GL uniform location to upload to.
+         * @param ptr Pointer to the raw source bytes, reinterpreted according to @p T.
+         */
         template<Andromeda::ShaderDataType T>
         inline void uploadUniform(GLint loc, const void* ptr) {
             using namespace Andromeda;
@@ -40,6 +45,13 @@ namespace Andromeda {
             }
         }
 
+        /**
+         * @brief Checks a shader's compile status or a program's link status and throws with the info log on failure.
+         * @param objectID The GL shader or program object to check.
+         * @param stage Human-readable label used in the error message/log (e.g. "Vertex Shader").
+         * @param statusType Which status to check: @c GL_COMPILE_STATUS for a shader, anything else for a program's link status.
+         * @throws std::runtime_error If compilation/linking failed; the exception message contains the GL info log.
+         */
         void throwShaderLog(GLuint objectID, const char* stage, GLenum statusType) {
             GLint success = 0;
             if (statusType == GL_COMPILE_STATUS) {
@@ -74,6 +86,14 @@ namespace Andromeda {
             throw std::runtime_error(std::string(stage) + " error:\n" + log);
         }
 
+        /**
+         * @brief Compiles a single shader stage from source and validates the result.
+         * @param stageType The GL shader stage to create (e.g. @c GL_VERTEX_SHADER, @c GL_COMPUTE_SHADER).
+         * @param source The GLSL source code for this stage.
+         * @param stageName Human-readable label used in error messages/logs (e.g. "Vertex Shader").
+         * @return The compiled GL shader object id.
+         * @throws std::runtime_error If compilation failed (via @c throwShaderLog).
+         */
         GLuint compileStage(GLenum stageType, const std::string& source, const char* stageName) {
             GLuint shader = glCreateShader(stageType);
             const char* srcPtr = source.c_str();
@@ -401,6 +421,7 @@ namespace Andromeda {
     void OpenGLContext::initRenderContext()
     {
         glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+        glEnable(GL_PROGRAM_POINT_SIZE);
     }
 
     std::shared_ptr<RHIConstantBuffer> OpenGLContext::createConstantBuffer(u32 size)
@@ -498,5 +519,25 @@ namespace Andromeda {
     {
         GLuint target = GLSampler::textureTypeToGLTextureTarget(type);
         glGenerateMipmap(target);
+    }
+    GLenum OpenGLContext::translateDrawModeToOpenGL(DrawMode mode)
+    {
+        switch (mode)
+        {
+        case DrawMode::Points:
+            return GL_POINTS;
+        case DrawMode::Lines:
+            return GL_LINES;
+        case DrawMode::Triangles:
+            return GL_TRIANGLES;
+        default:
+            A_WARN("Unknown DrawMode. Falling back to GL_TRIANGLES.");
+            return GL_TRIANGLES;
+        }
+    }
+    void OpenGLContext::drawInstanced(DrawMode mode, u32 vertexCount, u32 instanceCount, u32 firstVertex)
+    {
+        GLenum glMode = translateDrawModeToOpenGL(mode);
+        glDrawArraysInstanced(glMode, static_cast<GLint>(firstVertex), static_cast<GLsizei>(vertexCount), static_cast<GLsizei>(instanceCount));
     }
 }

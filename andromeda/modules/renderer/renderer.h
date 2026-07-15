@@ -17,6 +17,7 @@
 #include "a_rhi_constant_buffer.hpp"
 #include "a_rhi_storage_buffer.hpp"
 #include "a_texture.hpp"
+#include "a_particle.hpp"
 namespace Andromeda {
 	namespace amath {
 		struct CameraData;
@@ -186,7 +187,8 @@ namespace Andromeda {
 		RHIConstantBuffer m_OutlineUBO;     ///< UBO holding selection-outline parameters.
 		RHIConstantBuffer m_LightUBO;       ///< UBO holding scene light data.
 		RHIConstantBuffer m_pbrMaterialUBO; ///< UBO holding PBR material parameters.
-		std::unique_ptr<RHIConstantBuffer> m_ParticleSystem; ///< UBO holding particle system data.
+
+		ParticleEmitter m_Emitter; ///< Particle emitter used for testing/debugging.
 		/** @brief Internal one-time setup of the render context and global GL state. */
 		void initRenderer();
         /** @brief Bakes the prefiltered specular environment map (IBL precomputation). */
