@@ -20,6 +20,23 @@ layout(std140, binding = 2) uniform EmitterSettings {
     int padding3;
 };
 
+uint pcg_hash(uint input) {
+    uint state = input * 747796405u + 2891336453u;
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return (word >> 22u) ^ word;
+}
+
+float hash1(uint seed) {
+    return float(pcg_hash(seed)) * (1.0 / 4294967295.0);
+}
+
+vec3 hash3(uint seed) {
+    uint x = pcg_hash(seed);
+    uint y = pcg_hash(x);
+    uint z = pcg_hash(y);
+    return vec3(x, y, z) * (1.0 / 4294967295.0);
+}
+
 void main() {
     uint index = gl_GlobalInvocationID.x;
     if (index >= maxParticles) {

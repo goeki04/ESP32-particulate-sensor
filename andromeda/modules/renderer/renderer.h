@@ -140,6 +140,9 @@ namespace Andromeda {
 		/** @brief Renders procedurally generated geometry (e.g. the editor ground grid). */
 		void proceduralPass() const;
 
+		/** @brief Renders visual effects (e.g. particles, post-processing effects). */
+		void vfxPass();
+
 		/** @brief Resolves the multisampled scene buffer into the single-sample scene texture. */
 		void scenePassEndResolve() const;
 

@@ -52,9 +52,14 @@ namespace Andromeda::Window {
         if (!m_GlContext) {
             throw std::runtime_error("Failed to create SDL_GL context!");
         }
+        glewExperimental = true;
         GLenum err = glewInit();
         if (err != GLEW_OK) {
             throw std::runtime_error("Failed to call glewInit!");
+        }
+
+        if (!GLEW_ARB_gl_spirv) {
+			throw std::runtime_error("OpenGL driver does not support SPIR-V shaders. Please update your graphics drivers.");
         }
     }
 

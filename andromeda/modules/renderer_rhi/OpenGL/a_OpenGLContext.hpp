@@ -306,6 +306,12 @@ namespace Andromeda {
 
         /**
          * @brief Issues a non-indexed, instanced draw call.
+         * @details Core-profile OpenGL requires some VAO to be bound for any draw call, even one
+         *          with zero vertex attributes (e.g. SSBO/@c gl_InstanceID-driven rendering like
+         *          the particle system). To keep that OpenGL-only requirement out of the
+         *          backend-agnostic @c IGraphicsContext interface, this lazily creates and binds a
+         *          single shared, permanently empty VAO (@c m_AttributelessVAO) on first use rather
+         *          than taking a VAO handle as a parameter.
          * @param mode Primitive topology to draw.
          * @param vertexCount Number of vertices per instance.
          * @param instanceCount Number of instances to draw.
@@ -315,5 +321,6 @@ namespace Andromeda {
     private:
         RenderPassSpecs m_CurrentSpecs; ///< Pipeline state (culling, depth test, blend, rasterizer mode) applied by the last setRenderPassSpecs() call.
         bool m_IsFirstContextInit = true; ///< Guards one-time global GL state setup in initRenderContext().
+        u32 m_AttributelessVAO = 0; ///< Lazily-created, permanently empty VAO shared by all attributeless instanced draws (see drawInstanced()); 0 until first use.
     };
 }

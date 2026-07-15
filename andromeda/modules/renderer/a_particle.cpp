@@ -44,7 +44,7 @@ namespace Andromeda {
 	 *          @c m_EmitterSettings.deltaTime from the current frame time, re-uploads it to
 	 *          @c m_EmitterSettingsBuffer, and dispatches one compute work group per 256
 	 *          particles (matching `layout(local_size_x = 256, ...)` in particle.comp).
-	 * @param deltaTime Elapsed time since the last update, in seconds.
+	 *          Reads the frame's delta time from @c SystemManager::s_deltaTime.
 	 */
 	void ParticleEmitter::update() {
 		if (m_EmitterSettings.maxParticles == 0) return;
@@ -66,9 +66,12 @@ namespace Andromeda {
 
 	/**
 	 * @brief Issues the draw call that renders the current particle state.
-	 * @details No-ops if the emitter was never initialized or has no capacity. Otherwise binds
-	 *          the render shader and the particle SSBO (slot 1) for it to read from, then draws
-	 *          one point instance per particle (vertex-less, point-primitive instanced draw).
+	 * @details No-ops if the emitter was never initialized or has no capacity. Otherwise enables
+	 *          alpha blending (so the soft circular falloff in particle.frag's alpha channel
+	 *          actually blends instead of being drawn opaque), binds the render shader and the
+	 *          particle SSBO (slot 1) for it to read from, then draws one point instance per
+	 *          particle (vertex-less, point-primitive instanced draw). Restores the default
+	 *          render pass state afterwards so later passes aren't affected.
 	 */
 	void ParticleEmitter::render() {
 		if (!m_IsInitialized || m_EmitterSettings.maxParticles == 0)
@@ -76,6 +79,7 @@ namespace Andromeda {
 			A_WARN("ParticleEmitter not initialized or maxParticles is zero. Cannot render.");
 			return;
 		}
+
 		m_Context->bindShaderProgram(m_RenderShader);
 		m_ParticleBuffer.bind(1);
 		m_CameraDataBuffer.bind(2);

@@ -229,6 +229,9 @@ namespace Andromeda {
         m_CubeVao = m_RenderContext->createEmptyVAO();
         brdfLUTBaking();
         createMaterials();
+		m_ResourceManager->loadComputeShaderRHI(m_RenderContext, "Particle_Compute", SHADER_PATH "Compute/particle.comp");
+        m_ResourceManager->loadShaderRHI(m_RenderContext,"Particle_Render", SHADER_PATH "Vfx/particle.vert", SHADER_PATH "Vfx/particle.frag");
+        m_Emitter.initialize(*m_RenderContext, m_ResourceManager->getShaderRHI("Particle_Compute"), m_ResourceManager->getShaderRHI("Particle_Render"), *m_Cam);
         RenderPassSpecs initSpecs;
         m_RenderContext->setRenderPassSpecs(initSpecs);
         registerEvents();
@@ -303,8 +306,10 @@ namespace Andromeda {
         processResizeTimer();
         windowClearPass();
         scenePassBegin();
+        m_Emitter.update();
         geometryPass();
         proceduralPass();
+        vfxPass();
         scenePassEndResolve();
         selectionPass(m_SelectedForHighlighting);
         postprocessingPass();
@@ -349,6 +354,15 @@ namespace Andromeda {
         mutableLightUBO.setData(&lightData, sizeof(Generated::lights));
         mutableLightUBO.bind(3);
     }
+
+	void Renderer::vfxPass() {
+        RenderPassSpecs specs;
+        specs.blendMode = BlendMode::AlphaBlend;
+        m_RenderContext->setRenderPassSpecs(specs);
+		m_Emitter.render();
+        RenderPassSpecs resetSpecs;
+        m_RenderContext->setRenderPassSpecs(resetSpecs);
+	}
 
     void Renderer::geometryPass() const {
         RenderPassSpecs specs;

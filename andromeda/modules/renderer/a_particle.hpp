@@ -53,10 +53,7 @@ namespace Andromeda {
 		/** @brief Allocates the GPU storage buffer and loads/links the compute and render shaders. */
 		void initialize(IGraphicsContext& context, ShaderProgramHandle computeShader, ShaderProgramHandle renderShader, amath::CameraData& data);
 
-		/**
-		 * @brief Advances the simulation by dispatching the compute shader for this frame.
-		 * @param deltaTime Elapsed time since the last update, in seconds.
-		 */
+		/** @brief Advances the simulation by dispatching the compute shader for this frame (reads the frame's delta time from @c SystemManager::s_deltaTime). */
 		void update();
 
 		/** @brief Issues the draw call that renders the current particle state. */

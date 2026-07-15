@@ -537,7 +537,17 @@ namespace Andromeda {
     }
     void OpenGLContext::drawInstanced(DrawMode mode, u32 vertexCount, u32 instanceCount, u32 firstVertex)
     {
+        // Core profile requires a bound VAO for any draw call, even attributeless ones. Lazily
+        // create a single empty VAO the first time it's needed and reuse it for every subsequent
+        // attributeless instanced draw, instead of leaking the VAO concept into the caller/interface.
+        if (m_AttributelessVAO == 0) {
+            m_AttributelessVAO = createEmptyVAO();
+        }
+        glBindVertexArray(m_AttributelessVAO);
+
         GLenum glMode = translateDrawModeToOpenGL(mode);
         glDrawArraysInstanced(glMode, static_cast<GLint>(firstVertex), static_cast<GLsizei>(vertexCount), static_cast<GLsizei>(instanceCount));
+
+        glBindVertexArray(0);
     }
 }
