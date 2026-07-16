@@ -1,5 +1,7 @@
 #version 460 core
 
+//LEGACY CODE Only used for debugging purposes, not used in the final shader
+
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
 struct Particle {
@@ -20,8 +22,8 @@ layout(std140, binding = 2) uniform EmitterSettings {
     int padding3;
 };
 
-uint pcg_hash(uint input) {
-    uint state = input * 747796405u + 2891336453u;
+uint pcg_hash(uint seed) {
+    uint state = seed * 747796405u + 2891336453u;
     uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
     return (word >> 22u) ^ word;
 }

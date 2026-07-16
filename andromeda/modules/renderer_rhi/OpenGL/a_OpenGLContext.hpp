@@ -33,6 +33,7 @@ namespace Andromeda {
          * @return A ShaderProgramHandle identifying the created compute program.
          */
         ShaderProgramHandle createComputeProgram(const std::string& computeSrc) override;
+        ShaderProgramHandle createComputeProgram(const std::string& computeSrc, const char* entryPoint, const char* stageName) override;
         /**
          * @brief Compiles vertex and fragment shaders and links them into a program.
          * @param vertSrc Path to the vertex shader.
@@ -57,12 +58,16 @@ namespace Andromeda {
          */
         std::string readShaderSource(const char* shaderPath);
 
+        std::string readShaderBinary(const char* shaderPath);
+
         /**
          * @brief Reads, compiles and links a compute shader source file into a standalone OpenGL program.
          * @param computeSrc Path to the compute shader source file.
          * @return The OpenGL program ID (apiID).
          */
         u32 compileOpenGLComputeShader(const std::string& computeSrc);
+
+        u32 compileOpenGLSpirvComputeShader(const std::string& computeSrc, const char* entryPoint, const char* stageName);
 
         /**
          * @brief Dispatches a compute shader with the specified group counts, also sets the memory barrier.

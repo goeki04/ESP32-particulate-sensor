@@ -47,6 +47,7 @@ namespace Andromeda {
 		 * @return A handle to the created compute program.
 		 */
 		virtual ShaderProgramHandle createComputeProgram(const std::string& computeSrc) = 0;
+		virtual ShaderProgramHandle createComputeProgram(const std::string& computeSrc, const char* entryPoint, const char* stageName) = 0;
 
 		/** @brief Destroys a shader program and frees its GPU resources. */
 		virtual void destroyShaderProgram(ShaderProgramHandle handle) = 0;

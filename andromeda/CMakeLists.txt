@@ -17,7 +17,6 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 else()
     add_compile_definitions(ANDROMEDA_ARCH="x86")
 endif()
-
 # Graphics backend implementing the renderer_rhi module (modules/renderer_rhi/CMakeLists.txt
 # picks the matching *.cpp sources and dependencies for this). Only OpenGL has an actual
 # implementation right now; Vulkan/DirectX are reserved names for future backends.
@@ -88,6 +87,7 @@ file(GLOB_RECURSE ALL_GLSL_SHADERS
     "${CMAKE_SOURCE_DIR}/modules/shader/*.vert"
     "${CMAKE_SOURCE_DIR}/modules/shader/*.frag"
     "${CMAKE_SOURCE_DIR}/modules/shader/*.comp"
+    "${CMAKE_SOURCE_DIR}/modules/shader/*.hlsl"
 )
 set(ALL_SPV_FILES "")
 foreach(SHADER ${ALL_GLSL_SHADERS})

@@ -51,6 +51,7 @@ file(GLOB_RECURSE RHI_GLSL_SHADERS
      "${CMAKE_SOURCE_DIR}/modules/shader/*.vert"
      "${CMAKE_SOURCE_DIR}/modules/shader/*.frag"
      "${CMAKE_SOURCE_DIR}/modules/shader/*.comp"
+     "${CMAKE_SOURCE_DIR}/modules/shader/*.hlsl"
 )
 
 compile_shaders(

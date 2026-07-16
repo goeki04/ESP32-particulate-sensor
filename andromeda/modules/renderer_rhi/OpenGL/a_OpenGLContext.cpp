@@ -102,6 +102,14 @@ namespace Andromeda {
             throwShaderLog(shader, stageName, GL_COMPILE_STATUS);
             return shader;
         }
+
+        GLuint compileSpirvStage(GLenum stageType, const std::string& spirvCode, const char* entryPoint, const char* stageName) {
+			GLuint shader = glCreateShader(stageType);
+            glShaderBinary(1,&shader, GL_SHADER_BINARY_FORMAT_SPIR_V, spirvCode.data(), spirvCode.size());
+            glSpecializeShader(shader, entryPoint, 0, nullptr, nullptr);
+            throwShaderLog(shader, stageName, GL_COMPILE_STATUS);
+            return shader;
+        }
     }
 
     ShaderProgramHandle OpenGLContext::createShaderProgram(const std::string& vertSrc, const std::string& fragSrc) {
@@ -115,6 +123,14 @@ namespace Andromeda {
         newHandle.apiID = compileOpenGLComputeShader(computeSrc);
         return newHandle;
     }
+
+    ShaderProgramHandle OpenGLContext::createComputeProgram(const std::string& computeSrc, const char* entryPoint, const char* stageName)
+    {
+        ShaderProgramHandle newHandle = {};
+        newHandle.apiID = compileOpenGLSpirvComputeShader(computeSrc,entryPoint,stageName);
+        return newHandle;
+    }
+
     void OpenGLContext::destroyShaderProgram(ShaderProgramHandle handle) {
         if (handle.apiID != 0) {
             glDeleteProgram(handle.apiID);
@@ -143,16 +159,44 @@ namespace Andromeda {
         return shaderSource;
     }
 
+    std::string OpenGLContext::readShaderBinary(const char* shaderPath)
+    {
+        std::ifstream fileStream(shaderPath, std::ios::binary);
+        if (!fileStream.is_open()) {
+            A_CRITICAL("Could not open shader file at path: {}", shaderPath);
+            throw std::runtime_error("Failed to open shader file: " + std::string(shaderPath));
+        }
+        std::stringstream buffer;
+        buffer << fileStream.rdbuf();
+        std::string shaderSource = buffer.str();
+        return shaderSource;
+    }
+
     u32 OpenGLContext::compileOpenGLComputeShader(const std::string& computeSrc) {
         std::string  computeSource = readShaderSource(computeSrc.c_str());
 
 		GLuint computeShader = compileStage(GL_COMPUTE_SHADER, computeSource, "Compute Shader");
+        
         GLuint program = glCreateProgram();
 		glAttachShader(program, computeShader);
         glLinkProgram(program);
+
         throwShaderLog(program, "Compute Shader Program Linking", GL_LINK_STATUS);
         glDeleteShader(computeShader);
         return program;
+    }
+
+    u32 OpenGLContext::compileOpenGLSpirvComputeShader(const std::string& computeSrc, const char* entryPoint, const char* stageName) {
+		std::string  spirvSrc = readShaderBinary(computeSrc.c_str());
+
+		GLuint computeShader = compileSpirvStage(GL_COMPUTE_SHADER, spirvSrc, entryPoint, stageName);
+		GLuint program = glCreateProgram();
+		glAttachShader(program, computeShader);
+		glLinkProgram(program);
+
+		throwShaderLog(program, "Compute Shader Program Linking", GL_LINK_STATUS);
+		glDeleteShader(computeShader);
+		return program;
     }
 
     void OpenGLContext::dispatchCompute(ShaderProgramHandle handle, u32 groupCountX, u32 groupCountY, u32 groupCountZ)

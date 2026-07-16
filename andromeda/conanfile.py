@@ -35,5 +35,6 @@ class CmakeTest(ConanFile):
         self.requires("gtest/1.17.0")
     def build_requirements(self):
         self.tool_requires("glslang/1.4.350.0")
+        self.tool_requires("directx-shader-compiler/1.9.2602")
     def layout(self):
         cmake_layout(self)

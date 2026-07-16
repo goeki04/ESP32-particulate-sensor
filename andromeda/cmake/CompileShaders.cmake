@@ -6,7 +6,16 @@ else()
     find_program(GLSLANG_VALIDATOR NAMES glslangValidator REQUIRED)
 endif()
 
+if(directx-shader-compiler_EXECUTABLE)
+    set(DXC_EXECUTABLE ${directx-shader-compiler_EXECUTABLE})
+elseif(DEFINED directx-shader-compiler_BIN_DIRS)
+    set(DXC_EXECUTABLE "${directx-shader-compiler_BIN_DIRS}/dxc${CMAKE_EXECUTABLE_SUFFIX}")
+else()
+    find_program(DXC_EXECUTABLE NAMES dxc REQUIRED)
+endif()
+
 message(STATUS "Andromeda Shader Pipeline -> Validator found at: ${GLSLANG_VALIDATOR}")
+message(STATUS "Andromeda Shader Pipeline -> DXC found at: ${DXC_EXECUTABLE}")
 
 function(compile_shaders)
     cmake_parse_arguments(ARG "" "TARGET;OUT_DIR" "SHADERS" ${ARGN})
@@ -26,27 +35,45 @@ function(compile_shaders)
         
         set(SPV_OUT "${ARG_OUT_DIR}/${SHADER_NAME}.spv")
         
-        if("${SHADER_EXT}" STREQUAL ".vert")
-            set(SHADER_STAGE_FLAG "vert")
-        elseif("${SHADER_EXT}" STREQUAL ".frag")
-            set(SHADER_STAGE_FLAG "frag")
-        elseif("${SHADER_EXT}" STREQUAL ".comp")
-            set(SHADER_STAGE_FLAG "comp")
+        if("${SHADER_EXT}" STREQUAL ".hlsl")
+            # HLSL is currently only used for compute shaders, so the target
+            # profile is fixed to cs_6_0 with a hardcoded "main" entry point.
+            # Compiled straight to SPIR-V via DXC instead of glslangValidator.
+            add_custom_command(
+                OUTPUT  ${SPV_OUT}
+                COMMAND ${DXC_EXECUTABLE}
+                        -spirv
+                        -T cs_6_0
+                        -E main
+                        -Fo ${SPV_OUT}
+                        ${SHADER}
+                DEPENDS ${SHADER}
+                COMMENT "Andromeda Compiler (DXC): ${SHADER_NAME} -> ${SHADER_NAME}.spv"
+                VERBATIM
+            )
         else()
-            message(FATAL_ERROR "Andromeda Compiler Error: Unknown shader extension ${SHADER_EXT} on file ${SHADER_NAME}!")
+            if("${SHADER_EXT}" STREQUAL ".vert")
+                set(SHADER_STAGE_FLAG "vert")
+            elseif("${SHADER_EXT}" STREQUAL ".frag")
+                set(SHADER_STAGE_FLAG "frag")
+            elseif("${SHADER_EXT}" STREQUAL ".comp")
+                set(SHADER_STAGE_FLAG "comp")
+            else()
+                message(FATAL_ERROR "Andromeda Compiler Error: Unknown shader extension ${SHADER_EXT} on file ${SHADER_NAME}!")
+            endif()
+
+            add_custom_command(
+                OUTPUT  ${SPV_OUT}
+                COMMAND ${GLSLANG_VALIDATOR}
+                        -G
+                        -S ${SHADER_STAGE_FLAG}
+                        -o ${SPV_OUT}
+                        ${SHADER}
+                DEPENDS ${SHADER}
+                COMMENT "Andromeda Compiler: ${SHADER_NAME} -> ${SHADER_NAME}.spv"
+                VERBATIM
+            )
         endif()
-        
-        add_custom_command(
-            OUTPUT  ${SPV_OUT}
-            COMMAND ${GLSLANG_VALIDATOR}
-                    -G                          
-                    -S ${SHADER_STAGE_FLAG}
-                    -o ${SPV_OUT}
-                    ${SHADER}
-            DEPENDS ${SHADER}
-            COMMENT "Andromeda Compiler: ${SHADER_NAME} -> ${SHADER_NAME}.spv"
-            VERBATIM
-        )
         list(APPEND SPV_OUTPUTS ${SPV_OUT})
     endforeach()
     
