@@ -81,7 +81,7 @@ namespace Andromeda {
 	}
 	void HomeAssistantService::handleMessage(const std::string& message)
 	{
-		A_INFO("Received WebSocket message: {}", message);
+		//A_INFO("Received WebSocket message: {}", message);
 		nlohmann::json jsonMessage;
 		try {
 			jsonMessage = nlohmann::json::parse(message);
@@ -101,8 +101,14 @@ namespace Andromeda {
 			}
 
 			for (const auto& entity : jsonMessage["result"]) {
-				if (entity.value("entity_id", "") == "sensor.bmv080_bmv080") {
-					A_INFO("Sensor pm25 state: {}", entity.value("state", ""));
+				if (entity.value("entity_id", "") == "sensor.bmv080_bmv080_pm1") {
+					A_INFO("Sensor pm1 state: {}", entity.value("state", ""));
+				}
+				if (entity.value("entity_id", "") == "sensor.bmv080_bmv080_pm2_5") {
+					A_INFO("Sensor pm2.5 state: {}", entity.value("state", ""));
+				}
+				if (entity.value("entity_id", "") == "sensor.bmv080_bmv080_pm10") {
+					A_INFO("Sensor pm10 state: {}", entity.value("state", ""));
 				}
 			}
 		}

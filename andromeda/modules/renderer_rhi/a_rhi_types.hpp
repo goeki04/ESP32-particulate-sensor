@@ -98,6 +98,7 @@ namespace Andromeda {
         bool depthTest = true;                                ///< Whether the depth test is enabled for this pass.
         DepthFunc depthFunction = DepthFunc::Less;             ///< Comparison function used by the depth test.
         BlendMode blendMode = BlendMode::None;                ///< Blending equation used for transparent geometry.
+        bool depthWrite = true;
     };
 
     /**

@@ -12,6 +12,32 @@
 #include "a_ViewportPanel.hpp"
 #include "a_Style.hpp"
 #include <implot.h>
+#include "a_subsystem_manager.hpp"
+#include "IconsLucide.h"
+namespace {
+    void drawToolBar() {
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+        const float height = ImGui::GetFrameHeight();
+        const ImGuiWindowFlags wf = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
+
+        if (ImGui::BeginViewportSideBar("##MainToolBar", viewport, ImGuiDir_Up, height, wf))
+        {
+            if (ImGui::BeginMenuBar())
+            {
+                
+                const char* label = Andromeda::SystemManager::s_paused ? ICON_LC_PLAY : ICON_LC_PAUSE;
+                const float w = ImGui::CalcTextSize(label).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+                ImGui::SetCursorPosX((ImGui::GetWindowSize().x - w) * 0.5f);   // zentriert
+                if (ImGui::Button(label)) {
+                    Andromeda::SystemManager::s_paused = !Andromeda::SystemManager::s_paused;
+                }
+                ImGui::EndMenuBar();
+            }
+        }
+        ImGui::End();
+    }
+}
+
 namespace Andromeda::Gui {
 
     void Gui::GuiRenderer::init(EditorContext& editorContext) {
@@ -38,16 +64,20 @@ namespace Andromeda::Gui {
     }
 
     void GuiRenderer::update(EditorContext& editorContext) {
-        
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
+
+        MainMenuBar::drawMainMenuBar(editorContext);
+        drawToolBar();
+
         constexpr ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode;
         ImGuiID dockspaceID = ImGui::DockSpaceOverViewport(ImGui::GetID("MyDockSpace"), ImGui::GetMainViewport());
         if (ImGui::DockBuilderGetNode(dockspaceID) == nullptr || ImGui::DockBuilderGetNode(dockspaceID)->ChildNodes[0] == 0) {
             DockBuilder::setDefaultLayout(dockspaceID);
         }
-        MainMenuBar::drawMainMenuBar(editorContext);
+
         for (auto& panel : m_Panels)
         {
             if (panel->m_IsOpen)
@@ -108,6 +138,14 @@ namespace Andromeda::Gui {
         if (font == nullptr) {
             throw std::runtime_error("failed loading Roboto font");
         }
+
+        static const ImWchar iconRanges[] = { ICON_MIN_LC, ICON_MAX_LC, 0 };
+        ImFontConfig iconConfig;
+        iconConfig.MergeMode = true;
+        iconConfig.PixelSnapH = true;
+        iconConfig.GlyphMinAdvanceX = 18.0f;
+        io.Fonts->AddFontFromFileTTF(ASSET_PATH "fonts/lucide.ttf", 18.0f, &iconConfig, iconRanges);
+
         io.FontDefault = font;
     }
 

@@ -58,6 +58,14 @@ namespace Andromeda {
          */
         std::string readShaderSource(const char* shaderPath);
 
+        /**
+         * @brief Reads a file from disk into a string without newline translation.
+         * @details Unlike readShaderSource(), this opens the stream with std::ios::binary,
+         *          which is required for precompiled SPIR-V (.spv) files - text-mode reads on
+         *          Windows corrupt any raw byte pair that happens to match "\\r\\n".
+         * @param shaderPath The filesystem path to the binary file (typically a .spv).
+         * @return The raw file contents as a string.
+         */
         std::string readShaderBinary(const char* shaderPath);
 
         /**

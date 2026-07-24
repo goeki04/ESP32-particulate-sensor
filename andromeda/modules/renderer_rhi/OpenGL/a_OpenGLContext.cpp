@@ -335,6 +335,11 @@ namespace Andromeda {
             m_CurrentSpecs.blendMode = specs.blendMode;
         }
 
+        if (m_IsFirstContextInit || specs.depthWrite != m_CurrentSpecs.depthWrite) {
+            glDepthMask(specs.depthWrite ? GL_TRUE : GL_FALSE);
+            m_CurrentSpecs.depthWrite = specs.depthWrite;
+        }
+
         m_IsFirstContextInit = false;
     }
     void OpenGLContext::drawIndexed(u32 vao, u32 indexCount)

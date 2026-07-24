@@ -229,9 +229,7 @@ namespace Andromeda {
         m_CubeVao = m_RenderContext->createEmptyVAO();
         brdfLUTBaking();
         createMaterials();
-		m_ResourceManager->loadComputeShaderRHI(m_RenderContext, "Particle_Compute", SHADER_SPV_PATH "particle.hlsl.spv", "main", "Particle Compute(HLSL)");
-        m_ResourceManager->loadShaderRHI(m_RenderContext,"Particle_Render", SHADER_PATH "Vfx/particle.vert", SHADER_PATH "Vfx/particle.frag");
-        m_Emitter.initialize(*m_RenderContext, m_ResourceManager->getShaderRHI("Particle_Compute"), m_ResourceManager->getShaderRHI("Particle_Render"), *m_Cam);
+        m_Emitter.initialize(*m_RenderContext, m_ResourceManager, *m_Cam);
         RenderPassSpecs initSpecs;
         m_RenderContext->setRenderPassSpecs(initSpecs);
         registerEvents();
@@ -358,6 +356,7 @@ namespace Andromeda {
 	void Renderer::vfxPass() {
         RenderPassSpecs specs;
         specs.blendMode = BlendMode::AlphaBlend;
+        specs.depthWrite = false;
         m_RenderContext->setRenderPassSpecs(specs);
 		m_Emitter.render();
         RenderPassSpecs resetSpecs;

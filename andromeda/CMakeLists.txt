@@ -86,14 +86,20 @@ file(GLOB_RECURSE ALL_GLSL_SHADERS
     CONFIGURE_DEPENDS
     "${CMAKE_SOURCE_DIR}/modules/shader/*.vert"
     "${CMAKE_SOURCE_DIR}/modules/shader/*.frag"
-    "${CMAKE_SOURCE_DIR}/modules/shader/*.comp"
-    "${CMAKE_SOURCE_DIR}/modules/shader/*.hlsl"
+    # particle.comp (GLSL) is intentionally excluded: compute shaders are now
+    # HLSL-only (see compile_hlsl_shader() below). particle.comp is still on
+    # disk but must not be compiled - its "EmitterSettings" UBO shares a name
+    # with the HLSL cbuffer of the same name, and the reflector would collide
+    # on the two same-named-but-different-layout structs.
 )
 set(ALL_SPV_FILES "")
 foreach(SHADER ${ALL_GLSL_SHADERS})
     get_filename_component(SHADER_NAME ${SHADER} NAME)
     list(APPEND ALL_SPV_FILES "${CMAKE_BINARY_DIR}/shaders/spirv/${SHADER_NAME}.spv")
 endforeach()
+# HLSL kernels are auto-discovered (not glob-derived) inside compile_hlsl_shader(),
+# relayed here via PARENT_SCOPE from modules/renderer_rhi/CMakeLists.txt.
+list(APPEND ALL_SPV_FILES ${RHI_HLSL_SPV_FILES})
 set(GENERATED_HEADER ${CMAKE_BINARY_DIR}/generated/a_shader_generated.hpp)
 set(GENERATED_COMPUTE_HEADER ${CMAKE_BINARY_DIR}/generated/a_shader_generated_compute.hpp)
 message(STATUS "===== SHADER REFLECTOR DEBUG =====")

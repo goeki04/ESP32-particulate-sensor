@@ -5,6 +5,7 @@
 namespace Andromeda {
 	Uint64 SystemManager::lastCounter = SDL_GetPerformanceCounter();
 	float SystemManager::s_deltaTime = 0.0f;
+	bool SystemManager::s_paused = false;
 	SystemManager& SystemManager::getInstance() {
 		static SystemManager instance;
 		return instance;

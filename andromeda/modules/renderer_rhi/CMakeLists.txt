@@ -50,8 +50,8 @@ file(GLOB_RECURSE RHI_GLSL_SHADERS
      CONFIGURE_DEPENDS
      "${CMAKE_SOURCE_DIR}/modules/shader/*.vert"
      "${CMAKE_SOURCE_DIR}/modules/shader/*.frag"
-     "${CMAKE_SOURCE_DIR}/modules/shader/*.comp"
-     "${CMAKE_SOURCE_DIR}/modules/shader/*.hlsl"
+     # particle.comp (GLSL) intentionally excluded - see comment in the root
+     # CMakeLists.txt glob. Compute shaders are HLSL-only now.
 )
 
 compile_shaders(
@@ -59,6 +59,17 @@ compile_shaders(
     SHADERS  ${RHI_GLSL_SHADERS}
     OUT_DIR  "${CMAKE_BINARY_DIR}/shaders/spirv"
 )
+
+compile_hlsl_shader(
+    TARGET       renderer_rhi
+    SOURCE       "${CMAKE_SOURCE_DIR}/modules/shader/Compute/particle.hlsl"
+    PROFILE      cs_6_0
+    OUT_DIR      "${CMAKE_BINARY_DIR}/shaders/spirv"
+    OUT_SPV_LIST HLSL_SPV_FILES
+)
+# Relayed up to the root CMakeLists.txt (a separate directory scope) so the
+# HLSL-compiled .spv files also reach AndromedaReflector's ALL_SPV_FILES list.
+set(RHI_HLSL_SPV_FILES ${HLSL_SPV_FILES} PARENT_SCOPE)
 
 target_include_directories(renderer_rhi PUBLIC 
     .

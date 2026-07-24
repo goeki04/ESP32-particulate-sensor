@@ -13,7 +13,7 @@
 #include "a_shader_generated_compute.hpp"
 #include "a_math.hpp"
 namespace Andromeda {
-
+	class ResourceManager;
 	struct SphereShape {
 		float radius = 1.0f; ///< Radius of the sphere shape.
 	};
@@ -28,6 +28,11 @@ namespace Andromeda {
 		float angle = 25.0f; ///< Angle of the cone in degrees.
 	};
 
+	struct CylinderShape {
+		float radius = 1.0f;
+		float height = 2.0f;
+	};
+
 	struct BoxShape {
 		vec3 dimensions = vec3(1.0f); ///< Dimensions of the box shape along each axis.
 	};
@@ -36,6 +41,7 @@ namespace Andromeda {
 		Sphere, ///< Emit particles from a sphere surface.
 		Cone,   ///< Emit particles from a cone surface.
 		Cube,   ///< Emit particles from a cube volume.
+		Zylinder, ///< Emit particles from a cylinder volume.
 		Hemisphere ///< Emit particles from a hemisphere surface.
 	};
 
@@ -49,9 +55,9 @@ namespace Andromeda {
 	 */
 	struct ParticleEmitter {
 	public:
-		std::variant<SphereShape, HemisphereShape, ConeShape, BoxShape> shape; ///< Shape of the emitter.
+		std::variant<SphereShape, HemisphereShape, ConeShape, BoxShape, CylinderShape> shape; ///< Shape of the emitter.
 		/** @brief Allocates the GPU storage buffer and loads/links the compute and render shaders. */
-		void initialize(IGraphicsContext& context, ShaderProgramHandle computeShader, ShaderProgramHandle renderShader, amath::CameraData& data);
+		void initialize(IGraphicsContext& context, ResourceManager* rm, amath::CameraData& data);
 
 		/** @brief Advances the simulation by dispatching the compute shader for this frame (reads the frame's delta time from @c SystemManager::s_deltaTime). */
 		void update();
@@ -59,6 +65,7 @@ namespace Andromeda {
 		/** @brief Issues the draw call that renders the current particle state. */
 		void render();
 	private:
+		std::string getComputeKernelName(std::variant<SphereShape, HemisphereShape, ConeShape, BoxShape, CylinderShape> shape);
 		bool m_IsInitialized = false; ///< Tracks whether the emitter has been initialized.
 		ShaderProgramHandle m_ComputeShader; ///< Compute shader that updates particle positions/velocities.
 		ShaderProgramHandle m_RenderShader;  ///< Shader program used to render the particles.
@@ -68,6 +75,7 @@ namespace Andromeda {
 		amath::CameraData* m_SceneCamera; ///< Pointer to the camera data used for rendering.
 		Generated::Compute::EmitterSettings m_EmitterSettings; ///< CPU-side mirror of the `EmitterSettings` UBO; edited here and re-uploaded to @c m_EmitterSettingsBuffer every update().
 		IGraphicsContext* m_Context = nullptr; ///< Pointer to the graphics context for rendering.
+		float m_SpawnAccumulator = 0.0f; ///< Accumulates time to determine when to spawn new particles.
 	};
 
 }

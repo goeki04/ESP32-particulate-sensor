@@ -2,6 +2,8 @@
 #include "a_logger.hpp"
 #include "a_subsystem_manager.hpp"
 #include "a_shader_generated.hpp"
+#include "resource_manager.h"
+#include <algorithm>
 namespace Andromeda {
 	/**
 	 * @brief Allocates the GPU-side particle pool and emitter settings buffer, and sets default emission parameters.
@@ -15,22 +17,31 @@ namespace Andromeda {
 	 * @param renderShader Handle to the already-loaded particle render shader.
 	 * @param data Reference to the camera data.
 	 */
-	void ParticleEmitter::initialize(IGraphicsContext& context, ShaderProgramHandle computeShader, ShaderProgramHandle renderShader,amath::CameraData& data) {
+	void ParticleEmitter::initialize(IGraphicsContext& context, ResourceManager* rm, amath::CameraData& data) {
 
 		m_Context = &context;
 		if (m_Context == nullptr) {
 			A_WARN("Graphics context is null. Cannot initialize ParticleEmitter.");
 			return;
 		}
-		m_ComputeShader = computeShader;
-		m_RenderShader = renderShader;
 		m_EmitterSettings.emitterPosition = vec3(0.0f);
 		m_EmitterSettings.maxParticles = 1000;
-		m_EmitterSettings.padding1 = 0;
-		m_EmitterSettings.padding2 = 0;
-		m_EmitterSettings.padding3 = 0;
+		m_EmitterSettings.boxDimensions = vec3(1.0f);
+		m_EmitterSettings.coneAngle = 45.0f;
+		m_EmitterSettings.sphereRadius = 2.0f;
+		m_EmitterSettings.emissionRate = 50.0f;
+		m_EmitterSettings.coneHeight = 10.0f;
+		m_EmitterSettings.cylinderRadius = 1.0f;
+		m_EmitterSettings.cylinderHeight = 3.0f;
+		m_EmitterSettings.gravity = 0.05f;
+		m_EmitterSettings.drag = 0.1f;
 		m_IsInitialized = true;
-		shape = BoxShape{ vec3(1.0f) };
+		shape = CylinderShape{ 1.0f, 2.0f };
+		//shape = BoxShape{ vec3(1.0f) };
+		std::string kernalName = getComputeKernelName(shape);
+		std::string computePath = SHADER_SPV_PATH "particle.hlsl." + kernalName + ".spv";
+		m_ComputeShader = rm->loadComputeShaderRHI(&context, "Particle_Compute_" + kernalName, computePath, "Particle Compute(HLSL)");
+		m_RenderShader = rm->loadShaderRHI(&context, "Particle_Render", SHADER_PATH "Vfx/particle.vert", SHADER_PATH "Vfx/particle.frag");
 		m_ParticleBuffer.create(BufferUsage::DynamicDraw,m_EmitterSettings.maxParticles  * sizeof(Generated::Compute::Particle), nullptr);
 		m_ParticleBuffer.clear();
 		m_EmitterSettingsBuffer.initialize(sizeof(Generated::Compute::EmitterSettings));
@@ -56,7 +67,10 @@ namespace Andromeda {
 		m_ParticleBuffer.bind(1);
 
 		m_EmitterSettingsBuffer.bind(2);
-		m_EmitterSettings.deltaTime = SystemManager::s_deltaTime;
+		const float dt = SystemManager::s_paused ? 0.0f : SystemManager::s_deltaTime;
+		m_EmitterSettings.deltaTime = dt;
+		m_SpawnAccumulator += m_EmitterSettings.emissionRate * dt;
+		m_EmitterSettings.activeParticleCount = static_cast<uint32_t>(std::min(m_SpawnAccumulator, static_cast<float>(m_EmitterSettings.maxParticles)));
 		m_EmitterSettingsBuffer.setData(&m_EmitterSettings, sizeof(Generated::Compute::EmitterSettings));
 
 
@@ -66,12 +80,14 @@ namespace Andromeda {
 
 	/**
 	 * @brief Issues the draw call that renders the current particle state.
-	 * @details No-ops if the emitter was never initialized or has no capacity. Otherwise enables
-	 *          alpha blending (so the soft circular falloff in particle.frag's alpha channel
-	 *          actually blends instead of being drawn opaque), binds the render shader and the
-	 *          particle SSBO (slot 1) for it to read from, then draws one point instance per
-	 *          particle (vertex-less, point-primitive instanced draw). Restores the default
-	 *          render pass state afterwards so later passes aren't affected.
+	 * @details No-ops if the emitter was never initialized or has no capacity. Otherwise binds
+	 *          the render shader and the particle SSBO (slot 1) for it to read from, then draws
+	 *          one point instance per particle (vertex-less, point-primitive instanced draw).
+	 *          Alpha blending (needed for the soft circular falloff in particle.frag's alpha
+	 *          channel to actually blend instead of being drawn opaque) is NOT enabled here -
+	 *          the caller is responsible for that. @c Renderer::vfxPass() sets
+	 *          @c RenderPassSpecs::blendMode = BlendMode::AlphaBlend before calling this, and
+	 *          resets it back to the default afterwards.
 	 */
 	void ParticleEmitter::render() {
 		if (!m_IsInitialized || m_EmitterSettings.maxParticles == 0)
@@ -88,5 +104,19 @@ namespace Andromeda {
 		cameraData.proj = m_SceneCamera->projection;
 		m_CameraDataBuffer.setData(&cameraData, sizeof(Generated::CameraData));
 		m_Context->drawInstanced(DrawMode::Points, 1, m_EmitterSettings.maxParticles, 0);
+	}
+
+	std::string ParticleEmitter::getComputeKernelName(std::variant<SphereShape, HemisphereShape, ConeShape, BoxShape, CylinderShape> shape)
+	{
+		struct KernelNameVisitor {
+			std::string operator()(const BoxShape&)         const { return "BoxParticle"; }
+			std::string operator()(const SphereShape&)      const { return "SphereParticle"; }
+			std::string operator()(const ConeShape&)        const { return "ConeParticle"; }
+			std::string operator()(const HemisphereShape&)  const { return "HemisphereParticle"; }
+			std::string operator()(const CylinderShape&)    const { return "CylinderParticle"; }
+		};
+		std::string kernelName = std::visit(KernelNameVisitor{}, shape);
+
+		return kernelName;
 	}
 }

@@ -244,16 +244,35 @@ int main(int argc, char** argv) {
 
         std::string glslPath = FindShaderFile(baseSourceDir, filename);
 
+        // Multi-kernel HLSL outputs are named "<source>.<EntryPoint>.spv" (e.g.
+        // "particle.hlsl.BoxParticle.spv" -> stripped to "particle.hlsl.BoxParticle"),
+        // but the actual source file on disk is just "particle.hlsl" - no per-kernel
+        // file exists. If the direct lookup above failed, retry with the trailing
+        // ".<EntryPoint>" segment chopped off before giving up on annotations.
+        if (glslPath.empty()) {
+            size_t lastDot = filename.find_last_of('.');
+            if (lastDot != std::string::npos) {
+                std::string strippedFilename = filename.substr(0, lastDot);
+                glslPath = FindShaderFile(baseSourceDir, strippedFilename);
+            }
+        }
+
+        // Annotations (UI slider/color hints parsed from source comments) are purely
+        // cosmetic. A missing source file must not skip reflection of the .spv itself -
+        // that used to silently drop the whole shader's structs (e.g. EmitterSettings)
+        // whenever no matching source file could be located.
+        std::unordered_map<std::string, PropertyUiMetadata> uiMetadata;
         if (glslPath.empty()) {
             std::ofstream logFile("reflector_debug.log", std::ios::app);
             if (logFile.is_open()) {
-                logFile << "[ERROR] File '" << filename << "' not found anywhere in: " << baseSourceDir << "\n";
+                logFile << "[WARN] Source file for '" << filename << "' not found anywhere in: " << baseSourceDir
+                    << " - reflecting without UI annotations.\n";
                 logFile.close();
             }
-            continue;
         }
-
-        std::unordered_map<std::string, PropertyUiMetadata> uiMetadata = ParseGlslAnnotations(glslPath);
+        else {
+            uiMetadata = ParseGlslAnnotations(glslPath);
+        }
 
         std::ofstream logFile("reflector_debug.log", std::ios::app);
         if (logFile.is_open()) {

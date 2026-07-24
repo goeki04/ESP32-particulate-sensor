@@ -478,13 +478,23 @@ void ResourceManager::loadAndStoreCubemap(const std::string& file) {
         return handle;
     }
 
-    ShaderProgramHandle ResourceManager::loadComputeShaderRHI(IGraphicsContext* ctx, const std::string& name, const std::string& computePath, const char* entryPoint, const char* stageName) {
+    ShaderProgramHandle ResourceManager::loadComputeShaderRHI(IGraphicsContext* ctx, const std::string& name, const std::string& computePath, const char* stageName) {
         auto it = m_RhiShaders.find(name);
         if (it != m_RhiShaders.end()) {
             return it->second;
         }
 
-        ShaderProgramHandle handle = ctx->createComputeProgram(computePath, entryPoint, stageName);
+        std::string entryPoint = computePath;
+        size_t spvPos = entryPoint.rfind(".spv");
+        if (spvPos != std::string::npos) {
+            entryPoint = entryPoint.substr(0, spvPos);
+        }
+        size_t lastDot = entryPoint.find_last_of('.');
+        if (lastDot != std::string::npos) {
+            entryPoint = entryPoint.substr(lastDot + 1);
+        }
+
+        ShaderProgramHandle handle = ctx->createComputeProgram(computePath, entryPoint.c_str(), stageName);
         m_RhiShaders[name] = handle;
         return handle;
     }

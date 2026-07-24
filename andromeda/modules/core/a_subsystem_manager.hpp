@@ -22,7 +22,7 @@ namespace Andromeda {
         /// Timing variables for frame-independent calculations
         static Uint64 lastCounter;
         static float s_deltaTime;
-
+        static bool s_paused;
         /**
          * @brief Returns the global instance of the SystemManager.
          * @return Reference to the singleton instance.
