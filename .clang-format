@@ -1,0 +1,39 @@
+# Style baseline for Andromeda.
+#
+# NOTE: the existing sources are NOT formatted with this yet - applying it
+# repo-wide would rewrite almost every line and bury real changes in diffs.
+# Use it for new files, or format a file when you are already rewriting it:
+#
+#   clang-format -i modules/renderer/a_particle.cpp
+#
+# Settings below follow what the codebase already does most often:
+# 4-space indent, attached braces, 120-column lines.
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 120
+
+BreakBeforeBraces: Attach
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+NamespaceIndentation: All
+FixNamespaceComments: true
+AccessModifierOffset: -4
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+SortIncludes: false
+IncludeBlocks: Preserve
+
+AlwaysBreakTemplateDeclarations: Yes
+SpaceAfterTemplateKeyword: false
+EmptyLineBeforeAccessModifier: LogicalBlock
+---
+Language: Json
+IndentWidth: 2

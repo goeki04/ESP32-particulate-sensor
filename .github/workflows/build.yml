@@ -8,7 +8,7 @@ on:
 
 jobs:
   engine:
-    name: Andromeda Engine
+    name: Andromeda Engine (Windows)
     runs-on: windows-latest
 
     steps:
@@ -64,6 +64,75 @@ jobs:
           call conan\build\Release\generators\conanbuild.bat
           cmake --build --preset conan-release
 
+      # AndromedaTests was built but never executed before. The GL/window-bound
+      # suite (test_system_start.cpp) stays out - it needs a display and is
+      # gated behind -DANDROMEDA_BUILD_GL_TESTS=ON for local runs.
+      - name: Test
+        working-directory: andromeda
+        shell: cmd
+        run: |
+          call conan\build\Release\generators\conanbuild.bat
+          ctest --preset conan-release --output-on-failure
+
+  engine-linux:
+    name: Andromeda Engine (Linux)
+    runs-on: ubuntu-24.04
+    # The Linux path (Dockerfile + profiles/linux) has never been exercised by
+    # CI and is not expected to be green yet. Reported, but not merge-blocking.
+    # Remove this line once the build passes.
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            clang lld cmake ninja-build pkg-config \
+            libgl1-mesa-dev libglu1-mesa-dev mesa-common-dev \
+            xorg-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+            libwayland-dev wayland-protocols libxkbcommon-dev libdecor-0-dev
+
+      - name: Conan Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan2/p
+          key: ${{ runner.os }}-conan-${{ hashFiles('andromeda/conanfile.py') }}
+          restore-keys: |
+            ${{ runner.os }}-conan-
+
+      - name: Install Conan
+        run: pip install conan
+
+      # profiles/linux pins compiler.version, which must match whatever clang
+      # the runner actually ships. Detect it instead of hardcoding.
+      - name: Detect Clang version
+        run: echo "CLANG_MAJOR=$(clang --version | sed -n 's/.*version \([0-9]*\).*/\1/p' | head -1)" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        working-directory: andromeda
+        run: >
+          conan install .
+          -pr profiles/linux -pr:b profiles/linux
+          -s compiler.version=$CLANG_MAJOR
+          -s:b compiler.version=$CLANG_MAJOR
+          -s build_type=Release
+          -of conan/
+          --build=missing
+
+      - name: Configure
+        working-directory: andromeda
+        run: cmake --preset conan-release
+
+      - name: Build
+        working-directory: andromeda
+        run: cmake --build --preset conan-release
+
+      - name: Test
+        working-directory: andromeda
+        run: ctest --preset conan-release --output-on-failure
+
   launcher:
     name: Andromeda Launcher
     runs-on: windows-latest
@@ -86,6 +155,10 @@ jobs:
       - name: Get dependencies
         working-directory: andromeda_launcher
         run: flutter pub get
+
+      - name: Verify formatting
+        working-directory: andromeda_launcher
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze
         working-directory: andromeda_launcher

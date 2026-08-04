@@ -36,8 +36,10 @@ find_package(GTest REQUIRED)
 find_package(httplib REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(spirv-reflect-static REQUIRED)
-file(GLOB SOURCES "modules/*.cpp")
-file(GLOB HEADERS "modules/*.h")
+# CONFIGURE_DEPENDS re-runs the glob on every build, so adding a file under
+# modules/ is picked up without a manual `cmake` re-configure.
+file(GLOB SOURCES CONFIGURE_DEPENDS "modules/*.cpp")
+file(GLOB HEADERS CONFIGURE_DEPENDS "modules/*.h")
 
 
 get_filename_component(PROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/proto" ABSOLUTE)
@@ -73,10 +75,9 @@ add_executable(Andromeda
     ${BINDING_SOURCES} 
     ${BINDING_HEADERS} 
     ${SHADERS}
-    ${PROTO_SRCS} 
+    ${PROTO_SRCS}
     ${PROTO_HDRS}
-        modules/definitions/Math/a_glm_json_parser.hpp
-        modules/definitions/Math/a_glm_json_parser.hpp
+    modules/definitions/Math/a_glm_json_parser.hpp
 )
 add_dependencies(Andromeda GenerateShaderHeaders)
 target_include_directories(Andromeda PUBLIC ${CMAKE_BINARY_DIR}/generated)
@@ -102,11 +103,6 @@ endforeach()
 list(APPEND ALL_SPV_FILES ${RHI_HLSL_SPV_FILES})
 set(GENERATED_HEADER ${CMAKE_BINARY_DIR}/generated/a_shader_generated.hpp)
 set(GENERATED_COMPUTE_HEADER ${CMAKE_BINARY_DIR}/generated/a_shader_generated_compute.hpp)
-message(STATUS "===== SHADER REFLECTOR DEBUG =====")
-message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
-message(STATUS "Looking for SPV files in: ${CMAKE_BINARY_DIR}/shaders/spirv/*.spv")
-message(STATUS "ALL_SPV_FILES: ${ALL_SPV_FILES}")
-message(STATUS "Number of SPV files found: ${CMAKE_ARGC}")
 if(ALL_SPV_FILES)
     add_custom_command(
         OUTPUT ${GENERATED_HEADER} ${GENERATED_COMPUTE_HEADER}
@@ -148,6 +144,8 @@ target_link_libraries(Andromeda PRIVATE
     network
     core
     renderer
+    scene
+    gui
     editor
     input
     renderer_rhi
@@ -186,3 +184,35 @@ target_link_libraries(AndromedaTests PRIVATE
 )
 
 gtest_discover_tests(AndromedaTests)
+
+# tests/test_system_start.cpp boots the real subsystems (WindowManager, Renderer,
+# Editor), so it needs a window and a live GL context. That cannot run on a
+# headless CI runner, which is why it is not part of AndromedaTests. It is kept
+# buildable behind an opt-in switch instead of rotting as an unreferenced file:
+#
+#   cmake --preset conan-release -DANDROMEDA_BUILD_GL_TESTS=ON
+#
+# Run it locally on a machine with a display.
+option(ANDROMEDA_BUILD_GL_TESTS "Build subsystem tests that require a window and GL context" OFF)
+
+if(ANDROMEDA_BUILD_GL_TESTS)
+    add_executable(AndromedaGlTests "tests/test_system_start.cpp")
+    target_link_libraries(AndromedaGlTests PRIVATE
+        GTest::gtest_main
+        sdl::sdl
+        GLEW::GLEW
+        spdlog::spdlog
+        core
+        renderer
+        scene
+        gui
+        editor
+        input
+        renderer_rhi
+        resource
+        definitions
+    )
+    add_dependencies(AndromedaGlTests GenerateShaderHeaders)
+    target_include_directories(AndromedaGlTests PRIVATE ${CMAKE_BINARY_DIR}/generated)
+    gtest_discover_tests(AndromedaGlTests)
+endif()

@@ -10,8 +10,25 @@
 #   pip install --user --upgrade conan   # needs CMake >= 3.23
 set -e
 
-conan install . -pr profiles/linux -pr:b profiles/linux -s build_type=Debug   -of conan/ --build=missing
-conan install . -pr profiles/linux -pr:b profiles/linux -s build_type=Release -of conan/ --build=missing
+if ! command -v clang >/dev/null 2>&1; then
+    echo "error: clang not found in PATH. Install it (see prerequisites above)." >&2
+    exit 1
+fi
+
+# profiles/linux pins compiler.version. Hardcoding it there means the profile
+# silently disagrees with whatever clang is actually installed (Ubuntu 24.04
+# ships 18, the profile default is 21). Detect it and override per run.
+CLANG_MAJOR="$(clang --version | sed -n 's/.*version \([0-9]*\).*/\1/p' | head -1)"
+echo "Using clang ${CLANG_MAJOR}"
+
+for build_type in Debug Release; do
+    conan install . \
+        -pr profiles/linux -pr:b profiles/linux \
+        -s   compiler.version="${CLANG_MAJOR}" \
+        -s:b compiler.version="${CLANG_MAJOR}" \
+        -s build_type="${build_type}" \
+        -of conan/ --build=missing
+done
 
 echo
 echo "Conan done. Configure & build with:"

@@ -1,11 +1,11 @@
 # Conan profile for building Andromeda on Linux with Clang.
 #
 # IMPORTANT: compiler.version must match your installed Clang major version.
-# Check it with:   clang --version
-#   Ubuntu 24.04 default -> 18   (this file's default)
-#   Ubuntu 22.04 default -> 14/15
-# Adjust the line below if yours differs, otherwise Conan may fail to find
-# matching prebuilt binaries.
+# The value below is only a fallback - build.sh and the CI Linux job detect the
+# installed clang and override it with -s/-s:b compiler.version=<detected>.
+# If you run `conan install` by hand, pass the same override or edit the line
+# below, otherwise Conan may fail to find matching prebuilt binaries.
+# Check your version with:   clang --version
 #
 # build_type is passed on the command line (-s build_type=Debug/Release).
 

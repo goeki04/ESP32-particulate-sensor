@@ -5,8 +5,9 @@
 #   docker build -t andromeda-build .
 #   docker run --rm -it andromeda-build            # drops you in /app with the build done
 #
-# Ubuntu 24.04 ships clang 18 and cmake 3.28 (>= 3.23 required), matching
-# profiles/linux (compiler.version=18).
+# Ubuntu 24.04 ships clang 18 and cmake 3.28 (>= 3.23 required). build.sh
+# detects the installed clang major version and overrides the compiler.version
+# pinned in profiles/linux, so the two cannot drift apart.
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
