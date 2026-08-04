@@ -12,6 +12,7 @@
 #include "a_IGraphicsContext.hpp"
 #include "a_shader_generated_compute.hpp"
 #include "a_math.hpp"
+#include "a_esphome_sensor_entity.hpp"
 namespace Andromeda {
 	class ResourceManager;
 	struct SphereShape {

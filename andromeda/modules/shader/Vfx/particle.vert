@@ -15,7 +15,6 @@ layout (std140, binding = 2) uniform CameraData{
 };
 layout (location = 1) out float vLifeFade;
 
-
 void main(){
     uint index = gl_InstanceID;
 
@@ -37,5 +36,5 @@ void main(){
     float dist = length(viewPos.xyz);
 
     gl_Position = proj * viewPos;
-    gl_PointSize = clamp(200.0 / dist, 2.0, 16.0);
+    gl_PointSize = clamp(200.0 / dist, 2.0, 40.0);
 }

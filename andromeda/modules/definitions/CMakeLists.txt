@@ -36,6 +36,7 @@ target_include_directories(definitions INTERFACE
    Engine
    renderer
    ECS
+   network
 )
 
 target_link_libraries(definitions INTERFACE

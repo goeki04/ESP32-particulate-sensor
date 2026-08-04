@@ -24,10 +24,9 @@ namespace {
         {
             if (ImGui::BeginMenuBar())
             {
-                
                 const char* label = Andromeda::SystemManager::s_paused ? ICON_LC_PLAY : ICON_LC_PAUSE;
                 const float w = ImGui::CalcTextSize(label).x + ImGui::GetStyle().FramePadding.x * 2.0f;
-                ImGui::SetCursorPosX((ImGui::GetWindowSize().x - w) * 0.5f);   // zentriert
+                ImGui::SetCursorPosX((ImGui::GetWindowSize().x - w) * 0.5f);
                 if (ImGui::Button(label)) {
                     Andromeda::SystemManager::s_paused = !Andromeda::SystemManager::s_paused;
                 }

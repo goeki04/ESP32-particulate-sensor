@@ -4,6 +4,7 @@
 #include "a_shader_generated.hpp"
 #include "resource_manager.h"
 #include <algorithm>
+
 namespace Andromeda {
 	/**
 	 * @brief Allocates the GPU-side particle pool and emitter settings buffer, and sets default emission parameters.
@@ -65,7 +66,6 @@ namespace Andromeda {
 		}
 		m_Context->bindShaderProgram(m_ComputeShader);
 		m_ParticleBuffer.bind(1);
-
 		m_EmitterSettingsBuffer.bind(2);
 		const float dt = SystemManager::s_paused ? 0.0f : SystemManager::s_deltaTime;
 		m_EmitterSettings.deltaTime = dt;
