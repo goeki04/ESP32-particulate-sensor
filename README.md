@@ -80,6 +80,11 @@ doxygen Doxyfile
 
 Output lands in `docs/html/index.html`.
 
+## License
+
+[Apache License 2.0](LICENSE). Third-party components ship under their own
+terms - see [`andromeda/third_party_licenses/`](andromeda/third_party_licenses/).
+
 ## Status
 
 The `ANDROMEDA_GRAPHICS_API` switch currently only selects the backend for the
