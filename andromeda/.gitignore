@@ -1,13 +1,26 @@
+# Build output
 conan/
-CMakeUserPresets.json
 build/
+out/
+CMakeUserPresets.json
+
+# Compiler artifacts
 *.pdb
-.vs/
-*.obj
 *.exe
+*.obj
+# ...but *.obj is also the Wavefront mesh format. Assets are source, not build
+# output, and must stay tracked (models/dcontroller/RaspberryPi.obj etc.).
+!assets/**/*.obj
+
+# Generated Doxygen output
+latex/
+.docs/
+
+# Editors / IDEs / envs
+.vs/
 .idea/
 .venv/
 .claude/
-.docs/
 
+# Local credentials - see secrets.example.json for the expected shape
 secrets.json

@@ -1,0 +1,54 @@
+# Normalise line endings: store LF in the repository, check out native.
+# Without this, Windows and the Linux/Docker build disagree on every file and
+# diffs fill up with phantom whitespace changes.
+* text=auto
+
+# Source and config - always LF in the repo
+*.cpp   text eol=lf
+*.hpp   text eol=lf
+*.h     text eol=lf
+*.cc    text eol=lf
+*.dart  text eol=lf
+*.py    text eol=lf
+*.proto text eol=lf
+*.json  text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+*.cmake text eol=lf
+CMakeLists.txt text eol=lf
+Doxyfile       text eol=lf
+Dockerfile     text eol=lf
+
+# Shaders
+*.vert text eol=lf
+*.frag text eol=lf
+*.comp text eol=lf
+*.hlsl text eol=lf
+
+# Shell scripts must be LF or they break under bash
+*.sh    text eol=lf
+# Windows batch/PowerShell wants CRLF
+*.ps1   text eol=crlf
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
+
+# Binary assets - never touch these
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.hdr   binary
+*.fbx   binary
+*.ttf   binary
+*.eot   binary
+*.woff  binary
+*.woff2 binary
+*.pdb   binary
+*.exe   binary
+*.dll   binary
+
+# Wavefront meshes are text, but they are generated asset data - keep them out
+# of diffs and out of eol conversion.
+*.obj   -text -diff
+*.mtl   -text -diff

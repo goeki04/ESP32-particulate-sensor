@@ -2,6 +2,7 @@
 lib/config.dart
 
 # Miscellaneous
+imgui.ini
 *.class
 *.log
 *.pyc
