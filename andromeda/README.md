@@ -6,12 +6,15 @@ This project is a high-performance, data-oriented visualization engine for smart
 
 ## Key Features
 
-*   **Hybrid Networking Architecture:** 
-    *   ESPHome Native API
-    *   Rest API
-    *   Matter
+*   **Networking:** Home Assistant over a Boost.Beast WebSocket (authenticated,
+    on its own thread) plus httplib for REST calls. An ESPHome native API client
+    and Matter are planned but not implemented.
 *   **Data-Oriented Design (DOD):** Implements an ECS to strictly separate data (Components) from logic (Systems), optimized for CPU cache efficiency.
-*   **Renderer RHI:** Custom renderer hardware interface which you can extend by choice.  
+*   **Renderer RHI:** Custom renderer hardware interface. Note that only OpenGL
+    is implemented, and `renderer`/`gui` still issue raw `gl*` calls, so the
+    abstraction is not complete yet.
+*   **GPU particles:** Compute-shader driven emitter. Shader reflection generates
+    the matching C++ uniform structs from SPIR-V during the build.
 *   **Modern C++ Toolchain:** Full utilization of C++20 features, SDL3 for window management, and Conan for clean dependency handling.
 
 ---
@@ -34,8 +37,9 @@ This project is a high-performance, data-oriented visualization engine for smart
     conan profile detect --force
     ```
 3.  ** Build Process:**
-    *   Run the `build.ps1` script to install dependencies and generate project files.
-    *   Open the generated `.sln` file in the `build` directory.
+    *   Run the `build.ps1` script to install dependencies through Conan.
+    *   Then `cmake --preset conan-release` and `cmake --build --preset conan-release`.
+    *   Both profiles use the Ninja generator, so no `.sln` is produced.
 4.  ** Coding Standard:**
     *   **Important:** All code is written in **English** as per project guidelines.
 
@@ -49,7 +53,7 @@ The project strictly separates **Frontend** (Rendering/UI) and **Backend** (Logi
 | :--- | :--- | :--- |
 | **Graphics** | OpenGL / ImGui | Visualization & Dashboard UI |
 | **Logic** | ECS (Systems) | Transforming sensor data into graphical components |
-| **Networking** |  ESPHome Native API | Thread-safe communication with Smart Home hubs |
+| **Networking** | Boost.Beast WebSocket / httplib | Thread-safe communication with Home Assistant |
 
 ---
 

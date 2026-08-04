@@ -20,7 +20,7 @@ class GithubService {
     if (_commits != null) return _commits!;
     try {
       final res = await http.get(
-        Uri.parse('https://api.github.com/repos/goeki04/ESP32-particulate-sensor/commits?per_page=5'),
+        Uri.parse('https://api.github.com/repos/goeki04/andromeda-engine/commits?per_page=5'),
         headers: _headers,
       );
       if (res.statusCode == 200) {
@@ -38,7 +38,7 @@ class GithubService {
     if (_commitCount != null) return _commitCount!;
     try {
       final res = await http.get(
-        Uri.parse('https://api.github.com/repos/goeki04/ESP32-particulate-sensor/commits?per_page=1'),
+        Uri.parse('https://api.github.com/repos/goeki04/andromeda-engine/commits?per_page=1'),
         headers: _headers,
       );
       if (res.statusCode == 200) {

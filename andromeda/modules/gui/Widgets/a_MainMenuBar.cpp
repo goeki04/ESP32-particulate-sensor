@@ -72,7 +72,7 @@ namespace Andromeda::Gui {
                 GuiRenderer::OpenURL("https://www.bosch-sensortec.com/software-tools/software/previous-sdk-bmv-080-versions/");
             }
             if (ImGui::MenuItem("Github")) {
-                GuiRenderer::OpenURL("https://github.com/goeki04/ESP32-particulate-sensor");
+                GuiRenderer::OpenURL("https://github.com/goeki04/andromeda-engine");
             }
             ImGui::EndMenu();
         }

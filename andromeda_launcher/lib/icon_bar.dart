@@ -18,7 +18,7 @@ const List<_NavItem?> _items = [
   _NavItem(Icons.tune, 'Einstellungen'),
   null, // spacer + divider
   _NavItem(Icons.menu_book_outlined, 'Dokumentation'),
-  _NavItem(Icons.code_rounded, 'GitHub', url: 'https://github.com/goeki04/ESP32-particulate-sensor'),
+  _NavItem(Icons.code_rounded, 'GitHub', url: 'https://github.com/goeki04/andromeda-engine'),
 ];
 
 class IconBar extends StatelessWidget {
