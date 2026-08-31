@@ -32,7 +32,7 @@ namespace Andromeda {
 	class IGraphicsContext {
 	public:
 		virtual ~IGraphicsContext() = default;
-
+        u32 m_FrameCount = 0;
 		/**
 		 * @brief Compiles and links a shader program from vertex and fragment sources.
 		 * @param vertSrc Path to (or source of) the vertex shader.
@@ -84,7 +84,6 @@ namespace Andromeda {
 
 		/** @brief Binds a set of textures to their target slots for the active shader. */
 		virtual void bindTextures(std::span<const TextureBinding> texture) = 0;
-
 		/**
 		 * @brief Reflects the active uniforms of a shader program.
 		 * @param handle The program to inspect.

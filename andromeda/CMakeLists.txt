@@ -216,3 +216,22 @@ if(ANDROMEDA_BUILD_GL_TESTS)
     target_include_directories(AndromedaGlTests PRIVATE ${CMAKE_BINARY_DIR}/generated)
     gtest_discover_tests(AndromedaGlTests)
 endif()
+
+# ==============================================================================
+# Dedicated TCP Server Executable
+# ==============================================================================
+
+add_executable(AndromedaMockServer
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock/bmv080_tcp_ip_server.cpp
+)
+
+find_package(nlohmann_json REQUIRED)
+
+target_link_libraries(AndromedaMockServer PRIVATE
+    nlohmann_json::nlohmann_json
+    spdlog::spdlog
+)
+
+if(WIN32)
+    target_link_libraries(AndromedaMockServer PRIVATE ws2_32)
+endif()

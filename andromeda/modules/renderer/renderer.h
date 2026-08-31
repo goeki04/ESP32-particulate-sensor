@@ -148,7 +148,6 @@ namespace Andromeda {
 
 		/** @brief Clears the default window framebuffer. */
 		void windowClearPass();
-
 		/**
 		 * @brief Uploads cubemap pixel data to the GPU, creating the corresponding texture.
 		 * @param data The cubemap data to upload; receives the resulting texture ID.
@@ -190,7 +189,6 @@ namespace Andromeda {
 		RHIConstantBuffer m_OutlineUBO;     ///< UBO holding selection-outline parameters.
 		RHIConstantBuffer m_LightUBO;       ///< UBO holding scene light data.
 		RHIConstantBuffer m_pbrMaterialUBO; ///< UBO holding PBR material parameters.
-
 		ParticleEmitter m_Emitter; ///< Particle emitter used for testing/debugging.
 		/** @brief Internal one-time setup of the render context and global GL state. */
 		void initRenderer();

@@ -13,7 +13,6 @@
 #include "a_logger.hpp"
 #include "a_rhi_storage_buffer.hpp"
 
-
 using namespace Andromeda::ECS;
 namespace Andromeda {
 
@@ -311,6 +310,7 @@ namespace Andromeda {
         scenePassEndResolve();
         selectionPass(m_SelectedForHighlighting);
         postprocessingPass();
+        m_RenderContext->m_FrameCount++;
     }
 
     void Renderer::destroy() {

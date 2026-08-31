@@ -1,37 +1,70 @@
 
 struct Particle
 {
-    float4 position; //xyz = Position, w = remaining lifetime in seconds
-    float4 velocity; //xyz = Velocity, w = max lifetime in seconds
+    float4 position; // xyz = Position, w = remaining lifetime in seconds
+    float4 velocity; // xyz = Velocity, w = max lifetime in seconds
+    float4 params; // x = size, yzw = freie Parameter (z.B. Rotation, TypeID)
 };
 
 RWStructuredBuffer<Particle> particles : register(u1);
 
-/** HLSL Variables
- *  SV_DispatchThreadID: global index of the thread
- *  SV_GroupThreadID: local index of the thread within the group
- *  SV_GroupID: index of the group
- *  SV_GroupIndex: linear index of the thread within the group
- */
-
-///Constant buffers are 16 bit aligned in memory in glsl as well as in hlsl. 
-//So we need to make sure that the size of the struct is a multiple of 16 bytes.
-cbuffer EmitterSettings : register(b2)
+cbuffer FrameData : register(b0)
 {
-    float deltaTime; // 0-3
-    uint maxParticles; // 4-7
-    float sphereRadius; // 8-11   
-    float coneHeight; // 12-15
-    float3 emitterPosition; // 16-27
-    float coneAngle; // 28-31
-    float3 boxDimensions; // 32-43
-    float emissionRate; // 44-47
-    uint activeParticleCount; // 48-51
-    float cylinderRadius; // 52-55
-    float cylinderHeight; // 56-59
-    float gravity; // 60-63
-    float drag; // 64-67
-}
+    float deltaTime;
+    float gravity;
+    float drag;
+    uint frameCount;
+};
+
+struct ParticleSizeConfig
+{
+    float3 sizes; // x = small (2.5), y = medium (5.0), z = large (10.0)
+    float _padSizes;
+    uint3 sizeWeights; // x = countSmall (3), y = countMedium (2), z = countLarge (5)
+    float _padWeights;
+};
+
+// Specialized Push Constants / Root Constants (register b1)
+struct BoxEmitterArgs
+{
+    float3 emitterPosition;
+    uint maxParticles;
+    float3 boxDimensions;
+    uint activeParticleCount;
+    ParticleSizeConfig sizeConfig;
+};
+
+struct SphereEmitterArgs
+{
+    float3 emitterPosition;
+    uint maxParticles;
+    float sphereRadius;
+    uint activeParticleCount;
+    ParticleSizeConfig sizeConfig;
+};
+
+struct ConeEmitterArgs
+{
+    float3 emitterPosition;
+    uint maxParticles;
+    float coneHeight;
+    float coneAngle;
+    uint activeParticleCount;
+    float _pad0;
+    ParticleSizeConfig sizeConfig;
+};
+
+struct CylinderEmitterArgs
+{
+    float3 emitterPosition;
+    uint maxParticles;
+    float cylinderRadius;
+    float cylinderHeight;
+    uint activeParticleCount;
+    float _pad0;
+    ParticleSizeConfig sizeConfig;
+};
+
 uint pcg_hash(uint inputValue)
 {
     uint state = inputValue * 747796405u + 2891336453u;
@@ -62,33 +95,7 @@ float3 hash3(uint seed)
 [numthreads(256, 1, 1)]
 void BoxParticle(uint3 dispatchThreadId : SV_DispatchThreadID)
 {
-    uint index = dispatchThreadId.x;
-    if (index >= maxParticles)
-    {
-        return;
-    }
 
-    float3 pos = particles[index].position.xyz;
-    float3 vel = particles[index].velocity.xyz;
-    float maxLife = particles[index].velocity.w;
-    float remainingLife = particles[index].position.w;
-    pos += vel * deltaTime;
-    remainingLife -= deltaTime;
-
-    if (remainingLife <= 0.0f && index < activeParticleCount)
-    {
-        float3 random = hash3(index);
-        float2 offset = (random.xz * 2.0f - 1.0f) * boxDimensions.xz * 0.5f;
-        pos = emitterPosition + float3(offset.x, 0.0f, offset.y);
-
-        float finalMaxLife = (maxLife <= 0.0f) ? (1.0f + random.y * 2.0f) : maxLife;
-        remainingLife = finalMaxLife;
-
-        particles[index].velocity.w = finalMaxLife;
-        particles[index].velocity.xyz = float3(0.0f, 1.0f, 0.0f);
-    }
-
-    particles[index].position = float4(pos, remainingLife);
 }
 
 // Uniform sampling on the sphere surface (Y-up pole axis): theta = azimuth
@@ -98,36 +105,6 @@ void BoxParticle(uint3 dispatchThreadId : SV_DispatchThreadID)
 [numthreads(256, 1, 1)]
 void SphereParticle(uint3 dispatchThreadId : SV_DispatchThreadID)
 {
-    uint index = dispatchThreadId.x;
-    if (index >= maxParticles)
-    {
-        return;
-    }
-
-    float3 pos = particles[index].position.xyz;
-    float3 vel = particles[index].velocity.xyz;
-    float maxLife = particles[index].velocity.w;
-    float remainingLife = particles[index].position.w;
-    pos += vel * deltaTime;
-    remainingLife -= deltaTime;
-
-    if (remainingLife <= 0.0f && index < activeParticleCount)
-    {
-        float3 random = hash3(index);
-        float theta = random.x * 6.2831853f;
-        float y = random.y * 2.0f - 1.0f;
-        float radiusXZ = sqrt(saturate(1.0f - y * y));
-        float3 dir = float3(radiusXZ * cos(theta), y, radiusXZ * sin(theta));
-        pos = emitterPosition + dir * sphereRadius;
-
-        float finalMaxLife = (maxLife <= 0.0f) ? (1.0f + hash1(index ^ 0x9E3779B9u) * 2.0f) : maxLife;
-        remainingLife = finalMaxLife;
-
-        particles[index].velocity.w = finalMaxLife;
-        particles[index].velocity.xyz = dir; 
-    }
-
-    particles[index].position = float4(pos, remainingLife);
 }
 
 // Point inside a cone along +Y: height picks a random slice along the
@@ -137,38 +114,7 @@ void SphereParticle(uint3 dispatchThreadId : SV_DispatchThreadID)
 [numthreads(256, 1, 1)]
 void ConeParticle(uint3 dispatchThreadId : SV_DispatchThreadID)
 {
-    uint index = dispatchThreadId.x;
-    if (index >= maxParticles)
-    {
-        return;
-    }
-
-    float3 pos = particles[index].position.xyz;
-    float3 vel = particles[index].velocity.xyz;
-    float maxLife = particles[index].velocity.w;
-    float remainingLife = particles[index].position.w;
-    pos += vel * deltaTime;
-    remainingLife -= deltaTime;
-
-    if (remainingLife <= 0.0f && index < activeParticleCount)
-    {
-        float3 random = hash3(index);
-        float height = random.x * coneHeight;
-        float angleRad = coneAngle * 0.0174533f; // Degrees -> Radiant
-        float maxRadiusAtHeight = tan(angleRad) * height;
-        float theta = random.y * 6.2831853f;
-        float radius = sqrt(random.z) * maxRadiusAtHeight;
-        float3 localOffset = float3(radius * cos(theta), height, radius * sin(theta));
-        pos = emitterPosition + localOffset;
-
-        float finalMaxLife = (maxLife <= 0.0f) ? (1.0f + hash1(index ^ 0x9E3779B9u) * 2.0f) : maxLife;
-        remainingLife = finalMaxLife;
-
-        particles[index].velocity.w = finalMaxLife;
-        particles[index].velocity.xyz = float3(0.0f, 1.0f, 0.0f);
-    }
-
-    particles[index].position = float4(pos, remainingLife);
+  
 }
 
 // Point inside a cylinder along +Y: height is uniform along the axis,
@@ -177,72 +123,10 @@ void ConeParticle(uint3 dispatchThreadId : SV_DispatchThreadID)
 [numthreads(256, 1, 1)]
 void CylinderParticle(uint3 dispatchThreadId : SV_DispatchThreadID)
 {
-    uint index = dispatchThreadId.x;
-    if (index >= maxParticles)
-    {
-        return;
-    }
-
-    float3 pos = particles[index].position.xyz;
-    float3 vel = particles[index].velocity.xyz;
-    float maxLife = particles[index].velocity.w;
-    float remainingLife = particles[index].position.w;
-    
-    vel += float3(0.0f, -gravity, 0.0f) * deltaTime;
-    vel *= pow(drag, deltaTime);
-    pos += vel * deltaTime;
-    remainingLife -= deltaTime;
-
-    if (remainingLife <= 0.0f && index < activeParticleCount)
-    {
-        float3 random = hash3(index);
-        float height = random.x * cylinderHeight;
-        float theta = random.y * 6.2831853f;
-        float radius = sqrt(random.z) * cylinderRadius;
-        float3 localOffset = float3(radius * cos(theta), height, radius * sin(theta));
-        pos = emitterPosition + localOffset;
-
-        float finalMaxLife = (maxLife <= 0.0f) ? (1.0f + hash1(index ^ 0x9E3779B9u) * 2.0f) : maxLife;
-        remainingLife = finalMaxLife;
-        vel = float3(0.0f, 0.0f, 0.0f);
-        particles[index].velocity.w = finalMaxLife;
-
-    }
-    particles[index].velocity.xyz = vel;
-    particles[index].position = float4(pos, remainingLife);
+   
 }
 
 [numthreads(256, 1, 1)]
 void HemisphereParticle(uint3 dispatchThreadId : SV_DispatchThreadID)
 {
-    uint index = dispatchThreadId.x;
-    if (index >= maxParticles)
-    {
-        return;
-    }
-
-    float3 pos = particles[index].position.xyz;
-    float3 vel = particles[index].velocity.xyz;
-    float maxLife = particles[index].velocity.w;
-    float remainingLife = particles[index].position.w;
-    pos += vel * deltaTime;
-    remainingLife -= deltaTime;
-
-    if (remainingLife <= 0.0f && index < activeParticleCount)
-    {
-        float3 random = hash3(index);
-        float theta = random.x * 6.2831853f;
-        float y = random.y;
-        float radiusXZ = sqrt(saturate(1.0f - y * y));
-        float3 dir = float3(radiusXZ * cos(theta), y, radiusXZ * sin(theta));
-        pos = emitterPosition + dir * sphereRadius;
-
-        float finalMaxLife = (maxLife <= 0.0f) ? (1.0f + hash1(index ^ 0x9E3779B9u) * 2.0f) : maxLife;
-        remainingLife = finalMaxLife;
-
-        particles[index].velocity.w = finalMaxLife;
-        particles[index].velocity.xyz = dir;
-    }
-
-    particles[index].position = float4(pos, remainingLife);
 }

@@ -74,7 +74,6 @@ namespace Andromeda {
 		RHIConstantBuffer m_EmitterSettingsBuffer; ///< Constant buffer that holds the emitter settings.
 		RHIConstantBuffer m_CameraDataBuffer; ///< Constant buffer that holds the camera data.
 		amath::CameraData* m_SceneCamera; ///< Pointer to the camera data used for rendering.
-		Generated::Compute::EmitterSettings m_EmitterSettings; ///< CPU-side mirror of the `EmitterSettings` UBO; edited here and re-uploaded to @c m_EmitterSettingsBuffer every update().
 		IGraphicsContext* m_Context = nullptr; ///< Pointer to the graphics context for rendering.
 		float m_SpawnAccumulator = 0.0f; ///< Accumulates time to determine when to spawn new particles.
 	};
