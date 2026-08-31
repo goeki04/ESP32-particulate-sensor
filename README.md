@@ -6,6 +6,12 @@ instead of yet another web dashboard.
 
 This started as an apprenticeship project and is very much still in progress.
 
+## NOTE:
+The andromeda launcher is almost fully vibe coded because its just an app launcher.
+The REAL andromeda project has been created fully by me with ai assisting in code documentation
+and unit tests / refactoring.
+The architecture and actual implementation is all done by myself
+
 ## Where it actually stands
 
 Working:

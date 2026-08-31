@@ -43,23 +43,4 @@ This project is a high-performance, data-oriented visualization engine for smart
 4.  ** Coding Standard:**
     *   **Important:** All code is written in **English** as per project guidelines.
 
----
 
-## Architecture Overview
-
-The project strictly separates **Frontend** (Rendering/UI) and **Backend** (Logic/Network):
-
-| Layer | Technology | Responsibility |
-| :--- | :--- | :--- |
-| **Graphics** | OpenGL / ImGui | Visualization & Dashboard UI |
-| **Logic** | ECS (Systems) | Transforming sensor data into graphical components |
-| **Networking** | Boost.Beast WebSocket / httplib | Thread-safe communication with Home Assistant |
-
----
-
-## Why this Approach?
-
-In modern software engineering (keyword: *Data-Oriented Design*), the hardware is the reality. This engine avoids unnecessary OOP hierarchies to minimize the latency between sensor updates and visual representation. It combines the raw power of C++ with the flexibility of modern smart home interfaces.
-
----
-*This project serves as a deep-dive into high-performance systems programming and asynchronous I/O during my first year of apprenticeship.*
