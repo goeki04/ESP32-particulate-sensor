@@ -71,7 +71,7 @@ namespace Andromeda
 			A_INFO("Successfully connected to WebSocket: {}", self->m_Req.host);
 		}
 		catch (const std::exception& e) {
-			A_ERROR("Connection failed: {}", e.what());
+			//A_ERROR("Connection failed: {}", e.what());
 		}
 	}
 

@@ -62,6 +62,7 @@ add_subdirectory(modules/resource)
 add_subdirectory(modules/filesystem)
 add_subdirectory(modules/serialization)
 add_subdirectory(modules/renderer_rhi)
+add_subdirectory(modules/data)
 
 add_executable(AndromedaReflector tools/shader_reflector/main.cpp)
 target_link_libraries(AndromedaReflector PRIVATE spirv-reflect-static)
@@ -230,6 +231,8 @@ find_package(nlohmann_json REQUIRED)
 target_link_libraries(AndromedaMockServer PRIVATE
     nlohmann_json::nlohmann_json
     spdlog::spdlog
+
+    data
 )
 
 if(WIN32)

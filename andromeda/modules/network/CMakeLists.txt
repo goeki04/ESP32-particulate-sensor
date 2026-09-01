@@ -1,4 +1,3 @@
-
 find_package(Boost REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -8,7 +7,8 @@ add_library(network STATIC
     a_network_manager.cpp
     service/a_WeatherService.cpp
     a_BoostWebsocketClient.cpp
-)
+    a_tcp_sensor_client.cpp
+ "a_tcp_sensor_client.cpp")
 
 target_compile_definitions(network PRIVATE SOURCE_DIRECTORY="${CMAKE_SOURCE_DIR}")
 
@@ -17,13 +17,12 @@ if(MSVC)
 endif()
 
 target_include_directories(network PUBLIC .)
-
 target_link_libraries(network PUBLIC
 nlohmann_json::nlohmann_json
 httplib::httplib
 OpenSSL::SSL
 Boost::boost
 filesystem
-
+definitions
 core
 )

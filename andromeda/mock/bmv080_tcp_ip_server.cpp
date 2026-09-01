@@ -3,16 +3,18 @@
 #include <string>
 #include <WinSock2.h>
 #include <Windows.h>
-#include <WS2tcpip.h>
+#include "a_sensor_data.hpp"
 #include <spdlog/spdlog.h>
 #include <nlohmann/json.hpp>
-
+#include <random>
+#include <chrono>
 #pragma comment(lib, "Ws2_32.lib")
 
 using json = nlohmann::json;
 
 constexpr int32_t PORT = 8080;
 constexpr int BUFFER_SIZE = 1024;
+constexpr auto BROADCAST_INTERVAL = std::chrono::seconds(5);
 
 int main() {
     WSADATA wsaData;
@@ -54,7 +56,10 @@ int main() {
     spdlog::info("Server is listening on port {}...", PORT);
 
     std::vector<SOCKET> client_sockets;
-
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> pmRand(0, 25);
+    auto last_broadcast = std::chrono::steady_clock::now();
     while (true) {
         fd_set read_fds;
         FD_ZERO(&read_fds);
@@ -66,7 +71,7 @@ int main() {
 
         timeval timeout{};
         timeout.tv_sec = 1;
-        timeout.tv_usec = 0;
+        timeout.tv_usec = 100'000;
 
         int activity = select(0, &read_fds, nullptr, nullptr, &timeout);
 
@@ -75,7 +80,6 @@ int main() {
             break;
         }
 
-        // accept new client connections
         if (FD_ISSET(server_socket, &read_fds)) {
             sockaddr_in client_address{};
             int addr_len = sizeof(client_address);
@@ -87,9 +91,9 @@ int main() {
             }
         }
 
-        // process data from connected clients
         for (auto it = client_sockets.begin(); it != client_sockets.end();) {
             SOCKET client_sock = *it;
+            bool disconnected = false;
 
             if (FD_ISSET(client_sock, &read_fds)) {
                 char buffer[BUFFER_SIZE] = {0};
@@ -99,25 +103,49 @@ int main() {
                     spdlog::info("Client disconnected.");
                     closesocket(client_sock);
                     it = client_sockets.erase(it);
-                    continue;
+                    disconnected = true;
                 } else {
                     std::string received_str(buffer, bytes_read);
                     spdlog::info("Received data from client: {}", received_str);
+                }
+            }
+            if (!disconnected) {
+                ++it;
+            }
+        }
 
-                    json payload = {{"event", "broadcast_data"},
-                                    {"sender_socket", static_cast<unsigned long long>(client_sock)},
-                                    {"payload", received_str},
-                                    {"status", "ok"}};
+        auto now = std::chrono::steady_clock::now();
+        if (now - last_broadcast >= BROADCAST_INTERVAL) {
+            last_broadcast = now;
 
-                    std::string message_data = payload.dump() + "\n";
+            if (!client_sockets.empty()) {
+                auto sys_now = std::chrono::system_clock::now();
 
-                    spdlog::info("Broadcasting JSON to {} clients...", client_sockets.size());
-                    for (SOCKET target_sock : client_sockets) {
-                        send(target_sock, message_data.c_str(), static_cast<int>(message_data.length()), 0);
+                Andromeda::SensorData sensor_data;
+                sensor_data.sensor_name = "BMV080";
+                sensor_data.timestamp =
+                    std::chrono::duration_cast<std::chrono::milliseconds>(sys_now.time_since_epoch()).count();
+                sensor_data.source = "direct_tcp";
+                sensor_data.data =
+                    Andromeda::BMV080Telemetry{pmRand(gen), pmRand(gen),
+                                                pmRand(gen), false};
+
+                json payload = sensor_data;
+                std::string message_data = payload.dump() + "\n";
+
+                spdlog::info("Pushing SensorData to {} clients...", client_sockets.size());
+
+                for (auto it = client_sockets.begin(); it != client_sockets.end();) {
+                    int send_result = send(*it, message_data.c_str(), static_cast<int>(message_data.length()), 0);
+                    if (send_result == SOCKET_ERROR) {
+                        spdlog::warn("Send failed. Removing socket.");
+                        closesocket(*it);
+                        it = client_sockets.erase(it);
+                    } else {
+                        ++it;
                     }
                 }
             }
-            ++it;
         }
     }
 
