@@ -1,6 +1,7 @@
 #pragma once
 
 #include "a_Keycodes.hpp"
+#include <string>
 #include <any>
 namespace Andromeda {
 
@@ -11,7 +12,7 @@ namespace Andromeda {
         OnKeyDown, OnKeyUp,
         OnMouseBtnDown, OnMouseBtnUp, OnMouseWheelScroll,
         OnMouseMoved, OnSceneObjectSelected, OnEnableWireframe,
-        OnPushUndoTransform
+        OnPushUndoTransform, OnSensorMessageReceived
     };
 
     /**
@@ -100,6 +101,12 @@ namespace Andromeda {
 
         explicit OnEnableWireFrame(bool _state) : state(_state) {}
         static constexpr EventType GetStaticType() { return EventType::OnEnableWireframe; }
+    };
+
+    struct OnSensorMessageReceived : IEvent {
+        std::string message; ///< The raw message received from the sensor.
+        explicit OnSensorMessageReceived(const std::string& msg) : message(msg) {}
+        static constexpr EventType GetStaticType() { return EventType::OnSensorMessageReceived; }
     };
 
     struct PushUndoTransformEvent : IEvent {

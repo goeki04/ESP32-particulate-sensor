@@ -15,7 +15,7 @@
 #include "a_math.hpp"
 #include "a_model_record.hpp"
 #include <string>
-
+#include "a_particle_group.hpp"
 namespace Andromeda::ECS::Component {
 
     /**
@@ -100,6 +100,19 @@ namespace Andromeda::ECS::Component {
         vec3 min = { 0.0f,0.0f,0.0f };    ///< Minimum corner of the bounding box in local/world space.
         vec3 max = { 0.0f,0.0f,0.0f };    ///< Maximum corner of the bounding box in local/world space.
         vec3 center = { 0.0f,0.0f,0.0f }; ///< Midpoint between @c min and @c max, cached for convenience.
+    };
+
+    /**
+     * @brief Component that holds multiple particle groups, each with its own constraints and properties. 
+     */
+    struct ParticleSystem {
+        bool useParticleGroups = false;            ///< Flag indicating whether to use particle groups or not.
+        std::vector<ParticleGroup> particleGroups; ///< Groups of particles with specific constraints.
+        u8 selectedGroupIndex = 0; ///< Index of the currently selected particle group for editing in the UI.
+        ParticleSystem() {
+            // Initialize with a default particle group
+            particleGroups.emplace_back();
+        }
     };
 
     /**

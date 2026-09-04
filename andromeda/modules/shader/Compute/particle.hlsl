@@ -8,63 +8,6 @@ struct Particle
 
 RWStructuredBuffer<Particle> particles : register(u1);
 
-cbuffer FrameData : register(b0)
-{
-    float deltaTime;
-    float gravity;
-    float drag;
-    uint frameCount;
-};
-
-struct ParticleSizeConfig
-{
-    float3 sizes; // x = small (2.5), y = medium (5.0), z = large (10.0)
-    float _padSizes;
-    uint3 sizeWeights; // x = countSmall (3), y = countMedium (2), z = countLarge (5)
-    float _padWeights;
-};
-
-// Specialized Push Constants / Root Constants (register b1)
-struct BoxEmitterArgs
-{
-    float3 emitterPosition;
-    uint maxParticles;
-    float3 boxDimensions;
-    uint activeParticleCount;
-    ParticleSizeConfig sizeConfig;
-};
-
-struct SphereEmitterArgs
-{
-    float3 emitterPosition;
-    uint maxParticles;
-    float sphereRadius;
-    uint activeParticleCount;
-    ParticleSizeConfig sizeConfig;
-};
-
-struct ConeEmitterArgs
-{
-    float3 emitterPosition;
-    uint maxParticles;
-    float coneHeight;
-    float coneAngle;
-    uint activeParticleCount;
-    float _pad0;
-    ParticleSizeConfig sizeConfig;
-};
-
-struct CylinderEmitterArgs
-{
-    float3 emitterPosition;
-    uint maxParticles;
-    float cylinderRadius;
-    float cylinderHeight;
-    uint activeParticleCount;
-    float _pad0;
-    ParticleSizeConfig sizeConfig;
-};
-
 uint pcg_hash(uint inputValue)
 {
     uint state = inputValue * 747796405u + 2891336453u;

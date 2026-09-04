@@ -7,6 +7,7 @@ namespace Andromeda::ECS::Component {
     struct Device;
     struct Material;
     struct MeshRenderer;
+    struct ParticleSystem;
     struct Tag;
     struct Transform;
 
@@ -15,6 +16,7 @@ namespace Andromeda::ECS::Component {
         Device,
         Material,
         MeshRenderer,
+        ParticleSystem,
         Tag,
         Transform
     >;

@@ -3,14 +3,16 @@
 #include <iostream>
 #include <vector>
 #include <boost/asio/use_awaitable.hpp>
-#include <boost/asio/co_spawn.hpp>
+#include "a_event_manager.hpp"
+#include "a_EventTypes.hpp"
 #include <boost/asio/awaitable.hpp>
 #include <a_logger.hpp>
 #include "a_primitives.hpp"
+#include "a_threadSafeQueue.hpp"
 namespace net = boost::asio;
 using boost::asio::ip::tcp;
 /// <summary>
-/// Make it to a service
+/// <TODO: Make it to a service
 /// </summary>
 namespace Andromeda {
     void readSensorData(boost::asio::io_context& io_ctx, const std::string& ip, unsigned short port) {
@@ -39,7 +41,7 @@ namespace Andromeda {
         }
     }
 
-    net::awaitable<void> readSensorStream(std::string host, u16 port) {
+    net::awaitable<void> readSensorStream(ThreadSafeQueue<OnSensorMessageReceived>& sensorEventQueue, std::string host, u16 port) {
         auto executor = co_await net::this_coro::executor;
         tcp::resolver resolver(executor);
         tcp::socket socket(executor);
@@ -57,9 +59,11 @@ namespace Andromeda {
 
                 std::istream is(&buffer);
                 std::string line;
-                std::getline(is, line);
-
+                std::getline(is, line); // std::getline will remove the newline character and stop at the end of the line
+                OnSensorMessageReceived event{ line };
+                sensorEventQueue.push(std::move(event));
                 A_INFO("Sensor Zeile empfangen: {}", line);
+                
             }
         } catch (const std::exception& e) {
             A_ERROR("Server not online");
